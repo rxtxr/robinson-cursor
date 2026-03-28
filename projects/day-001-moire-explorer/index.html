@@ -503,7 +503,7 @@ const state = {
   effects: [
     { theta: 5, period: 20, duty: 0.5, phase: 0, color1: '#000000', color2: '#000000', blend: 'normal' },
     { p1: 20, p2: 22, duty: 0.5, phase1: 0, phase2: 0, autoShift: false, speed: 1 },
-    { period: 15, rings: 40, lineWidth: 1, offsetX: 80, offsetY: 0, mouseInfluence: true },
+    { period: 15, rings: 60, lineWidth: 1, offsetX: 80, offsetY: 0, mouseInfluence: true },
     { f1: 30, f2: 32, theta1: 0, theta2: 5, amplitude: 1, colorMode: 0, autoRotate: false, rotSpeed: 0.5, zoom: 1 },
     { spacing: 12, dotSize: 2, theta: 1.1, grid: 'hex', rings: 50 },
   ]
@@ -863,8 +863,8 @@ const effects = [
       const e = state.effects[2];
       const f = document.createDocumentFragment();
       f.appendChild(slider('ring spacing (px)', e.period, 5, 60, 1, v => { e.period = v; }));
-      f.appendChild(slider('ring count', e.rings, 5, 80, 1, v => { e.rings = v; }));
-      f.appendChild(slider('line width', e.lineWidth, 0.5, 4, 0.1, v => { e.lineWidth = v; }));
+      f.appendChild(slider('ring count', e.rings, 20, 120, 1, v => { e.rings = v; }));
+      f.appendChild(slider('line width', e.lineWidth, 0.5, 10, 0.1, v => { e.lineWidth = v; }));
       f.appendChild(slider('offset x (px)', e.offsetX, -300, 300, 1, v => { e.offsetX = v; }));
       f.appendChild(slider('offset y (px)', e.offsetY, -300, 300, 1, v => { e.offsetY = v; }));
       f.appendChild(checkbox('mouse modifies offset', e.mouseInfluence, v => { e.mouseInfluence = v; }));
