@@ -1,0 +1,12 @@
+{
+  "day": 0,
+  "slug": "day-000-template",
+  "title": "Template — Projektvorlage",
+  "date": "2026-03-28",
+  "description": "Strukturvorlage für neue Tagesprojekte. Zeigt alle Felder in meta.json und die erwartete Verzeichnisstruktur.",
+  "tags": ["template", "referenz"],
+  "stack": ["HTML"],
+  "github": "",
+  "status": "template",
+  "license_notes": "Keine externen Abhängigkeiten"
+}

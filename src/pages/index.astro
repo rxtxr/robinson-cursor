@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getProjects } from '../lib/projects.js';
+
+const projects = await getProjects();
+---
+
+<Base title="robinson-cursor.com — 365 Tage Vibecoding">
+  <section class="hero">
+    <h1>365 tage vibecoding</h1>
+    <p class="subtitle">jeden tag ein experiment. code, sound, bild — im browser.</p>
+  </section>
+
+  {projects.length > 0 ? (
+    <section class="project-grid">
+      {projects.map((project) => (
+        <ProjectCard project={project} />
+      ))}
+    </section>
+  ) : (
+    <section class="empty-state">
+      <p>noch keine projekte. tag 001 kommt bald.</p>
+    </section>
+  )}
+</Base>
+
+<style>
+  .hero {
+    margin-bottom: var(--space-xl);
+  }
+
+  .subtitle {
+    font-family: var(--font-mono);
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    margin-top: var(--space-sm);
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  @media (min-width: 640px) {
+    .project-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .project-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--space-xl);
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius);
+  }
+</style>

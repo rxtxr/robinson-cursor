@@ -1,0 +1,246 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getAllProjects } from '../../lib/projects.js';
+
+export async function getStaticPaths() {
+  const projects = await getAllProjects();
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const dayNum = String(project.day).padStart(3, '0');
+
+// Load README if it exists
+let readmeHtml = null;
+const readmeFiles = import.meta.glob('/projects/*/README.md', { query: '?raw', import: 'default', eager: true });
+const readmeKey = `/projects/${project.slug}/README.md`;
+const readmeContent = readmeFiles[readmeKey];
+
+// Get all projects for prev/next navigation
+const allProjects = await getAllProjects();
+const sorted = allProjects
+  .filter((p) => p.status !== 'template')
+  .sort((a, b) => a.day - b.day);
+const currentIndex = sorted.findIndex((p) => p.slug === project.slug);
+const prevProject = currentIndex > 0 ? sorted[currentIndex - 1] : null;
+const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] : null;
+---
+
+<Base title={`#${dayNum} ${project.title} — robinson-cursor.com`} description={project.description}>
+  <article class="project-detail">
+    <header class="project-header">
+      <div class="meta-line">
+        <span class="day-number">#{dayNum}</span>
+        <span class="date">{project.date}</span>
+        <span class:list={['status', `status-${project.status}`]}>{project.status}</span>
+      </div>
+      <h1>{project.title}</h1>
+      <p class="description">{project.description}</p>
+    </header>
+
+    <div class="project-meta">
+      {project.stack && project.stack.length > 0 && (
+        <div class="meta-group">
+          <h3>stack</h3>
+          <div class="tag-list">
+            {project.stack.map((s) => <span class="badge">{s}</span>)}
+          </div>
+        </div>
+      )}
+      {project.tags && project.tags.length > 0 && (
+        <div class="meta-group">
+          <h3>tags</h3>
+          <div class="tag-list">
+            {project.tags.map((t) => <span class="badge">{t}</span>)}
+          </div>
+        </div>
+      )}
+    </div>
+
+    {project.status !== 'template' && (
+      <section class="project-embed">
+        <iframe
+          src={`/embed/${project.slug}/index.html`}
+          sandbox="allow-scripts allow-same-origin allow-forms"
+          loading="lazy"
+          title={project.title}
+        ></iframe>
+      </section>
+    )}
+
+    {readmeContent && (
+      <section class="project-readme">
+        <h2>dokumentation</h2>
+        <div class="readme-content" set:html={readmeContent} />
+      </section>
+    )}
+
+    {project.license_notes && (
+      <section class="license-notes">
+        <h3>lizenzen</h3>
+        <p>{project.license_notes}</p>
+      </section>
+    )}
+
+    {project.github && (
+      <p class="github-link">
+        <a href={project.github} target="_blank" rel="noopener">quellcode auf github</a>
+      </p>
+    )}
+
+    <nav class="project-nav">
+      <a href="/" class="nav-back">&larr; alle projekte</a>
+      <div class="nav-prevnext">
+        {prevProject && (
+          <a href={`/projects/${prevProject.slug}`} class="nav-prev">&larr; #{String(prevProject.day).padStart(3, '0')}</a>
+        )}
+        {nextProject && (
+          <a href={`/projects/${nextProject.slug}`} class="nav-next">#{String(nextProject.day).padStart(3, '0')} &rarr;</a>
+        )}
+      </div>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .project-detail {
+    max-width: 900px;
+  }
+
+  .project-header {
+    margin-bottom: var(--space-lg);
+  }
+
+  .meta-line {
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  .day-number {
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  .date {
+    color: var(--color-text-muted);
+  }
+
+  .status {
+    padding: 2px 8px;
+    border-radius: var(--radius);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .status-complete { background: #0a2a1a; color: #00d4aa; }
+  .status-wip { background: #2a2a0a; color: #d4aa00; }
+  .status-template { background: #1a1a2a; color: #6a6a7a; }
+
+  .description {
+    color: var(--color-text-muted);
+    margin-top: var(--space-sm);
+    font-size: 0.95rem;
+  }
+
+  .project-meta {
+    display: flex;
+    gap: var(--space-xl);
+    margin-bottom: var(--space-lg);
+  }
+
+  .meta-group h3 {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    text-transform: lowercase;
+    margin-bottom: var(--space-xs);
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .project-embed {
+    margin: var(--space-lg) 0;
+  }
+
+  .project-embed iframe {
+    width: 100%;
+    height: 70vh;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: #000;
+  }
+
+  .project-readme {
+    margin: var(--space-lg) 0;
+  }
+
+  .project-readme h2 {
+    font-size: 1rem;
+    color: var(--color-accent);
+    margin-bottom: var(--space-md);
+  }
+
+  .readme-content {
+    line-height: 1.8;
+    color: var(--color-text);
+  }
+
+  .license-notes {
+    margin: var(--space-lg) 0;
+    padding: var(--space-md);
+    background: var(--color-bg-card);
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+  }
+
+  .license-notes h3 {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-xs);
+  }
+
+  .github-link {
+    margin: var(--space-md) 0;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+
+  .project-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--color-border);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+
+  .nav-prevnext {
+    display: flex;
+    gap: var(--space-lg);
+  }
+
+  .nav-back,
+  .nav-prev,
+  .nav-next {
+    color: var(--color-text-muted);
+  }
+
+  .nav-back:hover,
+  .nav-prev:hover,
+  .nav-next:hover {
+    color: var(--color-accent);
+  }
+</style>

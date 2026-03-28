@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="About — robinson-cursor.com" description="Was steckt hinter robinson-cursor.com und dem 365-Tage-Vibecoding-Projekt.">
+  <article class="about">
+    <h1>about</h1>
+
+    <section>
+      <h2>was ist das?</h2>
+      <p>
+        365 Tage, 365 kleine Webprojekte. Jeden Tag entsteht ein Experiment —
+        gebaut im Browser, für den Browser. Kein Produkt, kein Startup.
+        Nur Code, Neugier und eine selbstgesetzte Deadline.
+      </p>
+    </section>
+
+    <section>
+      <h2>warum?</h2>
+      <p>
+        Weil man Dinge baut, um sie zu verstehen. Weil tägliche Constraints
+        kreative Lösungen erzwingen. Und weil ein Jahr voller kleiner
+        Experimente mehr lehrt als ein halbes Jahr Planung.
+      </p>
+    </section>
+
+    <section>
+      <h2>wie?</h2>
+      <p>
+        Die Archiv-Seite läuft auf <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>,
+        deployed via <a href="https://pages.cloudflare.com" target="_blank" rel="noopener">Cloudflare Pages</a>.
+        Die Tagesprojekte selbst sind framework-agnostisch — plain HTML, Canvas, WebAudio,
+        WebGL, p5.js, Three.js, React, was auch immer das Experiment braucht.
+      </p>
+      <p>
+        Entwickelt mit Unterstützung von KI-Tools. Der Quellcode ist offen:
+        <a href="https://github.com/rxtxr/robinson-cursor" target="_blank" rel="noopener">github.com/rxtxr/robinson-cursor</a>
+      </p>
+    </section>
+  </article>
+</Base>
+
+<style>
+  .about {
+    max-width: 680px;
+  }
+
+  .about section {
+    margin-top: var(--space-xl);
+  }
+
+  .about h2 {
+    font-size: 1.1rem;
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+  }
+
+  .about p {
+    margin-bottom: var(--space-md);
+    line-height: 1.8;
+  }
+</style>
