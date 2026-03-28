@@ -308,6 +308,34 @@ select {
 }
 
 
+.hint-box {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1.7;
+  color: var(--text-dim);
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.hint-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  font-size: 10px;
+  font-style: italic;
+  flex-shrink: 0;
+  color: var(--text-dim);
+}
+
 .viewport { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .canvas-wrap { flex: 1; position: relative; min-height: 0; }
 .canvas-wrap canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
@@ -1127,6 +1155,11 @@ function switchTab(i) {
     <div class="legend-item"><kbd>F</kbd> fullscreen</div>
   `;
   controlsEl.appendChild(legend);
+
+  const hint = document.createElement('div');
+  hint.className = 'hint-box';
+  hint.innerHTML = '<span class="hint-icon">i</span> try clicking the canvas — parameters react to your input and decay back. move the mouse for some effects.';
+  controlsEl.appendChild(hint);
 
   if (i === 3) {
     canvas2d.style.display = 'none';
