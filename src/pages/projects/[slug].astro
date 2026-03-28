@@ -195,6 +195,89 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
   .readme-content {
     line-height: 1.8;
     color: var(--color-text);
+    font-size: 0.9rem;
+  }
+
+  .readme-content :global(h1) {
+    font-size: 1.3rem;
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-sm);
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .readme-content :global(h2) {
+    font-size: 1.1rem;
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-sm);
+  }
+
+  .readme-content :global(h3) {
+    font-size: 0.95rem;
+    margin-top: var(--space-md);
+    margin-bottom: var(--space-xs);
+  }
+
+  .readme-content :global(p) {
+    margin-bottom: var(--space-md);
+  }
+
+  .readme-content :global(pre) {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--space-md);
+    overflow-x: auto;
+    margin: var(--space-md) 0;
+    font-size: 0.85rem;
+  }
+
+  .readme-content :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+  }
+
+  .readme-content :global(:not(pre) > code) {
+    background: var(--color-bg-card);
+    padding: 2px 6px;
+    border-radius: var(--radius);
+    color: var(--color-accent);
+  }
+
+  .readme-content :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--space-md) 0;
+    font-size: 0.85rem;
+  }
+
+  .readme-content :global(th),
+  .readme-content :global(td) {
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-border);
+    text-align: left;
+  }
+
+  .readme-content :global(th) {
+    background: var(--color-bg-card);
+    color: var(--color-text-heading);
+    font-weight: 600;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-transform: lowercase;
+  }
+
+  .readme-content :global(td) {
+    color: var(--color-text-muted);
+  }
+
+  .readme-content :global(ul),
+  .readme-content :global(ol) {
+    margin: var(--space-sm) 0 var(--space-md) var(--space-lg);
+  }
+
+  .readme-content :global(li) {
+    margin-bottom: var(--space-xs);
   }
 
   .license-notes {
