@@ -313,27 +313,40 @@ select {
 .canvas-wrap canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
 .gui-toggle {
+  padding: 5px 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--bg-control);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin-left: auto;
+}
+
+.gui-toggle:hover { background: var(--border); color: var(--text); }
+.gui-toggle.active { color: var(--accent); }
+
+.gui-restore {
   position: fixed;
   top: 8px;
   right: 8px;
   z-index: 100;
-  width: 32px;
-  height: 32px;
+  padding: 6px 12px;
   font-family: var(--mono);
-  font-size: 14px;
-  line-height: 32px;
-  text-align: center;
+  font-size: 11px;
   background: var(--bg-panel);
   color: var(--text-dim);
   border: 1px solid var(--border);
   border-radius: 4px;
   cursor: pointer;
-  opacity: 0.7;
+  opacity: 0.5;
   transition: opacity 0.2s;
-  padding: 0;
+  display: none;
 }
 
-.gui-toggle:hover { opacity: 1; }
+.gui-restore:hover { opacity: 1; }
 
 body.gui-hidden .tabs,
 body.gui-hidden .controls,
@@ -348,6 +361,10 @@ body.gui-hidden .main {
 
 body.gui-hidden .viewport {
   height: 100%;
+}
+
+body.gui-hidden .gui-restore {
+  display: block;
 }
 
 .formula-bar {
@@ -425,7 +442,7 @@ body.gui-hidden .viewport {
 </head>
 <body>
 
-<button class="gui-toggle" id="guiToggle" title="Toggle UI (H)" aria-label="Toggle user interface">☰</button>
+<button class="gui-restore" id="guiRestore" title="Show UI (H)" aria-label="Show user interface">☰ show UI</button>
 
 <div class="tabs" id="tabs">
   <button class="tab active" data-tab="0">rotation <kbd>1</kbd></button>
@@ -1086,6 +1103,13 @@ function switchTab(i) {
   resetBtn.addEventListener('click', resetEffect);
   btnRow.appendChild(resetBtn);
 
+  const hideBtn = document.createElement('button');
+  hideBtn.className = 'gui-toggle';
+  hideBtn.textContent = 'hide UI';
+  hideBtn.title = 'Hide UI (H)';
+  hideBtn.addEventListener('click', toggleGUI);
+  btnRow.appendChild(hideBtn);
+
   controlsEl.appendChild(btnRow);
 
   effects[i].buildControls();
@@ -1197,13 +1221,9 @@ document.getElementById('tabs').addEventListener('click', e => {
 // ─── GUI toggle ─────────────────────────────────────────────
 function toggleGUI() {
   document.body.classList.toggle('gui-hidden');
-  const hidden = document.body.classList.contains('gui-hidden');
-  const btn = document.getElementById('guiToggle');
-  btn.textContent = hidden ? '☰' : '☰';
-  btn.style.opacity = hidden ? '0.4' : '';
 }
 
-document.getElementById('guiToggle').addEventListener('click', toggleGUI);
+document.getElementById('guiRestore').addEventListener('click', toggleGUI);
 
 // ─── Init ───────────────────────────────────────────────────
 wrap.appendChild(canvas2d);

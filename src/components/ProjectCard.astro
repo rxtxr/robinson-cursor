@@ -1,9 +1,10 @@
 ---
 const { project, thumbUrl } = Astro.props;
 const dayNum = String(project.day).padStart(3, '0');
+const isTemplate = project.status === 'template';
 ---
 
-<a href={`/projects/${project.slug}`} class="project-card" aria-label={`Day ${dayNum}: ${project.title}`}>
+<a href={`/projects/${project.slug}`} class:list={['project-card', { 'card-template': isTemplate }]} aria-label={`Day ${dayNum}: ${project.title}`}>
   {thumbUrl ? (
     <div class="card-thumb">
       <img src={thumbUrl} alt="" loading="lazy" />
@@ -112,5 +113,24 @@ const dayNum = String(project.day).padStart(3, '0');
     flex-wrap: wrap;
     gap: var(--space-xs);
     margin-top: var(--space-xs);
+  }
+
+  .card-template {
+    opacity: 0.5;
+    border-color: var(--color-border);
+  }
+
+  .card-template:hover {
+    opacity: 0.7;
+    border-color: var(--color-text-muted);
+  }
+
+  .card-template .day-number {
+    color: var(--color-text-muted);
+  }
+
+  .card-template .badge {
+    background: var(--color-bg-control, #1a1a28);
+    color: var(--color-text-muted);
   }
 </style>
