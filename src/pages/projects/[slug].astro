@@ -14,7 +14,6 @@ const { project } = Astro.props;
 const dayNum = String(project.day).padStart(3, '0');
 
 // Load README if it exists
-let readmeHtml = null;
 const readmeFiles = import.meta.glob('/projects/*/README.md', { query: '?raw', import: 'default', eager: true });
 const readmeKey = `/projects/${project.slug}/README.md`;
 const readmeContent = readmeFiles[readmeKey];
@@ -73,26 +72,26 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
 
     {readmeContent && (
       <section class="project-readme">
-        <h2>dokumentation</h2>
+        <h2>documentation</h2>
         <div class="readme-content" set:html={readmeContent} />
       </section>
     )}
 
     {project.license_notes && (
       <section class="license-notes">
-        <h3>lizenzen</h3>
+        <h3>licenses</h3>
         <p>{project.license_notes}</p>
       </section>
     )}
 
     {project.github && (
       <p class="github-link">
-        <a href={project.github} target="_blank" rel="noopener">quellcode auf github</a>
+        <a href={project.github} target="_blank" rel="noopener">source on github</a>
       </p>
     )}
 
     <nav class="project-nav">
-      <a href="/" class="nav-back">&larr; alle projekte</a>
+      <a href="/" class="nav-back">&larr; all projects</a>
       <div class="nav-prevnext">
         {prevProject && (
           <a href={`/projects/${prevProject.slug}`} class="nav-prev">&larr; #{String(prevProject.day).padStart(3, '0')}</a>

@@ -1,4 +1,4 @@
-// Utility to load project metadata from projects/*/meta.json
+// Load project metadata from projects/*/meta.json
 
 export async function getProjects() {
   const metaFiles = import.meta.glob('/projects/*/meta.json', { eager: true });

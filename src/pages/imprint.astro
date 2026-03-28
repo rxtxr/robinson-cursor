@@ -1,0 +1,72 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Imprint — robinson-cursor.com" description="" noindex={true}>
+  <article class="imprint-page" id="imprint">
+    <noscript><p>This page requires JavaScript.</p></noscript>
+  </article>
+</Base>
+
+<script>
+  // Render imprint content client-side only to prevent bot scraping.
+  // Bots that don't execute JS will see an empty page.
+  const d = [
+    'Imprint',
+    'Information according to § 5 TMG',
+    '[Name]',
+    '[Street Address]',
+    '[City, ZIP]',
+    '',
+    'Contact',
+    '[Email]',
+    '',
+    'Responsible for content according to § 55 Abs. 2 RStV',
+    '[Name]',
+    '[Address]',
+  ];
+
+  const el = document.getElementById('imprint');
+  if (el) {
+    const h1 = document.createElement('h1');
+    h1.textContent = d[0];
+    el.appendChild(h1);
+
+    for (let i = 1; i < d.length; i++) {
+      if (d[i] === '') {
+        el.appendChild(document.createElement('br'));
+      } else if (d[i].startsWith('Information') || d[i].startsWith('Contact') || d[i].startsWith('Responsible')) {
+        const h2 = document.createElement('h2');
+        h2.textContent = d[i];
+        el.appendChild(h2);
+      } else {
+        const p = document.createElement('p');
+        p.textContent = d[i];
+        el.appendChild(p);
+      }
+    }
+  }
+</script>
+
+<style>
+  .imprint-page {
+    max-width: 580px;
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+
+  .imprint-page :global(h1) {
+    margin-bottom: var(--space-lg);
+  }
+
+  .imprint-page :global(h2) {
+    font-size: 1rem;
+    color: var(--color-accent);
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-sm);
+  }
+
+  .imprint-page :global(p) {
+    color: var(--color-text-muted);
+  }
+</style>

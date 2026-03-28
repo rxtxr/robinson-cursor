@@ -1,19 +1,19 @@
 # CLAUDE.md — robinson-cursor.com
 
-Dieses Repo enthält robinson-cursor.com, ein 365-Tage-Vibecoding-Projekt.
+This repo contains robinson-cursor.com, a 365-day vibecoding project.
 
-## Kritische Regeln
-- Lies ROBINSON_CURSOR_CONTEXT.md für vollständigen Projektkontext
-- Projekte in /projects/ sind nach Publikation eingefroren
-- Jedes neue Projekt braucht meta.json und README.md
-- Keine API Keys im Repo
-- Lizenzen aller Libraries in meta.json dokumentieren
-- Kapselung: Projekte dürfen sich nicht gegenseitig beeinflussen
+## Critical Rules
+- Read ROBINSON_CURSOR_CONTEXT.md for full project context
+- Projects in /projects/ are frozen after publication
+- Every new project needs meta.json and README.md
+- No API keys in the repo
+- Document all library licenses in meta.json
+- Isolation: projects must not affect each other
 
 ## Commits
-Format: `day NNN: projekt-name — kurze beschreibung`
-Beispiel: `day 001: music-visualizer — webaudio fft canvas visualisierung`
+Format: `day NNN: project-name — short description`
+Example: `day 001: music-visualizer — webaudio fft canvas visualization`
 
 ## Deploy
-git push main → Cloudflare Pages baut automatisch
-Preview: jeder Branch bekommt eigene Preview-URL
+git push main → Cloudflare Pages builds automatically
+Preview: every branch gets its own preview URL

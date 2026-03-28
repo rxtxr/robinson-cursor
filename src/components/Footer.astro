@@ -8,16 +8,13 @@ const year = new Date().getFullYear();
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-meta">
-      <span class="project-counter">{projectCount} / 365 projekte</span>
+      <span class="project-counter">{projectCount} / 365 projects</span>
       <span class="separator">&middot;</span>
       <a href="https://github.com/rxtxr/robinson-cursor" target="_blank" rel="noopener">github</a>
       <span class="separator">&middot;</span>
+      <a href="/imprint" rel="nofollow">imprint</a>
+      <span class="separator">&middot;</span>
       <span>&copy; {year}</span>
-    </div>
-
-    <div class="imprint">
-      <p class="imprint-title">Impressum — Angaben gemäß § 5 TMG</p>
-      <p>[Name] &middot; [Adresse] &middot; [E-Mail]</p>
     </div>
   </div>
 </footer>
@@ -50,17 +47,5 @@ const year = new Date().getFullYear();
 
   .separator {
     color: var(--color-border);
-  }
-
-  .imprint {
-    margin-top: var(--space-md);
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
-    line-height: 1.8;
-  }
-
-  .imprint-title {
-    font-weight: 600;
-    color: var(--color-text);
   }
 </style>

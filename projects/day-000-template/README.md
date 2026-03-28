@@ -1,39 +1,39 @@
 # Day 000 — Template
 
-Strukturvorlage für neue Tagesprojekte.
+Structural template for new daily projects.
 
-## Verzeichnisstruktur
+## Directory Structure
 
 ```
-projects/day-NNN-projekt-name/
-  index.html       ← das lauffähige Projekt (Pflicht)
-  meta.json        ← Metadaten für die Archiv-Site (Pflicht)
-  README.md        ← Dokumentation (Pflicht)
-  style.css        ← optional, eigenes CSS
-  script.js        ← optional, eigenes JS
-  assets/          ← optional, Bilder/Audio/etc.
+projects/day-NNN-project-name/
+  index.html       ← the runnable project (required)
+  meta.json        ← metadata for the archive site (required)
+  README.md        ← documentation (required)
+  style.css        ← optional, custom CSS
+  script.js        ← optional, custom JS
+  assets/          ← optional, images/audio/etc.
 ```
 
-## meta.json — alle Felder
+## meta.json — all fields
 
-| Feld | Typ | Pflicht | Beschreibung |
-|------|-----|---------|------------|
-| `day` | number | ja | Tagnummer (1-365) |
-| `slug` | string | ja | Ordnername, z.B. `day-001-music-visualizer` |
-| `title` | string | ja | Anzeigename |
-| `date` | string | ja | Publikationsdatum (YYYY-MM-DD) |
-| `description` | string | ja | Kurzbeschreibung (1-2 Sätze) |
-| `tags` | string[] | ja | Themen-Tags |
-| `stack` | string[] | ja | Verwendete Technologien |
-| `github` | string | nein | Link zum Quellcode |
-| `status` | string | ja | `complete`, `wip`, oder `template` |
-| `license_notes` | string | ja | Lizenzhinweise zu externen Dependencies |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `day` | number | yes | Day number (1-365) |
+| `slug` | string | yes | Folder name, e.g. `day-001-music-visualizer` |
+| `title` | string | yes | Display name |
+| `date` | string | yes | Publication date (YYYY-MM-DD) |
+| `description` | string | yes | Short description (1-2 sentences) |
+| `tags` | string[] | yes | Topic tags |
+| `stack` | string[] | yes | Technologies used |
+| `github` | string | no | Link to source code |
+| `status` | string | yes | `complete`, `wip`, or `template` |
+| `license_notes` | string | yes | License notes for external dependencies |
 
-## Neues Projekt anlegen
+## Creating a new project
 
 ```bash
-cp -r projects/day-000-template projects/day-NNN-projekt-name
-# meta.json anpassen
-# index.html mit Experiment füllen
-# README.md schreiben
+cp -r projects/day-000-template projects/day-NNN-project-name
+# edit meta.json
+# build the experiment in index.html
+# write README.md
 ```

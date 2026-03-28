@@ -6,10 +6,10 @@ import { getProjects } from '../lib/projects.js';
 const projects = await getProjects();
 ---
 
-<Base title="robinson-cursor.com — 365 Tage Vibecoding">
+<Base title="robinson-cursor.com — 365 days of vibecoding">
   <section class="hero">
-    <h1>365 tage vibecoding</h1>
-    <p class="subtitle">jeden tag ein experiment. code, sound, bild — im browser.</p>
+    <h1>365 days of vibecoding</h1>
+    <p class="subtitle">one experiment per day. code, sound, visuals — in the browser.</p>
   </section>
 
   {projects.length > 0 ? (
@@ -20,7 +20,7 @@ const projects = await getProjects();
     </section>
   ) : (
     <section class="empty-state">
-      <p>noch keine projekte. tag 001 kommt bald.</p>
+      <p>no projects yet. day 001 is coming soon.</p>
     </section>
   )}
 </Base>
