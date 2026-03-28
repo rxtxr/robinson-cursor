@@ -14,12 +14,12 @@
   --text-dim: #6a6a7a;
   --accent: #00d4aa;
   --accent-dim: #00a080;
+  --accent-auto: #d4aa00;
   --mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
   --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html, body { height: 100%; overflow: hidden; }
 
 body {
@@ -30,18 +30,18 @@ body {
   flex-direction: column;
 }
 
-/* Tab bar */
 .tabs {
   display: flex;
   border-bottom: 1px solid var(--border);
   background: var(--bg-panel);
   flex-shrink: 0;
+  overflow-x: auto;
 }
 
 .tab {
-  padding: 12px 20px;
+  padding: 12px 16px;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-dim);
   background: none;
   border: none;
@@ -53,51 +53,48 @@ body {
 
 .tab:hover { color: var(--text); }
 .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
 .tab kbd {
   font-size: 10px;
   padding: 1px 5px;
   border: 1px solid var(--border);
   border-radius: 3px;
-  margin-left: 6px;
+  margin-left: 4px;
   color: var(--text-dim);
 }
 
-/* Main layout */
-.main {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-}
+.main { display: flex; flex: 1; min-height: 0; }
 
-/* Controls panel */
 .controls {
-  width: 280px;
+  width: 300px;
   flex-shrink: 0;
   background: var(--bg-panel);
   border-right: 1px solid var(--border);
   overflow-y: auto;
-  padding: 16px;
+  padding: 12px;
 }
 
-.control-group {
-  margin-bottom: 16px;
-}
+.control-group { margin-bottom: 12px; }
 
-.control-group label {
+.control-group > .ctrl-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-family: var(--mono);
   font-size: 11px;
   color: var(--text-dim);
-  margin-bottom: 4px;
-  text-transform: lowercase;
+  margin-bottom: 3px;
 }
 
-.control-group label .val {
-  color: var(--accent);
-  font-weight: 600;
+.ctrl-header .val { color: var(--accent); font-weight: 600; }
+.ctrl-header .val.automated { color: var(--accent-auto); }
+
+.ctrl-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
+
+.ctrl-row input[type="range"] { flex: 1; }
 
 input[type="range"] {
   -webkit-appearance: none;
@@ -110,35 +107,79 @@ input[type="range"] {
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 12px; height: 12px;
   border-radius: 50%;
   background: var(--accent);
   cursor: pointer;
 }
 
 input[type="range"]::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
+  width: 12px; height: 12px;
   border-radius: 50%;
   background: var(--accent);
   border: none;
   cursor: pointer;
 }
 
-input[type="color"] {
-  -webkit-appearance: none;
+input[type="range"].auto-active::-webkit-slider-thumb { background: var(--accent-auto); }
+input[type="range"].auto-active::-moz-range-thumb { background: var(--accent-auto); }
+
+.auto-toggle {
+  width: 20px; height: 20px;
+  font-size: 11px;
+  line-height: 20px;
+  text-align: center;
+  background: var(--bg-control);
+  color: var(--text-dim);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  width: 32px;
-  height: 24px;
-  padding: 0;
+  border-radius: 3px;
   cursor: pointer;
-  background: none;
+  flex-shrink: 0;
+  padding: 0;
+  font-family: var(--mono);
 }
 
-input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
-input[type="color"]::-webkit-color-swatch { border: none; border-radius: 2px; }
+.auto-toggle.active { background: var(--accent-auto); color: var(--bg); border-color: var(--accent-auto); }
+
+.auto-panel {
+  display: none;
+  padding: 8px;
+  margin-top: 4px;
+  background: rgba(212, 170, 0, 0.05);
+  border: 1px solid rgba(212, 170, 0, 0.15);
+  border-radius: 4px;
+}
+
+.auto-panel.open { display: block; }
+
+.auto-panel .auto-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.auto-panel .auto-row span:first-child {
+  width: 32px;
+  flex-shrink: 0;
+}
+
+.auto-panel .auto-row input[type="range"] { flex: 1; height: 3px; }
+.auto-panel .auto-row .auto-val { width: 36px; text-align: right; color: var(--accent-auto); flex-shrink: 0; }
+
+.auto-panel select {
+  width: 100%;
+  padding: 4px 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  background: var(--bg-control);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
 
 select {
   width: 100%;
@@ -159,10 +200,11 @@ select {
   font-family: var(--mono);
   font-size: 11px;
   color: var(--text-dim);
+  margin-bottom: 8px;
 }
 
 .btn {
-  padding: 6px 12px;
+  padding: 5px 10px;
   font-family: var(--mono);
   font-size: 11px;
   background: var(--bg-control);
@@ -174,41 +216,21 @@ select {
 }
 
 .btn:hover { background: var(--border); }
+.btn-row { display: flex; gap: 6px; margin-bottom: 12px; }
 
-.btn-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.viewport { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.canvas-wrap { flex: 1; position: relative; min-height: 0; }
+.canvas-wrap canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
-/* Viewport */
-.viewport {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.canvas-wrap {
-  flex: 1;
-  position: relative;
-  min-height: 0;
-}
-
-.canvas-wrap canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* Formula bar */
 .formula-bar {
-  padding: 10px 16px;
+  padding: 8px 16px;
   font-family: var(--mono);
   font-size: 12px;
   color: var(--text);
   background: var(--bg-panel);
   border-top: 1px solid var(--border);
   display: flex;
-  gap: 24px;
+  gap: 20px;
   flex-wrap: wrap;
   flex-shrink: 0;
 }
@@ -216,7 +238,6 @@ select {
 .formula-bar .label { color: var(--text-dim); }
 .formula-bar .value { color: var(--accent); font-weight: 600; }
 
-/* Info panel */
 .info-toggle {
   font-family: var(--mono);
   font-size: 11px;
@@ -225,11 +246,9 @@ select {
   border: none;
   padding: 4px 0;
   cursor: pointer;
-  margin-bottom: 8px;
 }
 
 .info-toggle:hover { color: var(--accent); }
-
 .info-text {
   font-size: 12px;
   line-height: 1.7;
@@ -241,27 +260,25 @@ select {
 
 .info-text.open { display: block; }
 
-/* Shortcuts bar */
 .shortcuts {
-  padding: 6px 16px;
+  padding: 5px 16px;
   font-family: var(--mono);
   font-size: 10px;
   color: var(--text-dim);
   background: var(--bg-panel);
   border-top: 1px solid var(--border);
   display: flex;
-  gap: 16px;
+  gap: 14px;
   flex-shrink: 0;
 }
 
 .shortcuts kbd {
-  padding: 1px 5px;
+  padding: 1px 4px;
   border: 1px solid var(--border);
   border-radius: 3px;
-  margin-right: 4px;
+  margin-right: 3px;
 }
 
-/* Mobile */
 @media (max-width: 700px) {
   .main { flex-direction: column; }
   .controls {
@@ -272,7 +289,7 @@ select {
     order: 2;
   }
   .viewport { order: 1; }
-  .tab { padding: 10px 12px; font-size: 11px; }
+  .tab { padding: 8px 10px; font-size: 10px; }
   .tab kbd { display: none; }
   .shortcuts { display: none; }
 }
@@ -285,6 +302,7 @@ select {
   <button class="tab" data-tab="1">frequency <kbd>2</kbd></button>
   <button class="tab" data-tab="2">circles <kbd>3</kbd></button>
   <button class="tab" data-tab="3">sine (GL) <kbd>4</kbd></button>
+  <button class="tab" data-tab="4">dot raster <kbd>5</kbd></button>
 </div>
 
 <div class="main">
@@ -296,27 +314,71 @@ select {
 </div>
 
 <div class="shortcuts">
-  <span><kbd>1</kbd>–<kbd>4</kbd> switch effect</span>
+  <span><kbd>1</kbd>–<kbd>5</kbd> switch</span>
   <span><kbd>space</kbd> play/pause</span>
   <span><kbd>R</kbd> reset</span>
   <span><kbd>F</kbd> fullscreen</span>
 </div>
 
 <script>
+// ─── Automation system (LFO per slider) ─────────────────────
+const automations = [];
+
+class Automation {
+  constructor(min, max, paramMin, paramMax, step) {
+    this.active = false;
+    this.lo = paramMin;
+    this.hi = paramMax;
+    this.rangeMin = min;
+    this.rangeMax = max;
+    this.speed = 1;
+    this.wave = 'sine'; // sine, triangle, saw, random
+    this.step = step;
+    this.phase = 0;
+    this._randVal = 0;
+    this._randTimer = 0;
+  }
+
+  tick(dt) {
+    if (!this.active) return null;
+    this.phase += dt * this.speed * 0.001;
+    let t;
+    switch (this.wave) {
+      case 'sine':
+        t = (Math.sin(this.phase * Math.PI * 2) + 1) * 0.5;
+        break;
+      case 'triangle':
+        t = 1 - Math.abs((this.phase % 1) * 2 - 1);
+        break;
+      case 'saw':
+        t = this.phase % 1;
+        break;
+      case 'random':
+        this._randTimer += dt * this.speed * 0.001;
+        if (this._randTimer >= 1) { this._randVal = Math.random(); this._randTimer = 0; }
+        t = this._randVal;
+        break;
+      default: t = 0;
+    }
+    const raw = this.lo + t * (this.hi - this.lo);
+    return this.step >= 1 ? Math.round(raw) : Number(raw.toFixed(2));
+  }
+}
+
 // ─── State ──────────────────────────────────────────────────
 const state = {
   tab: 0,
-  animating: false,
   mouse: { x: 0.5, y: 0.5 },
   effects: [
     { theta: 5, period: 20, duty: 0.5, phase: 0, color1: '#000000', color2: '#000000', blend: 'normal' },
-    { p1: 20, p2: 22, duty: 0.5, phase1: 0, phase2: 0, autoShift: false, speed: 1, deltaMode: false },
+    { p1: 20, p2: 22, duty: 0.5, phase1: 0, phase2: 0, autoShift: false, speed: 1 },
     { period: 15, rings: 40, lineWidth: 1, fixCenter: false },
     { f1: 30, f2: 32, theta1: 0, theta2: 5, amplitude: 1, colorMode: 0, autoRotate: false, rotSpeed: 0.5, zoom: 1 },
+    { spacing: 12, dotSize: 2, theta: 1.1, grid: 'hex', rings: 50 },
   ]
 };
 
-// ─── Canvas / WebGL setup ───────────────────────────────────
+// ─── Canvas / WebGL ─────────────────────────────────────────
 const wrap = document.getElementById('canvasWrap');
 const canvas2d = document.createElement('canvas');
 const canvasGL = document.createElement('canvas');
@@ -341,75 +403,51 @@ function initWebGL(canvas) {
     uniform int u_colormode;
 
     vec3 viridis(float t) {
-      vec3 c0 = vec3(0.267,0.004,0.329);
-      vec3 c1 = vec3(0.283,0.141,0.458);
-      vec3 c2 = vec3(0.254,0.265,0.530);
-      vec3 c3 = vec3(0.206,0.372,0.553);
-      vec3 c4 = vec3(0.164,0.471,0.558);
-      vec3 c5 = vec3(0.128,0.567,0.551);
-      vec3 c6 = vec3(0.135,0.659,0.518);
-      vec3 c7 = vec3(0.267,0.749,0.441);
-      vec3 c8 = vec3(0.478,0.821,0.318);
-      vec3 c9 = vec3(0.741,0.873,0.150);
-      vec3 c10 = vec3(0.993,0.906,0.144);
-      float s = t * 10.0;
-      int i = int(s);
-      float f = fract(s);
-      if (i >= 10) return c10;
-      if (i == 0) return mix(c0, c1, f);
-      if (i == 1) return mix(c1, c2, f);
-      if (i == 2) return mix(c2, c3, f);
-      if (i == 3) return mix(c3, c4, f);
-      if (i == 4) return mix(c4, c5, f);
-      if (i == 5) return mix(c5, c6, f);
-      if (i == 6) return mix(c6, c7, f);
-      if (i == 7) return mix(c7, c8, f);
-      if (i == 8) return mix(c8, c9, f);
-      return mix(c9, c10, f);
+      vec3 c0=vec3(.267,.004,.329); vec3 c1=vec3(.283,.141,.458);
+      vec3 c2=vec3(.254,.265,.530); vec3 c3=vec3(.206,.372,.553);
+      vec3 c4=vec3(.164,.471,.558); vec3 c5=vec3(.128,.567,.551);
+      vec3 c6=vec3(.135,.659,.518); vec3 c7=vec3(.267,.749,.441);
+      vec3 c8=vec3(.478,.821,.318); vec3 c9=vec3(.741,.873,.150);
+      vec3 c10=vec3(.993,.906,.144);
+      float s=t*10.; int i=int(s); float f=fract(s);
+      if(i>=10) return c10;
+      if(i==0) return mix(c0,c1,f); if(i==1) return mix(c1,c2,f);
+      if(i==2) return mix(c2,c3,f); if(i==3) return mix(c3,c4,f);
+      if(i==4) return mix(c4,c5,f); if(i==5) return mix(c5,c6,f);
+      if(i==6) return mix(c6,c7,f); if(i==7) return mix(c7,c8,f);
+      if(i==8) return mix(c8,c9,f); return mix(c9,c10,f);
     }
 
     vec3 inferno(float t) {
-      vec3 c0 = vec3(0.001,0.000,0.014);
-      vec3 c1 = vec3(0.106,0.032,0.245);
-      vec3 c2 = vec3(0.280,0.047,0.398);
-      vec3 c3 = vec3(0.453,0.082,0.398);
-      vec3 c4 = vec3(0.610,0.148,0.338);
-      vec3 c5 = vec3(0.748,0.241,0.253);
-      vec3 c6 = vec3(0.854,0.367,0.159);
-      vec3 c7 = vec3(0.929,0.520,0.055);
-      vec3 c8 = vec3(0.961,0.695,0.039);
-      vec3 c9 = vec3(0.950,0.872,0.227);
-      vec3 c10 = vec3(0.988,0.998,0.645);
-      float s = t * 10.0;
-      int i = int(s);
-      float f = fract(s);
-      if (i >= 10) return c10;
-      if (i == 0) return mix(c0, c1, f);
-      if (i == 1) return mix(c1, c2, f);
-      if (i == 2) return mix(c2, c3, f);
-      if (i == 3) return mix(c3, c4, f);
-      if (i == 4) return mix(c4, c5, f);
-      if (i == 5) return mix(c5, c6, f);
-      if (i == 6) return mix(c6, c7, f);
-      if (i == 7) return mix(c7, c8, f);
-      if (i == 8) return mix(c8, c9, f);
-      return mix(c9, c10, f);
+      vec3 c0=vec3(.001,.000,.014); vec3 c1=vec3(.106,.032,.245);
+      vec3 c2=vec3(.280,.047,.398); vec3 c3=vec3(.453,.082,.398);
+      vec3 c4=vec3(.610,.148,.338); vec3 c5=vec3(.748,.241,.253);
+      vec3 c6=vec3(.854,.367,.159); vec3 c7=vec3(.929,.520,.055);
+      vec3 c8=vec3(.961,.695,.039); vec3 c9=vec3(.950,.872,.227);
+      vec3 c10=vec3(.988,.998,.645);
+      float s=t*10.; int i=int(s); float f=fract(s);
+      if(i>=10) return c10;
+      if(i==0) return mix(c0,c1,f); if(i==1) return mix(c1,c2,f);
+      if(i==2) return mix(c2,c3,f); if(i==3) return mix(c3,c4,f);
+      if(i==4) return mix(c4,c5,f); if(i==5) return mix(c5,c6,f);
+      if(i==6) return mix(c6,c7,f); if(i==7) return mix(c7,c8,f);
+      if(i==8) return mix(c8,c9,f); return mix(c9,c10,f);
     }
 
     void main() {
       vec2 uv = (gl_FragCoord.xy - u_resolution * 0.5) / u_zoom;
       uv += (u_mouse - 0.5) * u_resolution * 0.3;
-      float rad1 = u_theta1 * 3.14159265 / 180.0;
-      float rad2 = u_theta2 * 3.14159265 / 180.0;
-      float v1 = sin(6.28318 * (uv.x * cos(rad1) + uv.y * sin(rad1)) / u_f1);
-      float v2 = sin(6.28318 * (uv.x * cos(rad2) + uv.y * sin(rad2)) / u_f2);
-      float val = (v1 + v2) * 0.5 * u_amplitude;
+      float r1 = u_theta1 * 3.14159265 / 180.0;
+      float r2 = u_theta2 * 3.14159265 / 180.0;
+      float v1 = sin(6.28318 * (uv.x*cos(r1)+uv.y*sin(r1)) / u_f1);
+      float v2 = sin(6.28318 * (uv.x*cos(r2)+uv.y*sin(r2)) / u_f2);
+      float val = (v1+v2) * 0.5 * u_amplitude;
       float t = val * 0.5 + 0.5;
       vec3 col;
-      if (u_colormode == 0) { col = vec3(t); }
-      else if (u_colormode == 1) { col = viridis(t); }
-      else { col = inferno(t); }
-      gl_FragColor = vec4(col, 1.0);
+      if(u_colormode==0) col=vec3(t);
+      else if(u_colormode==1) col=viridis(t);
+      else col=inferno(t);
+      gl_FragColor = vec4(col,1.0);
     }
   `);
   gl.compileShader(fs);
@@ -422,7 +460,7 @@ function initWebGL(canvas) {
 
   const buf = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
   const aPos = gl.getAttribLocation(glProgram, 'a_pos');
   gl.enableVertexAttribArray(aPos);
   gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
@@ -430,39 +468,115 @@ function initWebGL(canvas) {
   glUniforms = {};
   ['u_resolution','u_f1','u_f2','u_theta1','u_theta2','u_amplitude','u_time','u_zoom','u_mouse','u_colormode']
     .forEach(n => glUniforms[n] = gl.getUniformLocation(glProgram, n));
-
   return true;
 }
 
-// ─── Controls builders ──────────────────────────────────────
+// ─── Controls ───────────────────────────────────────────────
 const controlsEl = document.getElementById('controls');
 const formulaBar = document.getElementById('formulaBar');
 
 function slider(label, value, min, max, step, onChange) {
+  const auto = new Automation(min, max, min, max, step);
+  automations.push(auto);
+
   const div = document.createElement('div');
   div.className = 'control-group';
-  const lbl = document.createElement('label');
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'ctrl-header';
   const valSpan = document.createElement('span');
   valSpan.className = 'val';
-  valSpan.textContent = Number(value).toFixed(step < 1 ? 1 : 0);
-  lbl.innerHTML = `<span>${label}</span>`;
-  lbl.appendChild(valSpan);
+  const prec = step < 1 ? 1 : 0;
+  valSpan.textContent = Number(value).toFixed(prec);
+  header.innerHTML = `<span>${label}</span>`;
+  header.appendChild(valSpan);
+
+  // Slider row
+  const row = document.createElement('div');
+  row.className = 'ctrl-row';
   const input = document.createElement('input');
   input.type = 'range';
   input.min = min; input.max = max; input.step = step; input.value = value;
   input.addEventListener('input', () => {
-    valSpan.textContent = Number(input.value).toFixed(step < 1 ? 1 : 0);
+    valSpan.textContent = Number(input.value).toFixed(prec);
+    valSpan.classList.remove('automated');
     onChange(Number(input.value));
   });
-  div.appendChild(lbl);
-  div.appendChild(input);
+
+  const autoBtn = document.createElement('button');
+  autoBtn.className = 'auto-toggle';
+  autoBtn.textContent = '~';
+  autoBtn.title = 'automation';
+
+  row.appendChild(input);
+  row.appendChild(autoBtn);
+
+  // Automation panel
+  const panel = document.createElement('div');
+  panel.className = 'auto-panel';
+
+  function autoRow(name, val, lo, hi, s, onCh) {
+    const r = document.createElement('div');
+    r.className = 'auto-row';
+    const lbl = document.createElement('span');
+    lbl.textContent = name;
+    const inp = document.createElement('input');
+    inp.type = 'range'; inp.min = lo; inp.max = hi; inp.step = s; inp.value = val;
+    const v = document.createElement('span');
+    v.className = 'auto-val';
+    v.textContent = Number(val).toFixed(s < 1 ? 1 : 0);
+    inp.addEventListener('input', () => {
+      v.textContent = Number(inp.value).toFixed(s < 1 ? 1 : 0);
+      onCh(Number(inp.value));
+    });
+    r.appendChild(lbl); r.appendChild(inp); r.appendChild(v);
+    return r;
+  }
+
+  panel.appendChild(autoRow('min', min, min, max, step, v => { auto.lo = v; }));
+  panel.appendChild(autoRow('max', max, min, max, step, v => { auto.hi = v; }));
+  panel.appendChild(autoRow('spd', 1, 0.05, 5, 0.05, v => { auto.speed = v; }));
+
+  const waveRow = document.createElement('div');
+  waveRow.className = 'auto-row';
+  const waveLbl = document.createElement('span');
+  waveLbl.textContent = 'wave';
+  const waveSel = document.createElement('select');
+  ['sine', 'triangle', 'saw', 'random'].forEach(w => {
+    const o = document.createElement('option');
+    o.value = w; o.textContent = w;
+    waveSel.appendChild(o);
+  });
+  waveSel.addEventListener('change', () => { auto.wave = waveSel.value; });
+  waveRow.appendChild(waveLbl); waveRow.appendChild(waveSel);
+  panel.appendChild(waveRow);
+
+  autoBtn.addEventListener('click', () => {
+    auto.active = !auto.active;
+    autoBtn.classList.toggle('active', auto.active);
+    panel.classList.toggle('open', auto.active);
+    input.classList.toggle('auto-active', auto.active);
+    if (!auto.active) valSpan.classList.remove('automated');
+  });
+
+  // Store refs for render-loop updates
+  auto._input = input;
+  auto._valSpan = valSpan;
+  auto._onChange = onChange;
+  auto._prec = prec;
+
+  div.appendChild(header);
+  div.appendChild(row);
+  div.appendChild(panel);
   return div;
 }
 
 function selectCtrl(label, options, value, onChange) {
   const div = document.createElement('div');
   div.className = 'control-group';
-  const lbl = document.createElement('label');
+  const lbl = document.createElement('div');
+  lbl.className = 'ctrl-header';
   lbl.innerHTML = `<span>${label}</span>`;
   const sel = document.createElement('select');
   options.forEach((opt, i) => {
@@ -472,8 +586,7 @@ function selectCtrl(label, options, value, onChange) {
     sel.appendChild(o);
   });
   sel.addEventListener('change', () => onChange(Number(sel.value)));
-  div.appendChild(lbl);
-  div.appendChild(sel);
+  div.appendChild(lbl); div.appendChild(sel);
   return div;
 }
 
@@ -485,13 +598,12 @@ function checkbox(label, checked, onChange) {
   input.addEventListener('change', () => onChange(input.checked));
   const span = document.createElement('span');
   span.textContent = label;
-  div.appendChild(input);
-  div.appendChild(span);
+  div.appendChild(input); div.appendChild(span);
   return div;
 }
 
 function infoPanel(title, text) {
-  const wrap = document.createElement('div');
+  const w = document.createElement('div');
   const btn = document.createElement('button');
   btn.className = 'info-toggle';
   btn.textContent = `▸ ${title}`;
@@ -502,12 +614,11 @@ function infoPanel(title, text) {
     content.classList.toggle('open');
     btn.textContent = content.classList.contains('open') ? `▾ ${title}` : `▸ ${title}`;
   });
-  wrap.appendChild(btn);
-  wrap.appendChild(content);
-  return wrap;
+  w.appendChild(btn); w.appendChild(content);
+  return w;
 }
 
-// ─── Effect renderers ───────────────────────────────────────
+// ─── Drawing helpers ────────────────────────────────────────
 function drawLineGrating(ctx, w, h, period, duty, phase, angle, color) {
   ctx.save();
   ctx.translate(w / 2, h / 2);
@@ -517,14 +628,35 @@ function drawLineGrating(ctx, w, h, period, duty, phase, angle, color) {
   const n = Math.ceil(diag / period) + 1;
   ctx.fillStyle = color;
   for (let i = -n; i <= n; i++) {
-    const x = i * period + phase * period - lineW / 2;
-    ctx.fillRect(x, -diag / 2, lineW, diag);
+    ctx.fillRect(i * period + phase * period - lineW / 2, -diag / 2, lineW, diag);
   }
   ctx.restore();
 }
 
+function drawDotGrid(ctx, w, h, spacing, dotSize, angle, type) {
+  ctx.save();
+  ctx.translate(w / 2, h / 2);
+  ctx.rotate(angle);
+  const diag = Math.sqrt(w * w + h * h);
+  const n = Math.ceil(diag / spacing) + 2;
+  ctx.fillStyle = '#000000';
+  const isHex = type === 'hex';
+  for (let row = -n; row <= n; row++) {
+    for (let col = -n; col <= n; col++) {
+      let x = col * spacing;
+      let y = row * spacing * (isHex ? 0.866 : 1);
+      if (isHex && row % 2 !== 0) x += spacing * 0.5;
+      ctx.beginPath();
+      ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+// ─── Effects ────────────────────────────────────────────────
 const effects = [
-  // Effect 0: Rotation Moiré
+  // 0: Rotation
   {
     buildControls() {
       const e = state.effects[0];
@@ -534,31 +666,29 @@ const effects = [
       f.appendChild(slider('duty cycle', e.duty, 0.1, 0.9, 0.01, v => { e.duty = v; }));
       f.appendChild(slider('phase offset', e.phase, 0, 1, 0.01, v => { e.phase = v; }));
       f.appendChild(infoPanel('about this effect',
-        'Two identical line gratings overlaid with a relative rotation angle θ produce a moiré pattern. The resulting pattern period is p/(2·sin(θ/2)). At small angles, tiny rotations create dramatically large patterns — a form of angular amplification.'));
+        'Two identical line gratings overlaid with a relative rotation angle θ. The moiré period is p/(2·sin(θ/2)). At small angles, tiny rotations create dramatically large patterns — angular amplification used in precision measurement.'));
       controlsEl.appendChild(f);
     },
     render(w, h) {
       const e = state.effects[0];
-      const theta = e.theta * Math.PI / 180;
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, w, h);
-      ctx.globalCompositeOperation = e.blend === 'multiply' ? 'multiply' : e.blend === 'difference' ? 'difference' : 'source-over';
       drawLineGrating(ctx, w, h, e.period, e.duty, 0, 0, e.color1);
-      drawLineGrating(ctx, w, h, e.period, e.duty, e.phase, theta, e.color2);
+      ctx.globalCompositeOperation = 'multiply';
+      drawLineGrating(ctx, w, h, e.period, e.duty, e.phase, e.theta * Math.PI / 180, e.color2);
       ctx.globalCompositeOperation = 'source-over';
     },
     formula() {
       const e = state.effects[0];
-      const theta = e.theta * Math.PI / 180;
-      const sinHalf = Math.sin(theta / 2);
-      const pm = sinHalf > 0.0001 ? e.period / (2 * sinHalf) : Infinity;
+      const sinH = Math.sin(e.theta * Math.PI / 360);
+      const pm = sinH > 0.0001 ? e.period / (2 * sinH) : Infinity;
       return `<span class="label">p</span><span class="value">${e.period}px</span>` +
         `<span class="label">θ</span><span class="value">${e.theta.toFixed(1)}°</span>` +
-        `<span class="label">p<sub>moiré</sub> = p / (2·sin(θ/2)) =</span><span class="value">${pm === Infinity ? '∞' : pm.toFixed(1) + 'px'}</span>`;
+        `<span class="label">p<sub>moiré</sub> = p/(2·sin(θ/2)) =</span><span class="value">${pm === Infinity ? '∞' : pm.toFixed(1) + 'px'}</span>`;
     }
   },
 
-  // Effect 1: Frequency Beating
+  // 1: Frequency Beating
   {
     buildControls() {
       const e = state.effects[1];
@@ -569,7 +699,7 @@ const effects = [
       f.appendChild(slider('shift speed', e.speed, 0.1, 5, 0.1, v => { e.speed = v; }));
       f.appendChild(checkbox('auto-shift', e.autoShift, v => { e.autoShift = v; }));
       f.appendChild(infoPanel('about this effect',
-        'Two parallel gratings with slightly different periods p₁ and p₂ create a beat pattern. The moiré period is (p₁·p₂)/|p₁−p₂|. As the periods approach each other, the moiré pattern grows infinitely large — the beating slows down, like two slightly detuned tuning forks.'));
+        'Two parallel gratings with slightly different periods. The moiré period is (p₁·p₂)/|p₁−p₂|. As periods approach each other, the moiré grows infinitely — like two detuned tuning forks creating audible beating.'));
       controlsEl.appendChild(f);
     },
     render(w, h) {
@@ -583,22 +713,20 @@ const effects = [
     },
     formula() {
       const e = state.effects[1];
-      const delta = Math.abs(e.p1 - e.p2);
-      const pm = delta > 0.01 ? (e.p1 * e.p2) / delta : Infinity;
+      const d = Math.abs(e.p1 - e.p2);
+      const pm = d > 0.01 ? (e.p1 * e.p2) / d : Infinity;
       return `<span class="label">p₁</span><span class="value">${e.p1.toFixed(1)}px</span>` +
         `<span class="label">p₂</span><span class="value">${e.p2.toFixed(1)}px</span>` +
-        `<span class="label">Δ</span><span class="value">${delta.toFixed(1)}px</span>` +
+        `<span class="label">Δ</span><span class="value">${d.toFixed(1)}px</span>` +
         `<span class="label">p<sub>moiré</sub> = (p₁·p₂)/|p₁−p₂| =</span><span class="value">${pm === Infinity ? '∞' : pm.toFixed(1) + 'px'}</span>`;
     },
     animate(dt) {
       const e = state.effects[1];
-      if (e.autoShift) {
-        e.phase2 = (e.phase2 + dt * e.speed * 0.001) % 1;
-      }
+      if (e.autoShift) e.phase2 = (e.phase2 + dt * e.speed * 0.001) % 1;
     }
   },
 
-  // Effect 2: Concentric Circles
+  // 2: Concentric Circles
   {
     buildControls() {
       const e = state.effects[2];
@@ -608,7 +736,7 @@ const effects = [
       f.appendChild(slider('line width', e.lineWidth, 0.5, 4, 0.1, v => { e.lineWidth = v; }));
       f.appendChild(checkbox('fix second center', e.fixCenter, v => { e.fixCenter = v; }));
       f.appendChild(infoPanel('about this effect',
-        'Two sets of concentric circles with offset centers produce moiré patterns that trace out conic sections. Small offsets create elliptical fringes; larger offsets reveal hyperbolic curves. Move the mouse to shift the second center and watch the interference pattern morph.'));
+        'Two sets of concentric circles with offset centers produce conic section fringes. Small offsets → ellipses; larger offsets → hyperbolic curves. Move the mouse to shift the second center.'));
       controlsEl.appendChild(f);
     },
     render(w, h) {
@@ -631,15 +759,13 @@ const effects = [
       const w = canvas2d.width, h = canvas2d.height;
       const cx2 = e.fixCenter ? w / 2 + 80 : state.mouse.x * w;
       const cy2 = e.fixCenter ? h / 2 : state.mouse.y * h;
-      const dx = (cx2 - w / 2).toFixed(0);
-      const dy = (cy2 - h / 2).toFixed(0);
       return `<span class="label">spacing</span><span class="value">${e.period}px</span>` +
-        `<span class="label">Δx</span><span class="value">${dx}px</span>` +
-        `<span class="label">Δy</span><span class="value">${dy}px</span>`;
+        `<span class="label">Δx</span><span class="value">${(cx2 - w / 2).toFixed(0)}px</span>` +
+        `<span class="label">Δy</span><span class="value">${(cy2 - h / 2).toFixed(0)}px</span>`;
     }
   },
 
-  // Effect 3: Sine Grating (WebGL)
+  // 3: Sine Grating (WebGL)
   {
     buildControls() {
       const e = state.effects[3];
@@ -654,7 +780,7 @@ const effects = [
       f.appendChild(selectCtrl('color mode', ['grayscale', 'viridis', 'inferno'], e.colorMode, v => { e.colorMode = v; }));
       f.appendChild(checkbox('auto-rotate θ₂', e.autoRotate, v => { e.autoRotate = v; }));
       f.appendChild(infoPanel('about this effect',
-        'Two 2D sine gratings are overlaid per-pixel on the GPU. The intensity is I(x,y) = sin(2π(x·cos(θ₁)+y·sin(θ₁))/f₁) + sin(2π(x·cos(θ₂)+y·sin(θ₂))/f₂). This creates smooth, continuous interference patterns. The false-color modes map intensity to scientific color scales (Viridis/Inferno).'));
+        'Two 2D sine gratings overlaid per-pixel on the GPU. I(x,y) = sin(2π(x·cos(θ₁)+y·sin(θ₁))/f₁) + sin(2π(x·cos(θ₂)+y·sin(θ₂))/f₂). False-color modes map intensity to scientific color scales.'));
       controlsEl.appendChild(f);
     },
     render(w, h) {
@@ -675,25 +801,65 @@ const effects = [
     },
     formula() {
       const e = state.effects[3];
-      const delta = Math.abs(e.f1 - e.f2);
-      const pm = delta > 0.01 ? (e.f1 * e.f2) / delta : Infinity;
+      const d = Math.abs(e.f1 - e.f2);
+      const pm = d > 0.01 ? (e.f1 * e.f2) / d : Infinity;
       return `<span class="label">f₁</span><span class="value">${e.f1.toFixed(1)}</span>` +
         `<span class="label">f₂</span><span class="value">${e.f2.toFixed(1)}</span>` +
         `<span class="label">θ₁</span><span class="value">${e.theta1.toFixed(1)}°</span>` +
         `<span class="label">θ₂</span><span class="value">${e.theta2.toFixed(1)}°</span>` +
-        `<span class="label">beat period =</span><span class="value">${pm === Infinity ? '∞' : pm.toFixed(1)}</span>`;
+        `<span class="label">beat =</span><span class="value">${pm === Infinity ? '∞' : pm.toFixed(1)}</span>`;
     },
     animate(dt) {
       const e = state.effects[3];
       if (e.autoRotate) {
         e.theta2 = (e.theta2 + dt * e.rotSpeed * 0.02) % 360;
-        // Update slider if visible
-        const sliders = controlsEl.querySelectorAll('input[type="range"]');
-        if (sliders[3]) {
-          sliders[3].value = e.theta2;
-          sliders[3].previousElementSibling.querySelector('.val').textContent = e.theta2.toFixed(1);
-        }
       }
+    }
+  },
+
+  // 4: Dot Raster
+  {
+    buildControls() {
+      const e = state.effects[4];
+      const f = document.createDocumentFragment();
+      f.appendChild(slider('spacing (px)', e.spacing, 4, 40, 1, v => { e.spacing = v; }));
+      f.appendChild(slider('dot size (px)', e.dotSize, 0.5, 8, 0.25, v => { e.dotSize = v; }));
+      f.appendChild(slider('θ angle (°)', e.theta, 0, 30, 0.05, v => { e.theta = v; }));
+      f.appendChild(slider('density', e.rings, 10, 80, 1, v => { e.rings = v; }));
+      f.appendChild(selectCtrl('grid type', ['hexagonal', 'square'], e.grid === 'hex' ? 0 : 1, v => { e.grid = v === 0 ? 'hex' : 'square'; }));
+
+      const magicBtn = document.createElement('button');
+      magicBtn.className = 'btn';
+      magicBtn.textContent = e.grid === 'hex' ? 'magic angle (1.1°)' : 'magic angle (0°)';
+      magicBtn.style.marginBottom = '12px';
+      magicBtn.addEventListener('click', () => {
+        e.theta = e.grid === 'hex' ? 1.1 : 0;
+        switchTab(state.tab);
+      });
+      f.appendChild(magicBtn);
+
+      f.appendChild(infoPanel('about this effect',
+        'Two overlapping dot rasters with a small relative rotation. Hexagonal grids produce a special "magic angle" at ~1.1° where the moiré pattern forms a large-scale hexagonal superstructure — the same principle behind magic-angle graphene (twisted bilayer graphene). Square grids show classical rotational moiré.'));
+      controlsEl.appendChild(f);
+    },
+    render(w, h) {
+      const e = state.effects[4];
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, w, h);
+      drawDotGrid(ctx, w, h, e.spacing, e.dotSize, 0, e.grid);
+      ctx.globalCompositeOperation = 'multiply';
+      drawDotGrid(ctx, w, h, e.spacing, e.dotSize, e.theta * Math.PI / 180, e.grid);
+      ctx.globalCompositeOperation = 'source-over';
+    },
+    formula() {
+      const e = state.effects[4];
+      const thetaRad = e.theta * Math.PI / 180;
+      const sinH = Math.sin(thetaRad / 2);
+      const pm = sinH > 0.0001 ? e.spacing / (2 * sinH) : Infinity;
+      const isMagic = e.grid === 'hex' && Math.abs(e.theta - 1.1) < 0.1;
+      return `<span class="label">grid</span><span class="value">${e.grid}</span>` +
+        `<span class="label">θ</span><span class="value">${e.theta.toFixed(2)}°${isMagic ? ' ★' : ''}</span>` +
+        `<span class="label">p<sub>moiré</sub> =</span><span class="value">${pm === Infinity ? '∞' : pm.toFixed(1) + 'px'}</span>`;
     }
   }
 ];
@@ -701,22 +867,20 @@ const effects = [
 // ─── Tab switching ──────────────────────────────────────────
 function switchTab(i) {
   state.tab = i;
+  automations.length = 0;
   document.querySelectorAll('.tab').forEach((t, idx) => t.classList.toggle('active', idx === i));
   controlsEl.innerHTML = '';
 
-  // Reset button
   const btnRow = document.createElement('div');
   btnRow.className = 'btn-row';
   const resetBtn = document.createElement('button');
-  resetBtn.className = 'btn';
-  resetBtn.textContent = 'reset';
+  resetBtn.className = 'btn'; resetBtn.textContent = 'reset';
   resetBtn.addEventListener('click', resetEffect);
   btnRow.appendChild(resetBtn);
   controlsEl.appendChild(btnRow);
 
   effects[i].buildControls();
 
-  // Show correct canvas
   if (i === 3) {
     canvas2d.style.display = 'none';
     canvasGL.style.display = 'block';
@@ -726,7 +890,6 @@ function switchTab(i) {
   }
 }
 
-// ─── Reset ──────────────────────────────────────────────────
 const defaults = JSON.parse(JSON.stringify(state.effects));
 
 function resetEffect() {
@@ -736,13 +899,10 @@ function resetEffect() {
 
 // ─── Resize ─────────────────────────────────────────────────
 function resize() {
-  const w = wrap.clientWidth;
-  const h = wrap.clientHeight;
+  const w = wrap.clientWidth, h = wrap.clientHeight;
   const dpr = window.devicePixelRatio || 1;
-  canvas2d.width = w * dpr;
-  canvas2d.height = h * dpr;
-  canvasGL.width = w * dpr;
-  canvasGL.height = h * dpr;
+  canvas2d.width = w * dpr; canvas2d.height = h * dpr;
+  canvasGL.width = w * dpr; canvasGL.height = h * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
@@ -752,12 +912,20 @@ let lastTime = 0;
 function frame(time) {
   const dt = time - lastTime;
   lastTime = time;
-
   resize();
 
-  const w = wrap.clientWidth;
-  const h = wrap.clientHeight;
+  // Tick automations
+  for (const auto of automations) {
+    const val = auto.tick(dt);
+    if (val !== null) {
+      auto._onChange(val);
+      auto._input.value = val;
+      auto._valSpan.textContent = val.toFixed(auto._prec);
+      auto._valSpan.classList.add('automated');
+    }
+  }
 
+  const w = wrap.clientWidth, h = wrap.clientHeight;
   const eff = effects[state.tab];
   if (eff.animate) eff.animate(dt);
   eff.render(w, h);
@@ -768,24 +936,23 @@ function frame(time) {
 
 // ─── Mouse ──────────────────────────────────────────────────
 wrap.addEventListener('mousemove', e => {
-  const rect = wrap.getBoundingClientRect();
-  state.mouse.x = (e.clientX - rect.left) / rect.width;
-  state.mouse.y = (e.clientY - rect.top) / rect.height;
+  const r = wrap.getBoundingClientRect();
+  state.mouse.x = (e.clientX - r.left) / r.width;
+  state.mouse.y = (e.clientY - r.top) / r.height;
 });
 
 wrap.addEventListener('touchmove', e => {
   e.preventDefault();
-  const rect = wrap.getBoundingClientRect();
-  const t = e.touches[0];
-  state.mouse.x = (t.clientX - rect.left) / rect.width;
-  state.mouse.y = (t.clientY - rect.top) / rect.height;
+  const r = wrap.getBoundingClientRect();
+  state.mouse.x = (e.touches[0].clientX - r.left) / r.width;
+  state.mouse.y = (e.touches[0].clientY - r.top) / r.height;
 }, { passive: false });
 
 // ─── Keyboard ───────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-  if (e.key >= '1' && e.key <= '4') { switchTab(Number(e.key) - 1); return; }
-  if (e.key === ' ') { e.preventDefault(); state.animating = !state.animating; toggleAnimations(); return; }
+  if (e.key >= '1' && e.key <= '5') { switchTab(Number(e.key) - 1); return; }
+  if (e.key === ' ') { e.preventDefault(); return; }
   if (e.key === 'r' || e.key === 'R') { resetEffect(); return; }
   if (e.key === 'f' || e.key === 'F') {
     if (document.fullscreenElement) document.exitFullscreen();
@@ -793,13 +960,6 @@ document.addEventListener('keydown', e => {
   }
 });
 
-function toggleAnimations() {
-  if (state.tab === 1) state.effects[1].autoShift = state.animating;
-  if (state.tab === 3) state.effects[3].autoRotate = state.animating;
-  switchTab(state.tab);
-}
-
-// ─── Tab navigation ─────────────────────────────────────────
 document.getElementById('tabs').addEventListener('click', e => {
   const tab = e.target.closest('.tab');
   if (tab) switchTab(Number(tab.dataset.tab));
