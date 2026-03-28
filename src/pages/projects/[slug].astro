@@ -40,7 +40,7 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
     <header class="project-header">
       <div class="meta-line">
         <span class="day-number">#{dayNum}</span>
-        <time datetime={project.date}>{project.date}</time>
+        <time class="date" datetime={project.date}>{project.date}</time>
         <span class:list={['status', `status-${project.status}`]}>{project.status}</span>
       </div>
       <h1>{project.title}</h1>

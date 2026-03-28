@@ -307,20 +307,48 @@ select {
   margin: 8px 0;
 }
 
-.epilepsy-warning {
-  padding: 8px 16px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: #cc8800;
-  background: rgba(204, 136, 0, 0.08);
-  border-bottom: 1px solid rgba(204, 136, 0, 0.2);
-  text-align: center;
-  flex-shrink: 0;
-}
 
 .viewport { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .canvas-wrap { flex: 1; position: relative; min-height: 0; }
 .canvas-wrap canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+.gui-toggle {
+  position: fixed;
+  top: 8px;
+  right: 8px;
+  z-index: 100;
+  width: 32px;
+  height: 32px;
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 32px;
+  text-align: center;
+  background: var(--bg-panel);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  padding: 0;
+}
+
+.gui-toggle:hover { opacity: 1; }
+
+body.gui-hidden .tabs,
+body.gui-hidden .controls,
+body.gui-hidden .formula-bar,
+body.gui-hidden .shortcuts {
+  display: none !important;
+}
+
+body.gui-hidden .main {
+  display: block;
+}
+
+body.gui-hidden .viewport {
+  height: 100%;
+}
 
 .formula-bar {
   padding: 8px 16px;
@@ -397,7 +425,7 @@ select {
 </head>
 <body>
 
-<div class="epilepsy-warning">photosensitivity warning — this page contains rapidly changing high-contrast patterns</div>
+<button class="gui-toggle" id="guiToggle" title="Toggle UI (H)" aria-label="Toggle user interface">☰</button>
 
 <div class="tabs" id="tabs">
   <button class="tab active" data-tab="0">rotation <kbd>1</kbd></button>
@@ -419,6 +447,7 @@ select {
   <span><kbd>1</kbd>–<kbd>5</kbd> switch</span>
   <span><kbd>space</kbd> play/pause</span>
   <span><kbd>R</kbd> reset</span>
+  <span><kbd>H</kbd> hide UI</span>
   <span><kbd>F</kbd> fullscreen</span>
 </div>
 
@@ -1071,6 +1100,7 @@ function switchTab(i) {
     <div class="legend-item"><kbd>1</kbd>–<kbd>5</kbd> switch effect</div>
     <div class="legend-item"><kbd>space</kbd> stop / continue</div>
     <div class="legend-item"><kbd>R</kbd> reset to defaults</div>
+    <div class="legend-item"><kbd>H</kbd> hide/show UI</div>
     <div class="legend-item"><kbd>F</kbd> fullscreen</div>
   `;
   controlsEl.appendChild(legend);
@@ -1152,6 +1182,7 @@ document.addEventListener('keydown', e => {
   if (e.key >= '1' && e.key <= '5') { switchTab(Number(e.key) - 1); return; }
   if (e.key === ' ') { e.preventDefault(); togglePause(); return; }
   if (e.key === 'r' || e.key === 'R') { resetEffect(); return; }
+  if (e.key === 'h' || e.key === 'H') { toggleGUI(); return; }
   if (e.key === 'f' || e.key === 'F') {
     if (document.fullscreenElement) document.exitFullscreen();
     else document.documentElement.requestFullscreen();
@@ -1162,6 +1193,17 @@ document.getElementById('tabs').addEventListener('click', e => {
   const tab = e.target.closest('.tab');
   if (tab) switchTab(Number(tab.dataset.tab));
 });
+
+// ─── GUI toggle ─────────────────────────────────────────────
+function toggleGUI() {
+  document.body.classList.toggle('gui-hidden');
+  const hidden = document.body.classList.contains('gui-hidden');
+  const btn = document.getElementById('guiToggle');
+  btn.textContent = hidden ? '☰' : '☰';
+  btn.style.opacity = hidden ? '0.4' : '';
+}
+
+document.getElementById('guiToggle').addEventListener('click', toggleGUI);
 
 // ─── Init ───────────────────────────────────────────────────
 wrap.appendChild(canvas2d);

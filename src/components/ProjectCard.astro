@@ -16,7 +16,7 @@ const dayNum = String(project.day).padStart(3, '0');
   <div class="card-body">
     <div class="card-header">
       <span class="day-number" aria-hidden="true">#{dayNum}</span>
-      <time datetime={project.date}>{project.date}</time>
+      <time class="date" datetime={project.date}>{project.date}</time>
     </div>
     <h3 class="card-title">{project.title}</h3>
     <p class="card-description">{project.description}</p>
