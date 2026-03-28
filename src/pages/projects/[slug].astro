@@ -51,7 +51,7 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
         </div>
       )}
       <p class="description">{project.description}</p>
-      <a href={`/embed/${project.slug}/index.html`} target="_blank" rel="noopener" class="run-btn" aria-label={`Run ${project.title} (opens in new tab)`}>run</a>
+      <a href={`/embed/${project.slug}/index.html`} target="_blank" rel="noopener" class="run-btn" id="run-btn" aria-label={`Run ${project.title} (opens in new tab)`}><span class="run-prompt" aria-hidden="true">&gt; </span>run<span class="run-cursor" aria-hidden="true">_</span></a>
     </header>
 
     {thumbUrl && (
@@ -114,6 +114,15 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
   </article>
 </Base>
 
+<script>
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const tag = document.activeElement?.tagName;
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || tag === 'A' || tag === 'BUTTON') return;
+    document.getElementById('run-btn')?.click();
+  });
+</script>
+
 <style>
   .project-detail {
     max-width: 900px;
@@ -175,7 +184,6 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
   .run-btn {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-sm);
     margin-top: var(--space-lg);
     padding: var(--space-md) var(--space-xl);
     font-family: var(--font-mono);
@@ -193,6 +201,19 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
     background: var(--color-text-heading);
     color: var(--color-bg);
     transform: translateY(-1px);
+  }
+
+  .run-prompt {
+    opacity: 0.6;
+  }
+
+  .run-cursor {
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
   }
 
   .project-thumb {
