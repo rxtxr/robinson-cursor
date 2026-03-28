@@ -3,7 +3,7 @@
   "slug": "day-001-moire-explorer",
   "title": "Moiré Explorer",
   "date": "2026-03-28",
-  "description": "Interactive exploration of four moiré interference effects — rotation, frequency beating, concentric circles, and sine-wave WebGL shader.",
+  "description": "Interactive exploration of five moiré interference effects with per-parameter LFO automation. Photosensitivity warning: contains rapidly changing high-contrast patterns.",
   "tags": ["canvas", "webgl", "physics", "generative", "interactive"],
   "stack": ["Canvas 2D", "WebGL", "GLSL"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-001-moire-explorer",

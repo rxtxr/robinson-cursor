@@ -218,6 +218,42 @@ select {
 .btn:hover { background: var(--border); }
 .btn-row { display: flex; gap: 6px; margin-bottom: 12px; }
 
+.stop-btn {
+  padding: 8px 20px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.stop-btn:hover { transform: translateY(-1px); }
+
+.stop-btn.running {
+  background: #cc2244;
+  color: #fff;
+}
+
+.stop-btn.paused {
+  background: #22cc66;
+  color: #000;
+}
+
+.epilepsy-warning {
+  padding: 8px 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #cc8800;
+  background: rgba(204, 136, 0, 0.08);
+  border-bottom: 1px solid rgba(204, 136, 0, 0.2);
+  text-align: center;
+  flex-shrink: 0;
+}
+
 .viewport { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .canvas-wrap { flex: 1; position: relative; min-height: 0; }
 .canvas-wrap canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
@@ -296,6 +332,8 @@ select {
 </style>
 </head>
 <body>
+
+<div class="epilepsy-warning">photosensitivity warning — this page contains rapidly changing high-contrast patterns</div>
 
 <div class="tabs" id="tabs">
   <button class="tab active" data-tab="0">rotation <kbd>1</kbd></button>
@@ -864,6 +902,65 @@ const effects = [
   }
 ];
 
+// ─── Pause state ────────────────────────────────────────────
+let paused = false;
+
+function togglePause() {
+  paused = !paused;
+  updateStopBtn();
+}
+
+function updateStopBtn() {
+  const btn = document.getElementById('stopBtn');
+  if (!btn) return;
+  btn.className = paused ? 'stop-btn paused' : 'stop-btn running';
+  btn.textContent = paused ? 'continue' : 'stop';
+}
+
+// ─── Default automation presets per effect ───────────────────
+// Activates 1-2 gentle automations when a tab loads.
+// [sliderIndex, lo, hi, speed, wave]
+const autoPresets = {
+  0: [[0, 1, 12, 0.15, 'sine']],                    // θ: 1°–12°, slow sine
+  1: [[1, 17, 26, 0.12, 'triangle']],                // p₂: 17–26px
+  2: [],                                              // mouse-driven, no auto
+  3: [[3, 0, 40, 0.08, 'sine']],                     // θ₂: 0–40°
+  4: [[2, 0.3, 4, 0.1, 'sine']],                     // θ: 0.3°–4°
+};
+
+function applyPresets(tabIndex) {
+  const presets = autoPresets[tabIndex] || [];
+  for (const [idx, lo, hi, speed, wave] of presets) {
+    const auto = automations[idx];
+    if (!auto) continue;
+    auto.active = true;
+    auto.lo = lo;
+    auto.hi = hi;
+    auto.speed = speed;
+    auto.wave = wave;
+    // Update UI
+    auto._input?.classList.add('auto-active');
+    // Find and update the auto-toggle button and panel
+    const group = auto._input?.closest('.control-group');
+    if (group) {
+      const toggle = group.querySelector('.auto-toggle');
+      const panel = group.querySelector('.auto-panel');
+      if (toggle) toggle.classList.add('active');
+      if (panel) {
+        panel.classList.add('open');
+        // Update min/max/speed sliders in panel
+        const panelSliders = panel.querySelectorAll('input[type="range"]');
+        const panelVals = panel.querySelectorAll('.auto-val');
+        if (panelSliders[0]) { panelSliders[0].value = lo; panelVals[0].textContent = lo; }
+        if (panelSliders[1]) { panelSliders[1].value = hi; panelVals[1].textContent = hi; }
+        if (panelSliders[2]) { panelSliders[2].value = speed; panelVals[2].textContent = speed; }
+        const waveSel = panel.querySelector('select');
+        if (waveSel) waveSel.value = wave;
+      }
+    }
+  }
+}
+
 // ─── Tab switching ──────────────────────────────────────────
 function switchTab(i) {
   state.tab = i;
@@ -873,13 +970,23 @@ function switchTab(i) {
 
   const btnRow = document.createElement('div');
   btnRow.className = 'btn-row';
+
+  const stopBtn = document.createElement('button');
+  stopBtn.id = 'stopBtn';
+  stopBtn.className = paused ? 'stop-btn paused' : 'stop-btn running';
+  stopBtn.textContent = paused ? 'continue' : 'stop';
+  stopBtn.addEventListener('click', togglePause);
+  btnRow.appendChild(stopBtn);
+
   const resetBtn = document.createElement('button');
   resetBtn.className = 'btn'; resetBtn.textContent = 'reset';
   resetBtn.addEventListener('click', resetEffect);
   btnRow.appendChild(resetBtn);
+
   controlsEl.appendChild(btnRow);
 
   effects[i].buildControls();
+  applyPresets(i);
 
   if (i === 3) {
     canvas2d.style.display = 'none';
@@ -914,22 +1021,26 @@ function frame(time) {
   lastTime = time;
   resize();
 
-  // Tick automations
-  for (const auto of automations) {
-    const val = auto.tick(dt);
-    if (val !== null) {
-      auto._onChange(val);
-      auto._input.value = val;
-      auto._valSpan.textContent = val.toFixed(auto._prec);
-      auto._valSpan.classList.add('automated');
+  if (!paused) {
+    // Tick automations
+    for (const auto of automations) {
+      const val = auto.tick(dt);
+      if (val !== null) {
+        auto._onChange(val);
+        auto._input.value = val;
+        auto._valSpan.textContent = val.toFixed(auto._prec);
+        auto._valSpan.classList.add('automated');
+      }
     }
+
+    const eff = effects[state.tab];
+    if (eff.animate) eff.animate(dt);
   }
 
+  // Always render (so manual slider changes show even when paused)
   const w = wrap.clientWidth, h = wrap.clientHeight;
-  const eff = effects[state.tab];
-  if (eff.animate) eff.animate(dt);
-  eff.render(w, h);
-  formulaBar.innerHTML = eff.formula();
+  effects[state.tab].render(w, h);
+  formulaBar.innerHTML = effects[state.tab].formula();
 
   requestAnimationFrame(frame);
 }
@@ -952,7 +1063,7 @@ wrap.addEventListener('touchmove', e => {
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
   if (e.key >= '1' && e.key <= '5') { switchTab(Number(e.key) - 1); return; }
-  if (e.key === ' ') { e.preventDefault(); return; }
+  if (e.key === ' ') { e.preventDefault(); togglePause(); return; }
   if (e.key === 'r' || e.key === 'R') { resetEffect(); return; }
   if (e.key === 'f' || e.key === 'F') {
     if (document.fullscreenElement) document.exitFullscreen();

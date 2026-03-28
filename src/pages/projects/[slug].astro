@@ -44,6 +44,12 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
         <span class:list={['status', `status-${project.status}`]}>{project.status}</span>
       </div>
       <h1>{project.title}</h1>
+      {project.description?.toLowerCase().includes('photosensitivity') && (
+        <div class="epilepsy-warning">
+          Photosensitivity Warning: This project contains rapidly changing high-contrast patterns
+          and animations that may cause discomfort or trigger seizures in people with photosensitive epilepsy.
+        </div>
+      )}
       <p class="description">{project.description}</p>
       <a href={`/embed/${project.slug}/index.html`} target="_blank" rel="noopener" class="run-btn">run</a>
     </header>
@@ -146,6 +152,19 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
   .status-complete { background: #0a2a1a; color: #00d4aa; }
   .status-wip { background: #2a2a0a; color: #d4aa00; }
   .status-template { background: #1a1a2a; color: #6a6a7a; }
+
+  .epilepsy-warning {
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    background: rgba(204, 136, 0, 0.1);
+    border: 1px solid rgba(204, 136, 0, 0.3);
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #cc8800;
+    line-height: 1.6;
+  }
 
   .description {
     color: var(--color-text-muted);

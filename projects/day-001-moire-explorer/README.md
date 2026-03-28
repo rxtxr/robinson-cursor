@@ -1,5 +1,7 @@
 # Day 001 — Moiré Explorer
 
+**Photosensitivity Warning:** This project contains rapidly changing high-contrast patterns and animations that may cause discomfort or trigger seizures in people with photosensitive epilepsy. Use the red STOP button to immediately halt all animations.
+
 Interactive exploration of moiré interference patterns.
 
 ## Effects
