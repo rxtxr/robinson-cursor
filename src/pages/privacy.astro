@@ -1,5 +1,26 @@
 ---
 import Base from '../layouts/Base.astro';
+
+// Obfuscate personal contact data — same approach as imprint
+const contactData = [
+  'Marius Bruns',
+  'Piependamm 8',
+  '28279 Bremen, Germany',
+  'mareisen@pm.me',
+];
+
+const key = 'rc365vibe';
+function xorEncode(str, k) {
+  return Array.from(str).map((c, i) =>
+    String.fromCharCode(c.charCodeAt(0) ^ k.charCodeAt(i % k.length))
+  ).join('');
+}
+
+const encodedContact = Buffer.from(
+  JSON.stringify(contactData.map(line => xorEncode(line, key)))
+).toString('base64');
+
+const keyParts = [key.slice(0, 3), key.slice(3, 6), key.slice(6)];
 ---
 
 <Base title="Privacy Policy — robinson-cursor.com" description="Privacy policy for robinson-cursor.com.">
@@ -8,12 +29,8 @@ import Base from '../layouts/Base.astro';
 
     <section>
       <h2>controller</h2>
-      <p>
-        Marius Bruns<br />
-        Piependamm 8<br />
-        28279 Bremen, Germany<br />
-        mareisen@pm.me
-      </p>
+      <div id="contact"></div>
+      <noscript><p>Please enable JavaScript to see contact details.</p></noscript>
     </section>
 
     <section>
@@ -85,6 +102,21 @@ import Base from '../layouts/Base.astro';
     </section>
   </article>
 </Base>
+
+<script define:vars={{ encodedContact, keyParts }}>
+  const k = keyParts[0] + keyParts[1] + keyParts[2];
+  const lines = JSON.parse(atob(encodedContact));
+  const el = document.getElementById('contact');
+  if (el) {
+    const p = document.createElement('p');
+    p.innerHTML = lines.map(line =>
+      Array.from(line).map((c, i) =>
+        String.fromCharCode(c.charCodeAt(0) ^ k.charCodeAt(i % k.length))
+      ).join('')
+    ).join('<br>');
+    el.appendChild(p);
+  }
+</script>
 
 <style>
   .privacy-page {
