@@ -22,3 +22,10 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# editor settings
+.vscode/
+
+# project context (local only)
+CLAUDE_CODE_PROMPT.md
+ROBINSON_CURSOR_CONTEXT.md
