@@ -1205,22 +1205,29 @@ wrap.addEventListener('touchmove', e => {
 // Click = additive spike that decays. Stacks with current value.
 const impulses = [];
 
-const impulseConfig = {
-  0: (x, y) => [{ key: 'theta', amount: 15 * (0.5 + Math.abs(x - 0.5)), decay: 3 }],
-  1: (x, y) => [{ key: 'p2', amount: (x - 0.5) * 30, decay: 2.5 }],
-  2: (x, y) => [
-    { key: 'offsetX', amount: (x - 0.5) * 200, decay: 3 },
-    { key: 'offsetY', amount: (y - 0.5) * 200, decay: 3 },
-  ],
-  3: (x, y) => [
-    { key: 'theta2', amount: 20 * (0.3 + x), decay: 3 },
-    { key: 'f2', amount: (y - 0.5) * 20, decay: 3 },
-  ],
-  4: (x, y) => [{ key: 'theta', amount: 5 * (0.2 + x), decay: 3 }],
+// Each param: [key, range, decay] — amount = range * intensity
+const impulseParams = {
+  0: [['theta', 20, 2.5], ['period', 30, 3], ['duty', 0.3, 3.5], ['phase', 0.4, 3]],
+  1: [['p1', 30, 2.5], ['p2', 35, 2.5], ['duty', 0.3, 3.5]],
+  2: [['period', 20, 3], ['lineWidth', 8, 3], ['offsetX', 180, 2.5], ['offsetY', 180, 2.5]],
+  3: [['f1', 25, 2.5], ['f2', 30, 2.5], ['theta2', 40, 2], ['amplitude', 0.6, 3]],
+  4: [['theta', 8, 2.5], ['spacing', 12, 3], ['dotSize', 3, 3]],
 };
 
+function impulseConfig(tab, x, y) {
+  const params = impulseParams[tab] || [];
+  // Click position modulates intensity and direction
+  const intensity = 0.4 + 0.6 * Math.sqrt((x - 0.5) ** 2 + (y - 0.5) ** 2) * 2;
+  const sign = () => (Math.random() > 0.5 ? 1 : -1);
+  return params.map(([key, range, decay]) => ({
+    key,
+    amount: range * intensity * sign() * (0.6 + Math.random() * 0.4),
+    decay,
+  }));
+}
+
 function spawnImpulse(normX, normY) {
-  const configs = impulseConfig[state.tab]?.(normX, normY) || [];
+  const configs = impulseConfig(state.tab, normX, normY);
   for (const cfg of configs) {
     impulses.push({
       tab: state.tab,
