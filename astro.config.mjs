@@ -20,6 +20,7 @@ function copyProjectsIntegration() {
 }
 
 export default defineConfig({
+  site: 'https://robinson-cursor.com',
   output: 'static',
   base: '/',
   integrations: [copyProjectsIntegration()],

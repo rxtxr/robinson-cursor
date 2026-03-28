@@ -3,20 +3,20 @@ const { project, thumbUrl } = Astro.props;
 const dayNum = String(project.day).padStart(3, '0');
 ---
 
-<a href={`/projects/${project.slug}`} class="project-card">
+<a href={`/projects/${project.slug}`} class="project-card" aria-label={`Day ${dayNum}: ${project.title}`}>
   {thumbUrl ? (
     <div class="card-thumb">
-      <img src={thumbUrl} alt={`Preview of ${project.title}`} loading="lazy" />
+      <img src={thumbUrl} alt="" loading="lazy" />
     </div>
   ) : (
-    <div class="card-thumb card-thumb-empty">
+    <div class="card-thumb card-thumb-empty" aria-hidden="true">
       <span class="thumb-placeholder">#{dayNum}</span>
     </div>
   )}
   <div class="card-body">
     <div class="card-header">
-      <span class="day-number">#{dayNum}</span>
-      <span class="date">{project.date}</span>
+      <span class="day-number" aria-hidden="true">#{dayNum}</span>
+      <time datetime={project.date}>{project.date}</time>
     </div>
     <h3 class="card-title">{project.title}</h3>
     <p class="card-description">{project.description}</p>

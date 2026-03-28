@@ -35,23 +35,23 @@ const prevProject = currentIndex > 0 ? sorted[currentIndex - 1] : null;
 const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] : null;
 ---
 
-<Base title={`#${dayNum} ${project.title} — robinson-cursor.com`} description={project.description}>
+<Base title={`#${dayNum} ${project.title} — robinson-cursor.com`} description={project.description} ogImage={thumbUrl || ''}>
   <article class="project-detail">
     <header class="project-header">
       <div class="meta-line">
         <span class="day-number">#{dayNum}</span>
-        <span class="date">{project.date}</span>
+        <time datetime={project.date}>{project.date}</time>
         <span class:list={['status', `status-${project.status}`]}>{project.status}</span>
       </div>
       <h1>{project.title}</h1>
       {project.description?.toLowerCase().includes('photosensitivity') && (
-        <div class="epilepsy-warning">
+        <div class="epilepsy-warning" role="alert">
           Photosensitivity Warning: This project contains rapidly changing high-contrast patterns
           and animations that may cause discomfort or trigger seizures in people with photosensitive epilepsy.
         </div>
       )}
       <p class="description">{project.description}</p>
-      <a href={`/embed/${project.slug}/index.html`} target="_blank" rel="noopener" class="run-btn">run</a>
+      <a href={`/embed/${project.slug}/index.html`} target="_blank" rel="noopener" class="run-btn" aria-label={`Run ${project.title} (opens in new tab)`}>run</a>
     </header>
 
     {thumbUrl && (
@@ -96,18 +96,18 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
 
     {project.github && (
       <p class="github-link">
-        <a href={project.github} target="_blank" rel="noopener">source on github</a>
+        <a href={project.github} target="_blank" rel="noopener" aria-label={`Source code for ${project.title} on GitHub (opens in new tab)`}>source on github</a>
       </p>
     )}
 
-    <nav class="project-nav">
-      <a href="/" class="nav-back">&larr; all projects</a>
+    <nav class="project-nav" aria-label="Project navigation">
+      <a href="/" class="nav-back" aria-label="Back to all projects">&larr; all projects</a>
       <div class="nav-prevnext">
         {prevProject && (
-          <a href={`/projects/${prevProject.slug}`} class="nav-prev">&larr; #{String(prevProject.day).padStart(3, '0')}</a>
+          <a href={`/projects/${prevProject.slug}`} class="nav-prev" aria-label={`Previous: ${prevProject.title}`}>&larr; #{String(prevProject.day).padStart(3, '0')}</a>
         )}
         {nextProject && (
-          <a href={`/projects/${nextProject.slug}`} class="nav-next">#{String(nextProject.day).padStart(3, '0')} &rarr;</a>
+          <a href={`/projects/${nextProject.slug}`} class="nav-next" aria-label={`Next: ${nextProject.title}`}>#{String(nextProject.day).padStart(3, '0')} &rarr;</a>
         )}
       </div>
     </nav>

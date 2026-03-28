@@ -3,7 +3,14 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import '../styles/global.css';
 
-const { title = 'robinson-cursor.com', description = '365 days of vibecoding — one browser experiment per day.', noindex = false } = Astro.props;
+const {
+  title = 'robinson-cursor.com',
+  description = '365 days of vibecoding — one browser experiment per day.',
+  noindex = false,
+  ogImage = '',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://robinson-cursor.com');
 ---
 
 <!doctype html>
@@ -12,16 +19,46 @@ const { title = 'robinson-cursor.com', description = '365 days of vibecoding —
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#0a0a0f" />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalURL} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
   <body>
+    <a href="#main-content" class="skip-link">skip to content</a>
     <Header />
-    <main>
+    <main id="main-content">
       <slot />
     </main>
     <Footer />
   </body>
 </html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    padding: 8px 16px;
+    background: var(--color-accent);
+    color: var(--color-bg);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    z-index: 1000;
+    text-decoration: none;
+  }
+
+  .skip-link:focus {
+    top: 0;
+  }
+</style>

@@ -40,9 +40,9 @@ const keyParts = [key.slice(0, 3), key.slice(3, 6), key.slice(6)];
 <Base title="Imprint — robinson-cursor.com" description="" noindex={true}>
   <article class="imprint-page" id="imprint">
     <p class="gate-text">Legal information as required by German law.</p>
-    <button class="reveal-btn" id="reveal" type="button">show imprint</button>
-    <div class="imprint-content" id="content" hidden></div>
-    <noscript><p>This page requires JavaScript.</p></noscript>
+    <button class="reveal-btn" id="reveal" type="button" aria-expanded="false" aria-controls="content">show imprint</button>
+    <div class="imprint-content" id="content" hidden aria-live="polite"></div>
+    <noscript><p>This page requires JavaScript to display contact details.</p></noscript>
   </article>
 </Base>
 
@@ -80,8 +80,10 @@ const keyParts = [key.slice(0, 3), key.slice(3, 6), key.slice(6)];
 
     content.replaceChildren(frag);
     content.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
     btn.remove();
     document.querySelector('.gate-text')?.remove();
+    content.focus();
   }, { once: true });
 </script>
 

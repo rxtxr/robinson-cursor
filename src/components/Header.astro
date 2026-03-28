@@ -3,13 +3,13 @@ const currentPath = Astro.url.pathname;
 ---
 
 <header class="site-header">
-  <nav>
-    <a href="/" class="logo">
-      <span class="logo-mark">&gt;_</span> robinson-cursor
+  <nav aria-label="Main navigation">
+    <a href="/" class="logo" aria-label="robinson-cursor — home">
+      <span class="logo-mark" aria-hidden="true">&gt;_</span> robinson-cursor
     </a>
     <ul class="nav-links">
-      <li><a href="/" class:list={[{ active: currentPath === '/' }]}>projects</a></li>
-      <li><a href="/about" class:list={[{ active: currentPath === '/about' || currentPath === '/about/' }]}>about</a></li>
+      <li><a href="/" aria-current={currentPath === '/' ? 'page' : undefined}>projects</a></li>
+      <li><a href="/about" aria-current={currentPath === '/about' || currentPath === '/about/' ? 'page' : undefined}>about</a></li>
     </ul>
   </nav>
 </header>
@@ -56,7 +56,7 @@ const currentPath = Astro.url.pathname;
   }
 
   .nav-links a:hover,
-  .nav-links a.active {
+  .nav-links a[aria-current="page"] {
     color: var(--color-accent);
   }
 </style>

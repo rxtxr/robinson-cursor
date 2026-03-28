@@ -15,7 +15,7 @@ const thumbFiles = import.meta.glob('/projects/*/thumb.png', { eager: true, quer
   </section>
 
   {projects.length > 0 ? (
-    <section class="project-grid">
+    <section class="project-grid" aria-label="All projects">
       {projects.map((project) => (
         <ProjectCard project={project} thumbUrl={thumbFiles[`/projects/${project.slug}/thumb.png`] || null} />
       ))}
