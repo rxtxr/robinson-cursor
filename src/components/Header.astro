@@ -5,11 +5,12 @@ const currentPath = Astro.url.pathname;
 <header class="site-header">
   <nav aria-label="Main navigation">
     <a href="/" class="logo" aria-label="robinson-cursor — home">
-      <span class="logo-mark" aria-hidden="true">&gt;_</span> robinson-cursor
+      <span class="logo-prompt" aria-hidden="true">&gt;</span>robinson-cursor<span class="logo-cursor" aria-hidden="true">_</span>
     </a>
     <ul class="nav-links">
       <li><a href="/" aria-current={currentPath === '/' ? 'page' : undefined}>projects</a></li>
       <li><a href="/about" aria-current={currentPath === '/about' || currentPath === '/about/' ? 'page' : undefined}>about</a></li>
+      <li><a href="/rss.xml" aria-label="RSS feed">rss</a></li>
     </ul>
   </nav>
 </header>
@@ -37,8 +38,19 @@ const currentPath = Astro.url.pathname;
 
   .logo:hover { color: var(--color-accent); }
 
-  .logo-mark {
+  .logo-prompt {
     color: var(--color-accent);
+    opacity: 0.6;
+  }
+
+  .logo-cursor {
+    color: var(--color-accent);
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
   }
 
   .nav-links {

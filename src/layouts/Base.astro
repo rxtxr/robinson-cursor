@@ -23,6 +23,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://robinson
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonicalURL} />
+    <link rel="alternate" type="application/rss+xml" title="robinson-cursor.com" href="/rss.xml" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
