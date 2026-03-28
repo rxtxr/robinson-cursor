@@ -45,9 +45,7 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
       </div>
       <h1>{project.title}</h1>
       <p class="description">{project.description}</p>
-      {project.status !== 'template' && (
-        <a href={`/embed/${project.slug}/index.html`} target="_blank" rel="noopener" class="run-btn">run</a>
-      )}
+      <a href={`/embed/${project.slug}/index.html`} target="_blank" rel="noopener" class="run-btn">run</a>
     </header>
 
     {thumbUrl && (
