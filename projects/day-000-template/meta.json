@@ -3,10 +3,10 @@
   "slug": "day-000-template",
   "title": "Template — Project Scaffold",
   "date": "2026-03-28",
-  "description": "Structural template for new daily projects. Shows all meta.json fields and expected directory layout.",
-  "tags": ["template", "reference"],
-  "stack": ["HTML"],
-  "github": "",
+  "description": "Structural template for new daily projects. Demonstrates all meta.json fields and the expected directory layout at full extent.",
+  "tags": ["template", "reference", "scaffold", "documentation"],
+  "stack": ["HTML", "CSS", "JavaScript"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-000-template",
   "status": "template",
-  "license_notes": "No external dependencies"
+  "license_notes": "No external dependencies. Example entry: p5.js (MIT), Tone.js (MIT)"
 }

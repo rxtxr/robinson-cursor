@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getAllProjects } from '../../lib/projects.js';
+import { marked } from 'marked';
 
 export async function getStaticPaths() {
   const projects = await getAllProjects();
@@ -16,7 +17,8 @@ const dayNum = String(project.day).padStart(3, '0');
 // Load README if it exists
 const readmeFiles = import.meta.glob('/projects/*/README.md', { query: '?raw', import: 'default', eager: true });
 const readmeKey = `/projects/${project.slug}/README.md`;
-const readmeContent = readmeFiles[readmeKey];
+const readmeRaw = readmeFiles[readmeKey];
+const readmeContent = readmeRaw ? marked.parse(readmeRaw) : null;
 
 // Get all projects for prev/next navigation
 const allProjects = await getAllProjects();

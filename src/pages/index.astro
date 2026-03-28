@@ -1,9 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
 import ProjectCard from '../components/ProjectCard.astro';
-import { getProjects } from '../lib/projects.js';
+import { getAllProjects } from '../lib/projects.js';
 
-const projects = await getProjects();
+const projects = await getAllProjects();
 ---
 
 <Base title="robinson-cursor.com — 365 days of vibecoding">
