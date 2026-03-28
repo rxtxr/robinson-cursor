@@ -1,42 +1,44 @@
 ---
 import Base from '../layouts/Base.astro';
 
-// Obfuscate imprint data at build time: XOR with a key, then base64-encode.
-// The key is split across JS so it never appears as a single readable string.
-// Data is only decoded after a user click — bots that execute JS but don't
-// simulate clicks will never see the content.
+// Obfuscate imprint data at build time.
+// Encode to UTF-8 bytes, XOR each byte, then base64 the result.
+// Data is only decoded after a user click.
 
 const imprintData = [
   { type: 'h1', text: 'Imprint' },
-  { type: 'h2', text: 'Information according to § 5 TMG' },
+  { type: 'h2', text: 'Information according to \u00A7 5 TMG' },
   { type: 'p',  text: 'Marius Bruns' },
   { type: 'p',  text: 'Piependamm 8' },
   { type: 'p',  text: '28279 Bremen, Germany' },
   { type: 'h2', text: 'Contact' },
   { type: 'p',  text: 'mareisen@pm.me' },
-  { type: 'h2', text: 'Responsible for content according to § 55 Abs. 2 RStV' },
+  { type: 'h2', text: 'Responsible for content according to \u00A7 55 Abs. 2 RStV' },
   { type: 'p',  text: 'Marius Bruns' },
   { type: 'p',  text: 'Piependamm 8, 28279 Bremen' },
 ];
 
 const key = 'rc365vibe';
-function xorEncode(str, k) {
-  return Array.from(str).map((c, i) =>
-    String.fromCharCode(c.charCodeAt(0) ^ k.charCodeAt(i % k.length))
-  ).join('');
+
+function xorEncodeBytes(str, k) {
+  const textBytes = Buffer.from(str, 'utf-8');
+  const keyBytes = Buffer.from(k, 'utf-8');
+  const result = Buffer.alloc(textBytes.length);
+  for (let i = 0; i < textBytes.length; i++) {
+    result[i] = textBytes[i] ^ keyBytes[i % keyBytes.length];
+  }
+  return result.toString('base64');
 }
 
 const encoded = Buffer.from(
-  JSON.stringify(imprintData.map(d => ({ t: d.type, c: xorEncode(d.text, key) })))
+  JSON.stringify(imprintData.map(d => ({ t: d.type, c: xorEncodeBytes(d.text, key) })))
 ).toString('base64');
 
-// Split the key into parts that get assembled at runtime
 const keyParts = [key.slice(0, 3), key.slice(3, 6), key.slice(6)];
 ---
 
 <Base title="Imprint — robinson-cursor.com" description="" noindex={true}>
   <article class="imprint-page" id="imprint">
-    <h1>imprint</h1>
     <p class="gate-text">Legal information as required by German law.</p>
     <button class="reveal-btn" id="reveal" type="button">show imprint</button>
     <div class="imprint-content" id="content" hidden></div>
@@ -48,21 +50,31 @@ const keyParts = [key.slice(0, 3), key.slice(3, 6), key.slice(6)];
   const btn = document.getElementById('reveal');
   const content = document.getElementById('content');
 
-  btn.addEventListener('click', () => {
-    // Assemble key from parts
-    const k = keyParts[0] + keyParts[1] + keyParts[2];
+  function b64ToBytes(b64) {
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
 
-    // Decode
-    const raw = JSON.parse(atob(encoded));
+  function xorDecodeBytes(b64, k) {
+    const data = b64ToBytes(b64);
+    const keyBytes = new TextEncoder().encode(k);
+    const result = new Uint8Array(data.length);
+    for (let i = 0; i < data.length; i++) {
+      result[i] = data[i] ^ keyBytes[i % keyBytes.length];
+    }
+    return new TextDecoder().decode(result);
+  }
+
+  btn.addEventListener('click', () => {
+    const k = keyParts[0] + keyParts[1] + keyParts[2];
+    const raw = JSON.parse(new TextDecoder().decode(b64ToBytes(encoded)));
     const frag = document.createDocumentFragment();
 
     for (const item of raw) {
-      const decoded = Array.from(item.c).map((c, i) =>
-        String.fromCharCode(c.charCodeAt(0) ^ k.charCodeAt(i % k.length))
-      ).join('');
-
       const el = document.createElement(item.t);
-      el.textContent = decoded;
+      el.textContent = xorDecodeBytes(item.c, k);
       frag.appendChild(el);
     }
 
