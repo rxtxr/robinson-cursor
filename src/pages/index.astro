@@ -4,6 +4,8 @@ import ProjectCard from '../components/ProjectCard.astro';
 import { getAllProjects } from '../lib/projects.js';
 
 const projects = await getAllProjects();
+
+const thumbFiles = import.meta.glob('/projects/*/thumb.png', { eager: true, query: '?url', import: 'default' });
 ---
 
 <Base title="robinson-cursor.com — 365 days of vibecoding">
@@ -15,7 +17,7 @@ const projects = await getAllProjects();
   {projects.length > 0 ? (
     <section class="project-grid">
       {projects.map((project) => (
-        <ProjectCard project={project} />
+        <ProjectCard project={project} thumbUrl={thumbFiles[`/projects/${project.slug}/thumb.png`] || null} />
       ))}
     </section>
   ) : (

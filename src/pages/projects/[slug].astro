@@ -14,6 +14,11 @@ export async function getStaticPaths() {
 const { project } = Astro.props;
 const dayNum = String(project.day).padStart(3, '0');
 
+// Check for thumbnail
+const thumbFiles = import.meta.glob('/projects/*/thumb.png', { eager: true, query: '?url', import: 'default' });
+const thumbKey = `/projects/${project.slug}/thumb.png`;
+const thumbUrl = thumbFiles[thumbKey] || null;
+
 // Load README if it exists
 const readmeFiles = import.meta.glob('/projects/*/README.md', { query: '?raw', import: 'default', eager: true });
 const readmeKey = `/projects/${project.slug}/README.md`;
@@ -40,7 +45,16 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
       </div>
       <h1>{project.title}</h1>
       <p class="description">{project.description}</p>
+      {project.status !== 'template' && (
+        <a href={`/embed/${project.slug}/index.html`} target="_blank" rel="noopener" class="run-btn">run</a>
+      )}
     </header>
+
+    {thumbUrl && (
+      <div class="project-thumb">
+        <img src={thumbUrl} alt={`Screenshot of ${project.title}`} loading="lazy" />
+      </div>
+    )}
 
     <div class="project-meta">
       {project.stack && project.stack.length > 0 && (
@@ -149,6 +163,36 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
     color: var(--color-text-muted);
     margin-top: var(--space-sm);
     font-size: 0.95rem;
+  }
+
+  .run-btn {
+    display: inline-block;
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-lg);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-bg);
+    background: var(--color-accent);
+    border-radius: var(--radius);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: background 0.2s;
+  }
+
+  .run-btn:hover {
+    background: var(--color-text-heading);
+    color: var(--color-bg);
+  }
+
+  .project-thumb {
+    margin-bottom: var(--space-lg);
+  }
+
+  .project-thumb img {
+    width: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
   }
 
   .project-meta {

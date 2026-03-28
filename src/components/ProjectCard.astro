@@ -1,19 +1,30 @@
 ---
-const { project } = Astro.props;
+const { project, thumbUrl } = Astro.props;
 const dayNum = String(project.day).padStart(3, '0');
 ---
 
 <a href={`/projects/${project.slug}`} class="project-card">
-  <div class="card-header">
-    <span class="day-number">#{dayNum}</span>
-    <span class="date">{project.date}</span>
-  </div>
-  <h3 class="card-title">{project.title}</h3>
-  <p class="card-description">{project.description}</p>
-  <div class="card-tags">
-    {project.tags.map((tag) => (
-      <span class="badge">{tag}</span>
-    ))}
+  {thumbUrl ? (
+    <div class="card-thumb">
+      <img src={thumbUrl} alt={`Preview of ${project.title}`} loading="lazy" />
+    </div>
+  ) : (
+    <div class="card-thumb card-thumb-empty">
+      <span class="thumb-placeholder">#{dayNum}</span>
+    </div>
+  )}
+  <div class="card-body">
+    <div class="card-header">
+      <span class="day-number">#{dayNum}</span>
+      <span class="date">{project.date}</span>
+    </div>
+    <h3 class="card-title">{project.title}</h3>
+    <p class="card-description">{project.description}</p>
+    <div class="card-tags">
+      {project.tags.map((tag) => (
+        <span class="badge">{tag}</span>
+      ))}
+    </div>
   </div>
 </a>
 
@@ -21,18 +32,51 @@ const dayNum = String(project.day).padStart(3, '0');
   .project-card {
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
-    padding: var(--space-lg);
     background: var(--color-bg-card);
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
     transition: background 0.2s, border-color 0.2s;
     text-decoration: none;
+    overflow: hidden;
   }
 
   .project-card:hover {
     background: var(--color-bg-card-hover);
     border-color: var(--color-accent-dim);
+  }
+
+  .card-thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card-thumb-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg);
+  }
+
+  .thumb-placeholder {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-border);
+  }
+
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-md);
   }
 
   .card-header {
