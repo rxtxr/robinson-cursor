@@ -243,6 +243,70 @@ select {
   color: #000;
 }
 
+.legend {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.legend-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.legend-item {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  line-height: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-item kbd {
+  padding: 1px 4px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 10px;
+}
+
+.legend-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.auto-sample {
+  background: var(--bg-control);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-family: var(--mono);
+  color: var(--text-dim);
+}
+
+.stop-sample {
+  border-radius: 3px;
+  font-size: 9px;
+}
+
+.stop-sample.running { background: #cc2244; color: #fff; }
+.stop-sample.paused { background: #22cc66; color: #000; }
+
+.legend-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 0;
+}
+
 .epilepsy-warning {
   padding: 8px 16px;
   font-family: var(--mono);
@@ -410,7 +474,7 @@ const state = {
   effects: [
     { theta: 5, period: 20, duty: 0.5, phase: 0, color1: '#000000', color2: '#000000', blend: 'normal' },
     { p1: 20, p2: 22, duty: 0.5, phase1: 0, phase2: 0, autoShift: false, speed: 1 },
-    { period: 15, rings: 40, lineWidth: 1, fixCenter: false },
+    { period: 15, rings: 40, lineWidth: 1, offsetX: 80, offsetY: 0, mouseInfluence: true },
     { f1: 30, f2: 32, theta1: 0, theta2: 5, amplitude: 1, colorMode: 0, autoRotate: false, rotSpeed: 0.5, zoom: 1 },
     { spacing: 12, dotSize: 2, theta: 1.1, grid: 'hex', rings: 50 },
   ]
@@ -772,18 +836,29 @@ const effects = [
       f.appendChild(slider('ring spacing (px)', e.period, 5, 60, 1, v => { e.period = v; }));
       f.appendChild(slider('ring count', e.rings, 5, 80, 1, v => { e.rings = v; }));
       f.appendChild(slider('line width', e.lineWidth, 0.5, 4, 0.1, v => { e.lineWidth = v; }));
-      f.appendChild(checkbox('fix second center', e.fixCenter, v => { e.fixCenter = v; }));
+      f.appendChild(slider('offset x (px)', e.offsetX, -300, 300, 1, v => { e.offsetX = v; }));
+      f.appendChild(slider('offset y (px)', e.offsetY, -300, 300, 1, v => { e.offsetY = v; }));
+      f.appendChild(checkbox('mouse modifies offset', e.mouseInfluence, v => { e.mouseInfluence = v; }));
       f.appendChild(infoPanel('about this effect',
-        'Two sets of concentric circles with offset centers produce conic section fringes. Small offsets → ellipses; larger offsets → hyperbolic curves. Move the mouse to shift the second center.'));
+        'Two sets of concentric circles with offset centers produce conic section fringes. Small offsets → ellipses; larger offsets → hyperbolic curves. Use the offset sliders or move the mouse over the canvas to shift the second center.'));
       controlsEl.appendChild(f);
+    },
+    _getOffset(w, h) {
+      const e = state.effects[2];
+      let ox = e.offsetX, oy = e.offsetY;
+      if (e.mouseInfluence) {
+        ox += (state.mouse.x - 0.5) * w * 0.5;
+        oy += (state.mouse.y - 0.5) * h * 0.5;
+      }
+      return [ox, oy];
     },
     render(w, h) {
       const e = state.effects[2];
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, w, h);
       const cx1 = w / 2, cy1 = h / 2;
-      const cx2 = e.fixCenter ? w / 2 + 80 : state.mouse.x * w;
-      const cy2 = e.fixCenter ? h / 2 : state.mouse.y * h;
+      const [ox, oy] = this._getOffset(w, h);
+      const cx2 = cx1 + ox, cy2 = cy1 + oy;
       ctx.strokeStyle = '#000000';
       ctx.lineWidth = e.lineWidth;
       for (let i = 1; i <= e.rings; i++) {
@@ -794,12 +869,11 @@ const effects = [
     },
     formula() {
       const e = state.effects[2];
-      const w = canvas2d.width, h = canvas2d.height;
-      const cx2 = e.fixCenter ? w / 2 + 80 : state.mouse.x * w;
-      const cy2 = e.fixCenter ? h / 2 : state.mouse.y * h;
+      const w = wrap.clientWidth, h = wrap.clientHeight;
+      const [ox, oy] = this._getOffset(w, h);
       return `<span class="label">spacing</span><span class="value">${e.period}px</span>` +
-        `<span class="label">Δx</span><span class="value">${(cx2 - w / 2).toFixed(0)}px</span>` +
-        `<span class="label">Δy</span><span class="value">${(cy2 - h / 2).toFixed(0)}px</span>`;
+        `<span class="label">Δx</span><span class="value">${ox.toFixed(0)}px</span>` +
+        `<span class="label">Δy</span><span class="value">${oy.toFixed(0)}px</span>`;
     }
   },
 
@@ -923,7 +997,7 @@ function updateStopBtn() {
 const autoPresets = {
   0: [[0, 1, 12, 0.15, 'sine']],                    // θ: 1°–12°, slow sine
   1: [[1, 17, 26, 0.12, 'triangle']],                // p₂: 17–26px
-  2: [],                                              // mouse-driven, no auto
+  2: [[3, -120, 120, 0.08, 'sine']],                   // offset x: -120–120px
   3: [[3, 0, 40, 0.08, 'sine']],                     // θ₂: 0–40°
   4: [[2, 0.3, 4, 0.1, 'sine']],                     // θ: 0.3°–4°
 };
@@ -987,6 +1061,24 @@ function switchTab(i) {
 
   effects[i].buildControls();
   applyPresets(i);
+
+  // Legend
+  const legend = document.createElement('div');
+  legend.className = 'legend';
+  legend.innerHTML = `
+    <div class="legend-title">legend</div>
+    <div class="legend-item"><span class="legend-icon auto-sample">~</span> automation — oscillate parameter automatically</div>
+    <div class="legend-item"><span class="legend-icon" style="color:var(--accent-auto)">●</span> yellow = automation active</div>
+    <div class="legend-item"><span class="legend-icon stop-sample running">■</span> stop — halt all animations</div>
+    <div class="legend-item"><span class="legend-icon stop-sample paused">▶</span> continue — resume animations</div>
+    <div class="legend-item"><span class="legend-icon">▸</span> expand info panel</div>
+    <div class="legend-sep"></div>
+    <div class="legend-item"><kbd>1</kbd>–<kbd>5</kbd> switch effect</div>
+    <div class="legend-item"><kbd>space</kbd> stop / continue</div>
+    <div class="legend-item"><kbd>R</kbd> reset to defaults</div>
+    <div class="legend-item"><kbd>F</kbd> fullscreen</div>
+  `;
+  controlsEl.appendChild(legend);
 
   if (i === 3) {
     canvas2d.style.display = 'none';
