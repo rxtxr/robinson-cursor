@@ -1201,36 +1201,34 @@ wrap.addEventListener('touchmove', e => {
   state.mouse.y = (e.touches[0].clientY - r.top) / r.height;
 }, { passive: false });
 
-// ─── Impulse system (click ripple) ──────────────────────────
-// A click drops a stone — parameters ripple and decay back.
+// ─── Impulse system (click kick) ────────────────────────────
+// Click = additive spike that decays. Stacks with current value.
 const impulses = [];
 
 const impulseConfig = {
-  0: (x, y, e) => [{ key: 'theta', amount: 15 * (0.5 + Math.abs(x - 0.5)), decay: 2.5 }],
-  1: (x, y, e) => [{ key: 'p2', amount: (x - 0.5) * 30, decay: 2 }],
-  2: (x, y, e) => [
+  0: (x, y) => [{ key: 'theta', amount: 15 * (0.5 + Math.abs(x - 0.5)), decay: 3 }],
+  1: (x, y) => [{ key: 'p2', amount: (x - 0.5) * 30, decay: 2.5 }],
+  2: (x, y) => [
     { key: 'offsetX', amount: (x - 0.5) * 200, decay: 3 },
     { key: 'offsetY', amount: (y - 0.5) * 200, decay: 3 },
   ],
-  3: (x, y, e) => [
-    { key: 'theta2', amount: 20 * (0.3 + x), decay: 2.5 },
+  3: (x, y) => [
+    { key: 'theta2', amount: 20 * (0.3 + x), decay: 3 },
     { key: 'f2', amount: (y - 0.5) * 20, decay: 3 },
   ],
-  4: (x, y, e) => [{ key: 'theta', amount: 5 * (0.2 + x), decay: 3 }],
+  4: (x, y) => [{ key: 'theta', amount: 5 * (0.2 + x), decay: 3 }],
 };
 
 function spawnImpulse(normX, normY) {
-  const tab = state.tab;
-  const e = state.effects[tab];
-  const configs = impulseConfig[tab]?.(normX, normY, e) || [];
+  const configs = impulseConfig[state.tab]?.(normX, normY) || [];
   for (const cfg of configs) {
     impulses.push({
-      tab,
+      tab: state.tab,
       key: cfg.key,
-      base: e[cfg.key],
       amount: cfg.amount,
       decay: cfg.decay,
       age: 0,
+      lastDelta: 0,
     });
   }
 }
@@ -1239,30 +1237,26 @@ function tickImpulses(dt) {
   for (let i = impulses.length - 1; i >= 0; i--) {
     const imp = impulses[i];
     imp.age += dt * 0.001;
-    const t = Math.exp(-imp.age * imp.decay);
-    if (t < 0.005) {
-      // Restore base value
-      state.effects[imp.tab][imp.key] = imp.base;
+    const newDelta = imp.amount * Math.exp(-imp.age * imp.decay);
+    // Apply difference from last frame (purely additive)
+    const diff = newDelta - imp.lastDelta;
+    state.effects[imp.tab][imp.key] += diff;
+    imp.lastDelta = newDelta;
+    if (Math.abs(newDelta) < 0.01) {
       impulses.splice(i, 1);
-    } else {
-      state.effects[imp.tab][imp.key] = imp.base + imp.amount * t;
     }
   }
 }
 
 wrap.addEventListener('click', e => {
   const r = wrap.getBoundingClientRect();
-  const x = (e.clientX - r.left) / r.width;
-  const y = (e.clientY - r.top) / r.height;
-  spawnImpulse(x, y);
+  spawnImpulse((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
 });
 
 wrap.addEventListener('touchstart', e => {
   const r = wrap.getBoundingClientRect();
   const t = e.touches[0];
-  const x = (t.clientX - r.left) / r.width;
-  const y = (t.clientY - r.top) / r.height;
-  spawnImpulse(x, y);
+  spawnImpulse((t.clientX - r.left) / r.width, (t.clientY - r.top) / r.height);
 }, { passive: true });
 
 // ─── Keyboard ───────────────────────────────────────────────
