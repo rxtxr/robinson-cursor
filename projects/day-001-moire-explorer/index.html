@@ -971,8 +971,9 @@ const effects = [
     render(w, h) {
       if (!gl) return;
       const e = state.effects[3];
-      gl.viewport(0, 0, w, h);
-      gl.uniform2f(glUniforms.u_resolution, w, h);
+      const dpr = window.devicePixelRatio || 1;
+      gl.viewport(0, 0, w * dpr, h * dpr);
+      gl.uniform2f(glUniforms.u_resolution, w * dpr, h * dpr);
       gl.uniform1f(glUniforms.u_f1, e.f1);
       gl.uniform1f(glUniforms.u_f2, e.f2);
       gl.uniform1f(glUniforms.u_theta1, e.theta1);
