@@ -23,7 +23,7 @@ You can generate your own charts from your personal listening history.
 
 **Spotify:** Request your Extended Streaming History at [spotify.com/account/privacy](https://www.spotify.com/account/privacy). Place the `Streaming_History_Audio_*.json` files in `raw-data/spotify/`.
 
-**ListenBrainz:** Export your listens from [listenbrainz.org](https://listenbrainz.org). Place monthly JSONL files in `raw-data/listenbrainz/listens/YEAR/MONTH.jsonl`. You can use either or both sources.
+**Last.fm / ListenBrainz:** If you have a Last.fm account, you can import your scrobble history into [ListenBrainz](https://listenbrainz.org) (there's a built-in Last.fm importer). Then export your listens and place the monthly JSONL files in `raw-data/listenbrainz/listens/YEAR/MONTH.jsonl`. You can use Spotify, ListenBrainz, or both.
 
 ### 2. Optional: API enrichment
 
@@ -35,6 +35,8 @@ LASTFM_SHARED_SECRET=your_secret_here
 SPOTIFY_CLIENT_ID=your_id_here
 SPOTIFY_CLIENT_SECRET=your_secret_here
 ```
+
+Get a free Last.fm API key at [last.fm/api/account/create](https://www.last.fm/api/account/create). Get Spotify credentials at [developer.spotify.com](https://developer.spotify.com/dashboard).
 
 Then run the enrichment scripts (optional, improves genre charts):
 
