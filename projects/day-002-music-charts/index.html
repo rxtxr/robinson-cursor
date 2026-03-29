@@ -1006,7 +1006,7 @@ body {
     padding: 0.5rem;
   }
   .hva-pos { font-size: 0.9rem !important; }
-  .hva-song-title { font-size: 0.85rem; white-space: normal; }
+  .hva-song-title { font-size: 0.85rem; }
   .hva-song-artist { font-size: 0.7rem; }
   .hva-row-head { display: none; }
   .hva-bar-stack { height: 12px; }
@@ -1079,6 +1079,10 @@ body {
 .hva-algo .hva-row:nth-child(-n+4) .hva-pos { color: #8aaccc; font-size: 1.4rem; }
 .hva-algo .hva-row:nth-child(n+12) .hva-pos { color: #252a33; }
 
+.hva-song-info {
+  min-width: 0;
+}
+
 .hva-song-title {
   font-weight: 600;
   font-size: 0.95rem;
@@ -1094,6 +1098,9 @@ body {
   font-size: 0.78rem;
   font-weight: 400;
   margin-top: 0.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .hva-heart .hva-song-artist { color: #907880; }
 .hva-algo .hva-song-artist { color: #667; }
@@ -1391,7 +1398,7 @@ async function renderHeartVsAlgo(el) {
           ${heart.map((d, i) => `
             <div class="hva-row" data-idx="${i}">
               <div class="hva-pos">${i + 1}</div>
-              <div>
+              <div class="hva-song-info">
                 <div class="hva-song-title">${esc(d.tr)}</div>
                 <div class="hva-song-artist">${esc(d.ar)}</div>
               </div>
@@ -1443,7 +1450,7 @@ async function renderHeartVsAlgo(el) {
             return `
             <div class="hva-row" style="grid-template-columns:52px 1fr 100px 180px 72px" data-idx="${i}">
               <div class="hva-pos">${i + 1}</div>
-              <div>
+              <div class="hva-song-info">
                 <div class="hva-song-title">${esc(d.tr)}</div>
                 <div class="hva-song-artist">${esc(d.ar)}</div>
               </div>
