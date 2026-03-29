@@ -32,3 +32,9 @@ ROBINSON_CURSOR_CONTEXT.md
 
 # one-off scripts
 scripts/
+
+# day-002 music graph: raw data, caches, database (large/private)
+projects/day-002-music-graph/raw-data/
+projects/day-002-music-graph/data/
+projects/day-002-music-graph/scripts/
+projects/day-002-music-graph/.env

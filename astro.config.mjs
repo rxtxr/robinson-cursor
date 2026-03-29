@@ -1,10 +1,14 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import { cpSync, existsSync } from 'node:fs';
+import { cpSync, existsSync, lstatSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 // Copy raw project files to dist/embed/ after Astro build completes
+// Excludes: raw-data/, data/ (except frontend JSONs already in charts/),
+// scripts/, .env, __pycache__, .duckdb, caches
 function copyProjectsIntegration() {
+  const EXCLUDE_DIRS = new Set(['raw-data', 'data', 'scripts', '__pycache__']);
+  const EXCLUDE_FILES = [/^\.env$/, /\.duckdb$/, /\.duckdb\.wal$/];
   return {
     name: 'copy-projects',
     hooks: {
@@ -12,7 +16,15 @@ function copyProjectsIntegration() {
         const src = resolve('projects');
         const dest = resolve('dist/embed');
         if (existsSync(src)) {
-          cpSync(src, dest, { recursive: true });
+          cpSync(src, dest, {
+            recursive: true,
+            filter: (source) => {
+              const name = source.split('/').pop();
+              if (lstatSync(source).isDirectory() && EXCLUDE_DIRS.has(name)) return false;
+              if (EXCLUDE_FILES.some(p => p.test(name))) return false;
+              return true;
+            }
+          });
         }
       }
     }

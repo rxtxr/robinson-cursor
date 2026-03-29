@@ -4,7 +4,7 @@ export async function getProjects() {
   const metaFiles = import.meta.glob('/projects/*/meta.json', { eager: true });
   const projects = Object.values(metaFiles)
     .map((mod) => mod.default || mod)
-    .filter((p) => p.status !== 'template')
+    .filter((p) => p.status !== 'template' && p.status !== 'wip')
     .sort((a, b) => b.day - a.day);
   return projects;
 }

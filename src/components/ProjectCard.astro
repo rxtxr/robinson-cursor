@@ -2,9 +2,10 @@
 const { project, thumbUrl } = Astro.props;
 const dayNum = String(project.day).padStart(3, '0');
 const isTemplate = project.status === 'template';
+const isWip = project.status === 'wip';
 ---
 
-<a href={`/projects/${project.slug}`} class:list={['project-card', { 'card-template': isTemplate }]} aria-label={`Day ${dayNum}: ${project.title}`}>
+<a href={`/projects/${project.slug}`} class:list={['project-card', { 'card-template': isTemplate, 'card-wip': isWip }]} aria-label={`Day ${dayNum}: ${project.title}`}>
   {thumbUrl ? (
     <div class="card-thumb">
       <img src={thumbUrl} alt="" loading="lazy" />
@@ -19,7 +20,10 @@ const isTemplate = project.status === 'template';
       <span class="day-number" aria-hidden="true">#{dayNum}</span>
       <time class="date" datetime={project.date}>{project.date}</time>
     </div>
-    <h3 class="card-title">{project.title}</h3>
+    <h3 class="card-title">
+      {isWip && <span class="wip-badge">work in progress</span>}
+      {project.title}
+    </h3>
     <p class="card-description">{project.description}</p>
     <div class="card-tags">
       {project.tags.map((tag) => (
@@ -113,6 +117,32 @@ const isTemplate = project.status === 'template';
     flex-wrap: wrap;
     gap: var(--space-xs);
     margin-top: var(--space-xs);
+  }
+
+  .card-wip {
+    border-color: #c0392b;
+  }
+
+  .card-wip:hover {
+    border-color: #e74c3c;
+  }
+
+  .card-wip .day-number {
+    color: #e74c3c;
+  }
+
+  .wip-badge {
+    display: inline-block;
+    background: #c0392b;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.15em 0.5em;
+    border-radius: 3px;
+    margin-right: 0.4em;
+    vertical-align: middle;
   }
 
   .card-template {

@@ -1,0 +1,1845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Personal music charts spanning 20 years of listening history. Heart Top 100 vs. algorithmic inflation, decade charts, yearly rankings, and newcomer discoveries.">
+<meta name="theme-color" content="#0a0a0f">
+<title>Billboard Charts — 20 Years of Listening</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;500;600;700&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,700&family=Press+Start+2P&family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   GLOBAL RESET + SHELL
+   ═══════════════════════════════════════════ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 999;
+  background: #e8c56a;
+  color: #000;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+}
+.skip-link:focus { left: 0; }
+
+:focus-visible {
+  outline: 2px solid #e8c56a;
+  outline-offset: 2px;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #0a0a0f;
+  color: #e0e0e8;
+  min-height: 100vh;
+}
+
+/* ── Shell Nav ── */
+.shell-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #2a2a3a;
+  background: #0f0f18;
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.shell-nav::-webkit-scrollbar { display: none; }
+
+.shell-nav button {
+  background: none;
+  border: none;
+  color: #999;
+  padding: 0.9rem 1.4rem;
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.shell-nav button:hover { color: #fff; }
+.shell-nav button.active { color: #fff; border-bottom-color: #e8c56a; }
+
+/* ── Page containers ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── Tooltip ── */
+.tip {
+  position: fixed;
+  background: #1a1a25;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.72rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+  z-index: 999;
+  max-width: 260px;
+  line-height: 1.5;
+  font-family: 'Inter', sans-serif;
+  color: #ccc;
+}
+.tip.show { opacity: 1; }
+.tip b { color: #fff; }
+.tip em { color: #f2c94c; font-style: normal; }
+
+/* ═══════════════════════════════════════════
+   THEME: BILLBOARD CLASSIC (pre-2000)
+   Aged newsprint, bold condensed type, red accents
+   ═══════════════════════════════════════════ */
+.bb-classic {
+  background: #f0e4cc;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+  color: #2c2416;
+  min-height: 100vh;
+  font-family: 'Oswald', sans-serif;
+  position: relative;
+}
+
+.bb-classic::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 100px rgba(0,0,0,0.15);
+}
+
+.bb-classic .bb-masthead {
+  background: #c0392b;
+  color: #fff;
+  text-align: center;
+  padding: 2rem 1.5rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.bb-classic .bb-masthead::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,0,0,0.04) 1px, rgba(0,0,0,0.04) 2px);
+}
+
+.bb-classic .bb-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 0.95;
+  text-shadow: 3px 3px 0 rgba(0,0,0,0.25);
+  position: relative;
+}
+
+.bb-classic .bb-edition {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 300;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  margin-top: 0.4rem;
+  opacity: 0.85;
+}
+
+.bb-classic .bb-stripe {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 1.5rem;
+  background: #1a1a1a;
+  color: #f2c94c;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+}
+
+.bb-classic .bb-body {
+  padding: 0 1.5rem 2rem;
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.bb-classic .bb-col-head {
+  display: grid;
+  grid-template-columns: 52px 1fr 80px;
+  padding: 0.6rem 0.5rem 0.3rem;
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #8a7a60;
+  border-bottom: 2px solid #2c2416;
+}
+
+.bb-classic .bb-entry {
+  display: grid;
+  grid-template-columns: 52px 1fr 80px;
+  align-items: center;
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid #d4c4a0;
+  transition: background 0.1s;
+  gap: 0.5rem;
+}
+.bb-classic .bb-entry:hover { background: rgba(180,160,120,0.15); }
+
+.bb-classic .bb-pos {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  text-align: center;
+  line-height: 1;
+  color: #2c2416;
+}
+.bb-classic .bb-entry:nth-child(-n+3) .bb-pos {
+  color: #c0392b;
+  font-size: 2rem;
+}
+
+.bb-classic .bb-info h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.015em;
+  line-height: 1.15;
+}
+.bb-classic .bb-entry:nth-child(-n+3) .bb-info h4 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.bb-classic .bb-info .bb-sub {
+  font-size: 0.6rem;
+  color: #8a7a60;
+  font-weight: 400;
+}
+
+.bb-classic .bb-count {
+  text-align: right;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+
+.bb-classic .bb-footer {
+  text-align: center;
+  padding: 0.8rem;
+  font-size: 0.5rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #8a7a60;
+  border-top: 2px solid #d4c4a0;
+}
+
+/* ═══════════════════════════════════════════
+   THEME: 2000s WEB 1.0
+   Tables, beveled borders, teal/purple, pixel feel
+   ═══════════════════════════════════════════ */
+.bb-y2k {
+  background: #1a0a2e;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(0,100,200,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse at 80% 50%, rgba(150,0,200,0.06) 0%, transparent 70%);
+  color: #00ff88;
+  min-height: 100vh;
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  image-rendering: pixelated;
+}
+
+.bb-y2k .y2k-header {
+  background: linear-gradient(180deg, #000033 0%, #000066 50%, #000033 100%);
+  border-bottom: 3px solid #00ccff;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.bb-y2k .y2k-title {
+  font-size: clamp(1rem, 4vw, 1.8rem);
+  color: #00ffcc;
+  text-shadow: 0 0 10px #00ffcc, 0 0 20px #00886666;
+  margin-bottom: 0.5rem;
+}
+
+.bb-y2k .y2k-subtitle {
+  font-size: 0.5rem;
+  color: #6688cc;
+  letter-spacing: 0.1em;
+}
+
+.bb-y2k .y2k-marquee {
+  background: #000;
+  color: #ffcc00;
+  padding: 0.3rem 0;
+  font-size: 0.45rem;
+  overflow: hidden;
+  white-space: nowrap;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+}
+
+.bb-y2k .y2k-marquee span {
+  display: inline-block;
+  animation: marquee 30s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-100%); }
+}
+
+.bb-y2k .y2k-body {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.bb-y2k .y2k-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid #0066cc;
+  font-size: 0.45rem;
+}
+
+.bb-y2k .y2k-table th {
+  background: linear-gradient(180deg, #003399, #001166);
+  color: #00ccff;
+  padding: 0.5rem 0.4rem;
+  text-align: left;
+  border: 1px solid #0044aa;
+  font-size: 0.4rem;
+}
+
+.bb-y2k .y2k-table td {
+  padding: 0.35rem 0.4rem;
+  border: 1px solid #1a1a4d;
+  color: #88ccff;
+}
+
+.bb-y2k .y2k-table tr:nth-child(even) td { background: rgba(0,30,80,0.3); }
+.bb-y2k .y2k-table tr:hover td { background: rgba(0,100,200,0.15); color: #00ffcc; }
+
+.bb-y2k .y2k-table .y2k-rank {
+  color: #ffcc00;
+  text-align: center;
+  width: 35px;
+  font-size: 0.5rem;
+}
+.bb-y2k .y2k-table tr:nth-child(-n+3) .y2k-rank { color: #ff3366; }
+
+.bb-y2k .y2k-table .y2k-name { color: #00ff88; }
+.bb-y2k .y2k-table .y2k-count { text-align: right; color: #ffcc00; }
+
+.bb-y2k .y2k-footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.35rem;
+  color: #334466;
+}
+
+.bb-y2k .y2k-counter {
+  font-size: 0.4rem;
+  color: #666;
+  text-align: right;
+  padding: 0.3rem 1rem;
+}
+
+/* ═══════════════════════════════════════════
+   THEME: 2010s FLAT / MODERN
+   Clean flat design, bold colors, card layout
+   ═══════════════════════════════════════════ */
+.bb-flat {
+  background: #f5f5f5;
+  color: #333;
+  min-height: 100vh;
+  font-family: 'DM Sans', 'Inter', sans-serif;
+}
+
+.bb-flat .flat-header {
+  background: #fff;
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 4px solid #333;
+}
+
+.bb-flat .flat-title {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.bb-flat .flat-subtitle {
+  font-size: 0.85rem;
+  color: #999;
+  margin-top: 0.3rem;
+  font-weight: 400;
+}
+
+.bb-flat .flat-accent {
+  display: inline-block;
+  background: #ff3366;
+  color: #fff;
+  padding: 0.15em 0.5em;
+  font-weight: 700;
+}
+
+.bb-flat .flat-body {
+  padding: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.bb-flat .flat-entry {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: center;
+  padding: 0.7rem 0.8rem;
+  background: #fff;
+  margin-bottom: 2px;
+  gap: 1rem;
+  transition: transform 0.1s;
+}
+.bb-flat .flat-entry:hover { transform: translateX(4px); }
+
+.bb-flat .flat-pos {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ccc;
+  text-align: center;
+}
+.bb-flat .flat-entry:nth-child(-n+3) .flat-pos { color: #ff3366; }
+
+.bb-flat .flat-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.bb-flat .flat-meta {
+  font-size: 0.7rem;
+  color: #999;
+}
+
+.bb-flat .flat-stat {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #333;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════
+   THEME: 2020s SPOTIFY-STYLE
+   Dark mode, green accents, rounded, smooth
+   ═══════════════════════════════════════════ */
+.bb-spotify {
+  background: #121212;
+  color: #fff;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+.bb-spotify .sp-header {
+  background: linear-gradient(180deg, #1a3a2a 0%, #121212 100%);
+  padding: 3rem 2rem 2rem;
+}
+
+.bb-spotify .sp-title {
+  font-size: clamp(1.8rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.bb-spotify .sp-subtitle {
+  color: #b3b3b3;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.bb-spotify .sp-badge {
+  display: inline-block;
+  background: #1db954;
+  color: #000;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2em 0.6em;
+  border-radius: 20px;
+  margin-top: 0.5rem;
+}
+
+.bb-spotify .sp-body {
+  padding: 0 1.5rem 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.bb-spotify .sp-entry {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  gap: 0.8rem;
+  transition: background 0.15s;
+}
+.bb-spotify .sp-entry:hover { background: rgba(255,255,255,0.07); }
+
+.bb-spotify .sp-pos {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #b3b3b3;
+  text-align: right;
+}
+.bb-spotify .sp-entry:nth-child(-n+3) .sp-pos { color: #1db954; font-weight: 700; }
+
+.bb-spotify .sp-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bb-spotify .sp-meta {
+  font-size: 0.7rem;
+  color: #b3b3b3;
+}
+
+.bb-spotify .sp-stat {
+  color: #b3b3b3;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════
+   THEME: GENRE BILLBOARD
+   Classic magazine cover with genre sections
+   ═══════════════════════════════════════════ */
+.bb-genre {
+  background: #1a1a1a;
+  color: #fff;
+  font-family: 'Oswald', sans-serif;
+  min-height: 100vh;
+}
+
+.bb-genre .genre-header {
+  background: linear-gradient(135deg, #c0392b 0%, #8e44ad 100%);
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+.bb-genre .genre-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(2rem, 7vw, 4rem);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+}
+
+.bb-genre .genre-sub {
+  font-weight: 300;
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  margin-top: 0.3rem;
+}
+
+.bb-genre .genre-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1px;
+  background: #333;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.bb-genre .genre-card {
+  background: #1a1a1a;
+  padding: 1.25rem;
+}
+
+.bb-genre .genre-card-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.15rem;
+}
+
+.bb-genre .genre-card-stats {
+  font-size: 0.6rem;
+  color: #888;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+
+.bb-genre .genre-card-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.2rem 0;
+  font-size: 0.7rem;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.bb-genre .genre-card-entry .gce-rank {
+  color: #666;
+  margin-right: 0.5rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.85rem;
+}
+
+.bb-genre .genre-card-entry:nth-child(-n+3) .gce-rank { color: #c0392b; }
+
+.bb-genre .genre-card-entry .gce-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.bb-genre .genre-card-entry .gce-plays {
+  color: #888;
+  margin-left: 0.5rem;
+  font-family: 'Bebas Neue', sans-serif;
+}
+
+/* ═══════════════════════════════════════════
+   THEME: 80s MAGAZINE SCAN
+   Photocopied look, halftone dots, worn edges,
+   neon pink/cyan, bold Helvetica-style type
+   ═══════════════════════════════════════════ */
+.bb-80scan {
+  background: #e8dcc8;
+  color: #1a1a1a;
+  min-height: 100vh;
+  font-family: 'Oswald', 'Helvetica Neue', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Paper grain + slight rotation for "scanned" feel */
+.bb-80scan::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Scan artifacts — slight skew and shadow edges */
+.bb-80scan::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  box-shadow:
+    inset 0 0 60px rgba(0,0,0,0.12),
+    inset 4px 0 30px rgba(0,0,0,0.06),
+    inset -2px 0 20px rgba(0,0,0,0.04);
+  background: linear-gradient(
+    90deg,
+    rgba(0,0,0,0.07) 0%,
+    transparent 3%,
+    transparent 97%,
+    rgba(0,0,0,0.05) 100%
+  );
+}
+
+.bb-80scan .scan-page {
+  position: relative;
+  z-index: 0;
+  transform: rotate(-0.3deg);
+  padding: 0.5rem;
+}
+
+.bb-80scan .scan-masthead {
+  background: #000;
+  color: #fff;
+  padding: 1.2rem 1.5rem 0.8rem;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 1.2rem;
+  overflow: hidden;
+}
+
+/* Halftone dot overlay */
+.bb-80scan .scan-masthead::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+  background-size: 3px 3px;
+  pointer-events: none;
+}
+
+.bb-80scan .scan-logo {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(2.5rem, 9vw, 5rem);
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: #ff1493;
+  text-shadow: 2px 2px 0 #00ced1, -1px -1px 0 rgba(255,20,147,0.4);
+  flex-shrink: 0;
+}
+
+.bb-80scan .scan-tagline {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: #ccc;
+  padding-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.bb-80scan .scan-neon-bar {
+  height: 4px;
+  background: linear-gradient(90deg, #ff1493, #00ced1, #ff1493, #ffff00, #ff1493);
+  position: relative;
+}
+
+.bb-80scan .scan-issue-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 1.5rem;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #666;
+  border-bottom: 1px solid #c4a882;
+}
+
+.bb-80scan .scan-chart-title {
+  text-align: center;
+  padding: 1rem 1rem 0.5rem;
+}
+
+.bb-80scan .scan-chart-title h2 {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  position: relative;
+  display: inline-block;
+}
+
+.bb-80scan .scan-chart-title h2::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #ff1493;
+}
+
+.bb-80scan .scan-chart-title p {
+  font-size: 0.6rem;
+  color: #888;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 0.4rem;
+}
+
+.bb-80scan .scan-body {
+  padding: 0 1rem 1.5rem;
+  max-width: 880px;
+  margin: 0 auto;
+  column-count: 2;
+  column-gap: 1.5rem;
+  column-rule: 1px solid #c4a882;
+}
+
+@media (max-width: 700px) {
+  .bb-80scan .scan-body { column-count: 1; }
+}
+
+.bb-80scan .scan-entry {
+  break-inside: avoid;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #d8ccb4;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.bb-80scan .scan-entry:nth-child(-n+3) {
+  padding: 0.4rem 0;
+}
+
+.bb-80scan .scan-rank {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  min-width: 28px;
+  text-align: right;
+  color: #555;
+  flex-shrink: 0;
+}
+
+.bb-80scan .scan-entry:nth-child(-n+3) .scan-rank {
+  color: #ff1493;
+  font-size: 1.4rem;
+}
+
+.bb-80scan .scan-song {
+  flex: 1;
+  min-width: 0;
+}
+
+.bb-80scan .scan-song-title {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.01em;
+}
+
+.bb-80scan .scan-entry:nth-child(-n+3) .scan-song-title {
+  font-size: 0.8rem;
+}
+
+.bb-80scan .scan-song-artist {
+  font-weight: 400;
+  font-size: 0.58rem;
+  color: #777;
+  font-style: italic;
+  font-family: 'Playfair Display', serif;
+}
+
+.bb-80scan .scan-plays {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.85rem;
+  color: #999;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.bb-80scan .scan-footer {
+  text-align: center;
+  padding: 0.6rem;
+  font-size: 0.4rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #aaa;
+  border-top: 1px solid #c4a882;
+  font-family: 'Oswald', sans-serif;
+}
+
+/* Faded ink effect on certain rows — like uneven print */
+.bb-80scan .scan-entry:nth-child(7n+4) { opacity: 0.92; }
+.bb-80scan .scan-entry:nth-child(11n+6) { opacity: 0.88; }
+.bb-80scan .scan-entry:nth-child(13n+9) .scan-song-title { letter-spacing: 0.03em; }
+
+/* Coffee stain easter egg (subtle) */
+.bb-80scan .scan-stain {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(139,90,43,0.06) 30%, rgba(139,90,43,0.03) 60%, transparent 70%);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ═══════════════════════════════════════════
+   THEME: HEART vs ALGO
+   ═══════════════════════════════════════════ */
+.hva {
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+.hva-tabs {
+  display: flex;
+  background: #0d0d0d;
+  border-bottom: 1px solid #222;
+}
+
+.hva-tab {
+  flex: 1;
+  padding: 1.2rem 1rem;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+}
+
+.hva-tab-heart {
+  background: #0d0d0d;
+  color: #664;
+}
+.hva-tab-heart.active, .hva-tab-heart:hover {
+  color: #e8c56a;
+  border-bottom-color: #e8c56a;
+}
+
+.hva-tab-algo {
+  background: #0d0d0d;
+  color: #446;
+}
+.hva-tab-algo.active, .hva-tab-algo:hover {
+  color: #8aaccc;
+  border-bottom-color: #8aaccc;
+}
+
+.hva-panel { display: none; }
+.hva-panel.active { display: block; }
+
+/* ── Heart panel — kitschig rosa ── */
+.hva-heart {
+  background: linear-gradient(180deg, #1a0a10 0%, #12080c 100%);
+  color: #e8d0d8;
+}
+
+.hva-heart .hva-header {
+  padding: 3rem 2rem 2rem;
+  text-align: center;
+  border-bottom: 1px solid #2a1520;
+}
+
+.hva-heart .hva-big-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.2rem, 8vw, 4.5rem);
+  font-weight: 700;
+  font-style: italic;
+  color: #f2a0b8;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  text-shadow: 0 0 60px rgba(242,160,184,0.2);
+}
+
+.hva-heart .hva-desc {
+  font-size: 0.9rem;
+  color: #a0808c;
+  font-weight: 400;
+  margin-top: 0.75rem;
+  letter-spacing: 0;
+  text-transform: none;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.hva-heart .hva-legend {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1rem;
+  font-size: 0.75rem;
+  color: #a08090;
+}
+
+.hva-heart .hva-legend span::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+}
+.hva-heart .hva-legend .leg-intent::before { background: #f2a0b8; }
+.hva-heart .hva-legend .leg-auto::before { background: #3a2a30; }
+.hva-heart .hva-legend .leg-skip::before { background: #1a1015; border: 1px solid #2a1a20; }
+.hva-heart .hva-legend .leg-lb::before { background: #7c6eab; }
+
+.hva-list {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+}
+
+.hva-row {
+  display: grid;
+  grid-template-columns: 52px 1fr 180px 72px;
+  align-items: center;
+  padding: 0.65rem 0.75rem;
+  gap: 1rem;
+  transition: background 0.1s;
+}
+.hva-heart .hva-row { border-bottom: 1px solid #1e1218; }
+.hva-algo .hva-row { border-bottom: 1px solid #141820; }
+.hva-heart .hva-row:hover { background: #1a0e14; }
+.hva-algo .hva-row:hover { background: #0e1018; }
+
+.hva-row-head {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #555;
+  border-bottom: 2px solid #222;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.hva-pos {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: center;
+  color: #555;
+  line-height: 1;
+}
+.hva-heart .hva-row:nth-child(-n+4) .hva-pos { color: #f2a0b8; font-size: 1.4rem; }
+.hva-heart .hva-row:nth-child(n+12) .hva-pos { color: #3a2028; }
+.hva-algo .hva-row:nth-child(-n+4) .hva-pos { color: #8aaccc; font-size: 1.4rem; }
+.hva-algo .hva-row:nth-child(n+12) .hva-pos { color: #252a33; }
+
+.hva-song-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hva-heart .hva-song-title { color: #f0dce2; }
+.hva-algo .hva-song-title { color: #dde4ee; }
+
+.hva-song-artist {
+  font-size: 0.78rem;
+  font-weight: 400;
+  margin-top: 0.1rem;
+}
+.hva-heart .hva-song-artist { color: #907880; }
+.hva-algo .hva-song-artist { color: #667; }
+
+/* Stacked bar */
+.hva-bar-stack {
+  display: flex;
+  height: 18px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #151515;
+}
+
+.hva-heart .hva-bar-stack { background: #1a1015; }
+.hva-heart .hva-bar-stack .seg-intent { background: #f2a0b8; }
+.hva-heart .hva-bar-stack .seg-auto { background: #3a2a30; }
+.hva-heart .hva-bar-stack .seg-skip { background: #1a1015; }
+
+.hva-algo .hva-bar-stack .seg-intent { background: #5a9e6f; }
+.hva-algo .hva-bar-stack .seg-auto { background: #2a2e38; }
+.hva-algo .hva-bar-stack .seg-skip { background: #a04040; }
+.hva-bar-stack .seg-lb { background: #7c6eab; }
+
+.hva-raw-rank {
+  text-align: right;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+  line-height: 1.4;
+}
+
+.hva-delta {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.hva-delta-up { color: #5a9e6f; }
+.hva-delta-down { color: #b05050; }
+.hva-delta-same { color: #444; }
+
+/* ── Algo panel ── */
+.hva-algo {
+  background: #0a0c10;
+  color: #c8d0dc;
+}
+
+.hva-algo .hva-header {
+  padding: 3rem 2rem 2rem;
+  text-align: center;
+  border-bottom: 1px solid #151820;
+}
+
+.hva-algo .hva-big-title {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(2.2rem, 8vw, 4.5rem);
+  font-weight: 700;
+  color: #8aaccc;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.hva-algo .hva-desc {
+  font-size: 0.9rem;
+  color: #667;
+  font-weight: 400;
+  margin-top: 0.75rem;
+  max-width: 540px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.hva-algo .hva-legend {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding: 1rem;
+  font-size: 0.75rem;
+  color: #778;
+}
+
+.hva-algo .hva-legend span::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+}
+.hva-algo .hva-legend .leg-intent::before { background: #5a9e6f; }
+.hva-algo .hva-legend .leg-auto::before { background: #3a3a3a; }
+.hva-algo .hva-legend .leg-skip::before { background: #a04040; }
+.hva-algo .hva-legend .leg-lb::before { background: #7c6eab; }
+
+.hva-algo .hva-row { border-bottom-color: #141820; }
+.hva-algo .hva-row:hover { background: #0e1018; }
+
+.hva-algo .hva-row:nth-child(-n+4) .hva-pos { color: #8aaccc; font-size: 1.4rem; }
+
+.hva-algo .hva-bar-stack { background: #0e1018; }
+.hva-algo .hva-bar-stack .seg-intent { background: #5a9e6f; }
+.hva-algo .hva-bar-stack .seg-auto { background: #2a2e38; }
+.hva-algo .hva-bar-stack .seg-skip { background: #a04040; }
+.hva-algo .hva-bar-stack .seg-lb { background: #7c6eab; }
+
+.hva-algo .hva-inflation {
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.hva-algo .hva-inflation .inf-from { color: #889; }
+.hva-algo .hva-inflation .inf-arrow { color: #a04040; margin: 0 0.15rem; }
+.hva-algo .hva-inflation .inf-to { color: #a04040; }
+
+.hva-algo .hva-ranks {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #556;
+  font-weight: 500;
+}
+</style>
+</head>
+<body>
+
+<a href="#pages" class="skip-link">Skip to content</a>
+<nav class="shell-nav" id="nav" aria-label="Chart sections" role="tablist"></nav>
+<main id="pages"></main>
+<div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
+
+<script>
+// ── Data ──
+const D = 'charts/';
+const cache = {};
+async function load(f) {
+  if (cache[f]) return cache[f];
+  const r = await fetch(D + f);
+  cache[f] = await r.json();
+  return cache[f];
+}
+
+// ── Tooltip ──
+const tip = document.getElementById('tip');
+function tt(e, html) {
+  tip.innerHTML = html;
+  tip.classList.add('show');
+  tip.style.left = Math.min(e.clientX + 12, innerWidth - 280) + 'px';
+  tip.style.top = Math.min(e.clientY - 10, innerHeight - 80) + 'px';
+}
+function tth() { tip.classList.remove('show'); }
+
+// ── Util ──
+const fm = n => n.toLocaleString('de-DE');
+const fms = ms => {
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+};
+
+// ── Pages ──
+const pages = [
+  { id: 'heart-vs-algo',   label: '\u2764 vs \u2699',     render: renderHeartVsAlgo },
+  { id: 'decades',         label: 'Decades',              render: renderDecades },
+  { id: 'yearly',          label: 'Yearly Charts',        render: renderYearly },
+  { id: 'newcomers',       label: 'Newcomers',            render: renderNewcomers },
+];
+
+const nav = document.getElementById('nav');
+const pagesEl = document.getElementById('pages');
+let activePage = null;
+
+pages.forEach(p => {
+  const btn = document.createElement('button');
+  btn.textContent = p.label;
+  btn.dataset.page = p.id;
+  btn.setAttribute('role', 'tab');
+  btn.setAttribute('aria-selected', 'false');
+  btn.setAttribute('aria-controls', `page-${p.id}`);
+  btn.onclick = () => switchPage(p.id);
+  nav.appendChild(btn);
+
+  const section = document.createElement('section');
+  section.id = `page-${p.id}`;
+  section.className = 'page';
+  section.setAttribute('role', 'tabpanel');
+  section.setAttribute('aria-label', p.label);
+  pagesEl.appendChild(section);
+});
+
+function switchPage(id) {
+  if (activePage === id) return;
+  activePage = id;
+  nav.querySelectorAll('button').forEach(b => {
+    const isActive = b.dataset.page === id;
+    b.classList.toggle('active', isActive);
+    b.setAttribute('aria-selected', isActive);
+  });
+  pagesEl.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === `page-${id}`));
+
+  const page = pages.find(p => p.id === id);
+  const el = document.getElementById(`page-${id}`);
+  if (!el.dataset.loaded) {
+    el.dataset.loaded = '1';
+    page.render(el);
+  }
+}
+
+// ═══════════════════════════════════════════
+// HEART vs ALGO
+// ═══════════════════════════════════════════
+function barSegments(d) {
+  const total = (d.intentional * 3) + d.auto + d.lb + d.skipped;
+  if (total === 0) return '';
+  const w = (v) => Math.max(0, (v / total * 100)).toFixed(1);
+  return `<div class="seg-intent" style="width:${w(d.intentional * 3)}%"></div>` +
+         `<div class="seg-auto" style="width:${w(d.auto + d.lb)}%"></div>` +
+         `<div class="seg-skip" style="width:${w(d.skipped)}%"></div>`;
+}
+
+function addTooltips(el, items, panel) {
+  el.querySelectorAll('.hva-row[data-idx]').forEach(row => {
+    const d = items[+row.dataset.idx];
+    row.onmousemove = e => tt(e,
+      `<b>${d.tr}</b><br>${d.ar}${d.al ? '<br>' + d.al : ''}<br><br>` +
+      `Raw plays: <em>${d.raw}</em><br>` +
+      `Organic score: <em>${d.score}</em><br><br>` +
+      `Intentional: ${d.intentional}<br>` +
+      `Passive / unknown: ${d.auto + d.lb}<br>` +
+      `Instant skips: ${d.skipped}`
+    );
+    row.onmouseleave = tth;
+  });
+}
+
+// ── HEART vs ALGO (with sub-menu) ──
+async function renderHeartVsAlgo(el) {
+  const data = await load('heart_vs_algo.json');
+  const heart = data.heart;
+  const algo = data.algo;
+
+  let currentView = 'heart';
+
+  function render() {
+    el.innerHTML = `
+      <div style="background:#0f0f18;padding:1rem 1.5rem;display:flex;gap:0.5rem;flex-wrap:wrap">
+        <button class="hva-sub-btn ${currentView === 'heart' ? 'active' : ''}" data-view="heart" style="
+          font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:600;
+          padding:0.5rem 1.2rem;border:2px solid ${currentView === 'heart' ? '#f2a0b8' : '#333'};
+          background:${currentView === 'heart' ? '#f2a0b8' : 'transparent'};
+          color:${currentView === 'heart' ? '#000' : '#888'};cursor:pointer;
+          text-transform:uppercase;letter-spacing:0.08em;transition:all 0.15s;
+        ">\u2764 Heart Top 100</button>
+        <button class="hva-sub-btn ${currentView === 'algo' ? 'active' : ''}" data-view="algo" style="
+          font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:600;
+          padding:0.5rem 1.2rem;border:2px solid ${currentView === 'algo' ? '#8aaccc' : '#333'};
+          background:${currentView === 'algo' ? '#8aaccc' : 'transparent'};
+          color:${currentView === 'algo' ? '#000' : '#888'};cursor:pointer;
+          text-transform:uppercase;letter-spacing:0.08em;transition:all 0.15s;
+        ">\u2699 Algo Top 100</button>
+      </div>
+      <div id="hva-content"></div>
+    `;
+
+    el.querySelectorAll('.hva-sub-btn').forEach(btn => {
+      btn.onmouseenter = () => { if (!btn.classList.contains('active')) btn.style.color = '#fff'; };
+      btn.onmouseleave = () => { if (!btn.classList.contains('active')) btn.style.color = '#888'; };
+      btn.onclick = () => { currentView = btn.dataset.view; render(); };
+    });
+
+    const content = document.getElementById('hva-content');
+
+    if (currentView === 'heart') {
+      content.innerHTML = `<div class="hva"><div class="hva-heart" style="display:block">
+        <div class="hva-header">
+          <div class="hva-big-title">What I Actually Love</div>
+          <div class="hva-desc">Ranked by intentional plays, penalizing instant skips. My real taste.</div>
+        </div>
+        <div class="hva-legend">
+          <span class="leg-intent">Intentional</span>
+          <span class="leg-auto">Passive / Unknown</span>
+          <span class="leg-skip">Instant skip</span>
+        </div>
+        <div class="hva-list">
+          <div class="hva-row hva-row-head">
+            <div style="text-align:center">#</div>
+            <div>Title / Artist</div>
+            <div>Play Composition</div>
+            <div style="text-align:right">Algo #</div>
+          </div>
+          ${heart.map((d, i) => `
+            <div class="hva-row" data-idx="${i}">
+              <div class="hva-pos">${i + 1}</div>
+              <div>
+                <div class="hva-song-title">${d.tr}</div>
+                <div class="hva-song-artist">${d.ar}</div>
+              </div>
+              <div class="hva-bar-stack">${barSegments(d)}</div>
+              <div class="hva-raw-rank">
+                ${d.rr ? '#' + d.rr : '\u2014'}
+                <br>${d.rr ? (d.rr > (i+1)
+                  ? '<span class="hva-delta hva-delta-up">\u25B2' + (d.rr - (i+1)) + '</span>'
+                  : d.rr < (i+1)
+                    ? '<span class="hva-delta hva-delta-down">\u25BC' + ((i+1) - d.rr) + '</span>'
+                    : '<span class="hva-delta hva-delta-same">=</span>')
+                  : '<span class="hva-delta hva-delta-up">NEW</span>'}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div></div>`;
+      addTooltips(content, heart);
+
+    } else {
+      content.innerHTML = `<div class="hva"><div class="hva-algo" style="display:block">
+        <div class="hva-header">
+          <div class="hva-big-title">What The Algo Shoves Down My Throat</div>
+          <div class="hva-desc">Ranked by raw play count, inflated by autoplay, radio and shuffle. The correction shows where each song actually belongs.</div>
+        </div>
+        <div class="hva-legend">
+          <span class="leg-intent">Intentional</span>
+          <span class="leg-auto">Passive / Unknown</span>
+          <span class="leg-skip">Instant skip</span>
+        </div>
+        <div class="hva-list">
+          <div class="hva-row hva-row-head" style="grid-template-columns:52px 1fr 100px 180px 72px">
+            <div style="text-align:center">#</div>
+            <div>Title / Artist</div>
+            <div style="text-align:right">Plays</div>
+            <div>Composition</div>
+            <div style="text-align:center">Heart #</div>
+          </div>
+          ${algo.map((d, i) => {
+            const delta = d.delta;
+            const absDelta = Math.abs(delta);
+            let correction = '';
+            if (delta > 20) correction = '<span class="hva-delta hva-delta-down">\u25BC' + absDelta + '</span>';
+            else if (delta > 0) correction = '<span class="hva-delta hva-delta-down" style="opacity:0.6">\u25BC' + absDelta + '</span>';
+            else if (delta < -20) correction = '<span class="hva-delta hva-delta-up">\u25B2' + absDelta + '</span>';
+            else if (delta < 0) correction = '<span class="hva-delta hva-delta-up" style="opacity:0.6">\u25B2' + absDelta + '</span>';
+            else correction = '<span class="hva-delta hva-delta-same">=</span>';
+
+            return `
+            <div class="hva-row" style="grid-template-columns:52px 1fr 100px 180px 72px" data-idx="${i}">
+              <div class="hva-pos">${i + 1}</div>
+              <div>
+                <div class="hva-song-title">${d.tr}</div>
+                <div class="hva-song-artist">${d.ar}</div>
+              </div>
+              <div class="hva-raw-rank">${fm(d.raw)}</div>
+              <div class="hva-bar-stack">${barSegments(d)}</div>
+              <div style="text-align:center;line-height:1.3">
+                <div style="font-weight:600;font-size:0.95rem;color:${delta > 20 ? '#a04040' : delta < -20 ? '#5a9e6f' : '#888'}">${d.orr > 500 ? '\u2014' : '#' + d.orr}</div>
+                ${correction}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div></div>`;
+      addTooltips(content, algo);
+    }
+  }
+
+  render();
+}
+
+// ═══════════════════════════════════════════
+// ALL-TIME TOP 100 ARTISTS — Billboard Classic
+// ═══════════════════════════════════════════
+async function renderAlltimeArtists(el) {
+  const data = await load('alltime_artists.json');
+
+  el.innerHTML = `<div class="bb-classic">
+    <div class="bb-masthead">
+      <div class="bb-title">HOT 100</div>
+      <div class="bb-edition">The All-Time Most Played Artists &bull; Personal Chart History</div>
+    </div>
+    <div class="bb-stripe">
+      <span>Chart Period: 2005 – 2026</span>
+      <span>${fm(data.reduce((s,d) => s + d.p, 0))} Plays Counted</span>
+    </div>
+    <div class="bb-body">
+      <div class="bb-col-head"><div style="text-align:center">Pos</div><div>Artist</div><div style="text-align:right">Plays</div></div>
+      ${data.slice(0, 100).map((d, i) => `
+        <div class="bb-entry" data-i="${i}">
+          <div class="bb-pos">${i + 1}</div>
+          <div class="bb-info">
+            <h4>${d.n}</h4>
+            <div class="bb-sub">Since ${new Date(d.f * 1000).getFullYear()}${d.ms ? ' · ' + fms(d.ms) + ' listened' : ''}</div>
+          </div>
+          <div class="bb-count">${fm(d.p)}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="bb-footer">Compiled from personal listening data &bull; Spotify &bull; Last.fm/ListenBrainz &bull; 2005 – 2026</div>
+  </div>`;
+
+  el.querySelectorAll('.bb-entry').forEach(row => {
+    const i = +row.dataset.i;
+    const d = data[i];
+    row.onmousemove = e => tt(e, `<b>${d.n}</b><br>Plays: <em>${fm(d.p)}</em>${d.ms ? '<br>Time: ' + fms(d.ms) : ''}<br>First: ${new Date(d.f*1000).toLocaleDateString('de-DE')}<br>Last: ${new Date(d.l*1000).toLocaleDateString('de-DE')}`);
+    row.onmouseleave = tth;
+  });
+}
+
+// ═══════════════════════════════════════════
+// ALL-TIME TOP 100 SONGS — Billboard Classic
+// ═══════════════════════════════════════════
+async function renderAlltimeSongs(el) {
+  const data = await load('alltime_songs.json');
+  const totalPlays = data.reduce((s,d) => s + d.p, 0);
+
+  // Random coffee stain position
+  const stainX = 60 + Math.random() * 40;
+  const stainY = 30 + Math.random() * 30;
+
+  el.innerHTML = `<div class="bb-80scan">
+    <div class="scan-stain" style="right:${stainX}px;top:${stainY}%"></div>
+    <div class="scan-page">
+      <div class="scan-masthead">
+        <div class="scan-logo">HITS</div>
+        <div class="scan-tagline">The Definitive Guide to<br>What You Actually Played</div>
+      </div>
+      <div class="scan-neon-bar"></div>
+      <div class="scan-issue-line">
+        <span>Special Collector's Edition</span>
+        <span>All-Time Chart &bull; ${fm(totalPlays)} plays counted</span>
+        <span>Personal Archive &bull; 2005–2026</span>
+      </div>
+      <div class="scan-chart-title">
+        <h2>The All-Time Hot 100</h2>
+        <p>The hundred songs you played the most &bull; Two decades of listening &bull; Every play counted</p>
+      </div>
+      <div class="scan-body">
+        ${data.slice(0, 100).map((d, i) => `
+          <div class="scan-entry" data-i="${i}">
+            <div class="scan-rank">${i + 1}</div>
+            <div class="scan-song">
+              <div class="scan-song-title">${d.tr}</div>
+              <div class="scan-song-artist">${d.ar}${d.al ? ' — ' + d.al : ''}</div>
+            </div>
+            <div class="scan-plays">${fm(d.p)}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="scan-footer">Compiled from personal Spotify &amp; Last.fm data &bull; Not for resale &bull; &copy; The Personal Charts Archive</div>
+    </div>
+  </div>`;
+
+  el.querySelectorAll('.scan-entry').forEach(row => {
+    const i = +row.dataset.i;
+    const d = data[i];
+    row.onmousemove = e => tt(e, `<b>${d.tr}</b><br>${d.ar}<br>${d.al ? 'Album: ' + d.al + '<br>' : ''}Plays: <em>${fm(d.p)}</em>`);
+    row.onmouseleave = tth;
+  });
+}
+
+// ═══════════════════════════════════════════
+// DECADES — era-appropriate styling
+// ═══════════════════════════════════════════
+async function renderDecades(el) {
+  const data = await load('decade_charts.json');
+  const decades = Object.keys(data).sort();
+
+  let currentDec = decades[0];
+  let currentMode = 'songs';
+
+  function render() {
+    el.innerHTML = `
+      <div style="background:#0f0f18;padding:1rem 1.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">
+        ${decades.map(d => `<button class="dec-btn" data-dec="${d}" style="
+          font-family:'Oswald',sans-serif;font-size:0.8rem;font-weight:600;
+          padding:0.5rem 1.2rem;border:2px solid ${currentDec === d ? '#c0392b' : '#333'};
+          background:${currentDec === d ? '#c0392b' : 'transparent'};
+          color:${currentDec === d ? '#fff' : '#888'};cursor:pointer;text-transform:uppercase;
+          letter-spacing:0.1em;transition:all 0.15s;
+        ">${d}s</button>`).join('')}
+        <span style="border-left:1px solid #333;margin:0 0.5rem;height:1.5rem"></span>
+        <button class="dec-mode-btn" data-mode="songs" style="
+          font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;
+          padding:0.4rem 0.8rem;border:2px solid ${currentMode === 'songs' ? '#c0392b' : '#333'};
+          background:${currentMode === 'songs' ? '#c0392b' : 'transparent'};
+          color:${currentMode === 'songs' ? '#fff' : '#888'};cursor:pointer;
+          text-transform:uppercase;letter-spacing:0.08em;
+        ">Songs</button>
+        <button class="dec-mode-btn" data-mode="albums" style="
+          font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;
+          padding:0.4rem 0.8rem;border:2px solid ${currentMode === 'albums' ? '#c0392b' : '#333'};
+          background:${currentMode === 'albums' ? '#c0392b' : 'transparent'};
+          color:${currentMode === 'albums' ? '#fff' : '#888'};cursor:pointer;
+          text-transform:uppercase;letter-spacing:0.08em;
+        ">Albums</button>
+      </div>
+      <div id="decade-content"></div>
+    `;
+
+    el.querySelectorAll('.dec-btn').forEach(btn => {
+      btn.onmouseenter = () => { if (currentDec !== btn.dataset.dec) btn.style.color = '#fff'; };
+      btn.onmouseleave = () => { if (currentDec !== btn.dataset.dec) btn.style.color = '#888'; };
+      btn.onclick = () => { currentDec = btn.dataset.dec; render(); };
+    });
+    el.querySelectorAll('.dec-mode-btn').forEach(btn => {
+      btn.onmouseenter = () => { if (currentMode !== btn.dataset.mode) btn.style.color = '#fff'; };
+      btn.onmouseleave = () => { if (currentMode !== btn.dataset.mode) btn.style.color = '#888'; };
+      btn.onclick = () => { currentMode = btn.dataset.mode; render(); };
+    });
+
+    const d = data[currentDec];
+    const content = document.getElementById('decade-content');
+    const decNum = parseInt(currentDec);
+
+    if (decNum < 2000) renderDecadeClassic(content, currentDec, d, currentMode);
+    else if (decNum < 2010) renderDecadeY2K(content, currentDec, d, currentMode);
+    else if (decNum < 2020) renderDecadeFlat(content, currentDec, d, currentMode);
+    else renderDecadeSpotify(content, currentDec, d, currentMode);
+  }
+
+  render();
+}
+
+function decadeItems(d, mode) {
+  const items = mode === 'albums' ? (d.albums || []) : d.songs;
+  return { items, typeLabel: mode === 'albums' ? 'Albums' : 'Songs' };
+}
+function decadeEntry(item, mode) {
+  return mode === 'albums'
+    ? { title: item.al, sub: item.ar, p: item.p }
+    : { title: item.tr, sub: item.ar, p: item.p };
+}
+
+function renderDecadeClassic(el, dec, d, mode) {
+  const { items, typeLabel } = decadeItems(d, mode);
+  el.innerHTML = `<div class="bb-classic">
+    <div class="bb-masthead">
+      <div class="bb-title">THE ${dec}s</div>
+      <div class="bb-edition">Top 100 ${typeLabel} of the Decade &bull; ${fm(d.total_plays)} plays counted</div>
+    </div>
+    <div class="bb-stripe"><span>Decade Chart: ${dec} – ${parseInt(dec)+9}</span><span>${fm(items.length)} ${typeLabel} Ranked</span></div>
+    <div class="bb-body">
+      <div class="bb-col-head"><div style="text-align:center">Pos</div><div>${mode === 'albums' ? 'Album / Artist' : 'Title / Artist'}</div><div style="text-align:right">Plays</div></div>
+      ${items.slice(0, 100).map((s, i) => { const e = decadeEntry(s, mode); return `
+        <div class="bb-entry"><div class="bb-pos">${i+1}</div><div class="bb-info"><h4>${e.title}</h4><div class="bb-sub">${e.sub}</div></div><div class="bb-count">${fm(e.p)}</div></div>
+      `; }).join('')}
+    </div>
+    <div class="bb-footer">Personal listening data &bull; ${dec}s Decade Chart</div>
+  </div>`;
+}
+
+function renderDecadeY2K(el, dec, d, mode) {
+  const { items, typeLabel } = decadeItems(d, mode);
+  el.innerHTML = `<div class="bb-y2k">
+    <div class="y2k-header">
+      <div class="y2k-title">*** TOP 100 ${typeLabel.toUpperCase()} ***</div>
+      <div class="y2k-subtitle">/// THE ${dec}s DECADE CHART ///</div>
+    </div>
+    <div class="y2k-marquee"><span>*** ${fm(d.total_plays)} TOTAL PLAYS COUNTED *** CHART PERIOD: ${dec}-${parseInt(dec)+9} *** ${typeLabel.toUpperCase()} RANKED ***&nbsp;&nbsp;&nbsp;</span></div>
+    <div class="y2k-body">
+      <div class="y2k-counter">[ ${items.length} ${typeLabel.toLowerCase()} ranked ]</div>
+      <table class="y2k-table">
+        <thead><tr><th style="width:35px">#</th><th>${mode === 'albums' ? 'ALBUM' : 'SONG'}</th><th>ARTIST</th><th style="text-align:right;width:60px">PLAYS</th></tr></thead>
+        <tbody>
+          ${items.slice(0, 100).map((s, i) => { const e = decadeEntry(s, mode); return `
+            <tr><td class="y2k-rank">${i+1}</td><td class="y2k-name">${e.title}</td><td>${e.sub}</td><td class="y2k-count">${fm(e.p)}</td></tr>
+          `; }).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="y2k-footer">[ page generated ${new Date().toISOString().split('T')[0]} ] [ best viewed with Netscape Navigator 4.0+ ]</div>
+  </div>`;
+}
+
+function renderDecadeFlat(el, dec, d, mode) {
+  const { items, typeLabel } = decadeItems(d, mode);
+  el.innerHTML = `<div class="bb-flat">
+    <div class="flat-header">
+      <div class="flat-title"><span class="flat-accent">${dec}s</span> Decade Chart</div>
+      <div class="flat-subtitle">Top 100 ${typeLabel} &middot; ${fm(d.total_plays)} plays counted</div>
+    </div>
+    <div class="flat-body">
+      ${items.slice(0, 100).map((s, i) => { const e = decadeEntry(s, mode); return `
+        <div class="flat-entry">
+          <div class="flat-pos">${i+1}</div>
+          <div><div class="flat-name">${e.title}</div><div class="flat-meta">${e.sub}</div></div>
+          <div class="flat-stat">${fm(e.p)}</div>
+        </div>
+      `; }).join('')}
+    </div>
+  </div>`;
+}
+
+function renderDecadeSpotify(el, dec, d, mode) {
+  const { items, typeLabel } = decadeItems(d, mode);
+  el.innerHTML = `<div class="bb-spotify">
+    <div class="sp-header">
+      <div class="sp-title">My Top ${typeLabel}</div>
+      <div class="sp-subtitle">The ${dec}s &middot; ${fm(d.total_plays)} plays</div>
+      <div class="sp-badge">${items.length} ${typeLabel.toLowerCase()} ranked</div>
+    </div>
+    <div class="sp-body">
+      ${items.slice(0, 100).map((s, i) => { const e = decadeEntry(s, mode); return `
+        <div class="sp-entry">
+          <div class="sp-pos">${i+1}</div>
+          <div><div class="sp-name">${e.title}</div><div class="sp-meta">${e.sub}</div></div>
+          <div class="sp-stat">${fm(e.p)} plays</div>
+        </div>
+      `; }).join('')}
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+// YEARLY CHARTS
+// ═══════════════════════════════════════════
+async function renderYearly(el) {
+  const data = await load('yearly_charts.json');
+  const years = Object.keys(data).sort().reverse();
+
+  el.innerHTML = `
+    <div style="background:#0f0f18;padding:1rem 1.5rem;display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center">
+      <span style="color:#666;font-size:0.7rem;font-family:'Oswald',sans-serif;letter-spacing:0.1em;margin-right:0.5rem">YEAR:</span>
+      ${years.map(y => `<button class="yr-btn" data-yr="${y}" style="
+        font-family:'Bebas Neue',sans-serif;font-size:0.9rem;
+        padding:0.3rem 0.6rem;border:1px solid #333;background:transparent;
+        color:#666;cursor:pointer;transition:all 0.15s;
+      ">${y}</button>`).join('')}
+      <span style="border-left:1px solid #333;margin:0 0.5rem;height:1.5rem"></span>
+      <button class="yr-mode-btn active" data-mode="songs" style="font-family:'Oswald',sans-serif;font-size:0.7rem;padding:0.3rem 0.7rem;border:1px solid #c0392b;background:#c0392b;color:#fff;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase">Songs</button>
+      <button class="yr-mode-btn" data-mode="albums" style="font-family:'Oswald',sans-serif;font-size:0.7rem;padding:0.3rem 0.7rem;border:1px solid #333;background:transparent;color:#666;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase">Albums</button>
+    </div>
+    <div id="yearly-content"></div>
+  `;
+
+  let currentMode = 'songs';
+  let currentYear = years[0];
+
+  function show() {
+    const d = data[currentYear];
+    const dec = Math.floor(parseInt(currentYear) / 10) * 10;
+    const items = currentMode === 'songs' ? d.songs : d.albums;
+    const content = document.getElementById('yearly-content');
+
+    const typeLabel = currentMode === 'songs' ? 'Songs' : 'Albums';
+
+    if (dec < 2000) {
+      content.innerHTML = `<div class="bb-classic">
+        <div class="bb-masthead"><div class="bb-title">${currentYear}</div><div class="bb-edition">Year-End Top ${typeLabel} Chart</div></div>
+        <div class="bb-stripe"><span>Year-End Chart</span><span>${items.length} ${typeLabel} Ranked</span></div>
+        <div class="bb-body">
+          <div class="bb-col-head"><div style="text-align:center">Pos</div><div>${currentMode === 'songs' ? 'Title / Artist' : 'Album / Artist'}</div><div style="text-align:right">Plays</div></div>
+          ${items.slice(0, 100).map((s, i) => `
+            <div class="bb-entry"><div class="bb-pos">${i+1}</div><div class="bb-info"><h4>${currentMode === 'songs' ? s.tr : s.al}</h4><div class="bb-sub">${s.ar}</div></div><div class="bb-count">${fm(s.p)}</div></div>
+          `).join('')}
+        </div>
+      </div>`;
+    } else if (dec < 2010) {
+      content.innerHTML = `<div class="bb-y2k">
+        <div class="y2k-header"><div class="y2k-title">*** ${currentYear} TOP ${typeLabel.toUpperCase()} ***</div><div class="y2k-subtitle">/// YEAR-END CHART ///</div></div>
+        <div class="y2k-marquee"><span>*** ${currentYear} YEAR-END CHART *** ${items.length} ${typeLabel.toUpperCase()} RANKED ***&nbsp;&nbsp;&nbsp;</span></div>
+        <div class="y2k-body">
+          <table class="y2k-table">
+            <thead><tr><th style="width:35px">#</th><th>${currentMode === 'songs' ? 'SONG' : 'ALBUM'}</th><th>ARTIST</th><th style="text-align:right;width:60px">PLAYS</th></tr></thead>
+            <tbody>${items.slice(0, 100).map((s, i) => `
+              <tr><td class="y2k-rank">${i+1}</td><td class="y2k-name">${currentMode === 'songs' ? s.tr : s.al}</td><td>${s.ar}</td><td class="y2k-count">${fm(s.p)}</td></tr>
+            `).join('')}</tbody>
+          </table>
+        </div>
+      </div>`;
+    } else if (dec < 2020) {
+      content.innerHTML = `<div class="bb-flat">
+        <div class="flat-header"><div class="flat-title"><span class="flat-accent">${currentYear}</span> Top ${typeLabel}</div><div class="flat-subtitle">Year-End Chart</div></div>
+        <div class="flat-body">
+          ${items.slice(0, 100).map((s, i) => `
+            <div class="flat-entry"><div class="flat-pos">${i+1}</div><div><div class="flat-name">${currentMode === 'songs' ? s.tr : s.al}</div><div class="flat-meta">${s.ar}</div></div><div class="flat-stat">${fm(s.p)}</div></div>
+          `).join('')}
+        </div>
+      </div>`;
+    } else {
+      content.innerHTML = `<div class="bb-spotify">
+        <div class="sp-header"><div class="sp-title">My ${currentYear}</div><div class="sp-subtitle">Top ${typeLabel} &middot; Year-End Chart</div><div class="sp-badge">${items.length} ${typeLabel.toLowerCase()} ranked</div></div>
+        <div class="sp-body">
+          ${items.slice(0, 100).map((s, i) => `
+            <div class="sp-entry"><div class="sp-pos">${i+1}</div><div><div class="sp-name">${currentMode === 'songs' ? s.tr : s.al}</div><div class="sp-meta">${s.ar}</div></div><div class="sp-stat">${fm(s.p)} plays</div></div>
+          `).join('')}
+        </div>
+      </div>`;
+    }
+  }
+
+  el.querySelectorAll('.yr-btn').forEach(btn => {
+    btn.onclick = () => {
+      el.querySelectorAll('.yr-btn').forEach(b => { b.style.background = 'transparent'; b.style.color = '#666'; b.style.borderColor = '#333'; });
+      btn.style.background = '#c0392b'; btn.style.color = '#fff'; btn.style.borderColor = '#c0392b';
+      currentYear = btn.dataset.yr;
+      show();
+    };
+  });
+
+  el.querySelectorAll('.yr-mode-btn').forEach(btn => {
+    btn.onclick = () => {
+      el.querySelectorAll('.yr-mode-btn').forEach(b => { b.classList.remove('active'); b.style.background = 'transparent'; b.style.color = '#666'; b.style.borderColor = '#333'; });
+      btn.classList.add('active'); btn.style.background = '#c0392b'; btn.style.color = '#fff'; btn.style.borderColor = '#c0392b';
+      currentMode = btn.dataset.mode;
+      show();
+    };
+  });
+
+  el.querySelector('.yr-btn').click();
+}
+
+// ═══════════════════════════════════════════
+// GENRE CHARTS
+// ═══════════════════════════════════════════
+async function renderGenres(el) {
+  const data = await load('genre_charts.json');
+
+  el.innerHTML = `<div class="bb-genre">
+    <div class="genre-header">
+      <div class="genre-title">Genre Charts</div>
+      <div class="genre-sub">All-Time Top Artists by Genre &bull; ${data.length} Genres Charted</div>
+    </div>
+    <div class="genre-grid">
+      ${data.slice(0, 30).map(g => `
+        <div class="genre-card">
+          <div class="genre-card-title">${g.genre}</div>
+          <div class="genre-card-stats">${fm(g.total_plays)} plays &bull; ${g.artist_count} artists</div>
+          ${g.top_artists.slice(0, 10).map((a, i) => `
+            <div class="genre-card-entry">
+              <span><span class="gce-rank">${i+1}</span><span class="gce-name">${a.n}</span></span>
+              <span class="gce-plays">${fm(a.p)}</span>
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+// NEWCOMERS
+// ═══════════════════════════════════════════
+async function renderNewcomers(el) {
+  const data = await load('newcomers.json');
+  let currentMode = 'artists';
+
+  function render() {
+    const items = currentMode === 'artists' ? data.artists : data.tracks;
+
+    el.innerHTML = `
+      <div style="background:#0f0f18;padding:1rem 1.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">
+        <button class="nc-btn" data-mode="artists" style="
+          font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:600;
+          padding:0.5rem 1.2rem;border:2px solid ${currentMode === 'artists' ? '#1db954' : '#333'};
+          background:${currentMode === 'artists' ? '#1db954' : 'transparent'};
+          color:${currentMode === 'artists' ? '#000' : '#888'};cursor:pointer;
+          text-transform:uppercase;letter-spacing:0.08em;
+        ">Artists</button>
+        <button class="nc-btn" data-mode="tracks" style="
+          font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:600;
+          padding:0.5rem 1.2rem;border:2px solid ${currentMode === 'tracks' ? '#1db954' : '#333'};
+          background:${currentMode === 'tracks' ? '#1db954' : 'transparent'};
+          color:${currentMode === 'tracks' ? '#000' : '#888'};cursor:pointer;
+          text-transform:uppercase;letter-spacing:0.08em;
+        ">Tracks</button>
+      </div>
+      <div class="bb-spotify">
+        <div class="sp-header">
+          <div class="sp-title">Newcomer Top 20</div>
+          <div class="sp-subtitle">First heard in the last 12 months &middot; ${data.period}</div>
+          <div class="sp-badge">${currentMode === 'artists' ? 'artists' : 'tracks'} discovered recently</div>
+        </div>
+        <div class="sp-body">
+          ${items.map((d, i) => {
+            const name = currentMode === 'artists' ? d.n : d.tr;
+            const sub = currentMode === 'artists'
+              ? 'Since ' + new Date(d.since * 1000).toLocaleDateString('en-US', {year:'numeric',month:'short'})
+              : d.ar;
+            return `
+            <div class="sp-entry" data-idx="${i}">
+              <div class="sp-pos">${i + 1}</div>
+              <div>
+                <div class="sp-name">${name}</div>
+                <div class="sp-meta">${sub}</div>
+              </div>
+              <div class="sp-stat">${d.p} plays</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
+
+    el.querySelectorAll('.nc-btn').forEach(btn => {
+      btn.onmouseenter = () => { if (currentMode !== btn.dataset.mode) btn.style.color = '#fff'; };
+      btn.onmouseleave = () => { if (currentMode !== btn.dataset.mode) btn.style.color = '#888'; };
+      btn.onclick = () => { currentMode = btn.dataset.mode; render(); };
+    });
+
+    el.querySelectorAll('.sp-entry').forEach(row => {
+      const d = items[+row.dataset.idx];
+      const name = currentMode === 'artists' ? d.n : d.tr;
+      const since = new Date(d.since * 1000).toLocaleDateString('de-DE', {year:'numeric',month:'long',day:'numeric'});
+      row.onmousemove = e => tt(e, `<b>${name}</b>${currentMode === 'tracks' ? '<br>' + d.ar : ''}<br>First heard: ${since}<br>Plays: <em>${d.p}</em>`);
+      row.onmouseleave = tth;
+    });
+  }
+
+  render();
+}
+
+// ── Init ──
+switchPage('heart-vs-algo');
+</script>
+</body>
+</html>
