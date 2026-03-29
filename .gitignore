@@ -29,6 +29,7 @@ pnpm-debug.log*
 # project context (local only)
 CLAUDE_CODE_PROMPT.md
 ROBINSON_CURSOR_CONTEXT.md
+IDEAS.md
 
 # one-off scripts (root level only)
 /scripts/
