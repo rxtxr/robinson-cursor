@@ -1,12 +1,12 @@
 {
   "day": 2,
-  "slug": "day-002-music-graph",
+  "slug": "day-002-music-charts",
   "title": "Music Charts",
   "date": "2026-03-29",
   "description": "Personal music charts from 20 years of listening data. Heart Top 100 vs. algorithmic inflation, decade charts styled to their era, yearly rankings, and newcomer discoveries.",
   "tags": ["data-viz", "music", "interactive", "charts"],
   "stack": ["D3.js", "DuckDB", "MusicBrainz API", "Last.fm API", "Spotify API"],
-  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-002-music-graph",
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-002-music-charts",
   "status": "complete",
   "license_notes": "Google Fonts (SIL Open Font License). Data from personal Spotify export, ListenBrainz, and MusicBrainz (CC0)."
 }

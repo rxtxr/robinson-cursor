@@ -37,6 +37,6 @@ ROBINSON_CURSOR_CONTEXT.md
 __pycache__/
 
 # day-002 music graph: raw data, caches, database (large/private)
-projects/day-002-music-graph/raw-data/
-projects/day-002-music-graph/data/
-projects/day-002-music-graph/.env
+projects/day-002-music-charts/raw-data/
+projects/day-002-music-charts/data/
+projects/day-002-music-charts/.env
