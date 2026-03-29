@@ -1184,6 +1184,7 @@ function tth() { tip.classList.remove('show'); }
 
 // ── Util ──
 const fm = n => n.toLocaleString('de-DE');
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const fms = ms => {
   const h = Math.floor(ms / 3600000);
   const m = Math.floor((ms % 3600000) / 60000);
@@ -1254,7 +1255,7 @@ function addTooltips(el, items, panel) {
   el.querySelectorAll('.hva-row[data-idx]').forEach(row => {
     const d = items[+row.dataset.idx];
     row.onmousemove = e => tt(e,
-      `<b>${d.tr}</b><br>${d.ar}${d.al ? '<br>' + d.al : ''}<br><br>` +
+      `<b>${esc(d.tr)}</b><br>${esc(d.ar)}${d.al ? '<br>' + esc(d.al) : ''}<br><br>` +
       `Raw plays: <em>${d.raw}</em><br>` +
       `Organic score: <em>${d.score}</em><br><br>` +
       `Intentional: ${d.intentional}<br>` +
@@ -1324,8 +1325,8 @@ async function renderHeartVsAlgo(el) {
             <div class="hva-row" data-idx="${i}">
               <div class="hva-pos">${i + 1}</div>
               <div>
-                <div class="hva-song-title">${d.tr}</div>
-                <div class="hva-song-artist">${d.ar}</div>
+                <div class="hva-song-title">${esc(d.tr)}</div>
+                <div class="hva-song-artist">${esc(d.ar)}</div>
               </div>
               <div class="hva-bar-stack">${barSegments(d)}</div>
               <div class="hva-raw-rank">
@@ -1376,8 +1377,8 @@ async function renderHeartVsAlgo(el) {
             <div class="hva-row" style="grid-template-columns:52px 1fr 100px 180px 72px" data-idx="${i}">
               <div class="hva-pos">${i + 1}</div>
               <div>
-                <div class="hva-song-title">${d.tr}</div>
-                <div class="hva-song-artist">${d.ar}</div>
+                <div class="hva-song-title">${esc(d.tr)}</div>
+                <div class="hva-song-artist">${esc(d.ar)}</div>
               </div>
               <div class="hva-raw-rank">${fm(d.raw)}</div>
               <div class="hva-bar-stack">${barSegments(d)}</div>
@@ -1417,7 +1418,7 @@ async function renderAlltimeArtists(el) {
         <div class="bb-entry" data-i="${i}">
           <div class="bb-pos">${i + 1}</div>
           <div class="bb-info">
-            <h4>${d.n}</h4>
+            <h4>${esc(d.n)}</h4>
             <div class="bb-sub">Since ${new Date(d.f * 1000).getFullYear()}${d.ms ? ' · ' + fms(d.ms) + ' listened' : ''}</div>
           </div>
           <div class="bb-count">${fm(d.p)}</div>
@@ -1430,7 +1431,7 @@ async function renderAlltimeArtists(el) {
   el.querySelectorAll('.bb-entry').forEach(row => {
     const i = +row.dataset.i;
     const d = data[i];
-    row.onmousemove = e => tt(e, `<b>${d.n}</b><br>Plays: <em>${fm(d.p)}</em>${d.ms ? '<br>Time: ' + fms(d.ms) : ''}<br>First: ${new Date(d.f*1000).toLocaleDateString('de-DE')}<br>Last: ${new Date(d.l*1000).toLocaleDateString('de-DE')}`);
+    row.onmousemove = e => tt(e, `<b>${esc(d.n)}</b><br>Plays: <em>${fm(d.p)}</em>${d.ms ? '<br>Time: ' + fms(d.ms) : ''}<br>First: ${new Date(d.f*1000).toLocaleDateString('de-DE')}<br>Last: ${new Date(d.l*1000).toLocaleDateString('de-DE')}`);
     row.onmouseleave = tth;
   });
 }
@@ -1468,8 +1469,8 @@ async function renderAlltimeSongs(el) {
           <div class="scan-entry" data-i="${i}">
             <div class="scan-rank">${i + 1}</div>
             <div class="scan-song">
-              <div class="scan-song-title">${d.tr}</div>
-              <div class="scan-song-artist">${d.ar}${d.al ? ' — ' + d.al : ''}</div>
+              <div class="scan-song-title">${esc(d.tr)}</div>
+              <div class="scan-song-artist">${esc(d.ar)}${d.al ? ' — ' + esc(d.al) : ''}</div>
             </div>
             <div class="scan-plays">${fm(d.p)}</div>
           </div>
@@ -1482,7 +1483,7 @@ async function renderAlltimeSongs(el) {
   el.querySelectorAll('.scan-entry').forEach(row => {
     const i = +row.dataset.i;
     const d = data[i];
-    row.onmousemove = e => tt(e, `<b>${d.tr}</b><br>${d.ar}<br>${d.al ? 'Album: ' + d.al + '<br>' : ''}Plays: <em>${fm(d.p)}</em>`);
+    row.onmousemove = e => tt(e, `<b>${esc(d.tr)}</b><br>${esc(d.ar)}<br>${d.al ? 'Album: ' + esc(d.al) + '<br>' : ''}Plays: <em>${fm(d.p)}</em>`);
     row.onmouseleave = tth;
   });
 }
@@ -1556,8 +1557,8 @@ function decadeItems(d, mode) {
 }
 function decadeEntry(item, mode) {
   return mode === 'albums'
-    ? { title: item.al, sub: item.ar, p: item.p }
-    : { title: item.tr, sub: item.ar, p: item.p };
+    ? { title: esc(item.al), sub: esc(item.ar), p: item.p }
+    : { title: esc(item.tr), sub: esc(item.ar), p: item.p };
 }
 
 function renderDecadeClassic(el, dec, d, mode) {
@@ -1680,7 +1681,7 @@ async function renderYearly(el) {
         <div class="bb-body">
           <div class="bb-col-head"><div style="text-align:center">Pos</div><div>${currentMode === 'songs' ? 'Title / Artist' : 'Album / Artist'}</div><div style="text-align:right">Plays</div></div>
           ${items.slice(0, 100).map((s, i) => `
-            <div class="bb-entry"><div class="bb-pos">${i+1}</div><div class="bb-info"><h4>${currentMode === 'songs' ? s.tr : s.al}</h4><div class="bb-sub">${s.ar}</div></div><div class="bb-count">${fm(s.p)}</div></div>
+            <div class="bb-entry"><div class="bb-pos">${i+1}</div><div class="bb-info"><h4>${currentMode === 'songs' ? esc(s.tr) : esc(s.al)}</h4><div class="bb-sub">${esc(s.ar)}</div></div><div class="bb-count">${fm(s.p)}</div></div>
           `).join('')}
         </div>
       </div>`;
@@ -1692,7 +1693,7 @@ async function renderYearly(el) {
           <table class="y2k-table">
             <thead><tr><th style="width:35px">#</th><th>${currentMode === 'songs' ? 'SONG' : 'ALBUM'}</th><th>ARTIST</th><th style="text-align:right;width:60px">PLAYS</th></tr></thead>
             <tbody>${items.slice(0, 100).map((s, i) => `
-              <tr><td class="y2k-rank">${i+1}</td><td class="y2k-name">${currentMode === 'songs' ? s.tr : s.al}</td><td>${s.ar}</td><td class="y2k-count">${fm(s.p)}</td></tr>
+              <tr><td class="y2k-rank">${i+1}</td><td class="y2k-name">${currentMode === 'songs' ? esc(s.tr) : esc(s.al)}</td><td>${esc(s.ar)}</td><td class="y2k-count">${fm(s.p)}</td></tr>
             `).join('')}</tbody>
           </table>
         </div>
@@ -1702,7 +1703,7 @@ async function renderYearly(el) {
         <div class="flat-header"><div class="flat-title"><span class="flat-accent">${currentYear}</span> Top ${typeLabel}</div><div class="flat-subtitle">Year-End Chart</div></div>
         <div class="flat-body">
           ${items.slice(0, 100).map((s, i) => `
-            <div class="flat-entry"><div class="flat-pos">${i+1}</div><div><div class="flat-name">${currentMode === 'songs' ? s.tr : s.al}</div><div class="flat-meta">${s.ar}</div></div><div class="flat-stat">${fm(s.p)}</div></div>
+            <div class="flat-entry"><div class="flat-pos">${i+1}</div><div><div class="flat-name">${currentMode === 'songs' ? esc(s.tr) : esc(s.al)}</div><div class="flat-meta">${esc(s.ar)}</div></div><div class="flat-stat">${fm(s.p)}</div></div>
           `).join('')}
         </div>
       </div>`;
@@ -1711,7 +1712,7 @@ async function renderYearly(el) {
         <div class="sp-header"><div class="sp-title">My ${currentYear}</div><div class="sp-subtitle">Top ${typeLabel} &middot; Year-End Chart</div><div class="sp-badge">${items.length} ${typeLabel.toLowerCase()} ranked</div></div>
         <div class="sp-body">
           ${items.slice(0, 100).map((s, i) => `
-            <div class="sp-entry"><div class="sp-pos">${i+1}</div><div><div class="sp-name">${currentMode === 'songs' ? s.tr : s.al}</div><div class="sp-meta">${s.ar}</div></div><div class="sp-stat">${fm(s.p)} plays</div></div>
+            <div class="sp-entry"><div class="sp-pos">${i+1}</div><div><div class="sp-name">${currentMode === 'songs' ? esc(s.tr) : esc(s.al)}</div><div class="sp-meta">${esc(s.ar)}</div></div><div class="sp-stat">${fm(s.p)} plays</div></div>
           `).join('')}
         </div>
       </div>`;
@@ -1802,10 +1803,10 @@ async function renderNewcomers(el) {
         </div>
         <div class="sp-body">
           ${items.map((d, i) => {
-            const name = currentMode === 'artists' ? d.n : d.tr;
+            const name = esc(currentMode === 'artists' ? d.n : d.tr);
             const sub = currentMode === 'artists'
               ? 'Since ' + new Date(d.since * 1000).toLocaleDateString('en-US', {year:'numeric',month:'short'})
-              : d.ar;
+              : esc(d.ar);
             return `
             <div class="sp-entry" data-idx="${i}">
               <div class="sp-pos">${i + 1}</div>
@@ -1830,7 +1831,7 @@ async function renderNewcomers(el) {
       const d = items[+row.dataset.idx];
       const name = currentMode === 'artists' ? d.n : d.tr;
       const since = new Date(d.since * 1000).toLocaleDateString('de-DE', {year:'numeric',month:'long',day:'numeric'});
-      row.onmousemove = e => tt(e, `<b>${name}</b>${currentMode === 'tracks' ? '<br>' + d.ar : ''}<br>First heard: ${since}<br>Plays: <em>${d.p}</em>`);
+      row.onmousemove = e => tt(e, `<b>${esc(name)}</b>${currentMode === 'tracks' ? '<br>' + esc(d.ar) : ''}<br>First heard: ${since}<br>Plays: <em>${d.p}</em>`);
       row.onmouseleave = tth;
     });
   }
