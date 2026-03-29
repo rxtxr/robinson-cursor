@@ -30,11 +30,13 @@ pnpm-debug.log*
 CLAUDE_CODE_PROMPT.md
 ROBINSON_CURSOR_CONTEXT.md
 
-# one-off scripts
-scripts/
+# one-off scripts (root level only)
+/scripts/
+
+# python cache
+__pycache__/
 
 # day-002 music graph: raw data, caches, database (large/private)
 projects/day-002-music-graph/raw-data/
 projects/day-002-music-graph/data/
-projects/day-002-music-graph/scripts/
 projects/day-002-music-graph/.env
