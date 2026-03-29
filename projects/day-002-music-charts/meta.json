@@ -4,7 +4,7 @@
   "title": "Music Charts",
   "date": "2026-03-29",
   "description": "Personal music charts from 20 years of listening data. Heart Top 100 vs. algorithmic inflation, decade charts styled to their era, yearly rankings, and newcomer discoveries.",
-  "tags": ["data-viz", "music", "interactive", "charts"],
+  "tags": ["data-viz", "music", "charts", "personal-data"],
   "stack": ["D3.js", "DuckDB", "MusicBrainz API", "Last.fm API", "Spotify API"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-002-music-charts",
   "status": "complete",
