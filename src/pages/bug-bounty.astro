@@ -1,0 +1,162 @@
+---
+import Base from '../layouts/Base.astro';
+
+const key = 'rc365vibe';
+
+function xorEncodeBytes(str: string, k: string) {
+  const textBytes = Buffer.from(str, 'utf-8');
+  const keyBytes = Buffer.from(k, 'utf-8');
+  const result = Buffer.alloc(textBytes.length);
+  for (let i = 0; i < textBytes.length; i++) {
+    result[i] = textBytes[i] ^ keyBytes[i % keyBytes.length];
+  }
+  return result.toString('base64');
+}
+
+const emailEncoded = xorEncodeBytes('mareisen@pm.me', key);
+const keyParts = [key.slice(0, 3), key.slice(3, 6), key.slice(6)];
+---
+
+<Base title="Bug Bounty — robinson-cursor.com" description="Bugs finden, Bier kassieren.">
+  <article class="bounty-page">
+    <h1>Bug Bounty</h1>
+    <p class="tagline">Bugs finden, Bier kassieren.</p>
+
+    <section>
+      <h2>Worum geht's</h2>
+      <p>
+        Diese Seite ist ein 365-Tage-Vibecoding-Projekt. Dabei passieren Fehler.
+        Wenn du einen findest, freue ich mich über eine Nachricht.
+      </p>
+    </section>
+
+    <section>
+      <h2>Was melden</h2>
+      <ul>
+        <li>Darstellungsfehler (kaputtes Layout, fehlende Inhalte, Rendering-Probleme)</li>
+        <li>Funktionale Bugs (Buttons die nichts tun, broken Links, JS-Fehler)</li>
+        <li>Performance-Probleme (merklich langsam, hoher Speicherverbrauch)</li>
+        <li>Accessibility-Probleme (nicht bedienbar per Tastatur, fehlende Alt-Texte)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Wie melden</h2>
+      <p>Per E-Mail an <button class="email-btn" id="showEmail" type="button">Adresse anzeigen</button><span id="emailSlot"></span> mit:</p>
+      <ul>
+        <li>Welches Projekt / welche Seite betroffen ist</li>
+        <li>Was passiert vs. was passieren sollte</li>
+        <li>Browser und Betriebssystem</li>
+        <li>Screenshot, wenn es hilft</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Belohnung</h2>
+      <p>
+        Pro nachvollziehbarem Bug gibt es <strong>ein Bier</strong>.
+        Bei besonders fiesen oder weitreichenden Bugs auch mehrere.
+      </p>
+      <p>
+        Einzulösen <strong>persönlich in Bremen</strong>. Nicht auszahlbar, nicht versendbar, nicht übertragbar.
+      </p>
+    </section>
+
+    <section class="legal">
+      <p>Der Rechtsweg ist ausgeschlossen. Ich entscheide, was als Bug zählt und wie viele Bier es wert ist. Duplikate zählen nicht. Kein Anspruch auf Belohnung für bereits bekannte Probleme.</p>
+    </section>
+  </article>
+</Base>
+
+<script define:vars={{ emailEncoded, keyParts }}>
+  const btn = document.getElementById('showEmail');
+  const slot = document.getElementById('emailSlot');
+
+  function b64ToBytes(b64) {
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+
+  function xorDecode(b64, k) {
+    const data = b64ToBytes(b64);
+    const keyBytes = new TextEncoder().encode(k);
+    const result = new Uint8Array(data.length);
+    for (let i = 0; i < data.length; i++) {
+      result[i] = data[i] ^ keyBytes[i % keyBytes.length];
+    }
+    return new TextDecoder().decode(result);
+  }
+
+  btn.addEventListener('click', () => {
+    const k = keyParts[0] + keyParts[1] + keyParts[2];
+    const email = xorDecode(emailEncoded, k);
+    const link = document.createElement('a');
+    link.href = 'mailto:' + email + '?subject=Bug%20Report%20%E2%80%94%20robinson-cursor.com';
+    link.textContent = email;
+    btn.replaceWith(link);
+  }, { once: true });
+</script>
+
+<style>
+  .bounty-page {
+    max-width: 580px;
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+
+  .tagline {
+    color: var(--color-accent);
+    font-family: var(--font-mono);
+    margin-bottom: var(--space-xl);
+  }
+
+  h2 {
+    font-size: 1rem;
+    color: var(--color-accent);
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-sm);
+  }
+
+  p, li {
+    color: var(--color-text-muted);
+  }
+
+  ul {
+    padding-left: var(--space-lg);
+    margin: var(--space-sm) 0;
+  }
+
+  li {
+    margin-bottom: var(--space-xs);
+  }
+
+  strong {
+    color: var(--color-text);
+  }
+
+  .legal {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
+    font-size: 0.8rem;
+  }
+
+  .email-btn {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    padding: 0.1em 0.5em;
+    background: var(--color-bg-card);
+    color: var(--color-accent);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .email-btn:hover {
+    background: var(--color-bg-card-hover);
+    border-color: var(--color-accent-dim);
+  }
+</style>
