@@ -992,66 +992,62 @@ body {
   transition: background 0.1s;
 }
 
+/* ── Responsive: Heart (4 cols: pos, song, bar, rank) ── */
 @media (max-width: 900px) {
   .hva-row {
-    grid-template-columns: 44px 1fr 120px 60px;
+    grid-template-columns: 44px 1fr 100px 56px;
     gap: 0.6rem;
   }
 }
-
 @media (max-width: 700px) {
   .hva-row {
-    grid-template-columns: 36px 1fr 64px !important;
+    grid-template-columns: 36px 1fr 80px 48px;
     gap: 0.5rem;
     padding: 0.5rem;
   }
-  .hva-row .hva-bar-stack,
-  .hva-row .hva-raw-rank { display: none; }
   .hva-pos { font-size: 0.9rem !important; }
   .hva-song-title { font-size: 0.85rem; white-space: normal; }
   .hva-song-artist { font-size: 0.7rem; }
   .hva-row-head { display: none; }
+  .hva-bar-stack { height: 12px; }
+  .hva-raw-rank { font-size: 0.75rem; }
+  .hva-delta { font-size: 0.6rem; }
   .hva-heart .hva-big-title,
   .hva-algo .hva-big-title { font-size: 1.8rem !important; }
   .hva-heart .hva-desc,
   .hva-algo .hva-desc { font-size: 0.8rem; }
-  .hva-heart .hva-legend,
-  .hva-algo .hva-legend { display: none; }
   .hva-list { padding: 0 0.5rem 2rem; }
   .hva-heart .hva-header,
   .hva-algo .hva-header { padding: 2rem 1rem 1.5rem; }
 }
-
 @media (max-width: 500px) {
   .hva-row {
-    grid-template-columns: 28px 1fr 52px !important;
-    gap: 0.4rem;
+    grid-template-columns: 28px 1fr 60px 40px;
+    gap: 0.3rem;
     padding: 0.4rem;
   }
   .hva-pos { font-size: 0.8rem !important; }
   .hva-song-title { font-size: 0.78rem; }
+  .hva-bar-stack { height: 10px; }
   .hva-heart .hva-big-title,
   .hva-algo .hva-big-title { font-size: 1.4rem !important; }
 }
 
-/* Algo 5-column rows need responsive override too */
+/* ── Responsive: Algo (5 cols: pos, song, plays, bar, heart#) ── */
 @media (max-width: 900px) {
   .hva-algo .hva-row[style] {
-    grid-template-columns: 52px 1fr 80px 120px 60px !important;
+    grid-template-columns: 44px 1fr 70px 100px 56px !important;
     gap: 0.5rem;
   }
 }
 @media (max-width: 700px) {
   .hva-algo .hva-row[style] {
-    grid-template-columns: 36px 1fr 64px !important;
+    grid-template-columns: 36px 1fr 56px 80px 48px !important;
   }
-  .hva-algo .hva-row[style] > :nth-child(3),
-  .hva-algo .hva-row[style] > :nth-child(4) { display: none; }
-  .hva-algo .hva-row[style] > :nth-child(5) { display: block; }
 }
 @media (max-width: 500px) {
   .hva-algo .hva-row[style] {
-    grid-template-columns: 28px 1fr 52px !important;
+    grid-template-columns: 28px 1fr 44px 60px 40px !important;
   }
 }
 .hva-heart .hva-row { border-bottom: 1px solid #1e1218; }
