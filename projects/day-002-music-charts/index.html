@@ -769,6 +769,13 @@ body {
 
 @media (max-width: 700px) {
   .bb-80scan .scan-body { column-count: 1; }
+  .shell-nav button { padding: 0.7rem 0.8rem; font-size: 0.75rem; }
+  .hva-tabs { flex-direction: column; }
+  .hva-tab { font-size: 0.85rem !important; padding: 0.8rem; }
+}
+
+@media (max-width: 500px) {
+  .shell-nav button { padding: 0.6rem 0.6rem; font-size: 0.65rem; letter-spacing: 0.05em; }
 }
 
 .bb-80scan .scan-entry {
@@ -982,6 +989,62 @@ body {
   padding: 0.65rem 0.75rem;
   gap: 1rem;
   transition: background 0.1s;
+}
+
+@media (max-width: 700px) {
+  .hva-row {
+    grid-template-columns: 36px 1fr 64px !important;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+  .hva-row .hva-bar-stack,
+  .hva-row .hva-raw-rank { display: none; }
+  .hva-pos { font-size: 0.9rem !important; }
+  .hva-song-title { font-size: 0.85rem; white-space: normal; }
+  .hva-song-artist { font-size: 0.7rem; }
+  .hva-row-head { display: none; }
+  .hva-heart .hva-big-title,
+  .hva-algo .hva-big-title { font-size: 1.8rem !important; }
+  .hva-heart .hva-desc,
+  .hva-algo .hva-desc { font-size: 0.8rem; }
+  .hva-heart .hva-legend,
+  .hva-algo .hva-legend { display: none; }
+  .hva-list { padding: 0 0.5rem 2rem; }
+  .hva-heart .hva-header,
+  .hva-algo .hva-header { padding: 2rem 1rem 1.5rem; }
+}
+
+@media (max-width: 500px) {
+  .hva-row {
+    grid-template-columns: 28px 1fr 52px !important;
+    gap: 0.4rem;
+    padding: 0.4rem;
+  }
+  .hva-pos { font-size: 0.8rem !important; }
+  .hva-song-title { font-size: 0.78rem; }
+  .hva-heart .hva-big-title,
+  .hva-algo .hva-big-title { font-size: 1.4rem !important; }
+}
+
+/* Algo 5-column rows need responsive override too */
+@media (max-width: 900px) {
+  .hva-algo .hva-row[style] {
+    grid-template-columns: 52px 1fr 80px 120px 60px !important;
+    gap: 0.5rem;
+  }
+}
+@media (max-width: 700px) {
+  .hva-algo .hva-row[style] {
+    grid-template-columns: 36px 1fr 64px !important;
+  }
+  .hva-algo .hva-row[style] > :nth-child(3),
+  .hva-algo .hva-row[style] > :nth-child(4) { display: none; }
+  .hva-algo .hva-row[style] > :nth-child(5) { display: block; }
+}
+@media (max-width: 500px) {
+  .hva-algo .hva-row[style] {
+    grid-template-columns: 28px 1fr 52px !important;
+  }
 }
 .hva-heart .hva-row { border-bottom: 1px solid #1e1218; }
 .hva-algo .hva-row { border-bottom: 1px solid #141820; }
