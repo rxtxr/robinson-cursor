@@ -1,4 +1,4 @@
-# Day 002 — Music Graph
+# Day 002 — Music Charts
 
 Personal music charts spanning 20 years of listening history (2005-2026).
 
