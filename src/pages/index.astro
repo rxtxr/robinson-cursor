@@ -1,16 +1,27 @@
 ---
 import Base from '../layouts/Base.astro';
 import ProjectCard from '../components/ProjectCard.astro';
-import { getAllProjects } from '../lib/projects.js';
+import { getAllProjects, getProjectCount } from '../lib/projects.js';
 
 const projects = await getAllProjects();
+const count = await getProjectCount();
+const remaining = 365 - count;
 
 const thumbFiles = import.meta.glob('/projects/*/thumb.png', { eager: true, query: '?url', import: 'default' });
+
+const rem = String(remaining).padStart(3, '0');
+const digits = [
+  { target: parseInt(rem[0]), spins: count >= 66 },
+  { target: parseInt(rem[1]), spins: count >= 6 },
+  { target: parseInt(rem[2]), spins: count >= 1 },
+];
 ---
 
 <Base title="robinson-cursor.com — 365 days of vibecoding">
   <section class="hero">
-    <h1>365 days of vibecoding</h1>
+    <h1 aria-label={`${remaining} days of vibecoding`}>{digits.map((d, i) => (
+        <span class="slot-reel" data-target={d.target} data-spins={d.spins ? 'true' : 'false'} style={`--delay: ${0.8 + i * 0.15}s`}><span class="slot-strip">{[0,1,2,3,4,5,6,7,8,9].map(n => <span class="slot-num">{n}</span>)}</span></span>
+      ))}{' '}days of vibecoding</h1>
     <p class="subtitle">one experiment per day. code, sound, visuals — in the browser.</p>
   </section>
 
@@ -37,6 +48,24 @@ const thumbFiles = import.meta.glob('/projects/*/thumb.png', { eager: true, quer
     color: var(--color-text-muted);
     font-size: 0.95rem;
     margin-top: var(--space-sm);
+  }
+
+  .slot-reel {
+    display: inline-block;
+    height: 1.2em;
+    overflow: hidden;
+    vertical-align: bottom;
+    position: relative;
+  }
+
+  .slot-strip {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .slot-num {
+    height: 1.2em;
+    line-height: 1.2;
   }
 
   .project-grid {
@@ -67,3 +96,26 @@ const thumbFiles = import.meta.glob('/projects/*/thumb.png', { eager: true, quer
     border-radius: var(--radius);
   }
 </style>
+
+<script>
+  const start = [3, 6, 5];
+  const h = 1.2; // matches .slot-num height in em
+  document.querySelectorAll('.slot-reel').forEach((reel, i) => {
+    const strip = reel.querySelector('.slot-strip');
+    const target = parseInt(reel.dataset.target);
+    const spins = reel.dataset.spins === 'true';
+
+    strip.style.transition = 'none';
+    strip.style.transform = `translateY(-${start[i] * h}em)`;
+
+    if (spins) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const delay = reel.style.getPropertyValue('--delay') || '0s';
+          strip.style.transition = `transform 1.2s cubic-bezier(0.25, 0.1, 0.25, 1) ${delay}`;
+          strip.style.transform = `translateY(-${target * h}em)`;
+        });
+      });
+    }
+  });
+</script>
