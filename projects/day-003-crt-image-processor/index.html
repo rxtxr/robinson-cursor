@@ -274,6 +274,11 @@ footer { border-top:1px solid var(--g2); padding:.5rem 2rem;
           <label class="toggle"><input type="checkbox" id="t-inv" onchange="render()">
             <div class="toggle-track"><div class="toggle-thumb"></div></div></label>
         </div>
+        <div class="toggle-row">
+          RESAMPLE
+          <label class="toggle"><input type="checkbox" id="t-resample" onchange="render()">
+            <div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+        </div>
       </div>
 
       <!-- HISTOGRAM -->
@@ -451,8 +456,152 @@ function _render() {
   const dither   = document.getElementById('t-dither').checked;
   const halftone = document.getElementById('t-half').checked;
   const invert   = document.getElementById('t-inv').checked;
+  const resample = document.getElementById('t-resample').checked;
 
   const pal = PALETTES[curPalette];
+
+  // ── RESAMPLE MODE ──
+  // When RESAMPLE is ON and pixScale > 1:
+  // 1. Process at full source resolution (luma + adjustments + F-S dithering)
+  // 2. Render to binary (palette color + black) with scanlines baked in
+  // 3. Multi-step LANCZOS-quality downscale to target size
+  // 4. Simple threshold at 127 (no re-dithering)
+  // 5. Display as clean 2-color image (skip all post-processing overlays)
+  if (resample && pixScale > 1) {
+    const srcC = document.getElementById('original-canvas');
+    const fullW = srcW, fullH = srcH;
+    const targetW = Math.max(1, Math.floor(srcW / pixScale));
+    const targetH = Math.max(1, Math.floor(srcH / pixScale));
+
+    // Get full-res source pixels
+    const tmpFull = new OffscreenCanvas(fullW, fullH);
+    const tmpFullX = tmpFull.getContext('2d');
+    tmpFullX.drawImage(srcC, 0, 0, fullW, fullH);
+    const rawFull = tmpFullX.getImageData(0, 0, fullW, fullH);
+    const df = rawFull.data;
+
+    // Luma + adjustments at full res
+    const lumaFull = new Float32Array(fullW * fullH);
+    const histR = new Uint32Array(256);
+    for (let i = 0; i < fullW * fullH; i++) {
+      const ri = i * 4;
+      let r = df[ri] / 255, g = df[ri+1] / 255, b = df[ri+2] / 255;
+      const L = 0.299*r + 0.587*g + 0.114*b;
+      if (sat < 1) { r=r*sat+L*(1-sat); g=g*sat+L*(1-sat); b=b*sat+L*(1-sat); }
+      let lv = 0.299*r + 0.587*g + 0.114*b;
+      lv *= bright;
+      lv = (lv - 0.5) * contrast + 0.5;
+      lv = Math.pow(Math.max(0, lv), 1 / gamma);
+      lv = Math.max(0, Math.min(1, lv));
+      if (invert) lv = 1 - lv;
+      lumaFull[i] = lv;
+      histR[Math.min(255, Math.floor(lv * 255))]++;
+    }
+
+    // Floyd-Steinberg dithering at full resolution
+    const quantFull = new Float32Array(lumaFull);
+    if (dither && !halftone) {
+      for (let y = 0; y < fullH; y++) {
+        for (let x = 0; x < fullW; x++) {
+          const idx = y * fullW + x;
+          const old = quantFull[idx];
+          const nv = old > 0.5 ? 1 : 0;
+          quantFull[idx] = nv;
+          const err = old - nv;
+          if (x+1 < fullW)                   quantFull[idx+1]       += err * 7/16;
+          if (x-1 >= 0 && y+1 < fullH)      quantFull[idx+fullW-1] += err * 3/16;
+          if (y+1 < fullH)                   quantFull[idx+fullW]   += err * 5/16;
+          if (x+1 < fullW && y+1 < fullH)   quantFull[idx+fullW+1] += err * 1/16;
+        }
+      }
+    }
+
+    // Render to binary at full res (with scanlines baked in)
+    const fullImg = new ImageData(fullW, fullH);
+    const fd = fullImg.data;
+    // Scanline gap at full resolution (matches standard export at pixScale=1)
+    const scanGap = Math.max(2, 2 * 2); // = 4: every 4th row
+    for (let i = 0; i < fullW * fullH; i++) {
+      const ri = i * 4;
+      const y = Math.floor(i / fullW);
+      let lv;
+
+      // Bake scanlines into the binary image (before downscale)
+      if (scanAmt > 0 && (y % scanGap < 1)) {
+        lv = 0;
+      } else if (dither && !halftone) {
+        lv = quantFull[i] > 0.5 ? 1 : 0;
+      } else {
+        lv = lumaFull[i] > 0.5 ? 1 : 0;
+      }
+
+      fd[ri]   = Math.round(pal.r * lv);
+      fd[ri+1] = Math.round(pal.g * lv);
+      fd[ri+2] = Math.round(pal.b * lv);
+      fd[ri+3] = 255;
+    }
+
+    // Put full-res binary into a canvas
+    const fullBinC = new OffscreenCanvas(fullW, fullH);
+    fullBinC.getContext('2d').putImageData(fullImg, 0, 0);
+
+    // Multi-step halving downscale (LANCZOS-quality via repeated halving with smoothing)
+    let curC = fullBinC;
+    let curW = fullW, curH = fullH;
+    while (curW > targetW * 2 || curH > targetH * 2) {
+      const nw = Math.max(targetW, Math.floor(curW / 2));
+      const nh = Math.max(targetH, Math.floor(curH / 2));
+      const stepC = new OffscreenCanvas(nw, nh);
+      const stepX = stepC.getContext('2d');
+      stepX.imageSmoothingEnabled = true;
+      stepX.imageSmoothingQuality = 'high';
+      stepX.drawImage(curC, 0, 0, nw, nh);
+      curC = stepC; curW = nw; curH = nh;
+    }
+    // Final step to target size
+    const finalC = new OffscreenCanvas(targetW, targetH);
+    const finalX = finalC.getContext('2d');
+    finalX.imageSmoothingEnabled = true;
+    finalX.imageSmoothingQuality = 'high';
+    finalX.drawImage(curC, 0, 0, targetW, targetH);
+
+    // Read downscaled pixels and apply threshold at 127
+    const dsData = finalX.getImageData(0, 0, targetW, targetH);
+    const dsd = dsData.data;
+    for (let i = 0; i < targetW * targetH; i++) {
+      const ri = i * 4;
+      // Threshold on max channel value (works for all palette colors)
+      const maxCh = Math.max(dsd[ri], dsd[ri+1], dsd[ri+2]);
+      const on = maxCh > 127 ? 1 : 0;
+      dsd[ri]   = Math.round(pal.r * on);
+      dsd[ri+1] = Math.round(pal.g * on);
+      dsd[ri+2] = Math.round(pal.b * on);
+      dsd[ri+3] = 255;
+    }
+    finalX.putImageData(dsData, 0, 0);
+
+    // Display at output canvas size with nearest-neighbor upscale
+    const outC = document.getElementById('out-canvas');
+    outC.width = srcW; outC.height = srcH;
+    const outX = outC.getContext('2d');
+    outX.imageSmoothingEnabled = false;
+    outX.drawImage(finalC, 0, 0, srcW, srcH);
+
+    // No post-processing overlays in resample mode
+
+    drawHistogram(histR, fullW * fullH);
+    const ms = (performance.now() - t0).toFixed(1);
+    document.getElementById('st-ms').textContent = ms + 'ms';
+    const fxList = ['RESAMPLE'];
+    if (dither) fxList.push('DITHER');
+    if (invert) fxList.push('INVERT');
+    if (scanAmt > 0) fxList.push('SCANLINES');
+    fxList.push('PIXEL\u00d7' + pixScale);
+    document.getElementById('st-fx').textContent = fxList.join(' \u00b7 ');
+    return;
+  }
+
+  // ── STANDARD MODE (original pipeline) ──
 
   // Work at pixel-scaled resolution
   const w = Math.max(1, Math.floor(srcW / pixScale));
@@ -755,8 +904,113 @@ function renderForExport() {
   const dither   = document.getElementById('t-dither').checked;
   const halftone = document.getElementById('t-half').checked;
   const invert   = document.getElementById('t-inv').checked;
+  const resample = document.getElementById('t-resample').checked;
 
   const pal = PALETTES[curPalette];
+
+  // ── RESAMPLE EXPORT ──
+  if (resample && pixScale > 1) {
+    const fullW = srcW, fullH = srcH;
+    const targetW = Math.max(1, Math.floor(srcW / pixScale));
+    const targetH = Math.max(1, Math.floor(srcH / pixScale));
+
+    // Get full-res source pixels
+    const tmpFull = new OffscreenCanvas(fullW, fullH);
+    const tmpFullX = tmpFull.getContext('2d');
+    tmpFullX.drawImage(document.getElementById('original-canvas'), 0, 0, fullW, fullH);
+    const rawFull = tmpFullX.getImageData(0, 0, fullW, fullH);
+    const df = rawFull.data;
+
+    // Luma + adjustments at full res
+    const lumaFull = new Float32Array(fullW * fullH);
+    for (let i = 0; i < fullW * fullH; i++) {
+      const ri = i * 4;
+      let r = df[ri] / 255, g = df[ri+1] / 255, b = df[ri+2] / 255;
+      const L = 0.299*r + 0.587*g + 0.114*b;
+      if (sat < 1) { r=r*sat+L*(1-sat); g=g*sat+L*(1-sat); b=b*sat+L*(1-sat); }
+      let lv = 0.299*r + 0.587*g + 0.114*b;
+      lv *= bright;
+      lv = (lv - 0.5) * contrast + 0.5;
+      lv = Math.pow(Math.max(0, lv), 1 / gamma);
+      lv = Math.max(0, Math.min(1, lv));
+      if (invert) lv = 1 - lv;
+      lumaFull[i] = lv;
+    }
+
+    // F-S dithering at full resolution
+    const quantFull = new Float32Array(lumaFull);
+    if (dither && !halftone) {
+      for (let y = 0; y < fullH; y++) {
+        for (let x = 0; x < fullW; x++) {
+          const idx = y * fullW + x;
+          const old = quantFull[idx];
+          const nv = old > 0.5 ? 1 : 0;
+          quantFull[idx] = nv;
+          const err = old - nv;
+          if (x+1 < fullW)                   quantFull[idx+1]       += err * 7/16;
+          if (x-1 >= 0 && y+1 < fullH)      quantFull[idx+fullW-1] += err * 3/16;
+          if (y+1 < fullH)                   quantFull[idx+fullW]   += err * 5/16;
+          if (x+1 < fullW && y+1 < fullH)   quantFull[idx+fullW+1] += err * 1/16;
+        }
+      }
+    }
+
+    // Render to binary at full res with scanlines baked in
+    const fullImg = new ImageData(fullW, fullH);
+    const fd = fullImg.data;
+    const scanGapFull = Math.max(2, 2 * 2); // = 4: every 4th row at full res
+    for (let i = 0; i < fullW * fullH; i++) {
+      const ri = i * 4;
+      const y = Math.floor(i / fullW);
+      let lv;
+      if (scanAmt > 0 && (y % scanGapFull < 1)) {
+        lv = 0;
+      } else if (dither && !halftone) {
+        lv = quantFull[i] > 0.5 ? 1 : 0;
+      } else {
+        lv = lumaFull[i] > 0.5 ? 1 : 0;
+      }
+      fd[ri]   = Math.round(pal.r * lv);
+      fd[ri+1] = Math.round(pal.g * lv);
+      fd[ri+2] = Math.round(pal.b * lv);
+      fd[ri+3] = 255;
+    }
+
+    // Multi-step halving downscale
+    const fullBinC = new OffscreenCanvas(fullW, fullH);
+    fullBinC.getContext('2d').putImageData(fullImg, 0, 0);
+    let curC = fullBinC, curW = fullW, curH = fullH;
+    while (curW > targetW * 2 || curH > targetH * 2) {
+      const nw = Math.max(targetW, Math.floor(curW / 2));
+      const nh = Math.max(targetH, Math.floor(curH / 2));
+      const stepC = new OffscreenCanvas(nw, nh);
+      const stepX = stepC.getContext('2d');
+      stepX.imageSmoothingEnabled = true;
+      stepX.imageSmoothingQuality = 'high';
+      stepX.drawImage(curC, 0, 0, nw, nh);
+      curC = stepC; curW = nw; curH = nh;
+    }
+    const finalC = new OffscreenCanvas(targetW, targetH);
+    const finalX = finalC.getContext('2d');
+    finalX.imageSmoothingEnabled = true;
+    finalX.imageSmoothingQuality = 'high';
+    finalX.drawImage(curC, 0, 0, targetW, targetH);
+
+    // Threshold at 127 -> build pixel indices
+    const dsData = finalX.getImageData(0, 0, targetW, targetH);
+    const dsd = dsData.data;
+    const pixels = new Uint8Array(targetW * targetH);
+    for (let i = 0; i < targetW * targetH; i++) {
+      const ri = i * 4;
+      const maxCh = Math.max(dsd[ri], dsd[ri+1], dsd[ri+2]);
+      pixels[i] = maxCh > 127 ? 1 : 0;
+    }
+
+    const palette = [[0, 0, 0], [pal.r, pal.g, pal.b]];
+    return { w: targetW, h: targetH, pixels, palette };
+  }
+
+  // ── STANDARD EXPORT ──
   const w = Math.max(1, Math.floor(srcW / pixScale));
   const h = Math.max(1, Math.floor(srcH / pixScale));
 
@@ -883,6 +1137,7 @@ function resetAll() {
   document.getElementById('t-dither').checked = true;
   document.getElementById('t-half').checked   = false;
   document.getElementById('t-inv').checked    = false;
+  document.getElementById('t-resample').checked = false;
   document.querySelectorAll('input[type=range]').forEach(el=>{
     const pct=((el.value-el.min)/(el.max-el.min))*100;
     el.style.setProperty('--pct',pct+'%');
