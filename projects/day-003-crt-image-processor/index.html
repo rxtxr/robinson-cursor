@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 003 — CRT//IMG Monochrome Processor</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --g0: #000000; --g1: #001200; --g2: #002800; --g3: #005000;
+  --g4: #00aa00; --g5: #00cc00; --g6: #00ff41; --g7: #80ff9f;
+  --glow-sm: 0 0 4px var(--g6), 0 0 10px var(--g5);
+  --glow-md: 0 0 6px var(--g6), 0 0 20px var(--g5), 0 0 40px var(--g3);
+  --font-d: 'VT323', monospace;
+  --font-b: 'Share Tech Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; min-height: 100%; background: var(--g0); color: var(--g6);
+  font-family: var(--font-b); font-size: 18px; overflow-x: hidden; cursor: none; }
+
+/* ── CURSOR ── */
+#cur { position: fixed; z-index: 9999; width: 16px; height: 16px;
+  border: 1px solid var(--g6); pointer-events: none;
+  transform: translate(-50%,-50%); box-shadow: var(--glow-sm); mix-blend-mode: screen; }
+#cur::after { content:''; position:absolute; top:50%; left:50%; width:3px; height:3px;
+  background:var(--g7); transform:translate(-50%,-50%); box-shadow: var(--glow-md); }
+
+/* ── CRT OVERLAY ── */
+#crt { position: fixed; inset: 0; z-index: 1000; pointer-events: none; overflow: hidden; }
+#crt::before { content:''; position:absolute; inset:0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 4px); }
+#crt::after { display: none; }
+#flicker { position:absolute; inset:0; background:rgba(0,255,65,.012);
+  animation: flk 10s infinite; }
+@keyframes flk { 0%,100%{opacity:1} 7%{opacity:.95} 7.5%{opacity:1} 48%{opacity:1} 48.5%{opacity:.88} 49%{opacity:1} }
+#sweep { position:absolute; left:0; right:0; height:3px; background:rgba(0,255,65,.05);
+  animation: swp 7s linear infinite; filter:blur(1px); }
+@keyframes swp { 0%{top:-2%;opacity:.6} 100%{top:102%;opacity:0} }
+#noise-cv { position:absolute; inset:0; opacity:.04; mix-blend-mode:screen; }
+#burn { display: none; }
+
+/* ── LAYOUT ── */
+#app { position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column; }
+
+header { display:flex; align-items:center; justify-content:space-between;
+  padding:0 2rem; height:52px; background:rgba(0,0,0,.88);
+  border-bottom:1px solid var(--g3); position:sticky; top:0; z-index:100; }
+header::after { content:''; position:absolute; bottom:-1px; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--g6),transparent);
+  animation: hl 3s ease-in-out infinite; }
+@keyframes hl { 0%,100%{opacity:.35} 50%{opacity:1;box-shadow:0 0 8px var(--g6)} }
+.logo { font-family:var(--font-d); font-size:1.9rem; color:var(--g7);
+  letter-spacing:4px; text-shadow:var(--glow-md); user-select:none; }
+.logo em { color:var(--g4); font-style:normal; }
+.sys { font-size:.62rem; color:var(--g3); letter-spacing:1px; }
+.sys span { color:var(--g5); }
+
+main { flex:1; display:grid; grid-template-columns:320px 1fr; gap:0; min-height: calc(100vh - 52px - 36px); }
+
+/* ── SIDEBAR ── */
+aside { border-right:1px solid var(--g2); background:rgba(0,8,0,.5);
+  display:flex; flex-direction:column; padding:1.5rem; gap:1.2rem; overflow-y:auto; }
+
+.panel { border:1px solid var(--g2); border-left:2px solid var(--g4);
+  background:rgba(0,20,0,.4); padding:1rem 1.1rem; }
+.panel-title { font-size:.62rem; color:var(--g4); letter-spacing:3px;
+  text-transform:uppercase; margin-bottom:.9rem; display:flex; align-items:center; gap:.5rem; }
+.panel-title::before { content:''; display:block; width:6px; height:6px;
+  border:1px solid var(--g4); background:var(--g3); }
+
+/* sliders */
+.slider-row { display:flex; flex-direction:column; gap:.3rem; margin-bottom:.75rem; }
+.slider-row:last-child { margin-bottom:0; }
+.slider-label { display:flex; justify-content:space-between;
+  font-size:.65rem; color:var(--g5); letter-spacing:1px; }
+.slider-label span { color:var(--g7); font-family:var(--font-d); font-size:.9rem; }
+input[type=range] {
+  -webkit-appearance:none; width:100%; height:4px;
+  background: linear-gradient(90deg, var(--g5) 0%, var(--g5) var(--pct,50%), var(--g2) var(--pct,50%));
+  outline:none; cursor:none; border-radius:0;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:12px; height:20px;
+  background:var(--g6); border:none; border-radius:0;
+  box-shadow:var(--glow-sm); cursor:none;
+}
+input[type=range]::-moz-range-thumb {
+  width:12px; height:20px; background:var(--g6);
+  border:none; border-radius:0; box-shadow:var(--glow-sm);
+}
+
+/* toggles */
+.toggle-row { display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:.6rem; font-size:.7rem; color:var(--g5); letter-spacing:1px; cursor:none; }
+.toggle-row:last-child { margin-bottom:0; }
+.toggle { position:relative; width:36px; height:18px; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-track { position:absolute; inset:0; background:var(--g2);
+  border:1px solid var(--g3); transition:.2s; cursor:none; }
+.toggle input:checked ~ .toggle-track { background:var(--g3); border-color:var(--g5); box-shadow:var(--glow-sm); }
+.toggle-thumb { position:absolute; top:2px; left:2px; width:12px; height:12px;
+  background:var(--g4); transition:.2s; }
+.toggle input:checked ~ .toggle-track .toggle-thumb { transform:translateX(18px); background:var(--g6); box-shadow:var(--glow-sm); }
+
+/* color preset buttons */
+.preset-grid { display:grid; grid-template-columns:1fr 1fr; gap:.4rem; }
+.preset-btn { font-family:var(--font-b); font-size:.6rem; letter-spacing:1px;
+  text-transform:uppercase; padding:.4rem .5rem; border:1px solid;
+  background:none; cursor:none; transition:all .15s; text-align:center; }
+.preset-btn.active { box-shadow:var(--glow-sm); }
+
+/* action buttons */
+.btn { font-family:var(--font-b); font-size:.7rem; letter-spacing:2px;
+  text-transform:uppercase; width:100%; padding:.65rem; border:1px solid var(--g4);
+  background:none; color:var(--g5); cursor:none; position:relative; overflow:hidden;
+  transition:all .15s; margin-top:.4rem; }
+.btn:hover { color:var(--g7); border-color:var(--g6); box-shadow:var(--glow-sm); background:rgba(0,255,65,.05); }
+.btn.primary { background:var(--g4); color:var(--g0); border-color:var(--g5); }
+.btn.primary:hover { background:var(--g6); box-shadow:var(--glow-md); }
+.btn:disabled { opacity:.3; pointer-events:none; }
+
+/* ── DROP ZONE ── */
+#drop-area { position:relative; display:flex; align-items:center; justify-content:center;
+  flex-direction:column; gap:1rem; border:1px dashed var(--g3);
+  background:rgba(0,12,0,.3); min-height:300px; cursor:none;
+  transition:border-color .2s, background .2s; }
+#drop-area.drag-over { border-color:var(--g6); background:rgba(0,255,65,.04); box-shadow:inset 0 0 40px rgba(0,255,65,.05); }
+#drop-area .drop-icon { font-family:var(--font-d); font-size:4rem; color:var(--g3);
+  line-height:1; animation: pulse-ic 3s ease-in-out infinite; }
+@keyframes pulse-ic { 0%,100%{color:var(--g3);text-shadow:none} 50%{color:var(--g4);text-shadow:var(--glow-sm)} }
+#drop-area .drop-label { font-size:.7rem; color:var(--g4); letter-spacing:2px; text-align:center; }
+#drop-area .drop-sub { font-size:.6rem; color:var(--g3); letter-spacing:1px; }
+#file-input { display:none; }
+
+/* ── CANVAS AREA ── */
+#canvas-wrap { flex:1; display:flex; flex-direction:column; background:rgba(0,0,0,.3); }
+#canvas-area { flex:1; display:flex; align-items:center; justify-content:center;
+  padding:2rem; position:relative; overflow:hidden; }
+canvas { max-width:100%; max-height:calc(100vh - 200px); display:block;
+  image-rendering:pixelated; image-rendering:crisp-edges; }
+#original-canvas { display:none; }
+
+/* comparison slider */
+#compare-wrap { display:none; position:relative; }
+#compare-wrap canvas { position:absolute; top:0; left:0; }
+#compare-line { position:absolute; top:0; bottom:0; width:2px; background:var(--g6);
+  box-shadow:var(--glow-md); pointer-events:none; z-index:10; }
+
+/* status bar under canvas */
+#canvas-status { padding:.5rem 1.5rem; border-top:1px solid var(--g2);
+  display:flex; gap:2rem; font-size:.62rem; color:var(--g3); letter-spacing:1px; }
+#canvas-status span { color:var(--g5); }
+
+/* ── HISTOGRAM ── */
+#hist-canvas { width:100%; height:60px; border:1px solid var(--g2); background:var(--g1); display:block; }
+
+/* ── FOOTER ── */
+footer { border-top:1px solid var(--g2); padding:.5rem 2rem;
+  display:flex; justify-content:space-between; font-size:.6rem; color:var(--g3); letter-spacing:1px; }
+
+/* ── GLITCH FLASH ── */
+#gflash { position:fixed; inset:0; z-index:500; pointer-events:none; opacity:0; }
+.gflash-on { animation: gf .4s steps(1) forwards; }
+@keyframes gf {
+  0%{opacity:0} 5%{opacity:1;background:linear-gradient(180deg,rgba(0,255,65,.12) 0 15%,transparent 15% 30%,rgba(0,255,65,.08) 30% 32%,transparent 32%)}
+  15%{background:none;transform:translate(3px,0)} 25%{transform:none}
+  40%{opacity:.5;background:linear-gradient(180deg,transparent 60%,rgba(0,255,65,.15) 60% 63%,transparent 63%)}
+  100%{opacity:0}
+}
+
+@media (max-width: 800px) {
+  main { grid-template-columns: 1fr; }
+  aside { border-right:none; border-bottom:1px solid var(--g2); }
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+
+<div id="crt">
+  <div id="flicker"></div>
+  <div id="sweep"></div>
+  <canvas id="noise-cv"></canvas>
+  <div id="burn"></div>
+</div>
+<div id="gflash"></div>
+
+<div id="app">
+
+  <header>
+    <div class="logo">CRT<em>//</em>IMG</div>
+    <div class="sys">MONOCHROME PROCESSOR &nbsp;·&nbsp; <span>CANVAS API</span> &nbsp;·&nbsp; <span>LOCAL</span></div>
+    <div class="sys">v1.0 &nbsp;·&nbsp; <span id="px-count">NO IMAGE</span></div>
+  </header>
+
+  <main>
+
+    <!-- ── SIDEBAR ── -->
+    <aside>
+
+      <!-- COLOR PALETTE -->
+      <div class="panel">
+        <div class="panel-title">Color Palette</div>
+        <div class="preset-grid">
+          <button class="preset-btn active" id="p-green" style="color:#00ff41;border-color:#006600" onclick="setPreset('green')">⬛ PHOSPHOR</button>
+          <button class="preset-btn" id="p-amber" style="color:#ffaa00;border-color:#664400" onclick="setPreset('amber')">⬛ AMBER</button>
+          <button class="preset-btn" id="p-white" style="color:#ccffcc;border-color:#555" onclick="setPreset('white')">⬛ PAPER</button>
+          <button class="preset-btn" id="p-cyan" style="color:#00ffff;border-color:#006666" onclick="setPreset('cyan')">⬛ CYAN</button>
+        </div>
+      </div>
+
+      <!-- ADJUSTMENTS -->
+      <div class="panel">
+        <div class="panel-title">Adjustments</div>
+        <div class="slider-row">
+          <div class="slider-label">BRIGHTNESS <span id="v-bright">100</span></div>
+          <input type="range" id="s-bright" min="0" max="200" value="100" oninput="onSlider(this,'v-bright')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">CONTRAST <span id="v-cont">100</span></div>
+          <input type="range" id="s-cont" min="0" max="300" value="100" oninput="onSlider(this,'v-cont')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">GAMMA <span id="v-gamma">10</span></div>
+          <input type="range" id="s-gamma" min="5" max="30" value="10" oninput="onSlider(this,'v-gamma')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">SATURATION <span id="v-sat">0</span></div>
+          <input type="range" id="s-sat" min="0" max="100" value="0" oninput="onSlider(this,'v-sat')">
+        </div>
+      </div>
+
+      <!-- EFFECTS -->
+      <div class="panel">
+        <div class="panel-title">CRT Effects</div>
+        <div class="slider-row">
+          <div class="slider-label">SCANLINES <span id="v-scan">60</span></div>
+          <input type="range" id="s-scan" min="0" max="100" value="60" oninput="onSlider(this,'v-scan')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">VIGNETTE <span id="v-vig">70</span></div>
+          <input type="range" id="s-vig" min="0" max="100" value="70" oninput="onSlider(this,'v-vig')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">BLOOM <span id="v-bloom">40</span></div>
+          <input type="range" id="s-bloom" min="0" max="100" value="40" oninput="onSlider(this,'v-bloom')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">NOISE <span id="v-noise">20</span></div>
+          <input type="range" id="s-noise" min="0" max="100" value="20" oninput="onSlider(this,'v-noise')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">PIXEL SCALE <span id="v-px">1</span>x</div>
+          <input type="range" id="s-px" min="1" max="6" value="1" oninput="onSlider(this,'v-px')">
+        </div>
+      </div>
+
+      <!-- TOGGLES -->
+      <div class="panel">
+        <div class="panel-title">Options</div>
+        <div class="toggle-row">
+          DITHERING
+          <label class="toggle"><input type="checkbox" id="t-dither" checked onchange="render()">
+            <div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+        </div>
+        <div class="toggle-row">
+          HALFTONE
+          <label class="toggle"><input type="checkbox" id="t-half" onchange="render()">
+            <div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+        </div>
+        <div class="toggle-row">
+          INVERT
+          <label class="toggle"><input type="checkbox" id="t-inv" onchange="render()">
+            <div class="toggle-track"><div class="toggle-thumb"></div></div></label>
+        </div>
+      </div>
+
+      <!-- HISTOGRAM -->
+      <div class="panel">
+        <div class="panel-title">Luminance Histogram</div>
+        <canvas id="hist-canvas"></canvas>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="panel">
+        <div class="panel-title">Export</div>
+        <button class="btn primary" id="btn-dl" onclick="download()" disabled>⬇ DOWNLOAD PNG</button>
+        <button class="btn" id="btn-reset" onclick="resetAll()">↺ RESET</button>
+        <button class="btn" id="btn-new" onclick="clearImage()">✕ CLEAR IMAGE</button>
+      </div>
+
+    </aside>
+
+    <!-- ── CANVAS AREA ── -->
+    <div id="canvas-wrap">
+      <div id="canvas-area">
+
+        <!-- Drop zone (shown when no image) -->
+        <div id="drop-area">
+          <input type="file" id="file-input" accept="image/*" onchange="loadFile(this.files[0])">
+          <div class="drop-icon">⊞</div>
+          <div class="drop-label">DRAG &amp; DROP IMAGE<br>or click to select</div>
+          <div class="drop-sub">JPG · PNG · WEBP · GIF · BMP</div>
+          <button class="btn" style="width:180px;margin-top:.5rem" onclick="document.getElementById('file-input').click()">SELECT FILE</button>
+        </div>
+
+        <!-- Hidden source canvas -->
+        <canvas id="original-canvas"></canvas>
+
+        <!-- Output canvas -->
+        <canvas id="out-canvas" style="display:none"></canvas>
+
+      </div>
+      <div id="canvas-status">
+        <div>SIZE: <span id="st-size">—</span></div>
+        <div>PALETTE: <span id="st-pal">PHOSPHOR GREEN</span></div>
+        <div>EFFECTS: <span id="st-fx">—</span></div>
+        <div>RENDER: <span id="st-ms">—</span></div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <span>CRT//IMG MONOCHROME PROCESSOR</span>
+    <span>ALL PROCESSING LOCAL — NO DATA LEAVES YOUR BROWSER</span>
+    <span id="ft-time">—</span>
+  </footer>
+
+</div>
+
+<script>
+/* ── CURSOR ── */
+const cur = document.getElementById('cur');
+document.addEventListener('mousemove', e => { cur.style.left=e.clientX+'px'; cur.style.top=e.clientY+'px'; });
+document.addEventListener('mousedown', ()=>cur.style.transform='translate(-50%,-50%) scale(1.8)');
+document.addEventListener('mouseup',   ()=>cur.style.transform='translate(-50%,-50%) scale(1)');
+
+/* ── NOISE CANVAS ── */
+const ncv = document.getElementById('noise-cv');
+const nctx = ncv.getContext('2d');
+function resizeN(){ ncv.width=window.innerWidth; ncv.height=window.innerHeight; }
+resizeN(); window.addEventListener('resize',resizeN);
+function drawNoise(){
+  const w=ncv.width,h=ncv.height,img=nctx.createImageData(w,h);
+  for(let i=0;i<img.data.length;i+=4){
+    const v=Math.random()<.5?0:(Math.random()*255)|0;
+    img.data[i]=0;img.data[i+1]=v;img.data[i+2]=0;img.data[i+3]=v*.5;
+  }
+  nctx.putImageData(img,0,0);
+  requestAnimationFrame(drawNoise);
+}
+drawNoise();
+
+/* ── CLOCK ── */
+setInterval(()=>{ document.getElementById('ft-time').textContent=new Date().toTimeString().slice(0,8); },1000);
+
+/* ── PALETTE DEFINITIONS ── */
+const PALETTES = {
+  green: { r:0, g:255, b:65,  name:'PHOSPHOR GREEN' },
+  amber: { r:255, g:170, b:0, name:'AMBER CRT' },
+  white: { r:200, g:255, b:200,name:'PAPER WHITE' },
+  cyan:  { r:0, g:255, b:255,  name:'CYAN PHOSPHOR' },
+};
+let curPalette = 'green';
+
+function setPreset(name) {
+  curPalette = name;
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('p-'+name).classList.add('active');
+  document.getElementById('st-pal').textContent = PALETTES[name].name;
+  render();
+}
+
+/* ── SLIDER HELPERS ── */
+function onSlider(el, valId) {
+  const v = el.value;
+  document.getElementById(valId).textContent = v;
+  // Update fill
+  const pct = ((v - el.min) / (el.max - el.min)) * 100;
+  el.style.setProperty('--pct', pct + '%');
+  render();
+}
+// Init slider fills
+document.querySelectorAll('input[type=range]').forEach(el=>{
+  const pct=((el.value-el.min)/(el.max-el.min))*100;
+  el.style.setProperty('--pct',pct+'%');
+});
+
+/* ── STATE ── */
+let srcImageData = null;
+let srcW = 0, srcH = 0;
+
+/* ── DROP ZONE ── */
+const dropArea = document.getElementById('drop-area');
+['dragenter','dragover'].forEach(ev=>dropArea.addEventListener(ev,e=>{ e.preventDefault(); dropArea.classList.add('drag-over'); }));
+['dragleave','drop'].forEach(ev=>dropArea.addEventListener(ev,e=>{ e.preventDefault(); dropArea.classList.remove('drag-over'); }));
+dropArea.addEventListener('drop', e=>{
+  const f = e.dataTransfer.files[0];
+  if(f && f.type.startsWith('image/')) loadFile(f);
+});
+
+function loadFile(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      srcW = img.naturalWidth;
+      srcH = img.naturalHeight;
+      const oc = document.getElementById('original-canvas');
+      oc.width = srcW; oc.height = srcH;
+      const octx = oc.getContext('2d');
+      octx.drawImage(img, 0, 0);
+      srcImageData = octx.getImageData(0, 0, srcW, srcH);
+
+      dropArea.style.display = 'none';
+      document.getElementById('out-canvas').style.display = 'block';
+      document.getElementById('btn-dl').disabled = false;
+      document.getElementById('st-size').textContent = srcW + ' × ' + srcH + 'px';
+      document.getElementById('px-count').textContent = (srcW * srcH / 1000).toFixed(1) + 'K PX';
+      glitchFlash();
+      render();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ── MAIN RENDER ── */
+let renderTimer = null;
+function render() {
+  if (!srcImageData) return;
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(_render, 30);
+}
+
+function _render() {
+  if (!srcImageData) return;
+  const t0 = performance.now();
+
+  const bright   = +document.getElementById('s-bright').value / 100;
+  const contrast = +document.getElementById('s-cont').value / 100;
+  const gamma    = +document.getElementById('s-gamma').value / 10;
+  const sat      = +document.getElementById('s-sat').value / 100;
+  const scanAmt  = +document.getElementById('s-scan').value / 100;
+  const vigAmt   = +document.getElementById('s-vig').value / 100;
+  const bloomAmt = +document.getElementById('s-bloom').value / 100;
+  const noiseAmt = +document.getElementById('s-noise').value / 100;
+  const pixScale = +document.getElementById('s-px').value;
+  const dither   = document.getElementById('t-dither').checked;
+  const halftone = document.getElementById('t-half').checked;
+  const invert   = document.getElementById('t-inv').checked;
+
+  const pal = PALETTES[curPalette];
+
+  // Work at pixel-scaled resolution
+  const w = Math.max(1, Math.floor(srcW / pixScale));
+  const h = Math.max(1, Math.floor(srcH / pixScale));
+
+  // Downsample src
+  const tmpC = new OffscreenCanvas(w, h);
+  const tmpX = tmpC.getContext('2d');
+  const srcC = document.getElementById('original-canvas');
+  tmpX.drawImage(srcC, 0, 0, w, h);
+  const raw = tmpX.getImageData(0, 0, w, h);
+  const d = raw.data;
+
+  // Convert to luma + apply adjustments
+  const luma = new Float32Array(w * h);
+  const hist = new Uint32Array(256);
+
+  for (let i = 0; i < w * h; i++) {
+    const ri = i * 4;
+    let r = d[ri] / 255, g = d[ri+1] / 255, b = d[ri+2] / 255;
+
+    // Partial desaturation (mix with luma)
+    const L = 0.299*r + 0.587*g + 0.114*b;
+    if (sat < 1) { r=r*(sat)+(L*(1-sat)); g=g*(sat)+(L*(1-sat)); b=b*(sat)+(L*(1-sat)); }
+
+    // Luminance
+    let lv = 0.299*r + 0.587*g + 0.114*b;
+
+    // Brightness
+    lv *= bright;
+
+    // Contrast (around 0.5)
+    lv = (lv - 0.5) * contrast + 0.5;
+
+    // Gamma
+    lv = Math.pow(Math.max(0, lv), 1 / gamma);
+
+    // Clamp
+    lv = Math.max(0, Math.min(1, lv));
+
+    if (invert) lv = 1 - lv;
+
+    luma[i] = lv;
+    hist[Math.min(255, Math.floor(lv * 255))]++;
+  }
+
+  // Dithering (Floyd-Steinberg) — operates on luma copy
+  const quant = new Float32Array(luma);
+  if (dither && !halftone) {
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const idx = y * w + x;
+        const old = quant[idx];
+        const nv  = old > 0.5 ? 1 : 0;
+        quant[idx] = nv;
+        const err = old - nv;
+        if (x+1 < w)           quant[idx+1]   += err * 7/16;
+        if (x-1 >= 0 && y+1 < h) quant[idx+w-1] += err * 3/16;
+        if (y+1 < h)           quant[idx+w]   += err * 5/16;
+        if (x+1 < w && y+1 < h) quant[idx+w+1] += err * 1/16;
+      }
+    }
+  }
+
+  // Draw to output canvas (at srcW × srcH for crisp upscaling)
+  const outC = document.getElementById('out-canvas');
+  outC.width = srcW; outC.height = srcH;
+  const outX = outC.getContext('2d');
+
+  // Draw base pixels
+  const outImg = outX.createImageData(w, h);
+  const od = outImg.data;
+  for (let i = 0; i < w * h; i++) {
+    const ri = i * 4;
+    let lv;
+    if (halftone) {
+      // Halftone dot pattern
+      const x = i % w, y = Math.floor(i / w);
+      const dotSize = 6;
+      const cx = (Math.floor(x / dotSize) + .5) * dotSize;
+      const cy = (Math.floor(y / dotSize) + .5) * dotSize;
+      // Average luma in dot cell
+      let sum = 0, cnt = 0;
+      for (let dy=0; dy<dotSize && (Math.floor(y/dotSize)*dotSize+dy)<h; dy++) {
+        for (let dx=0; dx<dotSize && (Math.floor(x/dotSize)*dotSize+dx)<w; dx++) {
+          sum += luma[(Math.floor(y/dotSize)*dotSize+dy)*w + (Math.floor(x/dotSize)*dotSize+dx)];
+          cnt++;
+        }
+      }
+      const avg = cnt ? sum/cnt : 0;
+      const dist = Math.sqrt((x-cx)**2+(y-cy)**2);
+      const radius = avg * dotSize * 0.65;
+      lv = dist < radius ? 1 : 0;
+    } else if (dither) {
+      lv = quant[i];
+    } else {
+      lv = luma[i];
+    }
+
+    // Apply noise
+    if (noiseAmt > 0) {
+      lv += (Math.random() * 2 - 1) * noiseAmt * 0.15;
+      lv = Math.max(0, Math.min(1, lv));
+    }
+
+    od[ri]   = Math.round(pal.r * lv);
+    od[ri+1] = Math.round(pal.g * lv);
+    od[ri+2] = Math.round(pal.b * lv);
+    od[ri+3] = 255;
+  }
+
+  // Put at full output size
+  const tmpOut = new OffscreenCanvas(w, h);
+  tmpOut.getContext('2d').putImageData(outImg, 0, 0);
+  outX.imageSmoothingEnabled = false;
+  outX.drawImage(tmpOut, 0, 0, srcW, srcH);
+
+  // ── SCANLINES ──
+  if (scanAmt > 0) {
+    const lineH = Math.max(1, Math.round(2 * pixScale));
+    const gap   = Math.max(2, lineH * 2);
+    outX.fillStyle = `rgba(0,0,0,${scanAmt * 0.65})`;
+    for (let y = 0; y < srcH; y += gap) {
+      outX.fillRect(0, y, srcW, lineH);
+    }
+  }
+
+  // ── BLOOM (composite glow) ──
+  if (bloomAmt > 0) {
+    const blC = new OffscreenCanvas(srcW, srcH);
+    const blX = blC.getContext('2d');
+    blX.filter = `blur(${Math.round(bloomAmt * 8 * pixScale)}px)`;
+    blX.drawImage(outC, 0, 0);
+    outX.globalCompositeOperation = 'screen';
+    outX.globalAlpha = bloomAmt * 0.45;
+    outX.drawImage(blC, 0, 0);
+    outX.globalCompositeOperation = 'source-over';
+    outX.globalAlpha = 1;
+  }
+
+  // ── VIGNETTE ──
+  if (vigAmt > 0) {
+    const vg = outX.createRadialGradient(
+      srcW/2, srcH/2, srcH * 0.25,
+      srcW/2, srcH/2, srcH * 0.85
+    );
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, `rgba(0,0,0,${vigAmt * 0.88})`);
+    outX.fillStyle = vg;
+    outX.fillRect(0, 0, srcW, srcH);
+  }
+
+  // ── HISTOGRAM ──
+  drawHistogram(hist, w * h);
+
+  // ── STATUS ──
+  const ms = (performance.now() - t0).toFixed(1);
+  document.getElementById('st-ms').textContent = ms + 'ms';
+  const fxList = [];
+  if (scanAmt > 0) fxList.push('SCANLINES');
+  if (vigAmt > 0)  fxList.push('VIGNETTE');
+  if (bloomAmt > 0)fxList.push('BLOOM');
+  if (noiseAmt > 0)fxList.push('NOISE');
+  if (dither)      fxList.push('DITHER');
+  if (halftone)    fxList.push('HALFTONE');
+  if (invert)      fxList.push('INVERT');
+  if (pixScale > 1)fxList.push('PIXEL×'+pixScale);
+  document.getElementById('st-fx').textContent = fxList.join(' · ') || '—';
+}
+
+/* ── HISTOGRAM DRAW ── */
+function drawHistogram(hist, total) {
+  const hc = document.getElementById('hist-canvas');
+  const hx = hc.getContext('2d');
+  const W = hc.offsetWidth || 260, H = 60;
+  hc.width = W; hc.height = H;
+  hx.clearRect(0,0,W,H);
+
+  const pal = PALETTES[curPalette];
+  const max = Math.max(1, ...hist);
+  const bw = W / 256;
+
+  for (let i = 0; i < 256; i++) {
+    const bh = (hist[i] / max) * (H - 4);
+    const alpha = 0.3 + (hist[i]/max)*0.7;
+    hx.fillStyle = `rgba(${pal.r},${pal.g},${pal.b},${alpha})`;
+    hx.fillRect(i * bw, H - bh, bw + .5, bh);
+  }
+  // Midline
+  hx.strokeStyle = 'rgba(0,255,65,.15)';
+  hx.beginPath(); hx.moveTo(W/2,0); hx.lineTo(W/2,H); hx.stroke();
+}
+
+/* ── INDEXED PNG ENCODER ── */
+const CRC_TABLE = new Uint32Array(256);
+for (let n = 0; n < 256; n++) {
+  let c = n;
+  for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+  CRC_TABLE[n] = c;
+}
+function crc32(buf) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+function pngChunk(type, data) {
+  const tBytes = [type.charCodeAt(0), type.charCodeAt(1), type.charCodeAt(2), type.charCodeAt(3)];
+  const buf = new Uint8Array(12 + data.length);
+  const dv = new DataView(buf.buffer);
+  dv.setUint32(0, data.length);
+  buf.set(tBytes, 4);
+  buf.set(data, 8);
+  dv.setUint32(8 + data.length, crc32(buf.subarray(4, 8 + data.length)));
+  return buf;
+}
+
+async function zlibCompress(raw) {
+  const cs = new CompressionStream('deflate');
+  const w = cs.writable.getWriter();
+  w.write(raw);
+  w.close();
+  const r = cs.readable.getReader();
+  const chunks = [];
+  while (true) {
+    const { done, value } = await r.read();
+    if (done) break;
+    chunks.push(value);
+  }
+  let len = 0;
+  for (const c of chunks) len += c.length;
+  const out = new Uint8Array(len);
+  let off = 0;
+  for (const c of chunks) { out.set(c, off); off += c.length; }
+  return out;
+}
+
+function concatBytes(...arrays) {
+  let len = 0;
+  for (const a of arrays) len += a.length;
+  const out = new Uint8Array(len);
+  let off = 0;
+  for (const a of arrays) { out.set(a, off); off += a.length; }
+  return out;
+}
+
+async function buildIndexedPNG(w, h, pixels, palette) {
+  const nColors = palette.length;
+  const bitDepth = nColors <= 2 ? 1 : nColors <= 4 ? 2 : nColors <= 16 ? 4 : 8;
+  const ppb = 8 / bitDepth;
+  const rowBytes = Math.ceil(w / ppb);
+
+  // IHDR
+  const ihdrData = new Uint8Array(13);
+  const ihdrView = new DataView(ihdrData.buffer);
+  ihdrView.setUint32(0, w);
+  ihdrView.setUint32(4, h);
+  ihdrData[8] = bitDepth;
+  ihdrData[9] = 3; // indexed color
+  const ihdr = pngChunk('IHDR', ihdrData);
+
+  // PLTE
+  const plteData = new Uint8Array(nColors * 3);
+  for (let i = 0; i < nColors; i++) {
+    plteData[i * 3]     = palette[i][0];
+    plteData[i * 3 + 1] = palette[i][1];
+    plteData[i * 3 + 2] = palette[i][2];
+  }
+  const plte = pngChunk('PLTE', plteData);
+
+  // IDAT — filtered scanlines
+  const raw = new Uint8Array((1 + rowBytes) * h);
+  for (let y = 0; y < h; y++) {
+    const rOff = y * (1 + rowBytes);
+    raw[rOff] = 0; // filter: None
+    for (let x = 0; x < w; x++) {
+      const pi = pixels[y * w + x];
+      const bi = rOff + 1 + Math.floor(x / ppb);
+      const shift = (ppb - 1 - (x % ppb)) * bitDepth;
+      raw[bi] |= (pi << shift);
+    }
+  }
+  const compressed = await zlibCompress(raw);
+  const idat = pngChunk('IDAT', compressed);
+
+  const iend = pngChunk('IEND', new Uint8Array(0));
+  const sig = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+
+  return concatBytes(sig, ihdr, plte, idat, iend);
+}
+
+/* ── CLEAN EXPORT RENDER ── */
+function renderForExport() {
+  const bright   = +document.getElementById('s-bright').value / 100;
+  const contrast = +document.getElementById('s-cont').value / 100;
+  const gamma    = +document.getElementById('s-gamma').value / 10;
+  const sat      = +document.getElementById('s-sat').value / 100;
+  const scanAmt  = +document.getElementById('s-scan').value / 100;
+  const pixScale = +document.getElementById('s-px').value;
+  const dither   = document.getElementById('t-dither').checked;
+  const halftone = document.getElementById('t-half').checked;
+  const invert   = document.getElementById('t-inv').checked;
+
+  const pal = PALETTES[curPalette];
+  const w = Math.max(1, Math.floor(srcW / pixScale));
+  const h = Math.max(1, Math.floor(srcH / pixScale));
+
+  // Downsample
+  const tmpC = new OffscreenCanvas(w, h);
+  const tmpX = tmpC.getContext('2d');
+  tmpX.drawImage(document.getElementById('original-canvas'), 0, 0, w, h);
+  const raw = tmpX.getImageData(0, 0, w, h);
+  const d = raw.data;
+
+  // Luma + adjustments
+  const luma = new Float32Array(w * h);
+  for (let i = 0; i < w * h; i++) {
+    const ri = i * 4;
+    let r = d[ri] / 255, g = d[ri+1] / 255, b = d[ri+2] / 255;
+    const L = 0.299*r + 0.587*g + 0.114*b;
+    if (sat < 1) { r=r*sat+L*(1-sat); g=g*sat+L*(1-sat); b=b*sat+L*(1-sat); }
+    let lv = 0.299*r + 0.587*g + 0.114*b;
+    lv *= bright;
+    lv = (lv - 0.5) * contrast + 0.5;
+    lv = Math.pow(Math.max(0, lv), 1 / gamma);
+    lv = Math.max(0, Math.min(1, lv));
+    if (invert) lv = 1 - lv;
+    luma[i] = lv;
+  }
+
+  // Dithering
+  const quant = new Float32Array(luma);
+  if (dither && !halftone) {
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const idx = y * w + x;
+        const old = quant[idx];
+        const nv = old > 0.5 ? 1 : 0;
+        quant[idx] = nv;
+        const err = old - nv;
+        if (x+1 < w)                quant[idx+1]   += err * 7/16;
+        if (x-1 >= 0 && y+1 < h)   quant[idx+w-1] += err * 3/16;
+        if (y+1 < h)                quant[idx+w]   += err * 5/16;
+        if (x+1 < w && y+1 < h)    quant[idx+w+1] += err * 1/16;
+      }
+    }
+  }
+
+  // Build pixel indices: 0 = black, 1 = palette color
+  // With scanlines: scanline rows become black
+  const pixels = new Uint8Array(w * h);
+  const scanGap = Math.max(2, 2 * 2); // scanline every 4 rows at export res
+
+  for (let i = 0; i < w * h; i++) {
+    const x = i % w, y = Math.floor(i / w);
+
+    // Scanline: darken every Nth row
+    if (scanAmt > 0 && (y % scanGap < 1)) {
+      pixels[i] = 0;
+      continue;
+    }
+
+    let lv;
+    if (halftone) {
+      const dotSize = 6;
+      const cx = (Math.floor(x/dotSize)+.5)*dotSize;
+      const cy = (Math.floor(y/dotSize)+.5)*dotSize;
+      let sum = 0, cnt = 0;
+      for (let dy=0; dy<dotSize && (Math.floor(y/dotSize)*dotSize+dy)<h; dy++) {
+        for (let dx=0; dx<dotSize && (Math.floor(x/dotSize)*dotSize+dx)<w; dx++) {
+          sum += luma[(Math.floor(y/dotSize)*dotSize+dy)*w+(Math.floor(x/dotSize)*dotSize+dx)];
+          cnt++;
+        }
+      }
+      const dist = Math.sqrt((x-cx)**2+(y-cy)**2);
+      lv = dist < (cnt ? sum/cnt : 0) * dotSize * 0.65 ? 1 : 0;
+    } else if (dither) {
+      lv = quant[i] > 0.5 ? 1 : 0;
+    } else {
+      lv = luma[i] > 0.5 ? 1 : 0;
+    }
+
+    pixels[i] = lv ? 1 : 0;
+  }
+
+  const palette = [
+    [0, 0, 0],
+    [pal.r, pal.g, pal.b]
+  ];
+
+  return { w, h, pixels, palette };
+}
+
+/* ── DOWNLOAD ── */
+async function download() {
+  const btn = document.getElementById('btn-dl');
+  btn.disabled = true;
+  btn.textContent = '⏳ ENCODING…';
+
+  try {
+    const { w, h, pixels, palette } = renderForExport();
+    const pngBytes = await buildIndexedPNG(w, h, pixels, palette);
+    const blob = new Blob([pngBytes], { type: 'image/png' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'crt-processed.png';
+    a.click();
+    URL.revokeObjectURL(url);
+    glitchFlash();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⬇ DOWNLOAD PNG';
+  }
+}
+
+/* ── RESET ── */
+function resetAll() {
+  document.getElementById('s-bright').value = 100; document.getElementById('v-bright').textContent='100';
+  document.getElementById('s-cont').value   = 100; document.getElementById('v-cont').textContent='100';
+  document.getElementById('s-gamma').value  = 10;  document.getElementById('v-gamma').textContent='10';
+  document.getElementById('s-sat').value    = 0;   document.getElementById('v-sat').textContent='0';
+  document.getElementById('s-scan').value   = 60;  document.getElementById('v-scan').textContent='60';
+  document.getElementById('s-vig').value    = 70;  document.getElementById('v-vig').textContent='70';
+  document.getElementById('s-bloom').value  = 40;  document.getElementById('v-bloom').textContent='40';
+  document.getElementById('s-noise').value  = 20;  document.getElementById('v-noise').textContent='20';
+  document.getElementById('s-px').value     = 1;   document.getElementById('v-px').textContent='1';
+  document.getElementById('t-dither').checked = true;
+  document.getElementById('t-half').checked   = false;
+  document.getElementById('t-inv').checked    = false;
+  document.querySelectorAll('input[type=range]').forEach(el=>{
+    const pct=((el.value-el.min)/(el.max-el.min))*100;
+    el.style.setProperty('--pct',pct+'%');
+  });
+  render();
+}
+
+function clearImage() {
+  srcImageData = null;
+  document.getElementById('drop-area').style.display = '';
+  document.getElementById('out-canvas').style.display = 'none';
+  document.getElementById('btn-dl').disabled = true;
+  document.getElementById('st-size').textContent = '—';
+  document.getElementById('st-fx').textContent   = '—';
+  document.getElementById('st-ms').textContent   = '—';
+  document.getElementById('px-count').textContent= 'NO IMAGE';
+  // Clear histogram
+  const hc = document.getElementById('hist-canvas');
+  hc.getContext('2d').clearRect(0,0,hc.width,hc.height);
+}
+
+/* ── GLITCH FLASH ── */
+function glitchFlash() {
+  const el = document.getElementById('gflash');
+  el.classList.remove('gflash-on');
+  void el.offsetWidth;
+  el.classList.add('gflash-on');
+  el.addEventListener('animationend', ()=>el.classList.remove('gflash-on'), {once:true});
+}
+</script>
+</body>
+</html>
