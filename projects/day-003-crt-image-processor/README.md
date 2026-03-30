@@ -25,7 +25,3 @@ All processing happens client-side — no data leaves the browser.
 - Adjust sliders in the sidebar
 - Toggle dithering/halftone/invert
 - Click **Download PNG** to export
-
-## Origin
-
-Extracted from the [greyskull](https://github.com/rxtxr/greyskull) project's CRT image processing toolchain.
