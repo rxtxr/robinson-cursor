@@ -3,7 +3,7 @@
   "slug": "day-003-crt-image-processor",
   "title": "CRT//IMG — Monochrome Processor",
   "date": "2026-03-30",
-  "description": "Interactive CRT monitor image processor with phosphor palettes, Floyd-Steinberg dithering, scanlines, bloom, and halftone effects. All processing runs locally in the browser.",
+  "description": "Interactive CRT monitor image processor with phosphor palettes, Floyd-Steinberg dithering, scanlines, bloom, halftone, and resample mode. Exports as indexed PNG. All processing runs locally in the browser.",
   "tags": ["canvas", "image-processing", "retro", "interactive", "dithering"],
   "stack": ["Canvas 2D", "OffscreenCanvas", "JavaScript"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-003-crt-image-processor",
