@@ -36,7 +36,18 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
 ---
 
 <Base title={`#${dayNum} ${project.title} — robinson-cursor.com`} description={project.description} ogImage={thumbUrl || ''}>
-  <article class="project-detail">
+  <article class="project-detail" style={project.accentColor ? `--color-accent: ${project.accentColor}` : ''}>
+    <nav class="project-nav project-nav-top" aria-label="Project navigation">
+      <a href="/" class="nav-back" aria-label="Back to all projects">&larr; all projects</a>
+      <div class="nav-prevnext">
+        {prevProject && (
+          <a href={`/projects/${prevProject.slug}`} class="nav-prev" aria-label={`Previous: ${prevProject.title}`}>&larr; #{String(prevProject.day).padStart(3, '0')}</a>
+        )}
+        {nextProject && (
+          <a href={`/projects/${nextProject.slug}`} class="nav-next" aria-label={`Next: ${nextProject.title}`}>#{String(nextProject.day).padStart(3, '0')} &rarr;</a>
+        )}
+      </div>
+    </nav>
     <header class="project-header">
       <div class="meta-line">
         <span class="day-number">#{dayNum}</span>
@@ -302,6 +313,7 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
 
   .readme-content :global(:not(pre) > code) {
     background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     padding: 2px 6px;
     border-radius: var(--radius);
     color: var(--color-accent);
@@ -372,6 +384,15 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
     border-top: 1px solid var(--color-border);
     font-family: var(--font-mono);
     font-size: 0.85rem;
+  }
+
+  .project-nav-top {
+    margin-top: 0;
+    margin-bottom: var(--space-lg);
+    padding-top: 0;
+    padding-bottom: var(--space-lg);
+    border-top: none;
+    border-bottom: 1px solid var(--color-border);
   }
 
   .nav-prevnext {
