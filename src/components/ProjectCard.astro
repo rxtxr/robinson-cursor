@@ -3,9 +3,12 @@ const { project, thumbUrl } = Astro.props;
 const dayNum = String(project.day).padStart(3, '0');
 const isTemplate = project.status === 'template';
 const isWip = project.status === 'wip';
+const isIncomplete = project.status === 'incomplete';
+const isFail = project.status === 'fail';
+const statusBadge = isWip ? 'work in progress' : isIncomplete ? 'incomplete' : isFail ? 'fail' : null;
 ---
 
-<a href={`/projects/${project.slug}`} class:list={['project-card', { 'card-template': isTemplate, 'card-wip': isWip }]} style={project.accentColor ? `--color-accent: ${project.accentColor}` : ''} aria-label={`Day ${dayNum}: ${project.title}`}>
+<a href={`/projects/${project.slug}`} class:list={['project-card', { 'card-template': isTemplate, 'card-wip': isWip, 'card-incomplete': isIncomplete, 'card-fail': isFail }]} style={project.accentColor ? `--color-accent: ${project.accentColor}` : ''} aria-label={`Day ${dayNum}: ${project.title}`}>
   {thumbUrl ? (
     <div class="card-thumb">
       <img src={thumbUrl} alt="" loading="lazy" />
@@ -21,7 +24,7 @@ const isWip = project.status === 'wip';
       <time class="date" datetime={project.date}>{project.date}</time>
     </div>
     <h3 class="card-title">
-      {isWip && <span class="wip-badge">work in progress</span>}
+      {statusBadge && <span class:list={['status-badge', { 'badge-wip': isWip, 'badge-incomplete': isIncomplete, 'badge-fail': isFail }]}>{statusBadge}</span>}
       {project.title}
     </h3>
     <p class="card-description">{project.description}</p>
@@ -131,9 +134,8 @@ const isWip = project.status === 'wip';
     color: #e74c3c;
   }
 
-  .wip-badge {
+  .status-badge {
     display: inline-block;
-    background: #c0392b;
     color: #fff;
     font-size: 0.6rem;
     font-weight: 700;
@@ -143,6 +145,34 @@ const isWip = project.status === 'wip';
     border-radius: 3px;
     margin-right: 0.4em;
     vertical-align: middle;
+  }
+
+  .badge-wip { background: #c0392b; }
+  .badge-incomplete { background: #b87a14; }
+  .badge-fail { background: #8b2020; }
+
+  .card-incomplete {
+    border-color: #b87a14;
+  }
+
+  .card-incomplete:hover {
+    border-color: #d4950a;
+  }
+
+  .card-incomplete .day-number {
+    color: #d4950a;
+  }
+
+  .card-fail {
+    border-color: #6b1a1a;
+  }
+
+  .card-fail:hover {
+    border-color: #8b2020;
+  }
+
+  .card-fail .day-number {
+    color: #8b2020;
   }
 
   .card-template {

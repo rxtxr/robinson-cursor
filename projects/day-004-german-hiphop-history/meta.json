@@ -1,0 +1,12 @@
+{
+  "day": 4,
+  "slug": "day-004-german-hiphop-history",
+  "title": "History of German Hip Hop BETA",
+  "date": "2026-03-31",
+  "description": "Interactive timeline exploring the history of German hip hop — artists, albums, movements, and cultural milestones.",
+  "tags": ["music", "history", "hip-hop", "timeline", "interactive"],
+  "stack": ["HTML", "CSS", "JavaScript"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-004-german-hiphop-history",
+  "status": "incomplete",
+  "license_notes": "D3.js v7 (ISC License) via CDN"
+}

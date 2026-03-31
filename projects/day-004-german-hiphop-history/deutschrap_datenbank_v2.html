@@ -1,0 +1,472 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.tabs{display:flex;gap:2px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:16px}
+.tab-btn{padding:8px 16px;font-size:13px;background:none;border:none;color:var(--color-text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-0.5px}
+.tab-btn.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);font-weight:500}
+.split{display:flex;height:560px}
+.sidebar{width:220px;overflow-y:auto;border-right:0.5px solid var(--color-border-tertiary);flex-shrink:0}
+.era-label{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;padding:14px 12px 4px}
+.gitem{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--color-text-secondary);border-left:2px solid transparent}
+.gitem:hover{background:var(--color-background-secondary)}
+.gitem.active{color:var(--color-text-primary);font-weight:500;background:var(--color-background-secondary)}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.detail{flex:1;overflow-y:auto;padding:18px 22px}
+.dname{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.dera{font-size:12px;color:var(--color-text-tertiary);margin-bottom:14px}
+.ddesc{font-size:13px;line-height:1.65;color:var(--color-text-secondary);margin-bottom:16px;padding-bottom:16px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.slabel{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;margin-top:14px}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:2px}
+.tag{font-size:11px;padding:3px 9px;border-radius:999px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.glink{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 10px;border-radius:6px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);cursor:pointer;color:var(--color-text-secondary);margin:2px}
+.glink:hover{background:var(--color-background-tertiary)}
+.alist{display:flex;flex-direction:column;gap:2px;margin-bottom:2px}
+.aitem{font-size:12px;color:var(--color-text-primary);padding:2px 0;display:flex;justify-content:space-between}
+.aitem span{color:var(--color-text-tertiary);font-size:11px}
+.badge-new{font-size:9px;padding:2px 6px;border-radius:4px;background:var(--color-background-info);color:var(--color-text-info);margin-left:6px;vertical-align:middle}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.scard{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px}
+.stitle{font-size:13px;font-weight:500;margin-bottom:10px;color:var(--color-text-primary)}
+.frow{font-size:11px;color:var(--color-text-secondary);padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.frow:last-child{border-bottom:none}
+.ftype{color:var(--color-text-tertiary);font-family:var(--font-mono);font-size:10px;text-align:right;flex-shrink:0}
+#json-out{width:100%;height:480px;font-family:var(--font-mono);font-size:10px;color:var(--color-text-secondary);background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px;resize:none;outline:none;line-height:1.5}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+.stat{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 16px;text-align:center}
+.stat-n{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.stat-l{font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
+</style>
+
+<div style="padding:1rem 0">
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('genres')">Genre-Browser</button>
+  <button class="tab-btn" onclick="showTab('schema')">Datenmodell</button>
+  <button class="tab-btn" onclick="showTab('export')">JSON-Export</button>
+</div>
+<div id="tab-genres"><div class="split"><div class="sidebar" id="sidebar"></div><div class="detail" id="detail" style="display:flex;align-items:center;justify-content:center"><p style="color:var(--color-text-tertiary);font-size:13px">← Genre auswählen</p></div></div></div>
+<div id="tab-schema" style="display:none;padding:4px 0"></div>
+<div id="tab-export" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <span style="font-size:13px;color:var(--color-text-secondary)">Komplette Datenbank als JSON</span>
+    <button id="copy-btn" onclick="copyJSON()" style="font-size:12px;padding:6px 14px">Kopieren</button>
+  </div>
+  <textarea id="json-out" readonly></textarea>
+</div>
+</div>
+
+<script>
+const DB = {
+ genres:[
+  // ── VORLÄUFER & PARALLELEN ──────────────────────────────────────
+  {id:'zeitgeist_rap',name:'Zeitgeist-Pop-Rap',era:'1981–1990',year_start:1981,year_end:1990,color:'#888780',isNew:true,
+   description:'Sprechgesang als Stilmittel im Pop- und Neue-Deutsche-Welle-Kontext – ohne Verankerung in der HipHop-Kultur. Falcos „Der Kommissar" (1981) ist das entscheidende Artefakt: kommerziell welterfolgreich, von Afrika Bambaataa in New York gespielt, von Falco selbst aber explizit nicht als HipHop verstanden. Ähnliche Sprachexperimente finden sich in der NDW, bei Comedy-Acts und Schlager-Parodisten. Entscheidend: kein kultureller Transfer, kein B-Boy-Kontext.',
+   characteristics:['Sprechgesang als Stilmittel','Keine HipHop-Kulturverankerung','NDW-Kontext','Zeitgeist','Pop/Funk-Basis'],
+   regions:['Wien','Deutschland-weit'],parent_ids:[],influenced_by:['Funk (Rick James, Blondie)','Neue Deutsche Welle','Kabarett / Chanson'],
+   label_ids:[],artist_ids:['falco','rodgau_monotones'],track_ids:['der_kommissar']},
+
+  {id:'breakdance_welle',name:'Breakdance-Welle / B-Boy-Kultur',era:'1983–1987',year_start:1983,year_end:1987,color:'#B4B2A9',isNew:true,
+   description:'Medialer Boom, ausgelöst durch US-Filme (Flashdance 1983, Beat Street 1984, Breakin\' 1984) – nicht primär ein Musik-, sondern ein Tanzphänomen. In Deutschland entstanden Breakdance-AGs in Jugendzentren und Schulen. Besonders in der DDR war die Szene unter erschwerten Bedingungen aktiv (Stasi-Überwachung, kein Equipment). TJ Big Blaster Electric Boogie (Dresden, ab 1987) gilt als einer der ersten DDR-Rapper. Diese Welle ist Vorläufer der „echten" deutschen HipHop-Szene ab ~1987.',
+   characteristics:['B-Boying / Electric Boogie','Film-induziert','Tanzsport','Jugendkultur','DDR-Szene','Kein Rap-Schwerpunkt'],
+   regions:['Deutschland-weit','Berlin (Ost)','Dresden','Rostock'],parent_ids:[],influenced_by:['Beat Street (Film 1984)','Flashdance (Film 1983)','Afrika Bambaataa / Electro','Rock Steady Crew'],
+   label_ids:[],artist_ids:['tj_big_blaster'],track_ids:[]},
+
+  // ── PIONIERE & GOLDENES ZEITALTER ──────────────────────────────
+  {id:'oldschool',name:'Old School / Pioniere',era:'1984–1992',year_start:1984,year_end:1992,color:'#7F77DD',
+   description:'Die Anfänge des deutschen Hip-Hop als direkter Kulturimport aus den USA – vermittelt über US-Militärstützpunkte (besonders Heidelberg) und Medien wie Radio und MTV. Erste Gehversuche meist auf Englisch, bevor sich eine deutsche Ausdrucksform herausschälte. B-Boy-Kultur (Breakdance, Graffiti, DJing) stand gleichberechtigt neben dem Rappen. Advanced Chemistry und das Heidelberger Umfeld gelten als Keimzelle.',
+   characteristics:['B-Boy-Kultur','Englische Texte (zunächst)','Politisch','Underground','US-Import','Heidelberg-Szene'],
+   regions:['Heidelberg','Frankfurt','Stuttgart','Berlin'],parent_ids:['breakdance_welle'],influenced_by:['Afrika Bambaataa / Zulu Nation','Grandmaster Flash','Run-DMC','Public Enemy (früh)'],
+   label_ids:[],artist_ids:['advanced_chemistry','fanta4','torch','fresh_familee','mc_rene'],track_ids:['fremd','die_da']},
+
+  {id:'britcore',name:'Britcore / Hardcore HipHop',era:'1992–2000',year_start:1992,year_end:2000,color:'#3C3489',isNew:true,
+   description:'UK-Britcore schwappt Anfang der 90er nach Deutschland – und findet hier ironischerweise mehr Resonanz als in Großbritannien selbst. Charakteristisch: über 100 BPM, harte Cuts, exzessive Scratches, oft englischsprachige gesellschaftskritische Texte. Stilprägend war das britische Label Music of Life (Hijack, Hard Noise, Killa Instinct). No Remorze (Bremerhaven) sind die zentralen deutschen Vertreter: einer der ersten Acts mit zwei DJs, auf dem Buback-Sampler neben Advanced Chemistry. Die Verbindung zu Punk ist enger als zu US-HipHop.',
+   characteristics:['>100 BPM','Harte Cuts','Exzessive Scratches','Englische Texte','Gesellschaftskritisch','Punk-Nähe','Zwei-DJ-Setup'],
+   regions:['Bremerhaven','Norddeutschland','Hamburg'],parent_ids:['oldschool'],influenced_by:['UK Britcore: Gunshot, Hijack, Silver Bullet','Music of Life Label','Hardcore Punk'],
+   label_ids:['buback','mzee'],artist_ids:['no_remorze','readykill','cora_e'],track_ids:['condemned_to_death','the_end_album']},
+
+  {id:'crossover',name:'Crossover / Rap-Rock',era:'1992–2006',year_start:1992,year_end:2006,color:'#2C2C2A',isNew:true,
+   description:'Rap und Rockmusik (Metal, Hardcore, Punk, Jazz) als gleichwertige Elemente – keine Dominanz einer Seite. Such a Surge (Braunschweig, 1992–2006) gelten als Urgestein der deutschen Crossover-Bewegung: Texte auf Deutsch, Englisch und Französisch, linksalternative Haltung, DJ als integraler Bestandteil (anfangs). Später entwickelte sich das Genre in Richtung Nu-Metal (Linkin Park-Linie). Von Britcore unterscheidet sich Crossover dadurch, dass Hip-Hop nur eine unter mehreren gleichwertigen Quellen ist.',
+   characteristics:['Rap + Metal + Punk gleichwertig','Linksalternativ','Deutsch / Englisch / Französisch','DJ + E-Gitarre','Nu-Metal-Übergang'],
+   regions:['Braunschweig','Norddeutschland'],parent_ids:[],influenced_by:['Rage Against the Machine','Biohazard','Body Count','Beastie Boys','Red Hot Chili Peppers'],
+   label_ids:['mzee'],artist_ids:['such_a_surge'],track_ids:['under_pressure']},
+
+  {id:'conscious',name:'Conscious Rap / Politischer Rap',era:'1992–heute',year_start:1992,year_end:null,color:'#1D9E75',
+   description:'Gesellschaftskritischer und politisch motivierter Rap, der auf Rassismus, Migration und soziale Missstände aufmerksam macht. Advanced Chemistrys „Fremd im eigenen Land" (1992) ist das Gründungsdokument. Stark geprägt von postmigrantischen Identitäten. Läuft als Strömung bis heute weiter, oft im Underground.',
+   characteristics:['Gesellschaftskritik','Antirassismus','Identitätspolitik','Storytelling','Sprachbewusstsein'],
+   regions:['Heidelberg','Stuttgart','Hamburg','Hannover','Darmstadt'],
+   parent_ids:['oldschool'],influenced_by:['Public Enemy','KRS-One / BDP','De La Soul','A Tribe Called Quest'],
+   label_ids:['four_music','urban','groenland'],artist_ids:['advanced_chemistry','freundeskreis','afrob','anarchist_academy','curse','amewu','megaloh','motrip','samy_deluxe'],track_ids:['fremd','tabula_rasa','reimemonster']},
+
+  {id:'pop_rap',name:'Pop-Rap / Spaß-Rap',era:'1992–2005',year_start:1992,year_end:2005,color:'#BA7517',
+   description:'Mit „Die da!?!" (1992) revolutionierten Die Fantastischen Vier: Rap auf Deutsch, selbstironisch, tanztauglich, chartfähig. Humor, Sprachspiel und Zugänglichkeit statt politischer Botschaften. Fettes Brot parodierten US-Rap für ein norddeutsches Publikum. Erster Massenmarkt des Deutschraps.',
+   characteristics:['Deutsch','Humor','Selbstironie','Chartorientiert','Mittelschicht','Zugänglich'],
+   regions:['Stuttgart','Hamburg','München'],parent_ids:['oldschool'],influenced_by:['Beastie Boys','De La Soul','Fugees'],
+   label_ids:['four_music'],artist_ids:['fanta4','fettes_brot','blumentopf','freundeskreis'],track_ids:['die_da','nordisch','eins_a']},
+
+  {id:'hh_schule',name:'Hamburger Schule / Wortakrobatik',era:'1995–2008',year_start:1995,year_end:2008,color:'#3B6D11',
+   description:'Hamburg entwickelte eine eigenständige Ästhetik: Sprachverliebtheit, komplexe Mehrfachreime, kritische Selbstreflexivität. Das Buback-Umfeld und Absolute Beginner setzten technische Maßstäbe. Samy Deluxe verband das mit Afrodeutsch-Themen, Jan Delay öffnete es Richtung Funk und Soul.',
+   characteristics:['Komplexe Reime','Sprachspiel','Selbstreflexiv','Wortakrobatik','Hamburger Lokalpatriotismus'],
+   regions:['Hamburg'],parent_ids:['pop_rap','conscious'],influenced_by:['Jurassic 5','Black Star','Roots Manuva','Mos Def'],
+   label_ids:['buback'],artist_ids:['abs_beginner','samy_deluxe','jan_delay','eins_zwo','fettes_brot','doppelkopf'],track_ids:['bambule','dis_wo_ich_herkomm','destillat']},
+
+  {id:'boom_bap',name:'Boom Bap / Underground',era:'1995–heute',year_start:1995,year_end:null,color:'#185FA5',
+   description:'Orientiert an der Ästhetik des US-East-Coast-Hip-Hop der 1990er: Sample-basierte Beats, präzises Reimen, lyrische Komplexität. Torchs „Blauer Samt" (2000) gilt als Meisterwerk. Morlockk Dilemma und die Wuppertaler Schule führten diesen Sound in die 2010er.',
+   characteristics:['Sample-basiert','Lyrisch','Underground-Ästhetik','MC-Kultur','Lo-Fi','Boom-Bap-Rhythmik'],
+   regions:['Hamburg','Heidelberg','Wuppertal','Stuttgart'],parent_ids:['oldschool'],influenced_by:['Nas','Gang Starr','Pete Rock & CL Smooth','Mos Def','Jay Dee'],
+   label_ids:['buback','groenland','optik'],artist_ids:['torch','eins_zwo','morlockk','doppelkopf','favorite','amewu','curse'],track_ids:['blauer_samt','destillat']},
+
+  {id:'battle',name:'Battle-Rap',era:'1997–heute',year_start:1997,year_end:null,color:'#5F5E5A',
+   description:'Der verbale Zweikampf als Zentrum. Kool Savas setzte ab 1997 technische Maßstäbe für Punchlines und Reimketten. Die JBB-Serie (Juice Battle of the Year) schuf eine professionelle Karriereleiter. Kollegah und Favorite übertrugen den Battle-Stil auf Alben.',
+   characteristics:['Punchlines','Wortgefechte','MC-Technik','Freestyle','Ego-Inszenierung','Format-Battle'],
+   regions:['Berlin','Düsseldorf','Hamburg','Köln','Augsburg'],parent_ids:['boom_bap','conscious'],influenced_by:['Jay-Z','Eminem','Big L','Canibus','Lil Wayne'],
+   label_ids:['optik','selfmade'],artist_ids:['kool_savas','eko_fresh','kollegah','favorite','metrickz','automatikk'],track_ids:['der_beste_tag','king_of_rap']},
+
+  {id:'ddr_hiphop',name:'DDR-HipHop',era:'1983–1993',year_start:1983,year_end:1993,color:'#444441',isNew:true,
+   description:'HipHop unter sozialistischen Bedingungen: Breakdance und erste Rap-Versuche in der DDR ab 1983 – mit Stasi-Überwachung, Mangel an Equipment und westlichen Schallplatten. TJ Big Blaster Electric Boogie (Dresden) gilt als frühester DDR-Rapper, der ab 1987 eigene englischsprachige Raps auf aus Westradio-Mitschnitten und geliehenen Schallplatten produzierten Beats rappt. Eine eigenständige Szene, die nach der Wende in die gesamtdeutsche Szene überging.',
+   characteristics:['Englische Texte','Mangelwirtschaft','Selbstorganisiert','Breakdance-Wurzeln','Staatliche Repression','Underground'],
+   regions:['Dresden','Berlin (Ost)','Leipzig','Rostock'],parent_ids:['breakdance_welle'],influenced_by:['US-HipHop via Westradio','Beat Street Film','Malcolm McLaren'],
+   label_ids:[],artist_ids:['tj_big_blaster'],track_ids:[]},
+
+  // ── KOMMERZIALISIERUNG ──────────────────────────────────────────
+  {id:'gangsta',name:'Gangsta-Rap',era:'1994–2015',year_start:1994,year_end:2015,color:'#993C1D',
+   description:'Explizite Texte über Straßenmilieus, Kriminalität und Gewalt – adaptiert aus US-amerikanischen und französischen Vorbildern. Das Rödelheim Hartreim Projekt gilt als deutsches Äquivalent des frühen Gangsta-Rap (1994). Der Genre-Begriff ist fließend und überschneidet sich stark mit Straßen-Rap und Battle-Rap.',
+   characteristics:['Explizite Texte','Street Credibility','Milieudarstellung','Aggression','Authentizitätsanspruch'],
+   regions:['Frankfurt','Berlin','Köln'],parent_ids:['oldschool'],influenced_by:['N.W.A.','Scarface','2Pac','Lunatic (Frankreich)','Booba'],
+   label_ids:['aggro','ersguterjunge'],artist_ids:['rhp','kool_savas','azad','bushido','sido','b_tight'],track_ids:['direkt_aus_roedelheim','ich_schiesse','vom_bordstein']},
+
+  {id:'tuerkisch_rap',name:'Türkisch-Deutschrap',era:'1995–2010',year_start:1995,year_end:2010,color:'#0C447C',isNew:true,
+   description:'Cartel (1995) ist der Schlüsselmoment: das erste türkisch-deutsch-amerikanische Rap-Album, das in Deutschland Platinstatus erreichte und eine Community von über 2 Millionen repräsentierte. Rap auf Türkisch und gemischt – eine eigenständige Strömung, die weder mit dem breiteren Conscious-Rap noch mit dem Straßenrap deckungsgleich ist. Eröffnete die Debatte um Mehrsprachigkeit und kulturelle Zugehörigkeit im deutschen Rap.',
+   characteristics:['Türkische Sprache','Deutsch-Türkische Identität','Selbstermächtigung','Mehrsprachigkeit','Community-Rap'],
+   regions:['Berlin','Frankfurt','Köln','Deutschlandweit'],parent_ids:['oldschool','conscious'],influenced_by:['US-HipHop','Türkische Popmusik','Arabesque'],
+   label_ids:[],artist_ids:['cartel','king_size_terror'],track_ids:['cartel_album']},
+
+  {id:'aggro',name:'Aggro Berlin / Berliner Schule',era:'2001–2009',year_start:2001,year_end:2009,color:'#A32D2D',
+   description:'Das Berliner Label Aggro Berlin definierte in den 2000ern den deutschen Gangsta-Rap neu: provokanter, derber, massentauglich. Bushidos „Vom Bordstein bis zur Skyline" (2003) und Sidos Maske-Image wurden zu Kulturphänomenen. Diese Strömung polarisierte Gesellschaft und Szene – und öffnete Gangsta-Rap für den Massenmarkt.',
+   characteristics:['Berlin-Slang','Provokation','Massentauglich','Derb','Straßen-Image','Anti-Establishment'],
+   regions:['Berlin'],parent_ids:['gangsta'],influenced_by:['50 Cent / G-Unit','Eminem','Banlieue-Rap','DMX'],
+   label_ids:['aggro'],artist_ids:['bushido','sido','fler','b_tight'],track_ids:['vom_bordstein','ich_und_meine_maske','neue_deutsche_welle']},
+
+  {id:'reggae_dancehall',name:'Reggae / Dancehall Deutschland',era:'1992–heute',year_start:1992,year_end:null,color:'#085041',isNew:true,
+   description:'Eine Parallelströmung zum HipHop, nicht aus ihm heraus gewachsen, aber dieselbe Audience teilend. Gentleman (Osnabrück/Köln) sammelte erste Erfahrungen bei den Kölner Sound Systems (Pow Pow) und perfektionierte Toasting auf Patois bis zur Anerkennung in Jamaika selbst. Seeed (Berlin) schufen einen Dancehall-Pop-Hybrid mit eigenem Sound. Der Konnex zum deutschen HipHop ist institutionell (Splash! Festival, Buback, gemeinsames Publikum) und durch Kollaborationen (Beginner feat. Gentleman: „Ahnma").',
+   characteristics:['Roots Reggae','Dancehall','Toasting auf Patois','Englisch / Deutsch','Sound Systems','Jamaika-Authentizität'],
+   regions:['Köln','Berlin','Hamburg'],parent_ids:[],influenced_by:['Bob Marley / Roots Reggae','Jamaikanischer Dancehall','Sound System Culture (UK/JA)'],
+   label_ids:['four_music'],artist_ids:['gentleman','seeed','patrice','jan_delay'],track_ids:['intoxication','ding']},
+
+  {id:'comedy_rap',name:'Comedy / Satirischer Rap',era:'1993–heute',year_start:1993,year_end:null,color:'#EF9F27',isNew:true,
+   description:'Explizit parodistischer oder satirischer Rap – zu unterscheiden vom Spaß-Rap, der sincere ist. Stefan Raab nutzte Rap als Komödienstoff für TV-Parodien. K.I.Z. (Berlin) kombinieren technisch hochwertige Raps mit politischer Satire und provokanter Übertreibung bis heute. Deichkind begannen als ernsthafte HipHop-Crew und verwandelten sich in ein Party-Satire-Spektakel.',
+   characteristics:['Parodie','Politische Satire','Übertreibung','Ironie','Technik + Humor','TV-tauglich'],
+   regions:['Berlin','Hamburg','Hannover'],parent_ids:['pop_rap'],influenced_by:['Beastie Boys (ironisch)','US Comedy Rap','Kabarett'],
+   label_ids:[],artist_ids:['kiz','stefan_raab','deichkind'],track_ids:['sheitan_rap']},
+
+  // ── NEUE WELLE ──────────────────────────────────────────────────
+  {id:'ruhrpott',name:'Ruhrpott-Rap / West-Deutschland',era:'2005–2018',year_start:2005,year_end:2018,color:'#854F0B',
+   description:'Rund um Selfmade Records entstand eine Rap-Ästhetik, die technisch anspruchsvolle Battle-Wortspiele mit Gangsta-Attitude verband. Kollegah konstruierte über Jahre eine „Boss"-Persona zwischen Parodie und Selbstmythos. Die JBB-Battle-Serie wurde zur wichtigsten Karriereleiter.',
+   characteristics:['Boss-Persona','Battle-Wortspiele','Punchlines','NRW-Lokalkolorit','JBB-Format','Selbstglorifizierung'],
+   regions:['Düsseldorf','Bochum','Wuppertal','Saarbrücken'],parent_ids:['battle','gangsta'],influenced_by:['Jay-Z','Rick Ross','Lil Wayne'],
+   label_ids:['selfmade'],artist_ids:['kollegah','farid_bang','curse','morlockk'],track_ids:['alphagene','monumentum']},
+
+  {id:'strassenrap',name:'Straßen-Rap',era:'2009–2020',year_start:2009,year_end:2020,color:'#712B13',
+   description:'Die post-Aggro-Generation verlagerte den Schwerpunkt nach Frankfurt und ins Rhein-Main-Gebiet. Haftbefehls „Chabos wissen wer der Babo ist" (2012) ist das definitorische Werk: migrantische Lebenswelten, Offenbacher Slang, neue Authentizitätssemantik.',
+   characteristics:['Migrantenmilieu','Straßenslang','Chabos-Sprache','Authentizität','Offenbach/Frankfurt'],
+   regions:['Offenbach','Frankfurt','Bonn','Berlin'],parent_ids:['gangsta','aggro'],influenced_by:['Französischer Straßen-Rap (La Fouine, Booba)','Early US Trap'],
+   label_ids:['ersguterjunge','selfmade'],artist_ids:['haftbefehl','xatar','farid_bang','kollegah','summer_cem'],track_ids:['chabos','nr_415','shibuya']},
+
+  {id:'indie_rap',name:'Indie-Rap / Neue Mitte',era:'2011–heute',year_start:2011,year_end:null,color:'#639922',isNew:true,
+   description:'Eine Generation zwischen Underground und Chart-Pop: technisch respektiert, ohne Straßen-Anspruch. Cro (Panda-Maske, Leichtigkeit), Marteria (Rostock, artsy), Casper (Bielefeld, emotional-introspektiv), Kontra K (Motivations-Rap mit Boxer-Metaphern). K.I.Z. fungieren als satirisches Korrektiv dieser Welle. Verbindet Conscious-Rap-Qualität mit Mainstream-Reichweite – oft von der Kern-HipHop-Szene mit gemischten Gefühlen gesehen.',
+   characteristics:['Post-Indie-Ästhetik','Ohne Straßen-Anspruch','Introspektiv','Pop-Zugänglich','Festival-tauglich','Persona-bewusst'],
+   regions:['Berlin','Rostock','Bielefeld','Köln'],parent_ids:['boom_bap','conscious'],influenced_by:['Kanye West','Macklemore','Cro-eigener Stil'],
+   label_ids:['chimperator'],artist_ids:['cro','marteria','casper','kontra_k'],track_ids:['unendlichkeit','lila_wolken']},
+
+  // ── STREAMING-ÄRA ───────────────────────────────────────────────
+  {id:'trap',name:'Deutschrap-Trap',era:'2013–heute',year_start:2013,year_end:null,color:'#993556',
+   description:'US-Trap-Ästhetik (Atlanta: Future, Young Jeezy, Gucci Mane) trifft auf deutschsprachige Straßenrap-Kultur. Schwere 808-Bassdrums, schnelle Hi-Hat-Muster, Autotune-Einsatz. Ufo361 und Shindy gelten als Pioniere; Bonez MC & RAF Camoras „Palmen aus Plastik" (2016) löste einen Mainstream-Boom aus.',
+   characteristics:['808-Bassdrums','Hi-Hat-Triplets','Autotune','Luxus-Ästhetik','Moody Beats','Melodic Lines'],
+   regions:['Berlin','Stuttgart','Hamburg','Wien'],parent_ids:['strassenrap','aggro'],influenced_by:['Future','Gucci Mane','Young Jeezy','Travis Scott','Drake'],
+   label_ids:['385ideal','chimperator'],artist_ids:['ufo361','shindy','capital_bra','bonez_raf','summer_cem','loredana'],track_ids:['ich_bin_3_cities','palmen_aus_plastik','hdgdl']},
+
+  {id:'melodic',name:'Melodischer Rap / Emo-Trap',era:'2016–heute',year_start:2016,year_end:null,color:'#D4537E',
+   description:'Aus dem Trap-Umfeld entstanden melodischere Varianten: Autotune als musikalisches Stilmittel, emotionalere Thematiken, poppige Hooks. Rins Album „Eros" (2017) gilt als Pionierwerk. Bausa und Apache 207 brachen in den Mainstream.',
+   characteristics:['Melodic Hooks','Autotune-Gesang','Emotionalität','Pop-Nähe','Songwriting','Verletzlichkeit'],
+   regions:['Stuttgart','Ludwigshafen','Berlin','Bietigheim-Bissingen'],parent_ids:['trap'],influenced_by:['Drake','Post Malone','Juice WRLD','Young Thug'],
+   label_ids:['chimperator','385ideal'],artist_ids:['rin','bausa','ufo361','loredana','apache207'],track_ids:['eros','was_du_liebe_nennst','roller']},
+
+  {id:'pop_streaming',name:'Pop-Rap / Streaming-Ära',era:'2018–heute',year_start:2018,year_end:null,color:'#D85A30',
+   description:'Streaming-Rekorde, Genre-Crossover, Features als Strategie. Capital Bra wurde zeitweise meistgestreamter Künstler Deutschlands. Das Genre-Profil ist diffus: Trap-Beats, melodische Hooks, Gangsta-Attitüden und Radio-Tauglichkeit unter einem kommerziellen Dach.',
+   characteristics:['Streaming-optimiert','Genre-Crossover','Feature-Strategie','Charts-Dominanz','Kurzformat'],
+   regions:['Berlin','Hamburg','Wien','Deutschlandweit'],parent_ids:['melodic','trap'],influenced_by:['Drake','Bad Bunny','Pop-Mainstream'],
+   label_ids:['385ideal','chimperator'],artist_ids:['capital_bra','bonez_raf','luciano','apache207'],track_ids:['prinzessa','palmen_aus_plastik','roller']},
+
+  {id:'drill',name:'Deutsch-Drill',era:'2019–heute',year_start:2019,year_end:null,color:'#2C2C2A',
+   description:'UK Drill- und Chicago-Drill-Ästhetik trifft auf deutsche Großstadtrealitäten. Düstere, slidende Melodien, aggressive Texte, minimalistisches Production-Design. Szene wächst besonders in Berlin und Hamburg.',
+   characteristics:['Sliding Hi-Hats','Düstere Melodien','Straßenrealismus','Minimalismus','UK-Einfluss'],
+   regions:['Berlin','Hamburg'],parent_ids:['trap'],influenced_by:['UK Drill (Headie One, Digga D)','Chicago Drill (Chief Keef)'],
+   label_ids:[],artist_ids:['scheibenbeest'],track_ids:[]},
+
+  // ── INHALTLICHE STRÖMUNGEN ──────────────────────────────────────
+  {id:'afrodeutsch',name:'Afrodeutscher Rap / Postmigrantisch',era:'1992–heute',year_start:1992,year_end:null,color:'#0F6E56',
+   description:'Keine Strömung im klanglichen Sinne, sondern eine identitätspolitische: Rapper mit afrodiasporischen, türkischen, arabischen oder sonstigen migrantischen Hintergründen thematisieren Doppelidentität und Rassismuserfahrungen. Advanced Chemistrys Mitglieder legten den Grundstein 1992.',
+   characteristics:['Doppelidentität','Postmigrantisch','Mehrsprachigkeit','Antirassismus','Empowerment','Diaspora'],
+   regions:['Heidelberg','Stuttgart','Hamburg','Köln','Hannover'],parent_ids:['oldschool','conscious'],influenced_by:['US Black Consciousness Rap','Negritude','Bürgerrechtsbewegung'],
+   label_ids:['four_music','groenland'],artist_ids:['advanced_chemistry','afrob','samy_deluxe','megaloh','motrip'],track_ids:['fremd','reimemonster','dis_wo_ich_herkomm']}
+ ],
+
+ artists:[
+  {id:'advanced_chemistry',name:'Advanced Chemistry',origin:'Heidelberg',since:1987,primary_genre:'oldschool',genres:['oldschool','conscious','afrodeutsch'],key_release:'Fremd im eigenen Land (1992)'},
+  {id:'fanta4',name:'Die Fantastischen Vier',origin:'Stuttgart',since:1989,primary_genre:'pop_rap',genres:['oldschool','pop_rap'],key_release:'Vier Gewinnt (1992)'},
+  {id:'torch',name:'Torch',origin:'Heidelberg',since:1987,primary_genre:'boom_bap',genres:['oldschool','boom_bap','conscious'],key_release:'Blauer Samt (2000)'},
+  {id:'fresh_familee',name:'Fresh Familee',origin:'Augsburg',since:1990,primary_genre:'oldschool',genres:['oldschool'],key_release:'Ahmet Gündüz (1992)'},
+  {id:'mc_rene',name:'MC René',origin:'Deutschland',since:1989,primary_genre:'oldschool',genres:['oldschool'],key_release:'Haus, Maus, Rap (1992)'},
+  {id:'falco',name:'Falco',origin:'Wien',since:1981,primary_genre:'zeitgeist_rap',genres:['zeitgeist_rap'],key_release:'Der Kommissar (1981)'},
+  {id:'rodgau_monotones',name:'Rodgau Monotones',origin:'Rodgau',since:1979,primary_genre:'zeitgeist_rap',genres:['zeitgeist_rap'],key_release:'Keine Sau ruft mich an (1984)'},
+  {id:'tj_big_blaster',name:'TJ Big Blaster Electric Boogie',origin:'Dresden',since:1987,primary_genre:'ddr_hiphop',genres:['ddr_hiphop','breakdance_welle'],key_release:'Diverse Tracks (1987–1990)'},
+  {id:'no_remorze',name:'No Remorze',origin:'Bremerhaven',since:1988,primary_genre:'britcore',genres:['britcore'],key_release:'The End (1995)'},
+  {id:'readykill',name:'Readykill',origin:'Norddeutschland',since:1991,primary_genre:'britcore',genres:['britcore'],key_release:'Diverse (1992–1995)'},
+  {id:'cora_e',name:'Cora E.',origin:'Kiel',since:1991,primary_genre:'britcore',genres:['britcore','oldschool'],key_release:'Schlüsselkind (1993)'},
+  {id:'such_a_surge',name:'Such a Surge',origin:'Braunschweig',since:1992,primary_genre:'crossover',genres:['crossover'],key_release:'Under Pressure (1994)'},
+  {id:'fettes_brot',name:'Fettes Brot',origin:'Hamburg',since:1991,primary_genre:'pop_rap',genres:['pop_rap','hh_schule'],key_release:'Nordisch by Nature (1994)'},
+  {id:'freundeskreis',name:'Freundeskreis',origin:'Stuttgart',since:1995,primary_genre:'conscious',genres:['conscious','pop_rap'],key_release:'Tabula Rasa (1997)'},
+  {id:'abs_beginner',name:'Absolute Beginner',origin:'Hamburg',since:1992,primary_genre:'hh_schule',genres:['hh_schule','boom_bap'],key_release:'Bambule (1998)'},
+  {id:'samy_deluxe',name:'Samy Deluxe',origin:'Hamburg',since:1999,primary_genre:'hh_schule',genres:['hh_schule','conscious','afrodeutsch'],key_release:'Dis Wo Ich Herkomm (2004)'},
+  {id:'jan_delay',name:'Jan Delay',origin:'Hamburg',since:1993,primary_genre:'hh_schule',genres:['hh_schule','pop_rap','reggae_dancehall'],key_release:'Searching for the Jan Soul Rebels (2001)'},
+  {id:'eins_zwo',name:'Eins Zwo (Dendemann)',origin:'Hamburg',since:1999,primary_genre:'hh_schule',genres:['hh_schule','boom_bap'],key_release:'Gefährliches Halbwissen (2000)'},
+  {id:'afrob',name:'Afrob',origin:'Stuttgart',since:1997,primary_genre:'conscious',genres:['conscious','afrodeutsch'],key_release:'Afrob (1999)'},
+  {id:'anarchist_academy',name:'Anarchist Academy',origin:'Hamburg',since:1998,primary_genre:'conscious',genres:['conscious'],key_release:'Anarchist Academy (2000)'},
+  {id:'blumentopf',name:'Blumentopf',origin:'München',since:1993,primary_genre:'pop_rap',genres:['pop_rap','boom_bap'],key_release:'Eins A (1997)'},
+  {id:'curse',name:'Curse',origin:'Bochum',since:1997,primary_genre:'conscious',genres:['conscious','boom_bap','ruhrpott'],key_release:'Feuerwasser (2002)'},
+  {id:'rhp',name:'Rödelheim Hartreim Projekt',origin:'Frankfurt',since:1993,primary_genre:'gangsta',genres:['gangsta','pop_rap'],key_release:'Direkt aus Rödelheim (1994)'},
+  {id:'kool_savas',name:'Kool Savas',origin:'Berlin',since:1997,primary_genre:'battle',genres:['battle','gangsta','boom_bap'],key_release:'Der beste Tag meines Lebens (2002)'},
+  {id:'azad',name:'Azad',origin:'Frankfurt',since:1998,primary_genre:'gangsta',genres:['gangsta','battle'],key_release:'Der Bozz (2004)'},
+  {id:'bushido',name:'Bushido',origin:'Berlin',since:2001,primary_genre:'aggro',genres:['gangsta','aggro'],key_release:'Vom Bordstein bis zur Skyline (2003)'},
+  {id:'sido',name:'Sido',origin:'Berlin',since:2001,primary_genre:'aggro',genres:['gangsta','aggro','pop_rap'],key_release:'Ich und meine Maske (2004)'},
+  {id:'fler',name:'Fler',origin:'Berlin',since:2002,primary_genre:'aggro',genres:['aggro','gangsta'],key_release:'Neue Deutsche Welle (2005)'},
+  {id:'b_tight',name:'B-Tight',origin:'Berlin',since:1997,primary_genre:'aggro',genres:['gangsta','aggro'],key_release:'Der Neger (2004)'},
+  {id:'eko_fresh',name:'Eko Fresh',origin:'Köln',since:2001,primary_genre:'battle',genres:['battle','gangsta'],key_release:'Eksodus (2003)'},
+  {id:'cartel',name:'Cartel',origin:'Berlin',since:1994,primary_genre:'tuerkisch_rap',genres:['tuerkisch_rap'],key_release:'Cartel (1995)'},
+  {id:'king_size_terror',name:'King Size Terror',origin:'Deutschland',since:1994,primary_genre:'tuerkisch_rap',genres:['tuerkisch_rap'],key_release:'Diverse (1994–1998)'},
+  {id:'gentleman',name:'Gentleman',origin:'Osnabrück / Köln',since:1992,primary_genre:'reggae_dancehall',genres:['reggae_dancehall'],key_release:'Trodin\' On (1999)'},
+  {id:'seeed',name:'Seeed',origin:'Berlin',since:1998,primary_genre:'reggae_dancehall',genres:['reggae_dancehall'],key_release:'New Dubby Conquerors (2000)'},
+  {id:'patrice',name:'Patrice',origin:'Kerpen',since:1999,primary_genre:'reggae_dancehall',genres:['reggae_dancehall'],key_release:'Nile (2002)'},
+  {id:'kiz',name:'K.I.Z.',origin:'Berlin',since:2000,primary_genre:'comedy_rap',genres:['comedy_rap','battle'],key_release:'Hahnenkampf (2006)'},
+  {id:'stefan_raab',name:'Stefan Raab',origin:'Köln',since:1994,primary_genre:'comedy_rap',genres:['comedy_rap','zeitgeist_rap'],key_release:'Hier kommt die Maus (1999)'},
+  {id:'deichkind',name:'Deichkind',origin:'Hamburg',since:1997,primary_genre:'comedy_rap',genres:['comedy_rap','pop_rap'],key_release:'Bon Voyage (2000)'},
+  {id:'haftbefehl',name:'Haftbefehl',origin:'Offenbach',since:2009,primary_genre:'strassenrap',genres:['strassenrap'],key_release:'Azzlack Stereotyp (2012)'},
+  {id:'xatar',name:'Xatar',origin:'Bonn',since:2010,primary_genre:'strassenrap',genres:['strassenrap'],key_release:'Nr. 415 (2012)'},
+  {id:'kollegah',name:'Kollegah',origin:'Saarbrücken',since:2005,primary_genre:'battle',genres:['battle','ruhrpott','strassenrap'],key_release:'Bossaura (2011)'},
+  {id:'farid_bang',name:'Farid Bang',origin:'Düsseldorf',since:2007,primary_genre:'ruhrpott',genres:['ruhrpott','battle','strassenrap'],key_release:'Blut (2009)'},
+  {id:'morlockk',name:'Morlockk Dilemma',origin:'Wuppertal',since:2004,primary_genre:'boom_bap',genres:['boom_bap','ruhrpott'],key_release:'Schlaganfall (2009)'},
+  {id:'favorite',name:'Favorite',origin:'Stuttgart',since:2005,primary_genre:'battle',genres:['battle','boom_bap'],key_release:'Palmen aus Asphalt (2009)'},
+  {id:'metrickz',name:'Metrickz',origin:'Augsburg',since:2009,primary_genre:'battle',genres:['battle','boom_bap'],key_release:'Schwarz auf Weiss (2013)'},
+  {id:'automatikk',name:'Automatikk',origin:'Deutschland',since:2004,primary_genre:'battle',genres:['battle'],key_release:'Wie Man Karriere Macht (2011)'},
+  {id:'cro',name:'Cro',origin:'Stuttgart',since:2011,primary_genre:'indie_rap',genres:['indie_rap','pop_rap'],key_release:'Raop (2012)'},
+  {id:'marteria',name:'Marteria',origin:'Rostock',since:2007,primary_genre:'indie_rap',genres:['indie_rap','boom_bap'],key_release:'Zum Glück in die Zukunft (2012)'},
+  {id:'casper',name:'Casper',origin:'Bielefeld',since:2007,primary_genre:'indie_rap',genres:['indie_rap','conscious'],key_release:'XOXO (2011)'},
+  {id:'kontra_k',name:'Kontra K',origin:'Berlin',since:2009,primary_genre:'indie_rap',genres:['indie_rap'],key_release:'Gute Nacht (2015)'},
+  {id:'ufo361',name:'Ufo361',origin:'Berlin',since:2012,primary_genre:'trap',genres:['trap','melodic'],key_release:'Ich bin 3 Cities (2016)'},
+  {id:'shindy',name:'Shindy',origin:'Stuttgart',since:2013,primary_genre:'trap',genres:['trap'],key_release:'HDGDL (2013)'},
+  {id:'capital_bra',name:'Capital Bra',origin:'Berlin',since:2013,primary_genre:'pop_streaming',genres:['trap','pop_streaming'],key_release:'Prinzessa (2018)'},
+  {id:'bonez_raf',name:'Bonez MC & RAF Camora',origin:'Hamburg / Wien',since:2012,primary_genre:'trap',genres:['trap','pop_streaming'],key_release:'Palmen aus Plastik (2016)'},
+  {id:'summer_cem',name:'Summer Cem',origin:'Düsseldorf',since:2009,primary_genre:'trap',genres:['trap','strassenrap'],key_release:'Alles oder Nix (2015)'},
+  {id:'loredana',name:'Loredana',origin:'Bern',since:2017,primary_genre:'melodic',genres:['trap','melodic'],key_release:'Geld oder Liebe (2019)'},
+  {id:'apache207',name:'Apache 207',origin:'Ludwigshafen',since:2018,primary_genre:'melodic',genres:['melodic','pop_streaming'],key_release:'Roller (2019)'},
+  {id:'rin',name:'Rin',origin:'Bietigheim-Bissingen',since:2014,primary_genre:'melodic',genres:['melodic','trap'],key_release:'Eros (2017)'},
+  {id:'bausa',name:'Bausa',origin:'Stuttgart',since:2011,primary_genre:'melodic',genres:['melodic','trap'],key_release:'Was du Liebe nennst (2017)'},
+  {id:'megaloh',name:'Megaloh',origin:'Hannover',since:2001,primary_genre:'conscious',genres:['conscious','afrodeutsch'],key_release:'Regenmacher (2014)'},
+  {id:'motrip',name:'MoTrip',origin:'Köln',since:2011,primary_genre:'conscious',genres:['conscious','afrodeutsch'],key_release:'Embryo (2013)'},
+  {id:'doppelkopf',name:'Doppelkopf',origin:'Hamburg',since:1997,primary_genre:'boom_bap',genres:['boom_bap','hh_schule'],key_release:'Auf und Ab (2001)'},
+  {id:'amewu',name:'Amewu',origin:'Darmstadt',since:2008,primary_genre:'conscious',genres:['conscious','boom_bap'],key_release:'Manifest (2013)'},
+  {id:'luciano',name:'Luciano',origin:'Berlin',since:2014,primary_genre:'pop_streaming',genres:['trap','pop_streaming'],key_release:'Blaues Licht (2016)'},
+  {id:'scheibenbeest',name:'Scheibenbeest',origin:'Hamburg',since:2018,primary_genre:'drill',genres:['drill'],key_release:'Diverse Singles (2019+)'}
+ ],
+
+ tracks:[
+  {id:'der_kommissar',title:'Der Kommissar',artist:'Falco',year:1981,genre_id:'zeitgeist_rap',significance:'Erster kommerziell erfolgreicher Rapsong eines Weißen – Falco sah sich selbst als Pop-Musiker, nicht als HipHopper. Afrika Bambaataa spielte den Track in New York.'},
+  {id:'condemned_to_death',title:'Condemned to Death',artist:'No Remorze',year:1993,genre_id:'britcore',significance:'Definitionswerk des deutschen Britcore – >100 BPM, gesellschaftskritisch, englischsprachig.'},
+  {id:'the_end_album',title:'The End (Album)',artist:'No Remorze',year:1995,genre_id:'britcore',significance:'Einziges offizielles Album von No Remorze – Meilenstein des deutschen Britcore.'},
+  {id:'under_pressure',title:'Under Pressure (Album)',artist:'Such a Surge',year:1994,genre_id:'crossover',significance:'Frühes Crossover-Werk – Rap und Metal gleichwertig, linksalternative Texte, mit DJ.'},
+  {id:'cartel_album',title:'Cartel (Album)',artist:'Cartel',year:1995,genre_id:'tuerkisch_rap',significance:'Erstes türkisch-deutsches Rap-Album mit Platin-Status – Durchbruch für eine Community von 2+ Millionen.'},
+  {id:'intoxication',title:'Intoxication',artist:'Gentleman',year:2004,genre_id:'reggae_dancehall',significance:'Verhalf Gentleman 2005 zum Durchbruch in der karibischen Reggae-Gemeinde – international anerkannt.'},
+  {id:'ding',title:'Ding (Album)',artist:'Seeed',year:2005,genre_id:'reggae_dancehall',significance:'Seeed perfektionieren den deutschen Dancehall-Pop-Hybrid; Riddims werden auch in Jamaika aufgelegt.'},
+  {id:'sheitan_rap',title:'Hahnenkampf (Album)',artist:'K.I.Z.',year:2006,genre_id:'comedy_rap',significance:'Politische Satire auf technisch hochwertigem Rap-Niveau – definiert deutschen Satirerapstil.'},
+  {id:'lila_wolken',title:'Easy (Album)',artist:'Cro',year:2012,genre_id:'indie_rap',significance:'Cros Panda-Maske und leichter Sound werden zur Ikone der Indie-Rap-Generation – 500.000 verkaufte Einheiten.'},
+  {id:'unendlichkeit',title:'Zum Glück in die Zukunft',artist:'Marteria',year:2012,genre_id:'indie_rap',significance:'Kombination von Kunstanspruch und Charterfolg – Marteria als Figur zwischen Underground und Mainstream.'},
+  {id:'fremd',title:'Fremd im eigenen Land',artist:'Advanced Chemistry',year:1992,genre_id:'oldschool',significance:'Gründungsdokument des deutschen Conscious Rap.'},
+  {id:'die_da',title:'Die da!?!',artist:'Die Fantastischen Vier',year:1992,genre_id:'pop_rap',significance:'Erster Rap-Nummer-1-Hit in Deutschland.'},
+  {id:'nordisch',title:'Nordisch by Nature',artist:'Fettes Brot',year:1994,genre_id:'pop_rap',significance:'Parodie auf Naughty by Nature – Hamburger Humor-Rap.'},
+  {id:'tabula_rasa',title:'Tabula Rasa',artist:'Freundeskreis',year:1997,genre_id:'conscious',significance:'Debütalbum – Jazz-Samples + gesellschaftskritische Texte.'},
+  {id:'reimemonster',title:'Reimemonster',artist:'Afrob feat. Max Herre',year:2000,genre_id:'conscious',significance:'Verbindung Freundeskreis/Afrob-Universum.'},
+  {id:'bambule',title:'Bambule',artist:'Absolute Beginner',year:1998,genre_id:'hh_schule',significance:'Definitionswerk der Hamburger Schule.'},
+  {id:'dis_wo_ich_herkomm',title:'Dis wo ich herkomm',artist:'Samy Deluxe',year:2004,genre_id:'hh_schule',significance:'Identität und Doppelleben als Deutsch-Hamburger.'},
+  {id:'destillat',title:'Gefährliches Halbwissen',artist:'Eins Zwo',year:2000,genre_id:'hh_schule',significance:'Dendemann definiert deutschsprachige Wortakrobatik neu.'},
+  {id:'blauer_samt',title:'Blauer Samt (Album)',artist:'Torch',year:2000,genre_id:'boom_bap',significance:'Meilenstein des deutschen Underground-Rap.'},
+  {id:'der_beste_tag',title:'Der beste Tag meines Lebens',artist:'Kool Savas',year:2002,genre_id:'battle',significance:'Setzt technische Maßstäbe für deutsche Battle-Rap-Tracks.'},
+  {id:'king_of_rap',title:'King of Rap',artist:'Plattenpapzt feat. Kool Savas',year:2005,genre_id:'battle',significance:'Symbolischer Anspruch auf den Thron.'},
+  {id:'direkt_aus_roedelheim',title:'Direkt aus Rödelheim',artist:'Rödelheim Hartreim Projekt',year:1994,genre_id:'gangsta',significance:'Gilt als „deutsche Version des Gangsta-Rap" (Der Spiegel).'},
+  {id:'ich_schiesse',title:'Ich schiesse',artist:'Kool Savas',year:1997,genre_id:'gangsta',significance:'Frühe Blaupause für deutschen Gangsta-Rap.'},
+  {id:'vom_bordstein',title:'Vom Bordstein bis zur Skyline',artist:'Bushido',year:2003,genre_id:'aggro',significance:'Definitionsalbum des deutschen Gangsta-Rap durch Aggro Berlin.'},
+  {id:'ich_und_meine_maske',title:'Ich und meine Maske',artist:'Sido',year:2004,genre_id:'aggro',significance:'Sidos Maske-Image – Gangsta-Rap wird massentauglich.'},
+  {id:'neue_deutsche_welle',title:'Neue Deutsche Welle',artist:'Fler',year:2005,genre_id:'aggro',significance:'Kontroverse Ästhetik-Anspielung – spaltete Szene und Öffentlichkeit.'},
+  {id:'chabos',title:'Chabos wissen wer der Babo ist',artist:'Haftbefehl',year:2012,genre_id:'strassenrap',significance:'„Babo" und „Chabo" fanden Eingang in die gesamtdeutsche Jugendsprache.'},
+  {id:'nr_415',title:'Nr. 415',artist:'Xatar',year:2012,genre_id:'strassenrap',significance:'Autobiografisches Goldraub-Narrativ – Authentizitätsanspruch als Stilmittel.'},
+  {id:'shibuya',title:'Shibuya',artist:'Haftbefehl',year:2013,genre_id:'strassenrap',significance:'Experimentell – zeigt Genre-Offenheit des späten Straßen-Rap.'},
+  {id:'alphagene',title:'Alphagene II',artist:'Kollegah',year:2012,genre_id:'ruhrpott',significance:'Boss-Persona auf dem Höhepunkt.'},
+  {id:'monumentum',title:'Monumentum',artist:'Kollegah & Farid Bang',year:2016,genre_id:'ruhrpott',significance:'Echo-Award-Gewinner, löste bundesweite Antisemitismus-Debatte aus.'},
+  {id:'ich_bin_3_cities',title:'Ich bin 3 Cities',artist:'Ufo361',year:2016,genre_id:'trap',significance:'Startschuss des deutschen Trap in seiner modernen Form.'},
+  {id:'palmen_aus_plastik',title:'Palmen aus Plastik',artist:'Bonez MC & RAF Camora',year:2016,genre_id:'trap',significance:'Mainstream-Durchbruch des deutschen Trap – Millionen Streams.'},
+  {id:'hdgdl',title:'HDGDL',artist:'Shindy',year:2013,genre_id:'trap',significance:'Früher Trap-Track aus dem Stuttgarter Umfeld.'},
+  {id:'eros',title:'Eros (Album)',artist:'Rin',year:2017,genre_id:'melodic',significance:'Pionierwerk des melodischen Deutschraps.'},
+  {id:'was_du_liebe_nennst',title:'Was du Liebe nennst',artist:'Bausa',year:2017,genre_id:'melodic',significance:'Erster melodischer Rap-Nummer-1-Hit.'},
+  {id:'roller',title:'Roller',artist:'Apache 207',year:2019,genre_id:'melodic',significance:'Massentauglicher Durchbruch: Rap + Autotune + Pop-Songwriting.'},
+  {id:'prinzessa',title:'Prinzessa',artist:'Capital Bra',year:2018,genre_id:'pop_streaming',significance:'Symbol der Streaming-Ära.'},
+  {id:'eins_a',title:'Eins A (Album)',artist:'Blumentopf',year:1997,genre_id:'pop_rap',significance:'Münchner Humor-Rap – etabliert Bayern als Rap-Standort.'}
+ ],
+
+ labels:[
+  {id:'four_music',name:'Four Music',city:'Stuttgart',founded:1996,genre_ids:['pop_rap','conscious','reggae_dancehall']},
+  {id:'buback',name:'Buback Tonträger',city:'Hamburg',founded:1993,genre_ids:['hh_schule','boom_bap','conscious','britcore']},
+  {id:'mzee',name:'MZEE Records',city:'Hamburg',founded:1991,genre_ids:['oldschool','britcore','crossover','boom_bap']},
+  {id:'aggro',name:'Aggro Berlin',city:'Berlin',founded:2001,genre_ids:['aggro','gangsta']},
+  {id:'selfmade',name:'Selfmade Records',city:'Düsseldorf',founded:2005,genre_ids:['battle','ruhrpott']},
+  {id:'optik',name:'Optik Records',city:'Hamburg',founded:2003,genre_ids:['battle','boom_bap']},
+  {id:'ersguterjunge',name:'ersguterjunge',city:'Berlin',founded:2007,genre_ids:['gangsta','strassenrap']},
+  {id:'urban',name:'Urban / PolyGram',city:'Berlin',founded:1994,genre_ids:['pop_rap','conscious']},
+  {id:'groenland',name:'Grönland Records',city:'Hamburg',founded:2003,genre_ids:['conscious','boom_bap']},
+  {id:'chimperator',name:'Chimperator Productions',city:'Köln',founded:2005,genre_ids:['trap','melodic','pop_streaming','indie_rap']},
+  {id:'385ideal',name:'385ideal',city:'Hamburg',founded:2014,genre_ids:['trap','melodic']}
+ ],
+
+ connections:[
+  {from:'breakdance_welle',to:'oldschool',type:'evolved_into',label:'B-Boy-Kultur bildet Basis für erste HipHop-Szene'},
+  {from:'breakdance_welle',to:'ddr_hiphop',type:'evolved_into',label:'DDR-Jugend übernimmt Breakdance zuerst, dann Rap'},
+  {from:'zeitgeist_rap',to:'pop_rap',type:'influenced',label:'Deutsch als Rap-Sprache normalisiert'},
+  {from:'oldschool',to:'conscious',type:'evolved_into',label:'Advanced Chemistry bringt politischen Inhalt'},
+  {from:'oldschool',to:'pop_rap',type:'evolved_into',label:'Fanta4 machen Rap für die Masse zugänglich'},
+  {from:'oldschool',to:'boom_bap',type:'evolved_into',label:'MC-Kultur und Lyrismus bleiben im Underground'},
+  {from:'oldschool',to:'gangsta',type:'influenced',label:'Harte US-Ästhetik findet deutsche Interpreter'},
+  {from:'oldschool',to:'afrodeutsch',type:'parallel_development',label:'Postmigrantische Identität von Anfang an Thema'},
+  {from:'oldschool',to:'britcore',type:'parallel_development',label:'UK-Einfluss trifft norddeutsche Szene gleichzeitig'},
+  {from:'oldschool',to:'tuerkisch_rap',type:'influenced',label:'HipHop als Ausdrucksform für Türkisch-Deutsche'},
+  {from:'britcore',to:'boom_bap',type:'influenced',label:'Technische DJ-Kultur und Gesellschaftskritik'},
+  {from:'crossover',to:'indie_rap',type:'influenced',label:'Rap + Rock-Gitarre als Alternative zur Straße'},
+  {from:'conscious',to:'hh_schule',type:'influenced',label:'Politisches Bewusstsein + Sprachliebe'},
+  {from:'pop_rap',to:'hh_schule',type:'influenced',label:'Deutsch + Humor als gemeinsame Basis'},
+  {from:'pop_rap',to:'comedy_rap',type:'spawned',label:'Spaß-Rap radikalisiert sich zur Satire'},
+  {from:'boom_bap',to:'battle',type:'spawned',label:'MC-Kompetenz wird zum sportlichen Wettkampf'},
+  {from:'conscious',to:'battle',type:'influenced',label:'Reimetechnik aus der Conscious-Schule'},
+  {from:'gangsta',to:'aggro',type:'evolved_into',label:'Berlin verschärft Gangsta-Ästhetik und vermasst sie'},
+  {from:'gangsta',to:'strassenrap',type:'evolved_into',label:'Frankfurt/Offenbach entwickeln eigene Sprache'},
+  {from:'aggro',to:'strassenrap',type:'evolved_into',label:'Post-Aggro-Generation mit neuer Semantik'},
+  {from:'battle',to:'ruhrpott',type:'influenced',label:'Technisches Reimen trifft Ruhrgebiets-Attitude'},
+  {from:'gangsta',to:'ruhrpott',type:'influenced',label:'Gangsta-Inhalte + Battle-Technik vereint'},
+  {from:'strassenrap',to:'trap',type:'influenced',label:'Straßen-Inhalte in US-Trap-Ästhetik gegossen'},
+  {from:'aggro',to:'trap',type:'influenced',label:'Berliner Aggression + Produktionsästhetik'},
+  {from:'trap',to:'melodic',type:'evolved_into',label:'Melody und Autotune treten in den Vordergrund'},
+  {from:'trap',to:'drill',type:'spawned',label:'UK-Drill-Einfluss auf Trap-Basis'},
+  {from:'melodic',to:'pop_streaming',type:'evolved_into',label:'Streaming-Optimierung und Genre-Crossover'},
+  {from:'pop_rap',to:'pop_streaming',type:'influenced',label:'Pop-Zugänglichkeit kehrt auf neuem Niveau zurück'},
+  {from:'conscious',to:'afrodeutsch',type:'parallel_development',label:'Inhaltliche Überschneidung: Identität + Kritik'},
+  {from:'ruhrpott',to:'strassenrap',type:'influenced',label:'Kollegah/Haftbefehl-Beef verbindet beide Szenen'},
+  {from:'boom_bap',to:'indie_rap',type:'influenced',label:'Lyrischer Anspruch ohne Straßen-Attitüde'},
+  {from:'conscious',to:'indie_rap',type:'influenced',label:'Gesellschaftskritik trifft Alternative-Publikum'},
+  {from:'reggae_dancehall',to:'hh_schule',type:'parallel_development',label:'Seeed/Jan Delay verbinden beide Szenen in Hamburg'}
+ ]
+};
+
+const ERAS=[
+ {label:'Vorläufer (1981–1990)',ids:['zeitgeist_rap','breakdance_welle']},
+ {label:'Pioniere (1984–1993)',ids:['oldschool','britcore','ddr_hiphop','crossover']},
+ {label:'Goldenes Zeitalter (1992–2005)',ids:['conscious','pop_rap','hh_schule','boom_bap','battle','gangsta','tuerkisch_rap']},
+ {label:'Kommerzialisierung (2000–2010)',ids:['aggro','ruhrpott','comedy_rap']},
+ {label:'Neue Welle (2009–2020)',ids:['strassenrap','trap','indie_rap']},
+ {label:'Streaming-Ära (2016–heute)',ids:['melodic','pop_streaming','drill']},
+ {label:'Parallelströmungen',ids:['reggae_dancehall','afrodeutsch']}
+];
+
+function gById(id){return DB.genres.find(x=>x.id===id)}
+function aById(id){return DB.artists.find(x=>x.id===id)}
+function tById(id){return DB.tracks.find(x=>x.id===id)}
+function lById(id){return DB.labels.find(x=>x.id===id)}
+
+function renderSidebar(){
+ const sb=document.getElementById('sidebar');
+ sb.innerHTML=ERAS.map(era=>`
+  <div class="era-label">${era.label}</div>
+  ${era.ids.map(id=>{const g=gById(id);return g?`
+   <div class="gitem" id="gi-${g.id}" onclick="selectGenre('${g.id}')">
+    <span class="dot" style="background:${g.color}"></span>
+    ${g.name}${g.isNew?'<span class="badge-new">neu</span>':''}
+   </div>`:''}).join('')}
+ `).join('');
+}
+
+function selectGenre(id){
+ document.querySelectorAll('.gitem').forEach(el=>{el.classList.remove('active');el.style.borderLeftColor='transparent'});
+ const item=document.getElementById('gi-'+id);
+ if(item){item.classList.add('active');item.style.borderLeftColor=gById(id)?.color||'#ccc'}
+ const g=gById(id);if(!g)return;
+ const artists=g.artist_ids.map(aById).filter(Boolean);
+ const tracks=g.track_ids.map(tById).filter(Boolean);
+ const labels=g.label_ids.map(lById).filter(Boolean);
+ const parents=g.parent_ids.map(gById).filter(Boolean);
+ const children=DB.connections.filter(c=>c.from===id).map(c=>({g:gById(c.to),c})).filter(x=>x.g);
+ const incoming=DB.connections.filter(c=>c.to===id).map(c=>({g:gById(c.from),c})).filter(x=>x.g);
+ const d=document.getElementById('detail');
+ d.style='';
+ d.innerHTML=`
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">
+   <span class="dot" style="background:${g.color};width:12px;height:12px"></span>
+   <div class="dname">${g.name}</div>${g.isNew?'<span class="badge-new">neu in v2</span>':''}
+  </div>
+  <div class="dera">${g.era}${g.year_end===null?' · aktiv':''}</div>
+  <div class="ddesc">${g.description}</div>
+  <div class="slabel">Merkmale</div>
+  <div class="tags">${g.characteristics.map(c=>`<span class="tag">${c}</span>`).join('')}</div>
+  <div class="slabel">Regionen</div>
+  <div class="tags">${g.regions.map(r=>`<span class="tag">${r}</span>`).join('')}</div>
+  ${g.influenced_by?.length?`<div class="slabel">Internationale Einflüsse</div><div class="tags">${g.influenced_by.map(i=>`<span class="tag">${i}</span>`).join('')}</div>`:''}
+  ${parents.length?`<div class="slabel">Eltern-Genres</div><div class="tags">${parents.map(p=>`<span class="glink" onclick="selectGenre('${p.id}')"><span class="dot" style="background:${p.color}"></span>${p.name}</span>`).join('')}</div>`:''}
+  ${children.length?`<div class="slabel">Beeinflusste Genres</div><div class="tags">${children.map(({g:p,c})=>`<span class="glink" onclick="selectGenre('${p.id}')" title="${c.label}"><span class="dot" style="background:${p.color}"></span>${p.name} →</span>`).join('')}</div>`:''}
+  ${incoming.length?`<div class="slabel">Einflüsse von</div><div class="tags">${incoming.map(({g:p,c})=>`<span class="glink" onclick="selectGenre('${p.id}')" title="${c.label}"><span class="dot" style="background:${p.color}"></span>← ${p.name}</span>`).join('')}</div>`:''}
+  ${artists.length?`<div class="slabel">Repräsentative Artists (${artists.length})</div><div class="alist">${artists.map(a=>`<div class="aitem">${a.name}<span>${a.origin} · seit ${a.since}</span></div>`).join('')}</div>`:''}
+  ${tracks.length?`<div class="slabel">Key Tracks (${tracks.length})</div><div class="alist">${tracks.map(t=>`<div class="aitem" style="flex-direction:column;align-items:flex-start;gap:2px"><span style="font-size:12px;color:var(--color-text-primary)">${t.title} <span style="color:var(--color-text-tertiary)">${t.artist} · ${t.year}</span></span><span style="font-size:11px;line-height:1.5;color:var(--color-text-secondary)">${t.significance}</span></div>`).join('')}</div>`:''}
+  ${labels.length?`<div class="slabel">Labels</div><div class="alist">${labels.map(l=>`<div class="aitem">${l.name}<span>${l.city} · gegr. ${l.founded}</span></div>`).join('')}</div>`:''}
+ `;
+}
+
+function renderSchema(){
+ const SCHEMA=[
+  {entity:'Genre',fields:[{name:'id',type:'string PK'},{name:'name',type:'string'},{name:'era',type:'string'},{name:'year_start / year_end',type:'number | null'},{name:'description',type:'string'},{name:'characteristics',type:'string[]'},{name:'regions',type:'string[]'},{name:'parent_ids',type:'Genre.id[]'},{name:'influenced_by',type:'string[]'},{name:'color',type:'hex string'},{name:'isNew',type:'boolean (optional)'},{name:'label_ids',type:'Label.id[]'},{name:'artist_ids',type:'Artist.id[]'},{name:'track_ids',type:'Track.id[]'}]},
+  {entity:'Artist',fields:[{name:'id',type:'string PK'},{name:'name',type:'string'},{name:'origin',type:'string (Stadt)'},{name:'since',type:'number (Jahr)'},{name:'primary_genre',type:'Genre.id'},{name:'genres',type:'Genre.id[]'},{name:'key_release',type:'string'}]},
+  {entity:'Track',fields:[{name:'id',type:'string PK'},{name:'title',type:'string'},{name:'artist',type:'string'},{name:'year',type:'number'},{name:'genre_id',type:'Genre.id'},{name:'significance',type:'string'}]},
+  {entity:'Label',fields:[{name:'id',type:'string PK'},{name:'name',type:'string'},{name:'city',type:'string'},{name:'founded',type:'number'},{name:'genre_ids',type:'Genre.id[]'}]},
+  {entity:'Connection',fields:[{name:'from',type:'Genre.id'},{name:'to',type:'Genre.id'},{name:'type',type:'"evolved_into"|"influenced"|"spawned"|"parallel_development"'},{name:'label',type:'string'}]}
+ ];
+ document.getElementById('tab-schema').innerHTML=`
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:16px;line-height:1.65">
+   5 Entitäten. <strong style="color:var(--color-text-primary)">Genre</strong> ist zentral; <strong style="color:var(--color-text-primary)">Connection</strong> bildet den Genealogie-Graphen.
+  </p>
+  <div class="sgrid">${SCHEMA.map(s=>`<div class="scard"><div class="stitle">${s.entity}</div>${s.fields.map(f=>`<div class="frow"><span>${f.name}</span><span class="ftype">${f.type}</span></div>`).join('')}</div>`).join('')}</div>
+  <div class="stat-row">
+   <div class="stat"><div class="stat-n">${DB.genres.length}</div><div class="stat-l">Genres</div></div>
+   <div class="stat"><div class="stat-n">${DB.artists.length}</div><div class="stat-l">Artists</div></div>
+   <div class="stat"><div class="stat-n">${DB.tracks.length}</div><div class="stat-l">Key Tracks</div></div>
+   <div class="stat"><div class="stat-n">${DB.labels.length}</div><div class="stat-l">Labels</div></div>
+   <div class="stat"><div class="stat-n">${DB.connections.length}</div><div class="stat-l">Verbindungen</div></div>
+   <div class="stat"><div class="stat-n">${DB.genres.filter(g=>g.isNew).length}</div><div class="stat-l">Neu in v2</div></div>
+  </div>`;
+}
+
+function showTab(tab){
+ ['genres','schema','export'].forEach(t=>document.getElementById('tab-'+t).style.display=t===tab?'':'none');
+ document.querySelectorAll('.tab-btn').forEach((btn,i)=>btn.classList.toggle('active',['genres','schema','export'][i]===tab));
+ if(tab==='export')document.getElementById('json-out').value=JSON.stringify(DB,null,2);
+ if(tab==='schema'&&!document.getElementById('tab-schema').innerHTML.trim())renderSchema();
+}
+
+function copyJSON(){
+ const ta=document.getElementById('json-out');ta.select();
+ try{document.execCommand('copy')}catch(e){}
+ const btn=document.getElementById('copy-btn');
+ btn.textContent='✓ Kopiert';setTimeout(()=>btn.textContent='Kopieren',2000);
+}
+
+renderSidebar();
+</script>
