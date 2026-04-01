@@ -148,19 +148,21 @@ const statusBadge = isWip ? 'work in progress' : isIncomplete ? 'incomplete' : i
   }
 
   .badge-wip { background: #c0392b; }
-  .badge-incomplete { background: #b87a14; }
+  .badge-incomplete { background: #555; }
   .badge-fail { background: #8b2020; }
 
   .card-incomplete {
-    border-color: #b87a14;
+    border-color: var(--color-border);
+    opacity: 0.6;
   }
 
   .card-incomplete:hover {
-    border-color: #d4950a;
+    border-color: var(--color-text-muted);
+    opacity: 0.8;
   }
 
   .card-incomplete .day-number {
-    color: #d4950a;
+    color: var(--color-text-muted);
   }
 
   .card-fail {
