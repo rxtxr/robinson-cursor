@@ -1,0 +1,12 @@
+{
+  "day": 5,
+  "slug": "day-005-german-hiphop-ishkur",
+  "title": "German Hip Hop — Ishkur-Style Genre Map",
+  "date": "2026-04-01",
+  "description": "Interactive genre map of German hip hop history — click genres for artists, tracks, labels. Canvas-based Ishkur-style visualization.",
+  "tags": ["music", "history", "hip-hop", "data-visualization", "interactive", "canvas"],
+  "stack": ["HTML", "CSS", "JavaScript", "Canvas"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-005-german-hiphop-ishkur",
+  "status": "complete",
+  "license_notes": "No external libraries used. Genre data curated and extended from day-004."
+}

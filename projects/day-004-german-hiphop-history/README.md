@@ -2,6 +2,8 @@
 
 Interactive genre history of German hip hop, inspired by Ishkur's Guide to Electronic Music.
 
+**Iterated in [Day 005](../day-005-german-hiphop-ishkur/)** — the Ishkur-style Canvas visualization that this project was aiming for. Day 005 uses the curated data from this project with a completely rewritten rendering approach.
+
 ## Status: INCOMPLETE
 
 The Temporal DAG / Phylogenetic Timeline visualization did not work as planned. After 3+ hours of iteration, the layout algorithm (parent-centered tree with bezier connections on a timeline) does not produce the clean "railroad map" aesthetic of the Ishkur reference. The current state is released as-is.
