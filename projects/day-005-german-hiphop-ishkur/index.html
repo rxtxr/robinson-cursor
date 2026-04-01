@@ -413,11 +413,14 @@ canvas.addEventListener('wheel', e => {
 
 // ─── TOUCH ──────────────────────────────────────────────────────────
 let lastTouchDist = 0, lastTouchMid = null;
+let touchStartX = 0, touchStartY = 0;
+const TAP_THRESHOLD = 10;
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
   if (e.touches.length === 1) {
     dragging = true; dragMoved = false;
     dragX = e.touches[0].clientX; dragY = e.touches[0].clientY;
+    touchStartX = dragX; touchStartY = dragY;
   } else if (e.touches.length === 2) {
     dragging = false;
     const dx = e.touches[0].clientX - e.touches[1].clientX;
@@ -429,8 +432,8 @@ canvas.addEventListener('touchstart', e => {
 canvas.addEventListener('touchmove', e => {
   e.preventDefault();
   if (e.touches.length === 1 && dragging) {
-    dragMoved = true;
     const t = e.touches[0];
+    if (!dragMoved && Math.hypot(t.clientX - touchStartX, t.clientY - touchStartY) > TAP_THRESHOLD) dragMoved = true;
     viewX += t.clientX - dragX; viewY += t.clientY - dragY;
     dragX = t.clientX; dragY = t.clientY;
     draw();
@@ -455,7 +458,7 @@ canvas.addEventListener('touchmove', e => {
 canvas.addEventListener('touchend', e => {
   if (e.touches.length === 0) {
     if (!dragMoved && dragging) {
-      const hit = hitTest(dragX, dragY);
+      const hit = hitTest(touchStartX, touchStartY);
       if (hit) openPanel(hit.id); else closePanel();
     }
     dragging = false; lastTouchDist = 0; lastTouchMid = null;
