@@ -66,9 +66,9 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
     </header>
 
     {thumbUrl && (
-      <div class="project-thumb">
+      <a href={`/embed/${project.slug}/index.html`} target="_blank" rel="noopener" class="project-thumb" aria-label={`Run ${project.title}`}>
         <img src={thumbUrl} alt={`Screenshot of ${project.title}`} loading="lazy" />
-      </div>
+      </a>
     )}
 
     <div class="project-meta">
@@ -230,7 +230,9 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
   }
 
   .project-thumb {
+    display: block;
     margin-bottom: var(--space-lg);
+    cursor: pointer;
   }
 
   .project-thumb img {
