@@ -1,7 +1,7 @@
 {
   "day": 5,
   "slug": "day-005-german-hiphop-ishkur",
-  "title": "German Hip Hop — Ishkur-Style Genre Map",
+  "title": "German Hip Hop — Ishkur-Style",
   "date": "2026-04-01",
   "description": "Interactive genre map of German hip hop history — click genres for artists, tracks, labels. Canvas-based Ishkur-style visualization.",
   "tags": ["music", "history", "hip-hop", "data-visualization", "interactive", "canvas"],
