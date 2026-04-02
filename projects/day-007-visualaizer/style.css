@@ -1,0 +1,201 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+#glCanvas, #threeContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#glCanvas { z-index: 0; }
+#threeContainer { z-index: 1; pointer-events: none; }
+#threeContainer canvas { display: block; }
+
+#ui {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 16px 24px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.85) 40%);
+  pointer-events: none;
+}
+
+#ui * { pointer-events: auto; }
+
+#player {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+#trackInfo {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+#trackTitle {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+#trackArtist {
+  display: block;
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: 2px;
+}
+
+#transport {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#transport button {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s;
+}
+
+#transport button:hover {
+  border-color: rgba(255,255,255,0.6);
+}
+
+#playBtn {
+  width: 44px !important;
+  height: 44px !important;
+  font-size: 16px !important;
+}
+
+#timeDisplay {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+
+#seekBar {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+#seekBar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+#volumeBar {
+  width: 70px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+#volumeBar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+#dropHint {
+  text-align: center;
+  font-size: 11px;
+  opacity: 0.4;
+  margin-top: 8px;
+}
+
+#fileLabel {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+#sceneIndicator {
+  text-align: center;
+  font-size: 10px;
+  opacity: 0.35;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 1px;
+}
+
+#sceneIndicator span {
+  display: inline-block;
+  margin: 0 2px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  transition: opacity 0.3s, background 0.3s;
+  opacity: 0.4;
+}
+
+#sceneIndicator span.active {
+  opacity: 1;
+  background: rgba(255,255,255,0.15);
+}
+
+#license {
+  text-align: center;
+  font-size: 10px;
+  opacity: 0.3;
+  margin-top: 6px;
+}
+
+#license a {
+  color: inherit;
+}
+
+body.dragover::after {
+  content: 'Drop audio files';
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  background: rgba(0,0,0,0.8);
+  border: 2px dashed rgba(255,255,255,0.3);
+  pointer-events: none;
+}

@@ -1,0 +1,12 @@
+{
+  "day": 7,
+  "slug": "day-007-visualaizer",
+  "title": "visualAIzer",
+  "date": "2026-04-03",
+  "description": "Milkdrop-inspired browser music visualizer with WebGL moiré shader and 3D metallic text tunnel, beat-driven scene switching, 8 presets.",
+  "tags": ["audio", "webaudio", "webgl", "threejs", "visualization", "shader", "milkdrop", "interactive", "3d"],
+  "stack": ["Web Audio API", "WebGL", "Three.js", "HTML", "CSS", "JavaScript"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-007-visualaizer",
+  "status": "complete",
+  "license_notes": "Three.js (MIT). Bundled track: EJAY IVAN LAC — Arrive to Asgardia (CC BY-ND 3.0)."
+}
