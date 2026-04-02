@@ -1,0 +1,12 @@
+{
+  "day": 6,
+  "slug": "day-006-aimen",
+  "title": "AiMEN BREAK",
+  "date": "2026-04-02",
+  "description": "Browser-based breakbeat slicer and step sequencer with FX rack and bass synth.",
+  "tags": ["audio", "webaudio", "sampler", "sequencer", "breakbeat", "drum-and-bass", "interactive"],
+  "stack": ["Web Audio API", "Canvas 2D", "HTML", "CSS", "JavaScript"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-006-aimen",
+  "status": "complete",
+  "license_notes": "Google Fonts: Share Tech Mono, Oswald, Bebas Neue (OFL)."
+}
