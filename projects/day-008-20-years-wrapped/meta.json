@@ -1,0 +1,12 @@
+{
+  "day": 8,
+  "slug": "day-008-20-years-wrapped",
+  "title": "20 Years Wrapped pt. I",
+  "date": "2026-04-04",
+  "description": "Interactive visualization of 20 years of listening data: genre timeline (streamgraph), artist similarity network, and credits/collaboration network. Built from Last.fm, Spotify, ListenBrainz, MusicBrainz, and Discogs data.",
+  "tags": ["data-visualization", "music", "d3", "network-graph", "streamgraph", "listening-history"],
+  "stack": ["HTML", "CSS", "JavaScript", "D3.js", "DuckDB"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-008-20-years-wrapped",
+  "status": "complete",
+  "license_notes": "D3.js (ISC)"
+}
