@@ -7,7 +7,7 @@
   "tags": ["audio", "webaudio", "webgl", "threejs", "visualization", "shader", "milkdrop", "interactive", "3d"],
   "stack": ["Web Audio API", "WebGL", "Three.js", "HTML", "CSS", "JavaScript"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-007-visualaizer",
-  "preview": "preview.png",
+  "preview": "thumb.png",
   "status": "complete",
   "license_notes": "Three.js (MIT). Bundled track: EJAY IVAN LAC — Arrive to Asgardia (CC BY-ND 3.0)."
 }
