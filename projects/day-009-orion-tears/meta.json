@@ -1,0 +1,13 @@
+{
+  "day": 9,
+  "slug": "day-009-orion-tears",
+  "title": "Orion Tears",
+  "date": "2026-04-05",
+  "description": "Water ripple simulation with scherenschnitt aesthetic, revealing the Carina Nebula and Blade Runner's tears-in-rain monologue through wave-shaped masks.",
+  "tags": ["webgl", "shader", "simulation", "water", "physics", "generative", "interactive"],
+  "stack": ["WebGL2", "GLSL", "HTML", "CSS"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-009-orion-tears",
+  "preview": "thumb.png",
+  "status": "complete",
+  "license_notes": "Background image: NASA/ESA/CSA James Webb Space Telescope — Carina Nebula (public domain)."
+}

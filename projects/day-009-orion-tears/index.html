@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orion Tears</title>
+<style>
+  * { margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+  #bg {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 0;
+    background: url('bg.jpg') center/cover no-repeat;
+  }
+  #quote {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+    padding: 4vh 5vw;
+    color: #fff;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 900;
+    font-size: 4.2vw;
+    line-height: 1.15;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+  canvas {
+    position: fixed; top: 0; left: 0;
+    display: block; width: 100%; height: 100%;
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<div id="quote">I've seen things you people wouldn't believe. Attack ships on fire off the shoulder of Orion. I watched C-beams glitter in the dark near the Tannhäuser Gate. All those moments will be lost in time, like tears in rain.</div>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const gl = canvas.getContext('webgl2', { antialias: true, alpha: true, premultipliedAlpha: true });
+if (!gl) { document.body.textContent = 'WebGL2 required'; throw new Error(); }
+gl.getExtension('EXT_color_buffer_float');
+gl.getExtension('OES_texture_float_linear');
+
+const SIM = 1024;
+const GRID = 1000;
+
+function resize() {
+  canvas.width = window.innerWidth * devicePixelRatio;
+  canvas.height = window.innerHeight * devicePixelRatio;
+}
+resize();
+
+function compileShader(type, src) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(s)); throw new Error(); }
+  return s;
+}
+function createProgram(vs, fs) {
+  const p = gl.createProgram();
+  gl.attachShader(p, compileShader(gl.VERTEX_SHADER, vs));
+  gl.attachShader(p, compileShader(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(p)); throw new Error(); }
+  return p;
+}
+
+// --- Math ---
+function mat4Persp(fov, asp, n, f) {
+  const t = 1/Math.tan(fov/2), nf = 1/(n-f);
+  return new Float32Array([t/asp,0,0,0, 0,t,0,0, 0,0,(f+n)*nf,-1, 0,0,2*f*n*nf,0]);
+}
+function mat4Look(eye, c, up) {
+  let zx=eye[0]-c[0],zy=eye[1]-c[1],zz=eye[2]-c[2],l=1/Math.hypot(zx,zy,zz);
+  const fz=[zx*l,zy*l,zz*l];
+  let sx=up[1]*fz[2]-up[2]*fz[1],sy=up[2]*fz[0]-up[0]*fz[2],sz=up[0]*fz[1]-up[1]*fz[0];
+  l=1/Math.hypot(sx,sy,sz); const fs=[sx*l,sy*l,sz*l];
+  const u=[fz[1]*fs[2]-fz[2]*fs[1],fz[2]*fs[0]-fz[0]*fs[2],fz[0]*fs[1]-fz[1]*fs[0]];
+  return new Float32Array([fs[0],u[0],fz[0],0,fs[1],u[1],fz[1],0,fs[2],u[2],fz[2],0,
+    -(fs[0]*eye[0]+fs[1]*eye[1]+fs[2]*eye[2]),-(u[0]*eye[0]+u[1]*eye[1]+u[2]*eye[2]),
+    -(fz[0]*eye[0]+fz[1]*eye[1]+fz[2]*eye[2]),1]);
+}
+function mat4Mul(a,b){const o=new Float32Array(16);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let s=0;for(let k=0;k<4;k++)s+=a[j+k*4]*b[k+i*4];o[j+i*4]=s;}return o;}
+
+// --- Quad VAO ---
+const quadVAO = gl.createVertexArray();
+gl.bindVertexArray(quadVAO);
+const qb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, qb);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
+gl.bindVertexArray(null);
+
+// --- Water mesh ---
+function createGrid(res) {
+  const v=[], idx=[];
+  const SCALE = 80.0;
+  for (let j=0;j<=res;j++) for (let i=0;i<=res;i++)
+    v.push((i/res-.5)*SCALE, (j/res-.5)*SCALE, i/res, j/res);
+  for (let j=0;j<res;j++) for (let i=0;i<res;i++) {
+    const a=j*(res+1)+i; idx.push(a,a+1,a+res+1, a+1,a+res+2,a+res+1);
+  }
+  const vao=gl.createVertexArray(); gl.bindVertexArray(vao);
+  const vbo=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,vbo);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(v), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0,2,gl.FLOAT,false,16,0);
+  gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1,2,gl.FLOAT,false,16,8);
+  const ibo=gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ibo);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(idx), gl.STATIC_DRAW);
+  gl.bindVertexArray(null);
+  return {vao, count:idx.length};
+}
+const mesh = createGrid(GRID);
+
+// --- Sim FBOs: RG32F = (h_current, h_previous) — Verlet integration ---
+function createFBO() {
+  const tex=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,tex);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RG32F,SIM,SIM,0,gl.RG,gl.FLOAT,null);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  const fbo=gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER,fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,tex,0);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  return {fbo,tex};
+}
+let simA = createFBO(), simB = createFBO();
+
+// --- Background image texture ---
+const bgTex = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, bgTex);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0,0,0,255]));
+const bgImg = new Image();
+bgImg.onload = () => {
+  gl.bindTexture(gl.TEXTURE_2D, bgTex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, bgImg);
+  gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+};
+bgImg.src = 'bg.jpg';
+
+window.addEventListener('resize', resize);
+
+const qVS = `#version 300 es
+layout(location=0) in vec2 p; out vec2 vUv;
+void main() { vUv = p*.5+.5; gl_Position = vec4(p,0,1); }`;
+
+// ============================================================
+// Wave equation with Störmer-Verlet integration (unconditionally
+// stable for c < 0.5) + biharmonic surface tension term.
+//
+// Linearised shallow water at constant depth:
+//   ∂²h/∂t² = c²·∇²h − σ·∇⁴h
+//
+// Verlet: h_new = 2h − h_prev + c²·∇²h − σ·∇⁴h
+//
+// r = h_current, g = h_previous
+// ============================================================
+const simFS = `#version 300 es
+precision highp float;
+in vec2 vUv;
+out vec4 fc;
+uniform sampler2D uS;
+uniform vec2 uTx;
+
+const float C2    = 0.10;     // wave speed²
+const float SIGMA = 0.00006;  // surface tension → capillary ripples
+const float DAMP  = 0.9993;   // per-step damping
+
+// 5-point laplacian
+float lap(vec2 uv, vec2 dx) {
+  float c = texture(uS, uv).r;
+  return texture(uS, uv - vec2(dx.x,0)).r
+       + texture(uS, uv + vec2(dx.x,0)).r
+       + texture(uS, uv - vec2(0,dx.y)).r
+       + texture(uS, uv + vec2(0,dx.y)).r - 4.0*c;
+}
+
+// biharmonic via 13-point stencil (direct ∇⁴)
+float bilap(vec2 uv, vec2 dx) {
+  float c  = texture(uS, uv).r;
+  float l  = texture(uS, uv - vec2(dx.x,0)).r;
+  float r  = texture(uS, uv + vec2(dx.x,0)).r;
+  float d  = texture(uS, uv - vec2(0,dx.y)).r;
+  float u  = texture(uS, uv + vec2(0,dx.y)).r;
+  float ll = texture(uS, uv - vec2(2.0*dx.x,0)).r;
+  float rr = texture(uS, uv + vec2(2.0*dx.x,0)).r;
+  float dd = texture(uS, uv - vec2(0,2.0*dx.y)).r;
+  float uu = texture(uS, uv + vec2(0,2.0*dx.y)).r;
+  float ld = texture(uS, uv + vec2(-dx.x,-dx.y)).r;
+  float rd = texture(uS, uv + vec2( dx.x,-dx.y)).r;
+  float lu = texture(uS, uv + vec2(-dx.x, dx.y)).r;
+  float ru = texture(uS, uv + vec2( dx.x, dx.y)).r;
+  // standard 13-point biharmonic stencil
+  return (20.0*c - 8.0*(l+r+d+u) + 2.0*(ld+rd+lu+ru) + (ll+rr+dd+uu));
+}
+
+void main() {
+  vec2 s = texture(uS, vUv).rg;
+  float h = s.r, hPrev = s.g;
+
+  float L = lap(vUv, uTx);
+  float B = bilap(vUv, uTx);
+
+  float hNew = 2.0*h - hPrev + C2*L - SIGMA*B;
+  hNew *= DAMP;
+
+  // aggressive absorbing boundary — waves die long before sim edge
+  float e = min(min(vUv.x, 1.0-vUv.x), min(vUv.y, 1.0-vUv.y));
+  // cubic falloff over 35% from each edge
+  float ab = smoothstep(0.0, 0.35, e);
+  ab *= ab; // extra aggressive
+  hNew *= ab;
+  h *= ab; // also damp history — prevents reflected energy
+
+  fc = vec4(hNew, h, 0, 1);
+}`;
+
+const simProg = createProgram(qVS, simFS);
+const simL = {
+  uS:  gl.getUniformLocation(simProg,'uS'),
+  uTx: gl.getUniformLocation(simProg,'uTx'),
+};
+
+// --- Impact injection: ring-shaped disturbances ---
+const impFS = `#version 300 es
+precision highp float;
+in vec2 vUv;
+out vec4 fc;
+uniform sampler2D uS;
+uniform vec2  uPos;
+uniform float uRadius;    // ring width
+uniform float uRingR;     // ring center radius (0 = gaussian blob)
+uniform float uStrength;
+
+void main() {
+  vec2 s = texture(uS, vUv).rg;
+  float dist = length(vUv - uPos);
+
+  float g;
+  if (uRingR > 0.001) {
+    // ring: gaussian along radial distance from ring center
+    g = exp(-pow(dist - uRingR, 2.0) / (uRadius * uRadius));
+  } else {
+    // blob: gaussian from center
+    g = exp(-dist * dist / (uRadius * uRadius));
+  }
+
+  s.r += uStrength * g;
+  fc = vec4(s, 0, 1);
+}`;
+
+const impProg = createProgram(qVS, impFS);
+const impL = {
+  uS:   gl.getUniformLocation(impProg,'uS'),
+  uPos: gl.getUniformLocation(impProg,'uPos'),
+  uR:   gl.getUniformLocation(impProg,'uRadius'),
+  uRR:  gl.getUniformLocation(impProg,'uRingR'),
+  uStr: gl.getUniformLocation(impProg,'uStrength'),
+};
+
+function inject(x, y, width, ringR, strength) {
+  gl.bindFramebuffer(gl.FRAMEBUFFER, simB.fbo);
+  gl.viewport(0,0,SIM,SIM);
+  gl.useProgram(impProg);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, simA.tex);
+  gl.uniform1i(impL.uS, 0);
+  gl.uniform2f(impL.uPos, x, y);
+  gl.uniform1f(impL.uR, width);
+  gl.uniform1f(impL.uRR, ringR);
+  gl.uniform1f(impL.uStr, strength);
+  gl.bindVertexArray(quadVAO);
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+  [simA,simB] = [simB,simA];
+}
+
+// ============================================================
+// Impact: physically motivated ring sequence
+//
+// A drop hitting water creates:
+// 1. Sharp crater depression (blob)
+// 2. Outward-expanding ring wave (crown base)
+// 3. Several concentric ring fronts at √t radii
+// 4. Rebound peak at center (Worthington jet)
+// 5. Secondary collapse rings
+// ============================================================
+function doImpact(x, y) {
+  // 1. crater — sharp central depression
+  inject(x, y, 0.008, 0, -0.8);
+
+  // 2. first ring wave — crown base pushes outward
+  setTimeout(() => inject(x, y, 0.004, 0.012, -0.3), 20);
+
+  // 3. expanding rings (crater rim grows as ~√t)
+  setTimeout(() => inject(x, y, 0.004, 0.022, -0.2), 50);
+  setTimeout(() => inject(x, y, 0.005, 0.034, -0.15), 100);
+  setTimeout(() => inject(x, y, 0.005, 0.048, -0.1), 160);
+
+  // 4. Worthington rebound — center pushes up
+  setTimeout(() => inject(x, y, 0.010, 0, 0.6), 220);
+
+  // 5. rebound collapse — secondary depression + ring
+  setTimeout(() => inject(x, y, 0.007, 0, -0.25), 380);
+  setTimeout(() => inject(x, y, 0.004, 0.015, -0.12), 420);
+
+  // 6. tertiary bounce
+  setTimeout(() => inject(x, y, 0.008, 0, 0.12), 550);
+}
+
+// ============================================================
+// Render: scherenschnitt — hard black/white
+// ============================================================
+const waterVS = `#version 300 es
+precision highp float;
+layout(location=0) in vec2 aP;
+layout(location=1) in vec2 aUv;
+uniform mat4 uMVP;
+uniform sampler2D uH;
+uniform vec2 uTx;
+uniform float uHS;
+uniform float uNS; // normal scale (independent of geometry height)
+out vec3 vN;
+out vec3 vWP;
+
+void main() {
+  float h = texture(uH, aUv).r;
+  vec3 wp = vec3(aP.x, h * uHS, aP.y);
+
+  float hL = texture(uH, aUv - vec2(uTx.x,0)).r;
+  float hR = texture(uH, aUv + vec2(uTx.x,0)).r;
+  float hD = texture(uH, aUv - vec2(0,uTx.y)).r;
+  float hU = texture(uH, aUv + vec2(0,uTx.y)).r;
+
+  // normal computed from heightmap gradient, scaled independently
+  // so shadow visibility doesn't depend on geometric height
+  vec3 N = normalize(vec3((hL - hR) * uNS, 1.0, (hD - hU) * uNS));
+  vN = N;
+  vWP = wp;
+  gl_Position = uMVP * vec4(wp, 1);
+}`;
+
+const waterFS = `#version 300 es
+precision highp float;
+in vec3 vN;
+in vec3 vWP;
+out vec4 fc;
+uniform vec3 uEye;
+uniform sampler2D uBg;
+uniform vec2 uRes;
+void main() {
+  vec3 N = normalize(vN);
+  vec3 V = normalize(uEye - vWP);
+  vec3 L = normalize(vec3(0.3, 1.0, 0.2));
+
+  float NdotL = dot(N, L);
+
+  float fw = fwidth(NdotL) * 1.5;
+  float shadow = 1.0 - smoothstep(0.42 - fw, 0.42 + fw, NdotL);
+
+  vec2 screenUV = gl_FragCoord.xy / uRes;
+  vec3 bg = texture(uBg, vec2(screenUV.x, 1.0 - screenUV.y)).rgb;
+
+  // calm water = darkened bg (opaque), wave crests = transparent (reveal text+bg below)
+  float a = 1.0 - shadow;
+  vec3 col = bg * 0.1 * a; // premultiplied: darkened bg * alpha
+  fc = vec4(col, a);
+}`;
+
+const waterProg = createProgram(waterVS, waterFS);
+const wL = {
+  uMVP: gl.getUniformLocation(waterProg,'uMVP'),
+  uH:   gl.getUniformLocation(waterProg,'uH'),
+  uTx:  gl.getUniformLocation(waterProg,'uTx'),
+  uHS:  gl.getUniformLocation(waterProg,'uHS'),
+  uNS:  gl.getUniformLocation(waterProg,'uNS'),
+  uEye: gl.getUniformLocation(waterProg,'uEye'),
+  uBg:  gl.getUniformLocation(waterProg,'uBg'),
+  uRes: gl.getUniformLocation(waterProg,'uRes'),
+};
+
+// --- Camera ---
+const EYE = [0, 1.8, -2.8];
+const CTR = [0, -0.1, 0.5];
+
+// --- Loop ---
+let nextDrop = 600, time = 0, lastT = 0;
+
+function loop(ts) {
+  const dt = lastT ? Math.min(ts-lastT, 40) : 16;
+  lastT = ts; time += dt * 0.5; // half speed
+
+  if (time >= nextDrop) {
+    doImpact(0.4 + Math.random()*0.2, 0.4 + Math.random()*0.2);
+    nextDrop = time + 2500 + Math.random()*3000;
+  }
+
+  // 5 sim substeps per frame
+  for (let i = 0; i < 3; i++) {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, simB.fbo);
+    gl.viewport(0,0,SIM,SIM);
+    gl.useProgram(simProg);
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, simA.tex);
+    gl.uniform1i(simL.uS, 0);
+    gl.uniform2f(simL.uTx, 1/SIM, 1/SIM);
+    gl.bindVertexArray(quadVAO);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    [simA, simB] = [simB, simA];
+  }
+
+  const asp = canvas.width / canvas.height;
+  const mvp = mat4Mul(mat4Persp(Math.PI*.28, asp, .1, 20), mat4Look(EYE, CTR, [0,1,0]));
+
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.clearColor(0, 0, 0, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.enable(gl.DEPTH_TEST);
+  gl.disable(gl.BLEND); // direct write, no blending
+
+  gl.useProgram(waterProg);
+  gl.uniformMatrix4fv(wL.uMVP, false, mvp);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, simA.tex);
+  gl.uniform1i(wL.uH, 0);
+  gl.uniform2f(wL.uTx, 1/SIM, 1/SIM);
+  gl.uniform1f(wL.uHS, 0.06);
+  gl.uniform1f(wL.uNS, 80.0);
+  gl.uniform3f(wL.uEye, EYE[0], EYE[1], EYE[2]);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, bgTex);
+  gl.uniform1i(wL.uBg, 1);
+  gl.uniform2f(wL.uRes, canvas.width, canvas.height);
+  gl.bindVertexArray(mesh.vao);
+  gl.drawElements(gl.TRIANGLES, mesh.count, gl.UNSIGNED_INT, 0);
+
+  gl.disable(gl.DEPTH_TEST);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

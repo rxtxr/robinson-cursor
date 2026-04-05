@@ -41,3 +41,6 @@ __pycache__/
 projects/day-002-music-charts/raw-data/
 projects/day-002-music-charts/data/
 projects/day-002-music-charts/.env
+
+# playground (not a published project)
+projects/playground/
