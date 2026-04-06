@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 010 — Dead Channel</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; overflow: hidden; }
+    canvas {
+      display: block;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    @font-face {
+      font-family: 'VT323';
+      src: url('https://fonts.gstatic.com/s/vt323/v17/pxiKyp0ihIEF2isfFJU.woff2') format('woff2');
+    }
+    #quote {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+      font-family: 'VT323', 'Courier New', monospace;
+      font-size: 26px;
+      color: rgba(180, 185, 190, 0.5);
+      letter-spacing: 0.12em;
+      line-height: 1.6;
+      pointer-events: none;
+      text-shadow: 0 0 4px rgba(150, 155, 160, 0.15);
+      max-width: 560px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div id="quote">The sky above the port was the colour of television, tuned to a dead channel.</div>
+
+  <script>
+    const canvas = document.getElementById('gl');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+    let imgWidth = 0, imgHeight = 0;
+
+    function resize() {
+      if (imgWidth > 0) {
+        const aspect = imgWidth / imgHeight;
+        const winW = window.innerWidth;
+        const winH = window.innerHeight;
+        let w, h;
+        if (winW / winH > aspect) {
+          // Window wider than image — fit to height
+          h = Math.min(winH, imgHeight);
+          w = Math.round(h * aspect);
+        } else {
+          // Window taller than image — fit to width
+          w = Math.min(winW, imgWidth);
+          h = Math.round(w / aspect);
+        }
+        canvas.width = w;
+        canvas.height = h;
+      } else {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const vertSrc = `
+      attribute vec2 a_position;
+      void main() {
+        gl_Position = vec4(a_position, 0.0, 1.0);
+      }
+    `;
+
+    const fragSrc = `
+      precision highp float;
+      uniform float u_time;
+      uniform vec2 u_resolution;
+      uniform sampler2D u_skyline;
+      uniform sampler2D u_mask;
+      uniform sampler2D u_clouds1;
+      uniform sampler2D u_clouds2;
+
+      float hash(vec2 p) {
+        vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+        p3 += dot(p3, p3.yzx + 33.33);
+        return fract((p3.x + p3.y) * p3.z);
+      }
+
+      void main() {
+        vec2 uv = gl_FragCoord.xy / u_resolution;
+        float t = u_time;
+
+        // --- Layer 1: TV static noise ---
+        float static1 = hash(gl_FragCoord.xy + fract(t * 60.0) * 1000.0);
+        float static2 = hash(gl_FragCoord.xy * 1.7 + fract(t * 43.0) * 777.0);
+        float lum = mix(static1, static2, 0.5);
+        float scanline = 0.94 + 0.06 * sin(gl_FragCoord.y * 1.8);
+        lum *= scanline;
+        vec3 tint = vec3(0.75, 0.8, 0.88);
+        vec3 noise = vec3(lum) * tint;
+        float vig = 1.0 - 0.3 * length((uv - 0.5) * vec2(1.2, 1.0));
+        noise *= vig * 0.7;
+
+        // --- Layer 2: Clouds (between noise and skyline) ---
+        // Clouds: very slow drift + organic warping
+        vec2 baseUV = vec2(uv.x, 1.0 - uv.y);
+
+        // Ping-pong drift: oscillate back and forth so we never leave the image
+        float drift = sin(t * 0.03) * 0.08;
+
+        vec2 warp1 = baseUV + vec2(
+          drift * 0.6 + sin(baseUV.y * 4.0 + t * 0.2) * 0.012,
+          cos(baseUV.x * 3.0 + t * 0.15) * 0.008
+        );
+        // Cloud 2 (cumulus): zoom in + more room to drift
+        vec2 c2uv = (baseUV - 0.5) * 0.5 + 0.5;
+        vec2 warp2 = c2uv + vec2(
+          drift + sin(c2uv.y * 3.0 + t * 0.12 + 2.0) * 0.015,
+          cos(c2uv.x * 4.0 + t * 0.1 + 1.0) * 0.010
+        );
+
+        vec3 c1raw = texture2D(u_clouds1, clamp(warp1, 0.0, 1.0)).rgb;
+        vec3 c2raw = texture2D(u_clouds2, clamp(warp2, 0.0, 1.0)).rgb;
+
+        // Pull down whites, push towards dark water tones
+        vec3 waterTone = vec3(0.12, 0.13, 0.15);
+        vec3 c1 = mix(waterTone, c1raw * 0.55, dot(c1raw, vec3(0.33)));
+        vec3 c2 = mix(waterTone, c2raw * 0.50, dot(c2raw, vec3(0.33)));
+
+        float c1lum = dot(c1raw, vec3(0.299, 0.587, 0.114));
+        float c2lum = dot(c2raw, vec3(0.299, 0.587, 0.114));
+
+        // Morphing: crossfade between clouds over time
+        float morph = sin(t * 0.08) * 0.5 + 0.5;
+        vec3 cloud = mix(c1, c2, morph);
+        float cloudLum = mix(c1lum, c2lum, morph);
+
+        // Tonal shift: push towards grey/blue, pulsing
+        float toneShift = sin(t * 0.12) * 0.5 + 0.5;
+        vec3 coldTone = cloud * vec3(0.7, 0.75, 0.85);
+        vec3 warmTone = cloud * vec3(0.85, 0.8, 0.75);
+        cloud = mix(coldTone, warmTone, toneShift);
+
+        // Cloud opacity: brighter cloud areas more visible, dark areas transparent
+        // Cloud 1 more visible in the mix
+        float c1alpha = smoothstep(0.15, 0.5, c1lum) * 0.55;
+        float c2alpha = smoothstep(0.2, 0.6, c2lum) * 0.4;
+        float cloudAlpha = mix(c1alpha, c2alpha, morph);
+
+        // Sky gradient: darker at top (night falling), lighter near horizon
+        float grad = 1.0 - uv.y; // 0 at top, 1 at bottom
+        vec3 skyDark = vec3(0.04, 0.05, 0.08);   // deep blue-black at top
+        vec3 skyHorizon = vec3(0.18, 0.17, 0.16); // warm grey near horizon
+        vec3 skyGrad = mix(skyDark, skyHorizon, pow(grad, 1.5));
+
+        // Composite: gradient base, noise on top, then clouds
+        noise = mix(skyGrad, noise, 0.7);
+        vec3 skyComposite = mix(noise, cloud, cloudAlpha);
+
+        // --- Skyline mask ---
+        vec2 texUV = vec2(uv.x, 1.0 - uv.y);
+        vec4 photo = texture2D(u_skyline, texUV);
+        float brightness = dot(photo.rgb, vec3(0.299, 0.587, 0.114));
+
+        float aboveWaterline = 1.0 - smoothstep(0.85, 0.87, texUV.y);
+        float belowWaterline = smoothstep(0.87, 0.89, texUV.y);
+
+        vec4 maskVal = texture2D(u_mask, texUV);
+        float skyMask = maskVal.r * aboveWaterline;
+
+        // Water
+        vec3 waterBase = photo.rgb * vec3(0.3, 0.35, 0.4);
+        vec3 waterColor = mix(waterBase, noise * 0.6, 0.55);
+        float waterMask = belowWaterline * smoothstep(0.03, 0.10, brightness);
+
+        // Final composite
+        vec3 color = skyComposite * skyMask + waterColor * waterMask;
+
+        gl_FragColor = vec4(color, 1.0);
+      }
+    `;
+
+    function compileShader(src, type) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(s));
+      }
+      return s;
+    }
+
+    const vs = compileShader(vertSrc, gl.VERTEX_SHADER);
+    const fs = compileShader(fragSrc, gl.FRAGMENT_SHADER);
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, vs);
+    gl.attachShader(prog, fs);
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1, -1,  1, -1,  -1, 1,
+      -1,  1,  1, -1,   1, 1
+    ]), gl.STATIC_DRAW);
+
+    const aPos = gl.getAttribLocation(prog, 'a_position');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const uTime = gl.getUniformLocation(prog, 'u_time');
+    const uRes = gl.getUniformLocation(prog, 'u_resolution');
+    const uSkyline = gl.getUniformLocation(prog, 'u_skyline');
+    const uMask = gl.getUniformLocation(prog, 'u_mask');
+    const uClouds1 = gl.getUniformLocation(prog, 'u_clouds1');
+    const uClouds2 = gl.getUniformLocation(prog, 'u_clouds2');
+
+    // --- Build mask from image on CPU ---
+    function buildMask(img) {
+      const c = document.createElement('canvas');
+      c.width = img.width;
+      c.height = img.height;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const data = ctx.getImageData(0, 0, c.width, c.height);
+      const px = data.data;
+
+      const lum = new Float32Array(c.width * c.height);
+      for (let i = 0; i < lum.length; i++) {
+        const r = px[i * 4], g = px[i * 4 + 1], b = px[i * 4 + 2];
+        lum[i] = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      }
+
+      const blockSize = 31;
+      const half = (blockSize - 1) / 2;
+      const out = new Uint8Array(c.width * c.height * 4);
+
+      const integral = new Float64Array((c.width + 1) * (c.height + 1));
+      for (let y = 0; y < c.height; y++) {
+        let rowSum = 0;
+        for (let x = 0; x < c.width; x++) {
+          rowSum += lum[y * c.width + x];
+          integral[(y + 1) * (c.width + 1) + (x + 1)] =
+            rowSum + integral[y * (c.width + 1) + (x + 1)];
+        }
+      }
+
+      const w1 = c.width + 1;
+      for (let y = 0; y < c.height; y++) {
+        for (let x = 0; x < c.width; x++) {
+          const x0 = Math.max(0, x - half);
+          const y0 = Math.max(0, y - half);
+          const x1 = Math.min(c.width - 1, x + half);
+          const y1 = Math.min(c.height - 1, y + half);
+          const area = (x1 - x0 + 1) * (y1 - y0 + 1);
+          const sum = integral[(y1 + 1) * w1 + (x1 + 1)]
+                    - integral[y0 * w1 + (x1 + 1)]
+                    - integral[(y1 + 1) * w1 + x0]
+                    + integral[y0 * w1 + x0];
+          const localAvg = sum / area;
+          const l = lum[y * c.width + x];
+
+          let mask = 0;
+          if (l > localAvg - 0.02 && l > 0.10) {
+            mask = Math.min(1, (l - 0.08) / 0.12);
+          }
+
+          const idx = (y * c.width + x) * 4;
+          const v = Math.round(mask * 255);
+          out[idx] = v;
+          out[idx + 1] = v;
+          out[idx + 2] = v;
+          out[idx + 3] = 255;
+        }
+      }
+
+      const outData = new ImageData(new Uint8ClampedArray(out.buffer), c.width, c.height);
+      ctx.putImageData(outData, 0, 0);
+      return c;
+    }
+
+    function uploadTexture(image, wrap) {
+      const t = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap || gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap || gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      return t;
+    }
+
+    // --- Load all images ---
+    function loadImage(src) {
+      return new Promise(resolve => {
+        const i = new Image();
+        i.onload = () => resolve(i);
+        i.src = src;
+      });
+    }
+
+    Promise.all([
+      loadImage('skyline.png'),
+      loadImage('clouds1.png'),
+      loadImage('clouds2.png')
+    ]).then(([skyImg, cloud1Img, cloud2Img]) => {
+      imgWidth = skyImg.width;
+      imgHeight = skyImg.height;
+      resize();
+
+      const texPhoto = uploadTexture(skyImg);
+      const maskCanvas = buildMask(skyImg);
+      const texMask = uploadTexture(maskCanvas);
+      const texCloud1 = uploadTexture(cloud1Img);
+      const texCloud2 = uploadTexture(cloud2Img);
+
+      function frame(t) {
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, texPhoto);
+        gl.uniform1i(uSkyline, 0);
+
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, texMask);
+        gl.uniform1i(uMask, 1);
+
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, texCloud1);
+        gl.uniform1i(uClouds1, 2);
+
+        gl.activeTexture(gl.TEXTURE3);
+        gl.bindTexture(gl.TEXTURE_2D, texCloud2);
+        gl.uniform1i(uClouds2, 3);
+
+        gl.uniform1f(uTime, t * 0.001);
+        gl.uniform2f(uRes, canvas.width, canvas.height);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "day": 10,
+  "slug": "day-010-dead-channel",
+  "title": "Dead Channel",
+  "date": "2026-04-06",
+  "description": "A visual experiment inspired by the aesthetics of dead TV channels.",
+  "tags": ["webgl", "shader", "generative", "neuromancer", "visual"],
+  "stack": ["WebGL", "GLSL", "JavaScript"],
+  "github": "https://github.com/user/robinson-cursor.com/tree/main/projects/day-010-dead-channel",
+  "thumbnail": "thumb.png",
+  "status": "complete",
+  "license_notes": "No external dependencies. VT323 font loaded from Google Fonts (OFL license)."
+}
