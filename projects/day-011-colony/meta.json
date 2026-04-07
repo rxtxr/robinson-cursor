@@ -1,0 +1,13 @@
+{
+  "day": 11,
+  "slug": "day-011-colony",
+  "title": "Colony",
+  "date": "2026-04-07",
+  "description": "Pixel-art ant colony simulation with emergent behavior — tunneling, foraging, brood care, pheromone trails, day/night cycles, trophallaxis and necrophorese.",
+  "tags": ["simulation", "generative", "canvas", "emergent", "pixel-art", "ant-colony"],
+  "stack": ["JavaScript", "Canvas 2D", "ImageData"],
+  "github": "https://github.com/rxtxr/robinson-cursor.com/tree/main/projects/day-011-colony",
+  "thumbnail": "thumb.png",
+  "status": "complete",
+  "license_notes": "No external dependencies."
+}
