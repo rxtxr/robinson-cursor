@@ -1,0 +1,13 @@
+{
+  "day": 12,
+  "slug": "day-012-error-line",
+  "title": "Error Line",
+  "date": "2026-04-08",
+  "description": "Fullscreen spray paint canvas with realistic cap physics, pressure/distance/opacity/sharpness controls, paint drips, and stroke-level undo/redo. Desktop first.",
+  "tags": ["canvas", "spray-paint", "interactive", "drawing", "desktop"],
+  "stack": ["JavaScript", "Canvas 2D"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-012-error-line",
+  "thumbnail": "thumb.png",
+  "status": "complete",
+  "license_notes": "No external dependencies."
+}
