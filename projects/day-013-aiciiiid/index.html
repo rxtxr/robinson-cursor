@@ -193,6 +193,7 @@ body {
   color: var(--text-label); cursor: pointer; white-space: nowrap;
 }
 .func-btn.pending { background: var(--led-accent); color: #FFF; border-color: #CC6600; }
+.len-btn.active { background: var(--led-accent); color: #FFF; border-color: #CC6600; }
 #keyboard {
   display: flex; position: relative; height: 120px;
   margin: 0 auto; width: fit-content;
@@ -467,6 +468,10 @@ body {
       <button class="func-btn" id="fn-octdown">Oct ▼</button>
       <button class="func-btn" id="fn-octup">Oct ▲</button>
       <span style="font-size:8px;color:#666;margin-left:4px" id="oct-display">Oct: 0</span>
+      <span style="margin-left:8px"></span>
+      <button class="func-btn len-btn" data-len="8">8</button>
+      <button class="func-btn len-btn" data-len="12">12</button>
+      <button class="func-btn len-btn" data-len="16">16</button>
     </div>
     <div id="keyboard"></div>
   </div>
@@ -590,35 +595,112 @@ for (let g = 1; g <= 4; g++)
 // PRESET BANK — Famous 303 Basslines
 // ================================================================
 const PRESETS = [
+  // === VERIFIED TRANSCRIPTIONS ===
   {
-    name: 'Acid Tracks',
-    artist: 'Phuture',
+    name: 'Hydrochloric',
+    artist: 'HCl',
     year: 1987,
-    bpm: 120,
+    bpm: 119,
+    // 8-step pattern — creates polyrhythm against 16-step drums
+    // Source: community transcription (B B C C' C D# D# C')
     knobs: { cutoff:0.4, resonance:0.6, envMod:0.65, decay:0.45, accent:0.7 },
     wave: 'sawtooth',
     steps: [
-      {note:36,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:36,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:36,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:39,octaveUp:false,timeState:'begin',  accent:false,slide:true },
-      {note:36,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:36,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:43,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:36,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:36,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:36,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:39,octaveUp:false,timeState:'begin',  accent:false,slide:true },
-      {note:41,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:36,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:36,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:43,octaveUp:false,timeState:'begin',  accent:false,slide:true },
-      {note:36,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:47,octaveUp:true, timeState:'begin',  accent:true, slide:true },  // B3 acc slide
+      {note:47,octaveUp:false,timeState:'begin',  accent:false,slide:false},  // B2
+      {note:36,octaveUp:false,timeState:'begin',  accent:true, slide:false},  // C2 acc
+      {note:36,octaveUp:true, timeState:'begin',  accent:true, slide:false},  // C3 acc
+      {note:36,octaveUp:false,timeState:'begin',  accent:false,slide:false},  // C2
+      {note:39,octaveUp:true, timeState:'begin',  accent:true, slide:false},  // D#3 acc
+      {note:39,octaveUp:false,timeState:'begin',  accent:false,slide:false},  // D#2
+      {note:36,octaveUp:true, timeState:'begin',  accent:true, slide:false},  // C3 acc
     ]
   },
   {
-    name: 'Acperience 1',
-    artist: 'Hardfloor',
+    name: 'Sulfuric',
+    artist: 'H₂SO₄',
+    year: 1995,
+    bpm: 134,
+    // Source: JonDent transcription — 2 notes (G, B), nearly all accented
+    // Cutoff 100% (303 range ≈ 6kHz), Reso 75%, Env 50%, Decay 0%, Accent 66%
+    knobs: { cutoff:0.82, resonance:0.75, envMod:0.5, decay:0.6, accent:0.66 },
+    wave: 'square',
+    steps: [
+      {note:43,octaveUp:false,timeState:'begin',  accent:true, slide:true },  // G2 A S
+      {note:43,octaveUp:true, timeState:'begin',  accent:true, slide:false},  // G3 A
+      {note:43,octaveUp:false,timeState:'begin',  accent:true, slide:true },  // G2 A S
+      {note:43,octaveUp:false,timeState:'begin',  accent:true, slide:true },  // G2 A S
+      {note:43,octaveUp:false,timeState:'begin',  accent:true, slide:false},  // G2 A
+      {note:43,octaveUp:false,timeState:'begin',  accent:true, slide:false},  // G2 A
+      {note:47,octaveUp:false,timeState:'begin',  accent:true, slide:false},  // B2 A
+      {note:43,octaveUp:false,timeState:'begin',  accent:true, slide:false},  // G2 A
+      {note:47,octaveUp:false,timeState:'begin',  accent:true, slide:false},  // B2 A
+      {note:43,octaveUp:false,timeState:'begin',  accent:true, slide:true },  // G2 A S
+      {note:43,octaveUp:false,timeState:'begin',  accent:true, slide:false},  // G2 A
+      {note:47,octaveUp:false,timeState:'begin',  accent:true, slide:false},  // B2 A
+      {note:43,octaveUp:false,timeState:'begin',  accent:true, slide:true },  // G2 A S
+      {note:43,octaveUp:false,timeState:'begin',  accent:true, slide:true },  // G2 A S
+      {note:43,octaveUp:false,timeState:'begin',  accent:true, slide:false},  // G2 A
+      {note:47,octaveUp:false,timeState:'begin',  accent:true, slide:false},  // B2 A
+    ]
+  },
+  {
+    name: 'Nitric',
+    artist: 'HNO₃',
+    year: 1993,
+    bpm: 138,
+    // Verified: single note, accent-only variation. Square wave.
+    knobs: { cutoff:0.25, resonance:0.9, envMod:0.85, decay:0.3, accent:0.9 },
+    wave: 'square',
+    steps: [
+      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
+      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
+      {note:40,octaveUp:false,timeState:'rest',    accent:false,slide:false},
+      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
+      {note:40,octaveUp:false,timeState:'rest',    accent:false,slide:false},
+      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
+      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:40,octaveUp:false,timeState:'rest',    accent:false,slide:false},
+      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
+      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
+      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:40,octaveUp:false,timeState:'rest',    accent:false,slide:false},
+    ]
+  },
+  // === INSPIRED-BY PATTERNS (not verified transcriptions) ===
+  {
+    name: 'Phosphoric',
+    artist: 'H₃PO₄',
+    year: 1986,
+    bpm: 120,
+    knobs: { cutoff:0.45, resonance:0.5, envMod:0.55, decay:0.4, accent:0.6 },
+    wave: 'sawtooth',
+    steps: [
+      {note:36,octaveUp:false,timeState:'begin',  accent:true, slide:false},
+      {note:36,octaveUp:false,timeState:'continue',accent:false,slide:false},
+      {note:36,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:39,octaveUp:false,timeState:'begin',  accent:false,slide:true },
+      {note:41,octaveUp:false,timeState:'begin',  accent:true, slide:false},
+      {note:41,octaveUp:false,timeState:'rest',    accent:false,slide:false},
+      {note:43,octaveUp:false,timeState:'begin',  accent:false,slide:true },
+      {note:41,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:36,octaveUp:false,timeState:'begin',  accent:true, slide:false},
+      {note:36,octaveUp:false,timeState:'continue',accent:false,slide:false},
+      {note:36,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:39,octaveUp:false,timeState:'begin',  accent:false,slide:true },
+      {note:41,octaveUp:false,timeState:'begin',  accent:true, slide:false},
+      {note:43,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:41,octaveUp:false,timeState:'begin',  accent:false,slide:true },
+      {note:39,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+    ]
+  },
+  {
+    name: 'Acetic',
+    artist: 'CH₃COOH',
     year: 1992,
     bpm: 138,
     knobs: { cutoff:0.3, resonance:0.75, envMod:0.8, decay:0.35, accent:0.8 },
@@ -643,60 +725,8 @@ const PRESETS = [
     ]
   },
   {
-    name: 'Higher State',
-    artist: 'Josh Wink',
-    year: 1995,
-    bpm: 134,
-    knobs: { cutoff:0.35, resonance:0.85, envMod:0.7, decay:0.4, accent:0.75 },
-    wave: 'square',
-    steps: [
-      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:40,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:40,octaveUp:true, timeState:'begin',  accent:true, slide:false},
-      {note:40,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:true },
-      {note:43,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:43,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:40,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:40,octaveUp:true, timeState:'begin',  accent:true, slide:true },
-      {note:43,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:38,octaveUp:false,timeState:'begin',  accent:false,slide:true },
-      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-    ]
-  },
-  {
-    name: 'No Way Back',
-    artist: 'Adonis',
-    year: 1986,
-    bpm: 120,
-    knobs: { cutoff:0.45, resonance:0.5, envMod:0.55, decay:0.4, accent:0.6 },
-    wave: 'sawtooth',
-    steps: [
-      {note:36,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:36,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:36,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:39,octaveUp:false,timeState:'begin',  accent:false,slide:true },
-      {note:41,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:41,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:43,octaveUp:false,timeState:'begin',  accent:false,slide:true },
-      {note:41,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:36,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:36,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:36,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:39,octaveUp:false,timeState:'begin',  accent:false,slide:true },
-      {note:41,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:43,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:41,octaveUp:false,timeState:'begin',  accent:false,slide:true },
-      {note:39,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-    ]
-  },
-  {
-    name: 'What Is Acid',
-    artist: 'DJ Pierre',
+    name: 'Citric',
+    artist: 'C₆H₈O₇',
     year: 1988,
     bpm: 124,
     knobs: { cutoff:0.4, resonance:0.65, envMod:0.7, decay:0.5, accent:0.7 },
@@ -708,7 +738,7 @@ const PRESETS = [
       {note:39,octaveUp:false,timeState:'begin',  accent:true, slide:true },
       {note:41,octaveUp:false,timeState:'begin',  accent:false,slide:false},
       {note:36,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:36,octaveUp:false,timeState:'rest',    accent:false,slide:false},
+      {note:36,octaveUp:false,timeState:'continue',accent:false,slide:false},
       {note:36,octaveUp:false,timeState:'rest',    accent:false,slide:false},
       {note:36,octaveUp:false,timeState:'begin',  accent:true, slide:false},
       {note:43,octaveUp:false,timeState:'begin',  accent:false,slide:true },
@@ -721,67 +751,41 @@ const PRESETS = [
     ]
   },
   {
-    name: 'Spastik',
-    artist: 'Plastikman',
-    year: 1993,
-    bpm: 138,
-    knobs: { cutoff:0.25, resonance:0.9, envMod:0.85, decay:0.3, accent:0.9 },
-    wave: 'square',
-    steps: [
-      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:40,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:40,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-    ]
-  },
-  {
-    name: 'Acid Phase',
-    artist: 'Emmanuel Top',
+    name: 'Formic',
+    artist: 'HCOOH',
     year: 1994,
     bpm: 140,
-    knobs: { cutoff:0.3, resonance:0.7, envMod:0.75, decay:0.35, accent:0.8 },
+    knobs: { cutoff:0.35, resonance:0.7, envMod:0.6, decay:0.4, accent:0.75 },
     wave: 'sawtooth',
     steps: [
-      {note:45,octaveUp:false,timeState:'begin',  accent:true, slide:true },
-      {note:48,octaveUp:false,timeState:'begin',  accent:false,slide:true },
-      {note:45,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:45,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:43,octaveUp:false,timeState:'begin',  accent:false,slide:true },
-      {note:45,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:45,octaveUp:false,timeState:'rest',    accent:false,slide:false},
-      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:true },
-      {note:45,octaveUp:false,timeState:'begin',  accent:true, slide:true },
-      {note:48,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:45,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:43,octaveUp:false,timeState:'begin',  accent:false,slide:true },
-      {note:45,octaveUp:false,timeState:'begin',  accent:false,slide:false},
-      {note:45,octaveUp:true, timeState:'begin',  accent:true, slide:true },
-      {note:43,octaveUp:false,timeState:'begin',  accent:false,slide:true },
-      {note:40,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:38,octaveUp:false,timeState:'begin',  accent:true, slide:true },
+      {note:41,octaveUp:false,timeState:'begin',  accent:false,slide:true },
+      {note:38,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:38,octaveUp:false,timeState:'rest',    accent:false,slide:false},
+      {note:36,octaveUp:false,timeState:'begin',  accent:true, slide:true },
+      {note:38,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:38,octaveUp:false,timeState:'continue',accent:false,slide:false},
+      {note:33,octaveUp:false,timeState:'begin',  accent:false,slide:true },
+      {note:38,octaveUp:false,timeState:'begin',  accent:true, slide:true },
+      {note:41,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:38,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:36,octaveUp:false,timeState:'begin',  accent:true, slide:true },
+      {note:38,octaveUp:false,timeState:'begin',  accent:false,slide:false},
+      {note:38,octaveUp:true, timeState:'begin',  accent:true, slide:true },
+      {note:36,octaveUp:false,timeState:'begin',  accent:false,slide:true },
+      {note:33,octaveUp:false,timeState:'begin',  accent:false,slide:false},
     ]
   },
   {
-    name: 'Land of Confusion',
-    artist: 'Armando',
+    name: 'Lysergic',
+    artist: 'C₂₀H₂₅N₃O',
     year: 1988,
     bpm: 122,
     knobs: { cutoff:0.45, resonance:0.55, envMod:0.6, decay:0.45, accent:0.65 },
     wave: 'sawtooth',
     steps: [
       {note:36,octaveUp:false,timeState:'begin',  accent:true, slide:false},
-      {note:36,octaveUp:false,timeState:'rest',    accent:false,slide:false},
+      {note:36,octaveUp:false,timeState:'continue',accent:false,slide:false},
       {note:36,octaveUp:false,timeState:'begin',  accent:false,slide:false},
       {note:36,octaveUp:false,timeState:'begin',  accent:false,slide:true },
       {note:39,octaveUp:false,timeState:'begin',  accent:true, slide:false},
@@ -801,7 +805,11 @@ const PRESETS = [
 ];
 
 // Load first preset into 1A1 by default
-S.patterns['1A1'] = { length: 16, steps: PRESETS[0].steps.map(s => ({...s})) };
+const defSteps = PRESETS[0].steps;
+S.patterns['1A1'] = {
+  length: defSteps.length,
+  steps: Array.from({length:16}, (_, i) => i < defSteps.length ? {...defSteps[i]} : makeEmptyStep())
+};
 
 function patKey() { return `${S.group}${S.section}${S.patNum}`; }
 function pat() { return S.patterns[patKey()]; }
@@ -911,40 +919,68 @@ function syncFilterParams() {
     S.filter2.frequency.cancelScheduledValues(t);
     S.filter2.frequency.setValueAtTime(c2, t);
     S.filter1.Q.cancelScheduledValues(t);
-    S.filter1.Q.setValueAtTime(r * 25 + 0.1, t);
+    // Q range 0.1–38: allows self-oscillation at high resonance, matching the
+    // real 303's screaming filter. Exponential curve gives more control in the
+    // musical range (low-mid resonance) while still reaching self-oscillation.
+    S.filter1.Q.setValueAtTime(0.1 + Math.pow(r, 1.5) * 38, t);
     S.filter2.Q.cancelScheduledValues(t);
     S.filter2.Q.setValueAtTime(0.5, t);
   } else {
-    S.filter1.frequency.value = c; S.filter1.Q.value = r * 25 + 0.1;
+    S.filter1.frequency.value = c; S.filter1.Q.value = 0.1 + Math.pow(r, 1.5) * 38;
     S.filter2.frequency.value = c2; S.filter2.Q.value = 0.5;
   }
 }
 
 // VCF-only envelope: retriggers filter sweep without touching VCA.
 // Called both from triggerEnvelope (normal notes) and from slide path.
+//
+// TB-303 accent circuit (Q13/Q14): on accented notes, a separate fast
+// transient spike is added to the filter, independent of the normal
+// envelope. This creates the characteristic "bark" on accent notes.
 function triggerFilterEnvelope(noteTime, isAccent, decayTime) {
   if (!S.audioCtx) return;
   const atk = 0.002;
-  const envM = S.knobs.envMod * (isAccent ? 1.5 : 1.0);
+  const accK = S.knobs.accent;
+  const envM = S.knobs.envMod;
+
+  // Accent drives envMod harder AND adds its own spike
+  const effectiveEnvM = isAccent ? envM + accK * 0.6 : envM;
 
   const base = getCutoffHz();
   const MID_FREQ = 800;
   const biasedTarget = MID_FREQ + (MID_FREQ - base) * 0.3;
-  const peakHz = Math.min(base + envM * (biasedTarget + MID_FREQ * 3), 18000);
+  const peakHz = Math.min(base + effectiveEnvM * (biasedTarget + MID_FREQ * 3), 18000);
   const boostHz = Math.max(peakHz - base, 0);
+
+  // Accent spike: fast transient added on top of normal envelope sweep.
+  // Decays in ~30ms — the sharp "bark" of the 303 accent circuit.
+  const accentSpike = isAccent ? accK * 2500 : 0;
+  const totalBoost = boostHz + accentSpike;
+
   const sustainFloor = boostHz * 0.15;
   const tau1 = decayTime * 0.4;
   const tau2 = decayTime * 0.35;
 
   S.filterEnv1.gain.cancelScheduledValues(noteTime);
   S.filterEnv1.gain.setValueAtTime(0, noteTime);
-  S.filterEnv1.gain.linearRampToValueAtTime(boostHz, noteTime + atk);
-  S.filterEnv1.gain.setTargetAtTime(sustainFloor, noteTime + atk, tau1);
+  S.filterEnv1.gain.linearRampToValueAtTime(totalBoost, noteTime + atk);
+  // Fast drop from accent spike, then slow RC decay for normal envelope
+  if (isAccent && accentSpike > 0) {
+    S.filterEnv1.gain.setTargetAtTime(boostHz * 0.7, noteTime + atk, 0.03);
+    S.filterEnv1.gain.setTargetAtTime(sustainFloor, noteTime + atk + 0.05, tau1);
+  } else {
+    S.filterEnv1.gain.setTargetAtTime(sustainFloor, noteTime + atk, tau1);
+  }
 
   S.filterEnv2.gain.cancelScheduledValues(noteTime);
   S.filterEnv2.gain.setValueAtTime(0, noteTime);
-  S.filterEnv2.gain.linearRampToValueAtTime(boostHz * 1.2, noteTime + atk * 2);
-  S.filterEnv2.gain.setTargetAtTime(sustainFloor * 0.8, noteTime + atk * 2, tau2);
+  S.filterEnv2.gain.linearRampToValueAtTime(totalBoost * 1.2, noteTime + atk * 2);
+  if (isAccent && accentSpike > 0) {
+    S.filterEnv2.gain.setTargetAtTime(boostHz * 0.5, noteTime + atk * 2, 0.03);
+    S.filterEnv2.gain.setTargetAtTime(sustainFloor * 0.8, noteTime + atk * 2 + 0.05, tau2);
+  } else {
+    S.filterEnv2.gain.setTargetAtTime(sustainFloor * 0.8, noteTime + atk * 2, tau2);
+  }
 }
 
 function triggerEnvelope(noteTime, isAccent, gateLen) {
@@ -953,14 +989,18 @@ function triggerEnvelope(noteTime, isAccent, gateLen) {
   const decK = S.knobs.decay;
   const decTime = Math.pow(decK, 3) * 4.0 + 0.005;
   const accK = S.knobs.accent;
-  const accBoost = isAccent ? (1.0 + accK * 0.8) : 1.0;
+  // Accent: sharper VCA transient — peaks higher and decays faster,
+  // emulating the 303's accent circuit bypassing the normal VCA envelope.
+  const accBoost = isAccent ? (1.0 + accK * 1.2) : 1.0;
   const effectiveDecay = gateLen ? Math.max(decTime, gateLen * 0.9) : decTime;
+  // Accented notes get a slightly shorter decay for punchier transients
+  const vcaDecay = isAccent ? effectiveDecay * (1.0 - accK * 0.3) : effectiveDecay;
 
   // VCA envelope
   S.vca.gain.cancelScheduledValues(noteTime);
   S.vca.gain.setValueAtTime(0.001, noteTime);
-  S.vca.gain.linearRampToValueAtTime(Math.min(accBoost, 1.8), noteTime + atk);
-  S.vca.gain.exponentialRampToValueAtTime(0.001, noteTime + atk + effectiveDecay);
+  S.vca.gain.linearRampToValueAtTime(Math.min(accBoost, 2.2), noteTime + atk);
+  S.vca.gain.exponentialRampToValueAtTime(0.001, noteTime + atk + vcaDecay);
 
   // VCF envelope
   triggerFilterEnvelope(noteTime, isAccent, effectiveDecay);
@@ -1004,7 +1044,7 @@ function scheduleStep(steps, idx, noteTime, stepDur, len) {
     S.osc.frequency.linearRampToValueAtTime(freq, noteTime + 0.06);
     // VCA: legato — hold open, accent adjusts level, decay shapes tail
     const accK = S.knobs.accent;
-    const accBoost = step.accent ? (1.0 + accK * 0.8) : 0.8;
+    const accBoost = step.accent ? (1.0 + accK * 1.2) : 0.8;
     const decK = S.knobs.decay;
     const decTime = Math.pow(decK, 3) * 4.0 + 0.005;
     const effectiveDecay = Math.max(decTime, gateLen * 0.9);
@@ -1112,6 +1152,7 @@ function selectStep(i) {
 
 function renderStepGrid() {
   const p = pat();
+  updateLenBtns();
   document.querySelectorAll('.step-cell').forEach((cell, i) => {
     const st = p.steps[i];
     const noteEl = cell.querySelector('.step-cell-note');
@@ -1472,6 +1513,23 @@ function setupButtons() {
     S.pendingOctave = Math.min(1, S.pendingOctave + 1);
     document.getElementById('oct-display').textContent = 'Oct: ' + (S.pendingOctave > 0 ? '+' : '') + S.pendingOctave;
   });
+  // Pattern length buttons
+  document.querySelectorAll('.len-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = pat();
+      p.length = parseInt(btn.dataset.len);
+      if (S.editStep >= p.length) S.editStep = 0;
+      updateLenBtns();
+      renderStepGrid(); updateDisplay();
+    });
+  });
+}
+
+function updateLenBtns() {
+  const len = pat().length;
+  document.querySelectorAll('.len-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.len) === len);
+  });
 }
 
 function updateFuncBtns() {
@@ -1602,11 +1660,12 @@ function buildPresetBank() {
 function loadPreset(idx) {
   const pr = PRESETS[idx];
 
-  // Copy steps into current pattern
+  // Copy steps into current pattern (supports variable length, e.g. 8-step patterns)
   const p = pat();
-  p.length = 16;
+  const len = pr.steps.length;
+  p.length = len;
   for (let i = 0; i < 16; i++) {
-    p.steps[i] = {...pr.steps[i]};
+    p.steps[i] = i < len ? {...pr.steps[i]} : makeEmptyStep();
   }
 
   // Apply knob settings
@@ -1664,116 +1723,167 @@ function initDrumBus() {
 
 function playKick(time) {
   const ctx = S.audioCtx;
+  // Body: 909-style pitch sweep 300→50Hz
   const osc = ctx.createOscillator();
   const g = ctx.createGain();
   osc.type = 'sine';
-  // Pitch sweep: 150Hz → 40Hz (punchy techno kick)
-  osc.frequency.setValueAtTime(150, time);
-  osc.frequency.exponentialRampToValueAtTime(40, time + 0.07);
-  g.gain.setValueAtTime(1.0, time);
+  osc.frequency.setValueAtTime(300, time);
+  osc.frequency.exponentialRampToValueAtTime(50, time + 0.045);
+  g.gain.setValueAtTime(1.2, time);
+  g.gain.setValueAtTime(1.0, time + 0.02);
   g.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
-  osc.connect(g); g.connect(S.drumGain);
+  // Waveshaper for mid-range punch
+  const ws = ctx.createWaveShaper();
+  const curve = new Float32Array(256);
+  for (let i = 0; i < 256; i++) { const x = (i / 128) - 1; curve[i] = x * (1.5 - 0.5 * x * x); }
+  ws.curve = curve;
+  osc.connect(ws); ws.connect(g); g.connect(S.drumGain);
   osc.start(time); osc.stop(time + 0.45);
-  // Sub layer
+  // Sub layer: deep sine for chest thump
   const osc2 = ctx.createOscillator();
   const g2 = ctx.createGain();
   osc2.type = 'sine';
-  osc2.frequency.setValueAtTime(80, time);
-  osc2.frequency.exponentialRampToValueAtTime(35, time + 0.1);
-  g2.gain.setValueAtTime(0.7, time);
+  osc2.frequency.setValueAtTime(60, time);
+  osc2.frequency.exponentialRampToValueAtTime(45, time + 0.08);
+  g2.gain.setValueAtTime(0.8, time);
   g2.gain.exponentialRampToValueAtTime(0.001, time + 0.35);
   osc2.connect(g2); g2.connect(S.drumGain);
   osc2.start(time); osc2.stop(time + 0.4);
-  // Click transient
+  // Click transient: high-frequency snap for attack definition
   const click = ctx.createOscillator();
   const cg = ctx.createGain();
   click.type = 'square';
-  click.frequency.setValueAtTime(800, time);
-  cg.gain.setValueAtTime(0.3, time);
-  cg.gain.exponentialRampToValueAtTime(0.001, time + 0.01);
+  click.frequency.setValueAtTime(3500, time);
+  cg.gain.setValueAtTime(0.5, time);
+  cg.gain.exponentialRampToValueAtTime(0.001, time + 0.006);
   click.connect(cg); cg.connect(S.drumGain);
-  click.start(time); click.stop(time + 0.02);
+  click.start(time); click.stop(time + 0.01);
 }
 
 function playSnare(time) {
   const ctx = S.audioCtx;
-  // Noise body
-  const dur = 0.15;
+  // Noise body — wide bandwidth for snare sizzle
+  const dur = 0.2;
   const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
   const data = buf.getChannelData(0);
   for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
   const noise = ctx.createBufferSource();
   noise.buffer = buf;
   const nf = ctx.createBiquadFilter();
-  nf.type = 'highpass'; nf.frequency.value = 2000;
+  nf.type = 'highpass'; nf.frequency.value = 800;
   const ng = ctx.createGain();
-  ng.gain.setValueAtTime(0.6, time);
+  ng.gain.setValueAtTime(0.7, time);
   ng.gain.exponentialRampToValueAtTime(0.001, time + dur);
   noise.connect(nf); nf.connect(ng); ng.connect(S.drumGain);
-  noise.start(time); noise.stop(time + dur);
-  // Tonal body
+  noise.start(time); noise.stop(time + dur + 0.01);
+  // Crack layer — bandpassed noise for high-end snap
+  const cbuf = ctx.createBuffer(1, ctx.sampleRate * 0.05, ctx.sampleRate);
+  const cd = cbuf.getChannelData(0);
+  for (let i = 0; i < cd.length; i++) cd[i] = Math.random() * 2 - 1;
+  const crack = ctx.createBufferSource();
+  crack.buffer = cbuf;
+  const cbp = ctx.createBiquadFilter();
+  cbp.type = 'bandpass'; cbp.frequency.value = 4000; cbp.Q.value = 1;
+  const ccg = ctx.createGain();
+  ccg.gain.setValueAtTime(0.5, time);
+  ccg.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+  crack.connect(cbp); cbp.connect(ccg); ccg.connect(S.drumGain);
+  crack.start(time); crack.stop(time + 0.06);
+  // Tonal body — pitched thump
   const osc = ctx.createOscillator();
   osc.type = 'triangle';
-  osc.frequency.setValueAtTime(200, time);
-  osc.frequency.exponentialRampToValueAtTime(120, time + 0.04);
+  osc.frequency.setValueAtTime(280, time);
+  osc.frequency.exponentialRampToValueAtTime(130, time + 0.03);
   const og = ctx.createGain();
-  og.gain.setValueAtTime(0.5, time);
-  og.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
+  og.gain.setValueAtTime(0.7, time);
+  og.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
   osc.connect(og); og.connect(S.drumGain);
-  osc.start(time); osc.stop(time + 0.1);
+  osc.start(time); osc.stop(time + 0.15);
 }
 
 function playHihat(time, open) {
   const ctx = S.audioCtx;
-  const dur = open ? 0.3 : 0.06;
-  const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-  const noise = ctx.createBufferSource();
-  noise.buffer = buf;
-  const bp = ctx.createBiquadFilter();
-  bp.type = 'bandpass'; bp.frequency.value = 8000; bp.Q.value = 1.5;
-  const hp = ctx.createBiquadFilter();
-  hp.type = 'highpass'; hp.frequency.value = 6000;
+  const dur = open ? 0.3 : 0.04;
   const g = ctx.createGain();
-  g.gain.setValueAtTime(open ? 0.35 : 0.3, time);
+  g.gain.setValueAtTime(open ? 0.32 : 0.28, time);
   g.gain.exponentialRampToValueAtTime(0.001, time + dur);
-  noise.connect(bp); bp.connect(hp); hp.connect(g); g.connect(S.drumGain);
-  noise.start(time); noise.stop(time + dur + 0.01);
+  // 808/909-style: 6 detuned square oscillators for metallic ring
+  const freqs = [299.7, 404.5, 527.3, 622.1, 739.9, 879.5];
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass'; hp.frequency.value = 7000;
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass'; bp.frequency.value = 10000; bp.Q.value = 0.8;
+  hp.connect(bp); bp.connect(g); g.connect(S.drumGain);
+  freqs.forEach(f => {
+    const osc = ctx.createOscillator();
+    osc.type = 'square';
+    osc.frequency.value = f;
+    osc.connect(hp);
+    osc.start(time); osc.stop(time + dur + 0.01);
+  });
 }
 
 function playClap(time) {
   const ctx = S.audioCtx;
-  const dur = 0.12;
+  // 909-style clap: multi-attack burst + reverb tail
+  const dur = 0.18;
   const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
   const data = buf.getChannelData(0);
   for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
   const noise = ctx.createBufferSource();
   noise.buffer = buf;
   const bp = ctx.createBiquadFilter();
-  bp.type = 'bandpass'; bp.frequency.value = 1200; bp.Q.value = 2;
+  bp.type = 'bandpass'; bp.frequency.value = 2000; bp.Q.value = 1.2;
   const g = ctx.createGain();
-  // Multi-attack clap envelope
-  g.gain.setValueAtTime(0.6, time);
-  g.gain.setValueAtTime(0.1, time + 0.01);
-  g.gain.setValueAtTime(0.5, time + 0.015);
-  g.gain.setValueAtTime(0.1, time + 0.025);
-  g.gain.setValueAtTime(0.45, time + 0.03);
+  // Multi-attack envelope (3 "hands" hitting)
+  g.gain.setValueAtTime(0.65, time);
+  g.gain.setValueAtTime(0.08, time + 0.008);
+  g.gain.setValueAtTime(0.55, time + 0.013);
+  g.gain.setValueAtTime(0.08, time + 0.022);
+  g.gain.setValueAtTime(0.5, time + 0.028);
   g.gain.exponentialRampToValueAtTime(0.001, time + dur);
   noise.connect(bp); bp.connect(g); g.connect(S.drumGain);
   noise.start(time); noise.stop(time + dur + 0.01);
+  // Reverb tail — short burst of high noise for room ambience
+  const tbuf = ctx.createBuffer(1, ctx.sampleRate * 0.15, ctx.sampleRate);
+  const td = tbuf.getChannelData(0);
+  for (let i = 0; i < td.length; i++) td[i] = Math.random() * 2 - 1;
+  const tail = ctx.createBufferSource();
+  tail.buffer = tbuf;
+  const thp = ctx.createBiquadFilter();
+  thp.type = 'highpass'; thp.frequency.value = 3000;
+  const tg = ctx.createGain();
+  tg.gain.setValueAtTime(0.0, time);
+  tg.gain.setValueAtTime(0.2, time + 0.03);
+  tg.gain.exponentialRampToValueAtTime(0.001, time + 0.15);
+  tail.connect(thp); thp.connect(tg); tg.connect(S.drumGain);
+  tail.start(time); tail.stop(time + 0.16);
 }
 
 function playRimshot(time) {
   const ctx = S.audioCtx;
+  // Tonal ping
   const osc = ctx.createOscillator();
   osc.type = 'triangle';
-  osc.frequency.setValueAtTime(800, time);
+  osc.frequency.setValueAtTime(1200, time);
   const g = ctx.createGain();
-  g.gain.setValueAtTime(0.4, time);
-  g.gain.exponentialRampToValueAtTime(0.001, time + 0.03);
+  g.gain.setValueAtTime(0.45, time);
+  g.gain.exponentialRampToValueAtTime(0.001, time + 0.025);
   osc.connect(g); g.connect(S.drumGain);
-  osc.start(time); osc.stop(time + 0.04);
+  osc.start(time); osc.stop(time + 0.03);
+  // Click attack — short noise burst
+  const buf = ctx.createBuffer(1, ctx.sampleRate * 0.005, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  const click = ctx.createBufferSource();
+  click.buffer = buf;
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass'; hp.frequency.value = 5000;
+  const cg = ctx.createGain();
+  cg.gain.setValueAtTime(0.4, time);
+  cg.gain.exponentialRampToValueAtTime(0.001, time + 0.004);
+  click.connect(hp); hp.connect(cg); cg.connect(S.drumGain);
+  click.start(time); click.stop(time + 0.006);
 }
 
 function playTom(time) {
@@ -1791,18 +1901,33 @@ function playTom(time) {
 
 function playCymbal(time) {
   const ctx = S.audioCtx;
-  const dur = 0.5;
+  const dur = 0.8;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.25, time);
+  g.gain.exponentialRampToValueAtTime(0.001, time + dur);
+  // Metallic ring: detuned square oscillators (like hi-hat but lower + noise)
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass'; hp.frequency.value = 4000;
+  hp.connect(g); g.connect(S.drumGain);
+  [263, 397, 517, 680, 833, 1043].forEach(f => {
+    const osc = ctx.createOscillator();
+    osc.type = 'square';
+    osc.frequency.value = f;
+    osc.connect(hp);
+    osc.start(time); osc.stop(time + dur + 0.01);
+  });
+  // Noise wash for shimmer
   const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
   const data = buf.getChannelData(0);
   for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
   const noise = ctx.createBufferSource();
   noise.buffer = buf;
-  const hp = ctx.createBiquadFilter();
-  hp.type = 'highpass'; hp.frequency.value = 5000;
-  const g = ctx.createGain();
-  g.gain.setValueAtTime(0.3, time);
-  g.gain.exponentialRampToValueAtTime(0.001, time + dur);
-  noise.connect(hp); hp.connect(g); g.connect(S.drumGain);
+  const nhp = ctx.createBiquadFilter();
+  nhp.type = 'highpass'; nhp.frequency.value = 7000;
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(0.15, time);
+  ng.gain.exponentialRampToValueAtTime(0.001, time + dur);
+  noise.connect(nhp); nhp.connect(ng); ng.connect(S.drumGain);
   noise.start(time); noise.stop(time + dur + 0.01);
 }
 
