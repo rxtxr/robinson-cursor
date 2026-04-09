@@ -1,0 +1,13 @@
+{
+  "day": 13,
+  "slug": "day-013-aiciiiid",
+  "title": "AIciiiid!",
+  "date": "2026-04-09",
+  "description": "Browser-based Roland TB-303 simulator with Web Audio synthesis, step sequencer, accent/slide system, and classic acid bass controls.",
+  "tags": ["synthesizer", "webaudio", "tb-303", "acid", "sequencer", "interactive"],
+  "stack": ["JavaScript", "Web Audio API", "CSS"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-013-aiciiiid",
+  "thumbnail": "thumb.png",
+  "status": "complete",
+  "license_notes": "Google Fonts (DSEG7 Classic). No other external dependencies."
+}
