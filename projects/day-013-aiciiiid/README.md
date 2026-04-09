@@ -1,27 +1,32 @@
 # Day 013 — AIciiiid!
 
-Browser-based Roland TB-303 Bass Line simulator. Full step sequencer with classic acid synthesis.
+Browser-based acid bass machine with TB-303-style synthesis, drum machine, and step sequencer.
 
 ## Features
 
-- **Analog-modeled synth engine** — VCO (saw/square) through resonant VCF and VCA, all via Web Audio API
-- **Step sequencer** — 16-step patterns with per-step note, accent, slide, rest, tie, and octave controls
-- **Knob controls** — Tuning, Cutoff Frequency, Resonance, Envelope Mod, Decay, Accent
-- **Pattern management** — 4 groups × 2 sections × 8 patterns
-- **Keyboard input** — Chromatic keyboard for note entry in pattern write mode
-- **Tempo control** — Adjustable BPM with real-time playback
+- **303-style synth engine** — VCO (saw/square) through resonant 18dB/oct VCF and VCA via Web Audio API
+- **Authentic acid circuit** — Separate accent spike, RC-decay filter envelope, fixed 60ms slide glide
+- **Step sequencer** — 8/12/16-step patterns with per-step note, accent, slide, rest, tie, and octave
+- **Drum machine** — 8 channels (kick, snare, closed/open hat, clap, rim, tom, cymbal), 909-style synthesis
+- **Preset bank** — 8 presets named after acids, including verified transcriptions
+- **Knob controls** — Tuning, Cutoff, Resonance, Envelope Mod, Decay, Accent, Tempo, Volume
+- **Pattern management** — 4 groups × 2 sections × 8 patterns with localStorage persistence
+- **Live scope** — Fullscreen oscilloscope background visualization
 
 ## Controls
 
 | Input | Effect |
 |-------|--------|
-| Pattern Write / Pattern Play | Switch between editing and playback mode |
-| Knobs | Tweak synth parameters (cutoff, resonance, decay, etc.) |
-| Step buttons | Navigate and edit sequencer steps |
+| SAW / SQU toggle | Switch oscillator waveform |
+| Run / Stop | Toggle sequencer playback |
+| Pattern Write / Play | Switch between editing and playback mode |
+| Knobs (drag up/down) | Tweak synth and drum parameters |
+| Step cells | Select step for editing |
 | Keyboard | Enter notes in write mode |
+| 8 / 12 / 16 buttons | Set pattern length |
 | Accent / Slide / Rest / Tie | Per-step articulation modifiers |
-| Oct up/down | Shift note octave |
+| Drum grid | Toggle drum hits per channel per step |
 
 ## Stack
 
-Single-file HTML/JS/CSS. Web Audio API for synthesis. Google Fonts (DSEG7 Classic) for the LED display.
+Single-file HTML/JS/CSS (~2000 lines), zero dependencies. Web Audio API for all synthesis. Google Fonts (DSEG7 Classic) for LED display.

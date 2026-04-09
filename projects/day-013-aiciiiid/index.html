@@ -592,7 +592,6 @@ const PRESETS = [
   {
     name: 'Hydrochloric',
     artist: 'HCl',
-    year: 1987,
     bpm: 119,
     // 8-step pattern — creates polyrhythm against 16-step drums
     // Source: community transcription (B B C C' C D# D# C')
@@ -612,7 +611,6 @@ const PRESETS = [
   {
     name: 'Sulfuric',
     artist: 'H₂SO₄',
-    year: 1995,
     bpm: 134,
     // Source: JonDent transcription — 2 notes (G, B), nearly all accented
     // Cutoff 100% (303 range ≈ 6kHz), Reso 75%, Env 50%, Decay 0%, Accent 66%
@@ -640,7 +638,6 @@ const PRESETS = [
   {
     name: 'Nitric',
     artist: 'HNO₃',
-    year: 1993,
     bpm: 138,
     // Verified: single note, accent-only variation. Square wave.
     knobs: { cutoff:0.25, resonance:0.9, envMod:0.85, decay:0.3, accent:0.9 },
@@ -668,7 +665,6 @@ const PRESETS = [
   {
     name: 'Phosphoric',
     artist: 'H₃PO₄',
-    year: 1986,
     bpm: 120,
     knobs: { cutoff:0.45, resonance:0.5, envMod:0.55, decay:0.4, accent:0.6 },
     wave: 'sawtooth',
@@ -694,7 +690,6 @@ const PRESETS = [
   {
     name: 'Acetic',
     artist: 'CH₃COOH',
-    year: 1992,
     bpm: 138,
     knobs: { cutoff:0.3, resonance:0.75, envMod:0.8, decay:0.35, accent:0.8 },
     wave: 'sawtooth',
@@ -720,7 +715,6 @@ const PRESETS = [
   {
     name: 'Citric',
     artist: 'C₆H₈O₇',
-    year: 1988,
     bpm: 124,
     knobs: { cutoff:0.4, resonance:0.65, envMod:0.7, decay:0.5, accent:0.7 },
     wave: 'sawtooth',
@@ -746,7 +740,6 @@ const PRESETS = [
   {
     name: 'Formic',
     artist: 'HCOOH',
-    year: 1994,
     bpm: 140,
     knobs: { cutoff:0.35, resonance:0.7, envMod:0.6, decay:0.4, accent:0.75 },
     wave: 'sawtooth',
@@ -772,7 +765,6 @@ const PRESETS = [
   {
     name: 'Lysergic',
     artist: 'C₂₀H₂₅N₃O',
-    year: 1988,
     bpm: 122,
     knobs: { cutoff:0.45, resonance:0.55, envMod:0.6, decay:0.45, accent:0.65 },
     wave: 'sawtooth',
@@ -1698,7 +1690,7 @@ function buildPresetBank() {
     const btn = document.createElement('button');
     btn.className = 'preset-btn';
     btn.textContent = pr.name;
-    btn.title = `${pr.artist} (${pr.year}) — ${pr.bpm} BPM`;
+    btn.title = `${pr.artist} — ${pr.bpm} BPM`;
     btn.addEventListener('click', () => loadPreset(i));
     list.appendChild(btn);
   });
@@ -1748,7 +1740,7 @@ function loadPreset(idx) {
 
   // Show info
   document.getElementById('preset-info').textContent =
-    `${pr.artist} — "${pr.name}" (${pr.year}) ${pr.bpm} BPM`;
+    `${pr.artist} — "${pr.name}" ${pr.bpm} BPM`;
 
   // Update UI
   if (S.mode === 'patternWrite') S.editStep = 0;
