@@ -881,10 +881,10 @@ function initAudio() {
   S.vca = ctx.createGain(); S.vca.gain.value = 0.001;
   S.vca.connect(S.filter1);
 
-  // VCO
+  // VCO — tuning is applied per-note in scheduleStep() via frequency offset,
+  // NOT via osc.detune (which would double the effect).
   S.osc = ctx.createOscillator(); S.osc.type = S.waveform;
   S.osc.frequency.value = 130.81;
-  S.osc.detune.value = (S.knobs.tuning - 0.5) * 1400; // ±700 cent
   S.osc.connect(S.vca); S.osc.start();
 
   S.audioReady = true;
@@ -1301,8 +1301,8 @@ function onKnobChange(p) {
       S.masterGain.gain.setTargetAtTime(S.knobs.volume, t, 0.01);
       break;
     case 'tuning':
-      S.osc.detune.cancelScheduledValues(t);
-      S.osc.detune.setValueAtTime((S.knobs.tuning - 0.5) * 1400, t);
+      // Tuning is applied per-note in scheduleStep() via frequency offset.
+      // No real-time detune needed — next scheduled note will pick up the new value.
       break;
     case 'drumVol':
       if (S.drumGain) {
