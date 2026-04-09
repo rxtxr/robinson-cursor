@@ -839,8 +839,8 @@ function initAudio() {
   S.audioCtx = ctx;
 
   S.compressor = ctx.createDynamicsCompressor();
-  S.compressor.threshold.value = -6; S.compressor.knee.value = 6;
-  S.compressor.ratio.value = 8; S.compressor.connect(ctx.destination);
+  S.compressor.threshold.value = -12; S.compressor.knee.value = 10;
+  S.compressor.ratio.value = 4; S.compressor.connect(ctx.destination);
 
   S.analyser = ctx.createAnalyser(); S.analyser.fftSize = 512;
   S.analyser.connect(S.compressor);
@@ -849,7 +849,10 @@ function initAudio() {
   S.masterGain.gain.value = S.knobs.volume;
   S.masterGain.connect(S.analyser);
 
-  // Filters (cascaded for ~18dB/oct)
+  // Filters: TB-303 has a 3-pole (~18dB/oct) lowpass.
+  // Web Audio BiquadFilter is 2-pole (12dB/oct). We cascade two filters but
+  // run filter2 at reduced Q and higher frequency to approximate a 3rd pole
+  // adding ~6dB/oct of gentle rolloff rather than a full 12dB/oct stage.
   S.filter2 = ctx.createBiquadFilter(); S.filter2.type = 'lowpass';
   S.filter2.connect(S.masterGain);
   S.filter1 = ctx.createBiquadFilter(); S.filter1.type = 'lowpass';
@@ -897,73 +900,41 @@ function initAudio() {
 function syncFilterParams() {
   if (!S.filter1) return;
   const c = getCutoffHz(), r = S.knobs.resonance;
+  // Filter1: main resonant filter (12dB/oct), carries the resonance
+  // Filter2: gentle 3rd-pole approximation — runs at 1.5× the cutoff freq
+  // with minimal Q, adding ~6dB/oct rolloff above cutoff for ~18dB/oct total
+  const c2 = Math.min(c * 1.5, 20000);
   if (S.audioCtx) {
     const t = S.audioCtx.currentTime;
     S.filter1.frequency.cancelScheduledValues(t);
     S.filter1.frequency.setValueAtTime(c, t);
     S.filter2.frequency.cancelScheduledValues(t);
-    S.filter2.frequency.setValueAtTime(c, t);
+    S.filter2.frequency.setValueAtTime(c2, t);
     S.filter1.Q.cancelScheduledValues(t);
     S.filter1.Q.setValueAtTime(r * 25 + 0.1, t);
     S.filter2.Q.cancelScheduledValues(t);
-    S.filter2.Q.setValueAtTime(r * 5, t);
+    S.filter2.Q.setValueAtTime(0.5, t);
   } else {
     S.filter1.frequency.value = c; S.filter1.Q.value = r * 25 + 0.1;
-    S.filter2.frequency.value = c; S.filter2.Q.value = r * 5;
+    S.filter2.frequency.value = c2; S.filter2.Q.value = 0.5;
   }
 }
 
-function triggerEnvelope(noteTime, isAccent, gateLen) {
+// VCF-only envelope: retriggers filter sweep without touching VCA.
+// Called both from triggerEnvelope (normal notes) and from slide path.
+function triggerFilterEnvelope(noteTime, isAccent, decayTime) {
   if (!S.audioCtx) return;
   const atk = 0.002;
-  // VR6 is a 1MΩ A-taper pot (20× larger than the other 50kΩ pots),
-  // giving a much wider decay range. A-taper = audio/log curve.
-  // Cubic mapping approximates the log taper of a 1MΩ A-pot.
-  const decK = S.knobs.decay;
-  const decTime = Math.pow(decK, 3) * 4.0 + 0.005;
-  const accK = S.knobs.accent;
-  const accBoost = isAccent ? (1.0 + accK * 0.8) : 1.0;
   const envM = S.knobs.envMod * (isAccent ? 1.5 : 1.0);
-  const effectiveDecay = gateLen ? Math.max(decTime, gateLen * 0.9) : decTime;
-
-  // VCA envelope (on S.vca.gain — separate from masterGain/volume knob)
-  S.vca.gain.cancelScheduledValues(noteTime);
-  S.vca.gain.setValueAtTime(0.001, noteTime);
-  S.vca.gain.linearRampToValueAtTime(Math.min(accBoost, 1.8), noteTime + atk);
-  S.vca.gain.exponentialRampToValueAtTime(0.001, noteTime + atk + effectiveDecay);
-
-  // VCF envelope modulation (on filterEnv gains — separate from base cutoff)
-  //
-  // TB-303 Service Notes p.8: Q9 biases toward mid-frequency range (~800Hz).
-  // Q10/Q11 apply anti-logarithmic conversion so the sweep stays musically
-  // effective over the entire decay duration.
-  //
-  // Implementation:
-  //  1) Peak is biased toward a mid-frequency center (~800Hz), not scaled
-  //     linearly from the manual cutoff position.
-  //  2) Decay uses setTargetAtTime (RC-curve, anti-log) instead of
-  //     exponentialRamp, so modulation fades gradually and stays audible.
-  //  3) Decay settles at a non-zero sustain floor, keeping the filter
-  //     slightly open throughout — matching the real circuit's bias.
 
   const base = getCutoffHz();
-  const MID_FREQ = 800; // bias center frequency (Hz)
-
-  // Blend the envelope peak toward mid-frequency instead of scaling from base.
-  // At envM=0 → no sweep. At envM=1 → full sweep toward/beyond mid range.
-  const biasedTarget = MID_FREQ + (MID_FREQ - base) * 0.3; // pull toward center
+  const MID_FREQ = 800;
+  const biasedTarget = MID_FREQ + (MID_FREQ - base) * 0.3;
   const peakHz = Math.min(base + envM * (biasedTarget + MID_FREQ * 3), 18000);
   const boostHz = Math.max(peakHz - base, 0);
-
-  // Sustain floor: envelope doesn't decay to zero — keeps ~15% of peak
-  // so the filter stays slightly open (musically effective through decay).
   const sustainFloor = boostHz * 0.15;
-
-  // Anti-logarithmic decay: setTargetAtTime produces an RC-discharge curve
-  // y(t) = target + (start - target) * e^(-(t-t0)/tau)
-  // tau = decTime * 0.4 gives a curve that's fast initially then lingers.
-  const tau1 = decTime * 0.4;
-  const tau2 = decTime * 0.35;
+  const tau1 = decayTime * 0.4;
+  const tau2 = decayTime * 0.35;
 
   S.filterEnv1.gain.cancelScheduledValues(noteTime);
   S.filterEnv1.gain.setValueAtTime(0, noteTime);
@@ -972,8 +943,27 @@ function triggerEnvelope(noteTime, isAccent, gateLen) {
 
   S.filterEnv2.gain.cancelScheduledValues(noteTime);
   S.filterEnv2.gain.setValueAtTime(0, noteTime);
-  S.filterEnv2.gain.linearRampToValueAtTime(boostHz * 0.8, noteTime + atk * 2);
-  S.filterEnv2.gain.setTargetAtTime(sustainFloor * 0.6, noteTime + atk * 2, tau2);
+  S.filterEnv2.gain.linearRampToValueAtTime(boostHz * 1.2, noteTime + atk * 2);
+  S.filterEnv2.gain.setTargetAtTime(sustainFloor * 0.8, noteTime + atk * 2, tau2);
+}
+
+function triggerEnvelope(noteTime, isAccent, gateLen) {
+  if (!S.audioCtx) return;
+  const atk = 0.002;
+  const decK = S.knobs.decay;
+  const decTime = Math.pow(decK, 3) * 4.0 + 0.005;
+  const accK = S.knobs.accent;
+  const accBoost = isAccent ? (1.0 + accK * 0.8) : 1.0;
+  const effectiveDecay = gateLen ? Math.max(decTime, gateLen * 0.9) : decTime;
+
+  // VCA envelope
+  S.vca.gain.cancelScheduledValues(noteTime);
+  S.vca.gain.setValueAtTime(0.001, noteTime);
+  S.vca.gain.linearRampToValueAtTime(Math.min(accBoost, 1.8), noteTime + atk);
+  S.vca.gain.exponentialRampToValueAtTime(0.001, noteTime + atk + effectiveDecay);
+
+  // VCF envelope
+  triggerFilterEnvelope(noteTime, isAccent, effectiveDecay);
 }
 
 // Gate length: count consecutive 'continue' steps after a 'begin'
@@ -1005,16 +995,25 @@ function scheduleStep(steps, idx, noteTime, stepDur, len) {
   const gateLen = calcGateLength(steps, idx, stepDur, len);
 
   if (isSlideInto) {
-    // Legato: glide frequency, sustain VCA, no envelope retrigger
+    // Legato: glide frequency, VCA stays open, but VCF envelope retriggers.
+    // On the real 303, slide keeps the VCA gate open while the filter envelope
+    // still fires on each new note — this is what makes acid slides sing.
     S.osc.frequency.cancelScheduledValues(noteTime);
     S.osc.frequency.setValueAtTime(S.lastScheduledFreq, noteTime);
-    S.osc.frequency.linearRampToValueAtTime(freq, noteTime + stepDur * 0.6);
-    // Keep VCA open
-    const accBoost = step.accent ? (1.0 + S.knobs.accent * 0.8) : 0.8;
+    // TB-303 has a fixed RC glide circuit (~60ms), independent of tempo
+    S.osc.frequency.linearRampToValueAtTime(freq, noteTime + 0.06);
+    // VCA: legato — hold open, accent adjusts level, decay shapes tail
+    const accK = S.knobs.accent;
+    const accBoost = step.accent ? (1.0 + accK * 0.8) : 0.8;
+    const decK = S.knobs.decay;
+    const decTime = Math.pow(decK, 3) * 4.0 + 0.005;
+    const effectiveDecay = Math.max(decTime, gateLen * 0.9);
     S.vca.gain.cancelScheduledValues(noteTime);
     S.vca.gain.setValueAtTime(Math.min(accBoost, 1.5), noteTime);
     S.vca.gain.setValueAtTime(Math.min(accBoost, 1.5), noteTime + gateLen * 0.95);
     S.vca.gain.exponentialRampToValueAtTime(0.001, noteTime + gateLen);
+    // VCF envelope: retrigger filter sweep even on slide notes
+    triggerFilterEnvelope(noteTime, step.accent, effectiveDecay);
   } else {
     S.osc.frequency.cancelScheduledValues(noteTime);
     S.osc.frequency.setValueAtTime(freq, noteTime);
