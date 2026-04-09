@@ -126,7 +126,6 @@ body {
   display: flex; align-items: center; justify-content: center;
 }
 .addr-btn.active { background: var(--btn-mode-active); color: #FFF; border-color: #AA3311; }
-#transport { display: flex; gap: 4px; margin-left: auto; align-items: center; }
 .ctrl-btn {
   font-size: 8px; font-weight: 700; padding: 5px 10px;
   border: 1px solid #666; border-radius: 3px;
@@ -218,13 +217,14 @@ body {
 }
 .black-key .key-label { color: #555; font-size: 8px; }
 
-/* ===== REAR PANEL ===== */
-#rear-panel {
-  display: flex; gap: 8px; align-items: center; justify-content: center;
-  padding: 4px 10px; font-size: 7px; color: #888;
+/* ===== TONE CONTROLS RIGHT (wave switch + transport) ===== */
+#tone-controls-right {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
 }
-#rear-panel .jack { padding: 2px 6px; background: #333; color: #AAA;
-  border-radius: 2px; font-weight: 700; letter-spacing: 0.3px; }
+#transport { display: flex; gap: 4px; align-items: center; }
+.ctrl-btn .icon { font-size: 9px; margin-right: 2px; }
+
+/* ===== WAVEFORM SWITCH ===== */
 #wave-switch {
   display: flex; align-items: center; gap: 3px; cursor: pointer;
   padding: 2px 8px; background: #444; border-radius: 3px;
@@ -401,6 +401,18 @@ body {
       <div class="knob-label">Accent</div>
       <div class="knob-value" data-vp="accent"></div>
     </div>
+    <div style="flex:1"></div>
+    <div id="tone-controls-right">
+      <div id="wave-switch" title="Waveform">
+        <span class="wlabel active">SAW</span>
+        <div class="wtoggle"></div>
+        <span class="wlabel">SQU</span>
+      </div>
+      <div id="transport">
+        <button class="ctrl-btn" id="btn-clear">Clear</button>
+        <button class="ctrl-btn start" id="btn-start"><span class="icon">&#9654;</span> Run</button>
+      </div>
+    </div>
   </div>
 
   <!-- MIDDLE ROW: TEMPO, MODE, DISPLAY, VOLUME -->
@@ -444,11 +456,6 @@ body {
       <button class="addr-btn" data-pat="7">7</button>
       <button class="addr-btn" data-pat="8">8</button>
     </div>
-    <div id="transport">
-      <button class="ctrl-btn" id="btn-clear">Clear</button>
-      <button class="ctrl-btn start" id="btn-start">Run</button>
-      <button class="ctrl-btn stop" id="btn-stop">Stop</button>
-    </div>
   </div>
 
   <!-- STEP GRID (modern approach per §9) -->
@@ -476,20 +483,6 @@ body {
     <div id="keyboard"></div>
   </div>
 
-  <!-- REAR PANEL -->
-  <div id="rear-panel">
-    <span class="jack">OUTPUT</span>
-    <span class="jack">PHONES</span>
-    <span class="jack">GATE</span>
-    <span class="jack">CV</span>
-    <span class="jack">SYNC</span>
-    <span class="jack">MIX IN</span>
-    <div id="wave-switch" title="Waveform">
-      <span class="wlabel active">SAW</span>
-      <div class="wtoggle"></div>
-      <span class="wlabel">SQU</span>
-    </div>
-  </div>
 
   <!-- PRESET BANK -->
   <div id="preset-bank">
@@ -804,12 +797,8 @@ const PRESETS = [
   },
 ];
 
-// Load first preset into 1A1 by default
-const defSteps = PRESETS[0].steps;
-S.patterns['1A1'] = {
-  length: defSteps.length,
-  steps: Array.from({length:16}, (_, i) => i < defSteps.length ? {...defSteps[i]} : makeEmptyStep())
-};
+// Default preset index — loaded into 1A1 at init (Sulfuric)
+const DEFAULT_PRESET = 1;
 
 function patKey() { return `${S.group}${S.section}${S.patNum}`; }
 function pat() { return S.patterns[patKey()]; }
@@ -898,6 +887,9 @@ function initAudio() {
   S.osc.frequency.value = 130.81;
   S.osc.connect(S.vca); S.osc.start();
 
+  // Init drum bus (pre-allocates noise buffers and waveshaper)
+  initDrumBus();
+
   S.audioReady = true;
   document.getElementById('audio-init').classList.add('hidden');
 }
@@ -913,7 +905,7 @@ function syncFilterParams() {
   // with minimal Q, adding ~6dB/oct rolloff above cutoff for ~18dB/oct total
   const c2 = Math.min(c * 1.5, 20000);
   if (S.audioCtx) {
-    const t = S.audioCtx.currentTime;
+    const t = S.audioCtx.currentTime + 0.005; // small offset avoids glitches with pending events
     S.filter1.frequency.cancelScheduledValues(t);
     S.filter1.frequency.setValueAtTime(c, t);
     S.filter2.frequency.cancelScheduledValues(t);
@@ -1076,7 +1068,6 @@ function scheduler() {
     scheduleStep(p.steps, idx, S.nextNoteTime, sd, len);
 
     // Drum machine runs on a fixed 16-step grid, synced to the same clock
-    initDrumBus();
     scheduleDrumStep(S.drumStep % 16, S.nextNoteTime);
 
     S.scheduledSteps.push({ step: idx, drumStep: S.drumStep % 16, time: S.nextNoteTime });
@@ -1098,6 +1089,7 @@ function startPlayback() {
   S.nextNoteTime = S.audioCtx.currentTime + 0.05;
   S.scheduledSteps = [];
   scheduler();
+  updateTransportBtn();
 }
 
 function stopPlayback() {
@@ -1108,6 +1100,8 @@ function stopPlayback() {
     const t = S.audioCtx.currentTime;
     S.vca.gain.cancelScheduledValues(t);
     S.vca.gain.setValueAtTime(0.001, t);
+    // Cancel pending slide/frequency automations
+    S.osc.frequency.cancelScheduledValues(t);
     // Zero out filter envelope modulation
     S.filterEnv1.gain.cancelScheduledValues(t);
     S.filterEnv1.gain.setValueAtTime(0, t);
@@ -1116,6 +1110,20 @@ function stopPlayback() {
   }
   S.scheduledSteps = [];
   updateStepLEDs(-1);
+  updateTransportBtn();
+}
+
+function updateTransportBtn() {
+  const btn = document.getElementById('btn-start');
+  if (S.playing) {
+    btn.innerHTML = '<span class="icon">&#9632;</span> Stop';
+    btn.classList.remove('start');
+    btn.classList.add('stop');
+  } else {
+    btn.innerHTML = '<span class="icon">&#9654;</span> Run';
+    btn.classList.remove('stop');
+    btn.classList.add('start');
+  }
 }
 
 // ================================================================
@@ -1470,9 +1478,10 @@ function setupButtons() {
     renderStepGrid(); updateDisplay();
   }
 
-  // Transport
-  document.getElementById('btn-start').addEventListener('click', startPlayback);
-  document.getElementById('btn-stop').addEventListener('click', stopPlayback);
+  // Transport — Run button toggles play/stop
+  document.getElementById('btn-start').addEventListener('click', () => {
+    S.playing ? stopPlayback() : startPlayback();
+  });
   document.getElementById('btn-clear').addEventListener('click', () => {
     if (S.mode !== 'patternWrite') return;
     const p = pat();
@@ -1550,6 +1559,8 @@ function resizeBgScope() {
 resizeBgScope();
 window.addEventListener('resize', resizeBgScope);
 
+let scopeBuf = null; // pre-allocated, created on first use
+
 function drawScope() {
   requestAnimationFrame(drawScope);
   const w = bgCanvas.width, h = bgCanvas.height;
@@ -1560,7 +1571,10 @@ function drawScope() {
 
   if (!S.analyser) return;
 
-  const buf = new Float32Array(S.analyser.fftSize);
+  if (!scopeBuf || scopeBuf.length !== S.analyser.fftSize) {
+    scopeBuf = new Float32Array(S.analyser.fftSize);
+  }
+  const buf = scopeBuf;
   S.analyser.getFloatTimeDomainData(buf);
 
   // Main waveform — large, centered
@@ -1617,9 +1631,34 @@ function saveState() {
 function loadState() {
   try {
     const p = localStorage.getItem('tb303-patterns');
-    if (p) Object.assign(S.patterns, JSON.parse(p));
+    if (p) {
+      const parsed = JSON.parse(p);
+      for (const [key, pat] of Object.entries(parsed)) {
+        if (!S.patterns[key]) continue; // skip unknown keys
+        // Validate pattern structure
+        if (!Array.isArray(pat.steps) || pat.steps.length < 1) continue;
+        if (typeof pat.length !== 'number' || pat.length < 1 || pat.length > 16) {
+          pat.length = 16; // fallback for pre-variable-length states
+        }
+        // Ensure all 16 step slots exist
+        for (let i = 0; i < 16; i++) {
+          if (!pat.steps[i] || typeof pat.steps[i].timeState !== 'string') {
+            pat.steps[i] = makeEmptyStep();
+          }
+        }
+        S.patterns[key] = pat;
+      }
+    }
     const k = localStorage.getItem('tb303-knobs');
-    if (k) Object.assign(S.knobs, JSON.parse(k));
+    if (k) {
+      const parsed = JSON.parse(k);
+      // Only load known knob keys, validate range
+      for (const [key, val] of Object.entries(parsed)) {
+        if (key in S.knobs && typeof val === 'number' && val >= 0 && val <= 1) {
+          S.knobs[key] = val;
+        }
+      }
+    }
     const w = localStorage.getItem('tb303-waveform');
     if (w === 'sawtooth' || w === 'square') {
       S.waveform = w;
@@ -1629,10 +1668,18 @@ function loadState() {
     if (d) {
       const parsed = JSON.parse(d);
       S.drumChannels.forEach(ch => {
-        if (parsed[ch]) S.drumPattern[ch] = parsed[ch];
+        if (Array.isArray(parsed[ch]) && parsed[ch].length === 16) {
+          S.drumPattern[ch] = parsed[ch];
+        }
       });
     }
-  } catch(e) {}
+  } catch(e) {
+    // Corrupt state — clear it and use defaults
+    localStorage.removeItem('tb303-patterns');
+    localStorage.removeItem('tb303-knobs');
+    localStorage.removeItem('tb303-waveform');
+    localStorage.removeItem('tb303-drums');
+  }
 }
 
 // ================================================================
@@ -1713,17 +1760,45 @@ function loadPreset(idx) {
 // DRUM MACHINE — SOUND SYNTHESIS
 // ================================================================
 // All drum sounds are synthesized via Web Audio API. Techno-optimized.
+// Pre-allocated shared resources to avoid per-hit allocations.
+
+// Shared noise buffers (created once in initDrumBus)
+let drumNoiseLong = null;   // 0.3s — snare, clap, cymbal
+let drumNoiseShort = null;  // 0.06s — rimshot, crack layers
+let kickWaveShaper = null;  // reusable waveshaper for kick saturation
+
+// Disconnect helper: auto-cleanup AudioNodes after oscillator ends
+function autoDisconnect(osc, ...nodes) {
+  osc.onended = () => { osc.disconnect(); nodes.forEach(n => n.disconnect()); };
+}
 
 function initDrumBus() {
   if (!S.audioCtx || S.drumGain) return;
-  S.drumGain = S.audioCtx.createGain();
+  const ctx = S.audioCtx;
+  S.drumGain = ctx.createGain();
   S.drumGain.gain.value = S.knobs.drumVol;
-  S.drumGain.connect(S.analyser); // route through analyser for bg scope
+  S.drumGain.connect(S.analyser);
+
+  // Pre-allocate noise buffers
+  const longDur = 0.8, shortDur = 0.06;
+  drumNoiseLong = ctx.createBuffer(1, ctx.sampleRate * longDur, ctx.sampleRate);
+  const ld = drumNoiseLong.getChannelData(0);
+  for (let i = 0; i < ld.length; i++) ld[i] = Math.random() * 2 - 1;
+  drumNoiseShort = ctx.createBuffer(1, ctx.sampleRate * shortDur, ctx.sampleRate);
+  const sd = drumNoiseShort.getChannelData(0);
+  for (let i = 0; i < sd.length; i++) sd[i] = Math.random() * 2 - 1;
+
+  // Pre-allocate kick waveshaper
+  kickWaveShaper = ctx.createWaveShaper();
+  const curve = new Float32Array(256);
+  for (let i = 0; i < 256; i++) { const x = (i / 128) - 1; curve[i] = x * (1.5 - 0.5 * x * x); }
+  kickWaveShaper.curve = curve;
+  kickWaveShaper.connect(S.drumGain);
 }
 
 function playKick(time) {
   const ctx = S.audioCtx;
-  // Body: 909-style pitch sweep 300→50Hz
+  // Body: 909-style pitch sweep 300→50Hz through shared waveshaper
   const osc = ctx.createOscillator();
   const g = ctx.createGain();
   osc.type = 'sine';
@@ -1732,14 +1807,10 @@ function playKick(time) {
   g.gain.setValueAtTime(1.2, time);
   g.gain.setValueAtTime(1.0, time + 0.02);
   g.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
-  // Waveshaper for mid-range punch
-  const ws = ctx.createWaveShaper();
-  const curve = new Float32Array(256);
-  for (let i = 0; i < 256; i++) { const x = (i / 128) - 1; curve[i] = x * (1.5 - 0.5 * x * x); }
-  ws.curve = curve;
-  osc.connect(ws); ws.connect(g); g.connect(S.drumGain);
+  osc.connect(g); g.connect(kickWaveShaper);
   osc.start(time); osc.stop(time + 0.45);
-  // Sub layer: deep sine for chest thump
+  autoDisconnect(osc, g);
+  // Sub layer
   const osc2 = ctx.createOscillator();
   const g2 = ctx.createGain();
   osc2.type = 'sine';
@@ -1749,7 +1820,8 @@ function playKick(time) {
   g2.gain.exponentialRampToValueAtTime(0.001, time + 0.35);
   osc2.connect(g2); g2.connect(S.drumGain);
   osc2.start(time); osc2.stop(time + 0.4);
-  // Click transient: high-frequency snap for attack definition
+  autoDisconnect(osc2, g2);
+  // Click transient
   const click = ctx.createOscillator();
   const cg = ctx.createGain();
   click.type = 'square';
@@ -1758,38 +1830,34 @@ function playKick(time) {
   cg.gain.exponentialRampToValueAtTime(0.001, time + 0.006);
   click.connect(cg); cg.connect(S.drumGain);
   click.start(time); click.stop(time + 0.01);
+  autoDisconnect(click, cg);
 }
 
 function playSnare(time) {
   const ctx = S.audioCtx;
-  // Noise body — wide bandwidth for snare sizzle
-  const dur = 0.2;
-  const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  // Noise body — shared buffer, gain envelope shapes duration
   const noise = ctx.createBufferSource();
-  noise.buffer = buf;
+  noise.buffer = drumNoiseLong;
   const nf = ctx.createBiquadFilter();
   nf.type = 'highpass'; nf.frequency.value = 800;
   const ng = ctx.createGain();
   ng.gain.setValueAtTime(0.7, time);
-  ng.gain.exponentialRampToValueAtTime(0.001, time + dur);
+  ng.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
   noise.connect(nf); nf.connect(ng); ng.connect(S.drumGain);
-  noise.start(time); noise.stop(time + dur + 0.01);
-  // Crack layer — bandpassed noise for high-end snap
-  const cbuf = ctx.createBuffer(1, ctx.sampleRate * 0.05, ctx.sampleRate);
-  const cd = cbuf.getChannelData(0);
-  for (let i = 0; i < cd.length; i++) cd[i] = Math.random() * 2 - 1;
+  noise.start(time); noise.stop(time + 0.21);
+  autoDisconnect(noise, nf, ng);
+  // Crack layer — shared short buffer
   const crack = ctx.createBufferSource();
-  crack.buffer = cbuf;
+  crack.buffer = drumNoiseShort;
   const cbp = ctx.createBiquadFilter();
   cbp.type = 'bandpass'; cbp.frequency.value = 4000; cbp.Q.value = 1;
   const ccg = ctx.createGain();
   ccg.gain.setValueAtTime(0.5, time);
   ccg.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
   crack.connect(cbp); cbp.connect(ccg); ccg.connect(S.drumGain);
-  crack.start(time); crack.stop(time + 0.06);
-  // Tonal body — pitched thump
+  crack.start(time); crack.stop(time + 0.05);
+  autoDisconnect(crack, cbp, ccg);
+  // Tonal body
   const osc = ctx.createOscillator();
   osc.type = 'triangle';
   osc.frequency.setValueAtTime(280, time);
@@ -1799,6 +1867,7 @@ function playSnare(time) {
   og.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
   osc.connect(og); og.connect(S.drumGain);
   osc.start(time); osc.stop(time + 0.15);
+  autoDisconnect(osc, og);
 }
 
 function playHihat(time, open) {
@@ -1808,48 +1877,47 @@ function playHihat(time, open) {
   g.gain.setValueAtTime(open ? 0.32 : 0.28, time);
   g.gain.exponentialRampToValueAtTime(0.001, time + dur);
   // 808/909-style: 6 detuned square oscillators for metallic ring
-  const freqs = [299.7, 404.5, 527.3, 622.1, 739.9, 879.5];
   const hp = ctx.createBiquadFilter();
   hp.type = 'highpass'; hp.frequency.value = 7000;
   const bp = ctx.createBiquadFilter();
   bp.type = 'bandpass'; bp.frequency.value = 10000; bp.Q.value = 0.8;
   hp.connect(bp); bp.connect(g); g.connect(S.drumGain);
-  freqs.forEach(f => {
+  const freqs = [299.7, 404.5, 527.3, 622.1, 739.9, 879.5];
+  const oscs = freqs.map(f => {
     const osc = ctx.createOscillator();
     osc.type = 'square';
     osc.frequency.value = f;
     osc.connect(hp);
     osc.start(time); osc.stop(time + dur + 0.01);
+    return osc;
   });
+  // Cleanup: first osc's onended disconnects all shared nodes
+  oscs[0].onended = () => {
+    oscs.forEach(o => o.disconnect());
+    hp.disconnect(); bp.disconnect(); g.disconnect();
+  };
 }
 
 function playClap(time) {
   const ctx = S.audioCtx;
   // 909-style clap: multi-attack burst + reverb tail
-  const dur = 0.18;
-  const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
   const noise = ctx.createBufferSource();
-  noise.buffer = buf;
+  noise.buffer = drumNoiseLong;
   const bp = ctx.createBiquadFilter();
   bp.type = 'bandpass'; bp.frequency.value = 2000; bp.Q.value = 1.2;
   const g = ctx.createGain();
-  // Multi-attack envelope (3 "hands" hitting)
   g.gain.setValueAtTime(0.65, time);
   g.gain.setValueAtTime(0.08, time + 0.008);
   g.gain.setValueAtTime(0.55, time + 0.013);
   g.gain.setValueAtTime(0.08, time + 0.022);
   g.gain.setValueAtTime(0.5, time + 0.028);
-  g.gain.exponentialRampToValueAtTime(0.001, time + dur);
+  g.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
   noise.connect(bp); bp.connect(g); g.connect(S.drumGain);
-  noise.start(time); noise.stop(time + dur + 0.01);
-  // Reverb tail — short burst of high noise for room ambience
-  const tbuf = ctx.createBuffer(1, ctx.sampleRate * 0.15, ctx.sampleRate);
-  const td = tbuf.getChannelData(0);
-  for (let i = 0; i < td.length; i++) td[i] = Math.random() * 2 - 1;
+  noise.start(time); noise.stop(time + 0.19);
+  autoDisconnect(noise, bp, g);
+  // Reverb tail — shared long buffer
   const tail = ctx.createBufferSource();
-  tail.buffer = tbuf;
+  tail.buffer = drumNoiseLong;
   const thp = ctx.createBiquadFilter();
   thp.type = 'highpass'; thp.frequency.value = 3000;
   const tg = ctx.createGain();
@@ -1858,6 +1926,7 @@ function playClap(time) {
   tg.gain.exponentialRampToValueAtTime(0.001, time + 0.15);
   tail.connect(thp); thp.connect(tg); tg.connect(S.drumGain);
   tail.start(time); tail.stop(time + 0.16);
+  autoDisconnect(tail, thp, tg);
 }
 
 function playRimshot(time) {
@@ -1871,12 +1940,10 @@ function playRimshot(time) {
   g.gain.exponentialRampToValueAtTime(0.001, time + 0.025);
   osc.connect(g); g.connect(S.drumGain);
   osc.start(time); osc.stop(time + 0.03);
-  // Click attack — short noise burst
-  const buf = ctx.createBuffer(1, ctx.sampleRate * 0.005, ctx.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  autoDisconnect(osc, g);
+  // Click attack — shared short buffer
   const click = ctx.createBufferSource();
-  click.buffer = buf;
+  click.buffer = drumNoiseShort;
   const hp = ctx.createBiquadFilter();
   hp.type = 'highpass'; hp.frequency.value = 5000;
   const cg = ctx.createGain();
@@ -1884,6 +1951,7 @@ function playRimshot(time) {
   cg.gain.exponentialRampToValueAtTime(0.001, time + 0.004);
   click.connect(hp); hp.connect(cg); cg.connect(S.drumGain);
   click.start(time); click.stop(time + 0.006);
+  autoDisconnect(click, hp, cg);
 }
 
 function playTom(time) {
@@ -1897,6 +1965,7 @@ function playTom(time) {
   g.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
   osc.connect(g); g.connect(S.drumGain);
   osc.start(time); osc.stop(time + 0.25);
+  autoDisconnect(osc, g);
 }
 
 function playCymbal(time) {
@@ -1905,23 +1974,24 @@ function playCymbal(time) {
   const g = ctx.createGain();
   g.gain.setValueAtTime(0.25, time);
   g.gain.exponentialRampToValueAtTime(0.001, time + dur);
-  // Metallic ring: detuned square oscillators (like hi-hat but lower + noise)
   const hp = ctx.createBiquadFilter();
   hp.type = 'highpass'; hp.frequency.value = 4000;
   hp.connect(g); g.connect(S.drumGain);
-  [263, 397, 517, 680, 833, 1043].forEach(f => {
+  const oscs = [263, 397, 517, 680, 833, 1043].map(f => {
     const osc = ctx.createOscillator();
     osc.type = 'square';
     osc.frequency.value = f;
     osc.connect(hp);
     osc.start(time); osc.stop(time + dur + 0.01);
+    return osc;
   });
-  // Noise wash for shimmer
-  const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  oscs[0].onended = () => {
+    oscs.forEach(o => o.disconnect());
+    hp.disconnect(); g.disconnect();
+  };
+  // Noise shimmer — shared buffer
   const noise = ctx.createBufferSource();
-  noise.buffer = buf;
+  noise.buffer = drumNoiseLong;
   const nhp = ctx.createBiquadFilter();
   nhp.type = 'highpass'; nhp.frequency.value = 7000;
   const ng = ctx.createGain();
@@ -1929,6 +1999,7 @@ function playCymbal(time) {
   ng.gain.exponentialRampToValueAtTime(0.001, time + dur);
   noise.connect(nhp); nhp.connect(ng); ng.connect(S.drumGain);
   noise.start(time); noise.stop(time + dur + 0.01);
+  autoDisconnect(noise, nhp, ng);
 }
 
 function triggerDrum(channel, time) {
@@ -2021,7 +2092,6 @@ function updateDrumLEDs(activeStep) {
 // ================================================================
 // INIT
 // ================================================================
-loadState();
 buildStepGrid();
 buildKeyboard();
 buildPresetBank();
@@ -2029,6 +2099,8 @@ buildDrumGrid();
 setupKnobs();
 setupWaveSwitch();
 setupButtons();
+loadPreset(DEFAULT_PRESET); // load Sulfuric as default
+loadState(); // then override with saved state if any
 updateDisplay();
 renderStepGrid();
 ledLoop();
