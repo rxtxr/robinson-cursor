@@ -3,10 +3,10 @@
   "slug": "day-014-panic",
   "title": "pAInic!",
   "date": "2026-04-10T14:30:00+02:00",
-  "description": "Work in progress.",
-  "tags": [],
-  "stack": ["HTML", "CSS", "JavaScript"],
+  "description": "Reverse-engineered recreation of the plasma effect from Future Crew's Panic demo (1992). Copper raster bars, palette cycling, and per-scanline distortion driven by animation variables extracted from the original PANIC.EXE. Music from the embedded S3M module via webaudio-mod-player with live remastering.",
+  "tags": ["demoscene", "retro", "plasma", "copper", "s3m", "webaudio", "future-crew"],
+  "stack": ["HTML", "CSS", "JavaScript", "Web Audio API", "Canvas 2D"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-014-panic",
-  "status": "wip",
-  "license_notes": ""
+  "status": "published",
+  "license_notes": "webaudio-mod-player (player.js, st3.js, utils.js) by Noora Halme et al., MIT License (https://github.com/nichiblu/webaudio-mod-player). Original Panic demo (1992) by Future Crew — code by Wildfire/PSI/Trug, music by Purple Motion, graphics by Pixel. S3M module extracted from PANIC.EXE for educational demoscene preservation. The plasma effect is a clean-room reimplementation based on reverse-engineering the original binary symbol table."
 }

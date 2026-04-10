@@ -1,12 +1,407 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>pAInic!</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panic — Plasma + Copper (Future Crew style)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #111; overflow: hidden; display: flex; height: 100vh; font-family: monospace; color: #aaa; }
+  #view { flex: 1; display: flex; align-items: center; justify-content: center; background: #000; }
+  canvas { image-rendering: pixelated; width: 100%; height: 100%; object-fit: contain; }
+  #panel {
+    width: 260px; min-width: 260px; overflow-y: auto; padding: 8px; font-size: 11px;
+    background: #1a1a1a; border-left: 1px solid #333;
+  }
+  #panel.hidden { display: none; }
+  #panel h3 { color: #e90; margin: 10px 0 4px; font-size: 12px; }
+  #panel h3:first-child { margin-top: 0; }
+  .row { display: flex; align-items: center; margin: 2px 0; }
+  .row label { width: 90px; flex-shrink: 0; }
+  .row input[type=range] { flex: 1; }
+  .row .val { width: 42px; text-align: right; font-size: 10px; color: #888; }
+  #toggle { position: fixed; top: 6px; right: 6px; background: #333; color: #aaa; border: none; padding: 4px 8px; cursor: pointer; font-family: monospace; z-index: 10; }
+  #export { margin-top: 8px; background: #333; color: #ccc; border: none; padding: 4px 8px; cursor: pointer; font-family: monospace; width: 100%; }
+</style>
 </head>
 <body>
-  <h1>pAInic!</h1>
-  <p>Work in progress.</p>
+<div id="view"><canvas id="c"></canvas></div>
+<div id="panel" class="hidden">
+  <h3>Copper (palp speeds)</h3>
+  <div class="row"><label>palp1 spd</label><input type="range" min="0" max="5" step="0.1" data-p="palp1Spd"><span class="val"></span></div>
+  <div class="row"><label>palp2 spd</label><input type="range" min="-5" max="0" step="0.1" data-p="palp2Spd"><span class="val"></span></div>
+  <div class="row"><label>palp3 spd</label><input type="range" min="0" max="3" step="0.1" data-p="palp3Spd"><span class="val"></span></div>
+
+  <h3>Copper Y-freqs</h3>
+  <div class="row"><label>copper f1</label><input type="range" min="0.1" max="2" step="0.05" data-p="copF1"><span class="val"></span></div>
+  <div class="row"><label>copper f2</label><input type="range" min="0.1" max="2" step="0.05" data-p="copF2"><span class="val"></span></div>
+  <div class="row"><label>copper f3</label><input type="range" min="0.1" max="1.5" step="0.05" data-p="copF3"><span class="val"></span></div>
+
+  <h3>Tempo modulation</h3>
+  <div class="row"><label>tempo max</label><input type="range" min="0" max="6" step="0.1" data-p="tempoMax"><span class="val"></span></div>
+  <div class="row"><label>tempo rate</label><input type="range" min="0.0005" max="0.01" step="0.0005" data-p="tempoRate"><span class="val"></span></div>
+  <div class="row"><label>tempo curve</label><input type="range" min="0.2" max="2" step="0.1" data-p="tempoCurve"><span class="val"></span></div>
+
+  <h3>Distort (spos speeds)</h3>
+  <div class="row"><label>spos1 spd</label><input type="range" min="0" max="2" step="0.05" data-p="spos1Spd"><span class="val"></span></div>
+  <div class="row"><label>spos2 spd</label><input type="range" min="-2" max="0" step="0.05" data-p="spos2Spd"><span class="val"></span></div>
+  <div class="row"><label>spos3 spd</label><input type="range" min="0" max="2" step="0.05" data-p="spos3Spd"><span class="val"></span></div>
+  <div class="row"><label>spos4 spd</label><input type="range" min="-2" max="0" step="0.05" data-p="spos4Spd"><span class="val"></span></div>
+
+  <h3>Distort frequencies</h3>
+  <div class="row"><label>dist f1</label><input type="range" min="0.1" max="1.5" step="0.05" data-p="distF1"><span class="val"></span></div>
+  <div class="row"><label>dist f2</label><input type="range" min="0.2" max="2" step="0.05" data-p="distF2"><span class="val"></span></div>
+  <div class="row"><label>dist f3</label><input type="range" min="0.5" max="3" step="0.1" data-p="distF3"><span class="val"></span></div>
+  <div class="row"><label>dist f4</label><input type="range" min="0.5" max="4" step="0.1" data-p="distF4"><span class="val"></span></div>
+  <div class="row"><label>dist f5</label><input type="range" min="1" max="6" step="0.1" data-p="distF5"><span class="val"></span></div>
+  <div class="row"><label>dist f6</label><input type="range" min="0.05" max="1" step="0.05" data-p="distF6"><span class="val"></span></div>
+
+  <h3>Distort fScale range</h3>
+  <div class="row"><label>fScale base</label><input type="range" min="0.1" max="2" step="0.05" data-p="fScaleBase"><span class="val"></span></div>
+  <div class="row"><label>fScale amp</label><input type="range" min="0" max="2" step="0.05" data-p="fScaleAmp"><span class="val"></span></div>
+  <div class="row"><label>fScale rate</label><input type="range" min="0.001" max="0.02" step="0.001" data-p="fScaleRate"><span class="val"></span></div>
+
+  <h3>Distort amplitude</h3>
+  <div class="row"><label>warp shift</label><input type="range" min="1" max="5" step="1" data-p="warpShift"><span class="val"></span></div>
+  <div class="row"><label>bias str</label><input type="range" min="16" max="200" step="4" data-p="biasDiv"><span class="val"></span></div>
+
+  <h3>Plasma base</h3>
+  <div class="row"><label>base fx</label><input type="range" min="0" max="1" step="0.05" data-p="baseFx"><span class="val"></span></div>
+  <div class="row"><label>base fy</label><input type="range" min="0" max="1" step="0.05" data-p="baseFy"><span class="val"></span></div>
+  <div class="row"><label>move amt</label><input type="range" min="0" max="6" step="1" data-p="moveShift"><span class="val"></span></div>
+
+  <h3>Audio Remaster</h3>
+  <div class="row"><label>master vol</label><input type="range" min="0" max="1.5" step="0.05" data-a="masterVol" value="0.8"><span class="val">0.8</span></div>
+  <div class="row"><label>LP filter</label><input type="range" min="1000" max="20000" step="500" data-a="lpFreq" value="8000"><span class="val">8000</span></div>
+  <div class="row"><label>HP filter</label><input type="range" min="20" max="200" step="10" data-a="hpFreq" value="40"><span class="val">40</span></div>
+  <div class="row"><label>mid EQ dB</label><input type="range" min="-12" max="12" step="1" data-a="midGain" value="0"><span class="val">0</span></div>
+  <div class="row"><label>mid EQ freq</label><input type="range" min="500" max="5000" step="100" data-a="midFreq" value="2000"><span class="val">2000</span></div>
+  <div class="row"><label>comp thresh</label><input type="range" min="-40" max="0" step="2" data-a="compThresh" value="-20"><span class="val">-20</span></div>
+  <div class="row"><label>comp ratio</label><input type="range" min="1" max="12" step="0.5" data-a="compRatio" value="3"><span class="val">3</span></div>
+  <div class="row"><label>reverb mix</label><input type="range" min="0" max="0.8" step="0.05" data-a="reverbMix" value="0.25"><span class="val">0.25</span></div>
+
+
+  <h3>Instrument Mix</h3>
+  <div class="row"><label>8 pad</label><input type="range" min="0" max="2" step="0.1" data-i="7" value="1"><span class="val">1</span></div>
+  <div class="row"><label>9 pad</label><input type="range" min="0" max="2" step="0.1" data-i="8" value="1"><span class="val">1</span></div>
+  <div class="row"><label>13 pad</label><input type="range" min="0" max="2" step="0.1" data-i="12" value="1"><span class="val">1</span></div>
+  <div class="row"><label>14 pad</label><input type="range" min="0" max="2" step="0.1" data-i="13" value="1"><span class="val">1</span></div>
+  <div class="row"><label>18 pad</label><input type="range" min="0" max="2" step="0.1" data-i="17" value="1"><span class="val">1</span></div>
+  <div class="row"><label>20 pad</label><input type="range" min="0" max="2" step="0.1" data-i="19" value="1"><span class="val">1</span></div>
+  <div class="row"><label>34 pad</label><input type="range" min="0" max="2" step="0.1" data-i="33" value="1"><span class="val">1</span></div>
+  <div class="row"><label>48 pad</label><input type="range" min="0" max="2" step="0.1" data-i="47" value="1"><span class="val">1</span></div>
+  <div class="row"><label>49 pad</label><input type="range" min="0" max="2" step="0.1" data-i="48" value="1"><span class="val">1</span></div>
+
+  <button id="export">Copy params to clipboard</button>
+</div>
+<button id="toggle">UI</button>
+
+<script src="utils.js"></script>
+<script src="st3.js"></script>
+<script src="player.js"></script>
+<script>
+const canvas = document.getElementById('c');
+const ctx2d = canvas.getContext('2d');
+
+const W = 320, H = 162;
+canvas.width = W;
+canvas.height = H;
+
+const imageData = ctx2d.createImageData(W, H);
+const buf = imageData.data;
+
+// Sine table
+const SIN_SIZE = 256;
+const sini = new Int8Array(SIN_SIZE);
+for (let i = 0; i < SIN_SIZE; i++) sini[i] = Math.round(Math.sin(i / SIN_SIZE * Math.PI * 2) * 127);
+function sn(i) { return sini[((i | 0) % SIN_SIZE + SIN_SIZE) % SIN_SIZE]; }
+
+// Palette
+const palette = new Uint8Array(256 * 3);
+function lerp(a, b, t) { return a + (b - a) * t; }
+(function() {
+  const stops = [
+    {pos:0,r:12,g:15,b:40},{pos:20,r:18,g:30,b:80},{pos:50,r:45,g:90,b:165},
+    {pos:80,r:95,g:160,b:212},{pos:105,r:155,g:195,b:215},
+    {pos:128,r:200,g:195,b:185},
+    {pos:150,r:210,g:170,b:135},{pos:180,r:190,g:115,b:60},
+    {pos:210,r:120,g:50,b:22},{pos:235,r:45,g:22,b:18},
+    {pos:250,r:20,g:16,b:30},{pos:256,r:12,g:15,b:40},
+  ];
+  for (let i = 0; i < 256; i++) {
+    let s0 = stops[0], s1 = stops[1];
+    for (let s = 0; s < stops.length - 1; s++) {
+      if (i >= stops[s].pos && i < stops[s + 1].pos) { s0 = stops[s]; s1 = stops[s + 1]; break; }
+    }
+    const t = (i - s0.pos) / (s1.pos - s0.pos);
+    const idx = i * 3;
+    palette[idx] = lerp(s0.r, s1.r, t) | 0;
+    palette[idx + 1] = lerp(s0.g, s1.g, t) | 0;
+    palette[idx + 2] = lerp(s0.b, s1.b, t) | 0;
+  }
+})();
+
+// === All tunable parameters ===
+const P = {
+  palp1Spd: 0.4, palp2Spd: -0.9, palp3Spd: 0.6,
+  copF1: 1.5, copF2: 0.6, copF3: 0.4,
+  tempoMax: 0.7, tempoRate: 0.0045, tempoCurve: 1.1,
+  spos1Spd: 0.45, spos2Spd: -1.05, spos3Spd: 0.8, spos4Spd: -0.95,
+  distF1: 1.0, distF2: 1.65, distF3: 2.0, distF4: 1.2, distF5: 3.6, distF6: 0.65,
+  fScaleBase: 1.15, fScaleAmp: 0.8, fScaleRate: 0.012,
+  warpShift: 2, biasDiv: 144,
+  baseFx: 0.55, baseFy: 0.75, moveShift: 1,
+};
+
+// Build plasma map (rebuilt when base freqs change)
+let plasmaMap = new Uint8Array(W * H);
+function rebuildPlasma() {
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      const v1 = sn(x * P.baseFx);
+      const v2 = sn(y * P.baseFy);
+      plasmaMap[y * W + x] = ((v1 + v2) / 2 + 128) & 255;
+    }
+}
+rebuildPlasma();
+
+// === UI ===
+const panel = document.getElementById('panel');
+const sliders = panel.querySelectorAll('input[type=range]');
+sliders.forEach(sl => {
+  const key = sl.dataset.p;
+  if (!key) return; // skip non-plasma sliders (data-a, data-i)
+  sl.value = P[key];
+  sl.nextElementSibling.textContent = P[key];
+  sl.addEventListener('input', () => {
+    P[key] = parseFloat(sl.value);
+    sl.nextElementSibling.textContent = P[key];
+    if (key === 'baseFx' || key === 'baseFy') rebuildPlasma();
+  });
+});
+
+document.getElementById('toggle').addEventListener('click', () => {
+  panel.classList.toggle('hidden');
+});
+
+document.getElementById('export').addEventListener('click', () => {
+  navigator.clipboard.writeText(JSON.stringify(P, null, 2));
+});
+
+// === Animation state ===
+let spos1 = 0, spos2 = 0, spos3 = 0, spos4 = 0;
+let palp1 = 0, palp2 = 0, palp3 = 0;
+let time = 0;
+
+function render() {
+  spos1 += P.spos1Spd;
+  spos2 += P.spos2Spd;
+  spos3 += P.spos3Spd;
+  spos4 += P.spos4Spd;
+
+  const rawT = Math.sin(time * P.tempoRate);
+  const tempoMod = 1.0 + Math.pow(Math.abs(rawT), P.tempoCurve) * P.tempoMax;
+  palp1 += P.palp1Spd * tempoMod;
+  palp2 += P.palp2Spd * tempoMod;
+  palp3 += P.palp3Spd * tempoMod;
+
+  const t = time * P.fScaleRate;
+  const fScale = P.fScaleBase + P.fScaleAmp * (0.5 * Math.sin(t * 0.7) + 0.3 * Math.sin(t * 1.1) + 0.2);
+
+  let offset = 0;
+
+  for (let y = 0; y < H; y++) {
+    const copper = sn(y * P.copF1 + palp1)
+                 + sn(y * P.copF2 + palp2)
+                 + (sn(y * P.copF3 + palp3) >> 1);
+
+    const d1 = sn(y * P.distF1 * fScale + spos1);
+    const d2 = sn(y * P.distF2 * fScale + spos2);
+    const d3 = sn(y * P.distF3 * fScale + spos3 * 1.2);
+    const d4 = sn(y * P.distF4 * fScale + spos4 * 1.5);
+    const d5 = sn(y * P.distF5 * fScale + spos1 * 0.7);
+    const d6 = sn(y * P.distF6 * fScale + spos3);
+
+    const bias = sn(y * 0.12 + spos2 * 0.3);
+    const rawD = d1 + d2 + d3 + (d4 >> 1) + (d5 >> 2) + d6;
+    const amplified = rawD > 0
+      ? rawD * (1.0 + Math.max(0, bias) / P.biasDiv)
+      : rawD * (1.0 + Math.max(0, -bias) / P.biasDiv);
+    const xwarp = amplified >> P.warpShift;
+
+    for (let x = 0; x < W; x++) {
+      // Per-pixel X distortion: varies with x too, can tear bands apart
+      const localXwarp = xwarp + (sn(x * 0.8 + y * 0.3 + spos4) >> 3);
+      const px = Math.max(0, Math.min(W - 1, x + localXwarp));
+
+      // Per-pixel Y distortion on copper: shifts the color lookup vertically
+      // This breaks horizontal bands into spots where the Y-offset jumps
+      const ywarp = (sn(x * 0.5 + spos2) + sn(x * 1.2 + y * 0.4 + spos3)) >> 3;
+      const localCopper = copper + ywarp;
+
+      const base = plasmaMap[y * W + px];
+      const move = P.moveShift > 0
+        ? (sn(x * 0.15 + spos1) + sn(y * 0.2 + spos2)) >> P.moveShift
+        : 0;
+
+      const idx = (base + move + localCopper) & 255;
+      const palIdx = idx * 3;
+
+      buf[offset]     = palette[palIdx];
+      buf[offset + 1] = palette[palIdx + 1];
+      buf[offset + 2] = palette[palIdx + 2];
+      buf[offset + 3] = 255;
+      offset += 4;
+    }
+  }
+
+  ctx2d.putImageData(imageData, 0, 0);
+  time++;
+  requestAnimationFrame(render);
+}
+
+// S3M player with remastering effects chain
+const modplayer = new Modplayer();
+modplayer.repeat = true;
+
+// Per-instrument volume multiplier (0..2, used by patched st3.js mix)
+const instVolume = new Float32Array(56).fill(1.0);
+
+// Remaster nodes — created after AudioContext exists
+let fx = null;
+
+function setupRemaster() {
+  const ctx = modplayer.context;
+
+  fx = {};
+  fx.masterGain = ctx.createGain();
+  fx.masterGain.gain.value = 0.8;
+
+  fx.hpFilter = ctx.createBiquadFilter();
+  fx.hpFilter.type = 'highpass';
+  fx.hpFilter.frequency.value = 40;
+  fx.hpFilter.Q.value = 0.5;
+
+  fx.lpFilter = ctx.createBiquadFilter();
+  fx.lpFilter.type = 'lowpass';
+  fx.lpFilter.frequency.value = 8000;
+  fx.lpFilter.Q.value = 0.7;
+
+  fx.midEQ = ctx.createBiquadFilter();
+  fx.midEQ.type = 'peaking';
+  fx.midEQ.frequency.value = 2000;
+  fx.midEQ.Q.value = 1.0;
+  fx.midEQ.gain.value = 0;
+
+  fx.compressor = ctx.createDynamicsCompressor();
+  fx.compressor.threshold.value = -20;
+  fx.compressor.knee.value = 10;
+  fx.compressor.ratio.value = 3;
+  fx.compressor.attack.value = 0.01;
+  fx.compressor.release.value = 0.2;
+
+  // Reverb
+  fx.reverbNode = ctx.createConvolver();
+  fx.reverbGain = ctx.createGain();
+  fx.reverbGain.gain.value = 0.25;
+  fx.dryGain = ctx.createGain();
+  fx.dryGain.gain.value = 0.75;
+
+  // Build reverb impulse
+  const rate = ctx.sampleRate;
+  const len = rate * 2.5;
+  const impulse = ctx.createBuffer(2, len, rate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = impulse.getChannelData(ch);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.8);
+  }
+  fx.reverbNode.buffer = impulse;
+
+  // Rewire: disconnect player's lowpass from destination, insert effects chain
+  modplayer.lowpassNode.disconnect();
+  modplayer.lowpassNode.connect(fx.masterGain);
+  fx.masterGain.connect(fx.hpFilter);
+  fx.hpFilter.connect(fx.lpFilter);
+  fx.lpFilter.connect(fx.midEQ);
+  fx.midEQ.connect(fx.compressor);
+  fx.compressor.connect(fx.dryGain);
+  fx.compressor.connect(fx.reverbGain);
+  fx.reverbGain.connect(fx.reverbNode);
+  fx.reverbNode.connect(ctx.destination);
+  fx.dryGain.connect(ctx.destination);
+
+  // Wire up remaster sliders and apply initial values
+  document.querySelectorAll('[data-a]').forEach(sl => {
+    const applyValue = () => {
+      const v = parseFloat(sl.value);
+      sl.nextElementSibling.textContent = v;
+      switch(sl.dataset.a) {
+        case 'masterVol': fx.masterGain.gain.value = v; break;
+        case 'lpFreq': fx.lpFilter.frequency.value = v; break;
+        case 'hpFreq': fx.hpFilter.frequency.value = v; break;
+        case 'midGain': fx.midEQ.gain.value = v; break;
+        case 'midFreq': fx.midEQ.frequency.value = v; break;
+        case 'compThresh': fx.compressor.threshold.value = v; break;
+        case 'compRatio': fx.compressor.ratio.value = v; break;
+        case 'reverbMix':
+          fx.reverbGain.gain.value = v;
+          fx.dryGain.gain.value = 1 - v;
+          break;
+      }
+    };
+    sl.addEventListener('input', applyValue);
+    applyValue(); // apply initial value
+  });
+
+  // Instrument mix sliders
+  document.querySelectorAll('[data-i]').forEach(sl => {
+    const applyValue = () => {
+      const si = parseInt(sl.dataset.i);
+      const v = parseFloat(sl.value);
+      sl.nextElementSibling.textContent = v;
+      instVolume[si] = v;
+    };
+    sl.addEventListener('input', applyValue);
+    applyValue(); // apply initial value
+  });
+}
+
+// Loop only the plasma section (orders 42-45)
+const PLASMA_START = 42;
+const PLASMA_END = 45;
+
+function checkLoop() {
+  if (modplayer.player && modplayer.player.position > PLASMA_END) {
+    modplayer.player.position = PLASMA_START;
+    modplayer.player.row = 0;
+    modplayer.player.tick = 0;
+    modplayer.player.flags = 1 + 2;
+  }
+  if (modplayer.playing) requestAnimationFrame(checkLoop);
+}
+
+// Autoplay — start immediately, resume AudioContext on first interaction if suspended
+modplayer.load('panic.s3m');
+modplayer.onReady = function() {
+  modplayer.createContext();
+  setupRemaster();
+  modplayer.play();
+  modplayer.jump(PLASMA_START);
+  checkLoop();
+
+  // Resume AudioContext if browser suspended it (autoplay policy)
+  if (modplayer.context.state === 'suspended') {
+    const resume = () => {
+      modplayer.context.resume();
+      document.removeEventListener('click', resume);
+      document.removeEventListener('keydown', resume);
+    };
+    document.addEventListener('click', resume);
+    document.addEventListener('keydown', resume);
+  }
+};
+
+render();
+</script>
 </body>
 </html>
