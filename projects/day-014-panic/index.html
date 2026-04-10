@@ -71,26 +71,26 @@
   <div class="row"><label>move amt</label><input type="range" min="0" max="6" step="1" data-p="moveShift"><span class="val"></span></div>
 
   <h3>Audio Remaster</h3>
-  <div class="row"><label>master vol</label><input type="range" min="0" max="1.5" step="0.05" data-a="masterVol" value="0.8"><span class="val">0.8</span></div>
-  <div class="row"><label>LP filter</label><input type="range" min="1000" max="20000" step="500" data-a="lpFreq" value="8000"><span class="val">8000</span></div>
+  <div class="row"><label>master vol</label><input type="range" min="0" max="1.5" step="0.05" data-a="masterVol" value="0.5"><span class="val">0.5</span></div>
+  <div class="row"><label>LP filter</label><input type="range" min="1000" max="20000" step="500" data-a="lpFreq" value="4500"><span class="val">4500</span></div>
   <div class="row"><label>HP filter</label><input type="range" min="20" max="200" step="10" data-a="hpFreq" value="40"><span class="val">40</span></div>
   <div class="row"><label>mid EQ dB</label><input type="range" min="-12" max="12" step="1" data-a="midGain" value="0"><span class="val">0</span></div>
   <div class="row"><label>mid EQ freq</label><input type="range" min="500" max="5000" step="100" data-a="midFreq" value="2000"><span class="val">2000</span></div>
   <div class="row"><label>comp thresh</label><input type="range" min="-40" max="0" step="2" data-a="compThresh" value="-20"><span class="val">-20</span></div>
   <div class="row"><label>comp ratio</label><input type="range" min="1" max="12" step="0.5" data-a="compRatio" value="3"><span class="val">3</span></div>
-  <div class="row"><label>reverb mix</label><input type="range" min="0" max="0.8" step="0.05" data-a="reverbMix" value="0.25"><span class="val">0.25</span></div>
+  <div class="row"><label>reverb mix</label><input type="range" min="0" max="0.8" step="0.05" data-a="reverbMix" value="0"><span class="val">0</span></div>
 
 
   <h3>Instrument Mix</h3>
-  <div class="row"><label>8 pad</label><input type="range" min="0" max="2" step="0.1" data-i="7" value="1"><span class="val">1</span></div>
-  <div class="row"><label>9 pad</label><input type="range" min="0" max="2" step="0.1" data-i="8" value="1"><span class="val">1</span></div>
-  <div class="row"><label>13 pad</label><input type="range" min="0" max="2" step="0.1" data-i="12" value="1"><span class="val">1</span></div>
-  <div class="row"><label>14 pad</label><input type="range" min="0" max="2" step="0.1" data-i="13" value="1"><span class="val">1</span></div>
-  <div class="row"><label>18 pad</label><input type="range" min="0" max="2" step="0.1" data-i="17" value="1"><span class="val">1</span></div>
-  <div class="row"><label>20 pad</label><input type="range" min="0" max="2" step="0.1" data-i="19" value="1"><span class="val">1</span></div>
-  <div class="row"><label>34 pad</label><input type="range" min="0" max="2" step="0.1" data-i="33" value="1"><span class="val">1</span></div>
-  <div class="row"><label>48 pad</label><input type="range" min="0" max="2" step="0.1" data-i="47" value="1"><span class="val">1</span></div>
-  <div class="row"><label>49 pad</label><input type="range" min="0" max="2" step="0.1" data-i="48" value="1"><span class="val">1</span></div>
+  <div class="row"><label>8 pad</label><input type="range" min="0" max="2" step="0.1" data-i="7" value="1.4"><span class="val">1.4</span></div>
+  <div class="row"><label>9 pad</label><input type="range" min="0" max="2" step="0.1" data-i="8" value="1.5"><span class="val">1.5</span></div>
+  <div class="row"><label>13 pad</label><input type="range" min="0" max="2" step="0.1" data-i="12" value="1.0"><span class="val">1.0</span></div>
+  <div class="row"><label>14 pad</label><input type="range" min="0" max="2" step="0.1" data-i="13" value="1.3"><span class="val">1.3</span></div>
+  <div class="row"><label>18 pad</label><input type="range" min="0" max="2" step="0.1" data-i="17" value="1.0"><span class="val">1.0</span></div>
+  <div class="row"><label>20 pad</label><input type="range" min="0" max="2" step="0.1" data-i="19" value="0.3"><span class="val">0.3</span></div>
+  <div class="row"><label>34 pad</label><input type="range" min="0" max="2" step="0.1" data-i="33" value="0"><span class="val">0</span></div>
+  <div class="row"><label>48 pad</label><input type="range" min="0" max="2" step="0.1" data-i="47" value="1.3"><span class="val">1.3</span></div>
+  <div class="row"><label>49 pad</label><input type="range" min="0" max="2" step="0.1" data-i="48" value="0.2"><span class="val">0.2</span></div>
 
   <button id="export">Copy params to clipboard</button>
 </div>
@@ -143,14 +143,14 @@ function lerp(a, b, t) { return a + (b - a) * t; }
 
 // === All tunable parameters ===
 const P = {
-  palp1Spd: 0.4, palp2Spd: -0.9, palp3Spd: 0.6,
-  copF1: 1.5, copF2: 0.6, copF3: 0.4,
-  tempoMax: 0.7, tempoRate: 0.0045, tempoCurve: 1.1,
-  spos1Spd: 0.45, spos2Spd: -1.05, spos3Spd: 0.8, spos4Spd: -0.95,
-  distF1: 1.0, distF2: 1.65, distF3: 2.0, distF4: 1.2, distF5: 3.6, distF6: 0.65,
-  fScaleBase: 1.15, fScaleAmp: 0.8, fScaleRate: 0.012,
-  warpShift: 2, biasDiv: 144,
-  baseFx: 0.55, baseFy: 0.75, moveShift: 1,
+  palp1Spd: 0.5, palp2Spd: 0, palp3Spd: 0.4,
+  copF1: 1.25, copF2: 0.6, copF3: 0.35,
+  tempoMax: 0.2, tempoRate: 0.0025, tempoCurve: 1.4,
+  spos1Spd: 0.3, spos2Spd: -1, spos3Spd: 0.4, spos4Spd: -0.4,
+  distF1: 0.55, distF2: 1.1, distF3: 1.7, distF4: 2.9, distF5: 3.8, distF6: 0.65,
+  fScaleBase: 1.3, fScaleAmp: 1.1, fScaleRate: 0.007,
+  warpShift: 3, biasDiv: 68,
+  baseFx: 0.65, baseFy: 0.5, moveShift: 4,
 };
 
 // Build plasma map (rebuilt when base freqs change)
