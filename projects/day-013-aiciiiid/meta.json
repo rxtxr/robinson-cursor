@@ -1,13 +1,13 @@
 {
   "day": 13,
   "slug": "day-013-aiciiiid",
-  "title": "pAInic!",
-  "date": "2026-04-10T14:30:00+02:00",
+  "title": "AIciiiid!",
+  "date": "2026-04-09",
   "description": "Acid bass machine with 303-style synthesis, 909-style drum machine, step sequencer, and preset bank. Zero dependencies, pure Web Audio API.",
   "tags": ["synthesizer", "webaudio", "tb-303", "acid", "sequencer", "drum-machine", "interactive"],
   "stack": ["JavaScript", "Web Audio API", "CSS"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-013-aiciiiid",
   "thumbnail": "thumb.png",
-  "status": "wip",
+  "status": "complete",
   "license_notes": "Google Fonts (DSEG7 Classic). No other external dependencies."
 }
