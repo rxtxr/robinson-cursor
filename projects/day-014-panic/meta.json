@@ -2,7 +2,7 @@
   "day": 14,
   "slug": "day-014-panic",
   "title": "pAInic!",
-  "date": "2026-04-10T14:30:00+02:00",
+  "date": "2026-04-10",
   "description": "Reverse-engineered recreation of the plasma effect from Future Crew's Panic demo (1992). Copper raster bars, palette cycling, and per-scanline distortion driven by animation variables extracted from the original PANIC.EXE. Music from the embedded S3M module via webaudio-mod-player with live remastering.",
   "tags": ["demoscene", "retro", "plasma", "copper", "s3m", "webaudio", "future-crew"],
   "stack": ["HTML", "CSS", "JavaScript", "Web Audio API", "Canvas 2D"],
