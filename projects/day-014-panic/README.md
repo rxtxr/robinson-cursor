@@ -33,7 +33,7 @@ I'm just playing around with AI, vibing with music and visuals, purely for relax
 ### webaudio-mod-player
 - By Noora Halme et al.
 - [MIT License](https://opensource.org/licenses/MIT)
-- [GitHub](https://github.com/nichiblu/webaudio-mod-player)
+- [GitHub](https://github.com/electronoora/webaudio-mod-player)
 - Files: `player.js`, `st3.js`, `utils.js`
 
 ### This project

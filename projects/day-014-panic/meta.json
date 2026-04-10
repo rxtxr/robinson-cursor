@@ -7,6 +7,6 @@
   "tags": ["demoscene", "retro", "plasma", "copper", "s3m", "webaudio", "future-crew"],
   "stack": ["HTML", "CSS", "JavaScript", "Web Audio API", "Canvas 2D"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-014-panic",
-  "status": "published",
-  "license_notes": "webaudio-mod-player (player.js, st3.js, utils.js) by Noora Halme et al., MIT License (https://github.com/nichiblu/webaudio-mod-player). Original Panic demo (1992) by Future Crew — code by Wildfire/PSI/Trug, music by Purple Motion, graphics by Pixel. S3M module extracted from PANIC.EXE for educational demoscene preservation. The plasma effect is a clean-room reimplementation based on reverse-engineering the original binary symbol table."
+  "status": "complete",
+  "license_notes": "webaudio-mod-player (player.js, st3.js, utils.js) by Noora Halme et al., MIT License (https://github.com/electronoora/webaudio-mod-player). Original Panic demo (1992) by Future Crew — code by Wildfire/PSI/Trug, music by Purple Motion, graphics by Pixel. S3M module extracted from PANIC.EXE for educational demoscene preservation. The plasma effect is a clean-room reimplementation based on reverse-engineering the original binary symbol table."
 }
