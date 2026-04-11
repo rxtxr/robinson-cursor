@@ -1,20 +1,26 @@
 # FN_2E8A.PIF
 
-Found on a 5.25" floppy labeled "DO NOT SHIP". Provenance unknown.
+Found on a 5.25" floppy disk in a cardboard box labeled "DO NOT SHIP". The disk was wedged between a copy of PC Magazine from 1994 and what appears to be a hand-drawn UML diagram of someone's feelings.
 
 ## What it does
 
-Destroys the website. Clicking the project tile on the index page or the run button on the detail page triggers a multi-phase DOM destruction sequence: chromatic aberration, text corruption (unicode mimics, mojibake, zalgo), geometric distortion, scanline tearing, signal noise, and element dissolution. After total signal loss, a fake terminal recovery boots up — running `git fsck`, `git reset --hard`, restoring files, and rebuilding the site with absurd build tasks. The site is then "redeployed" and the detail page reappears intact.
+Nobody knows. The original author left no documentation, only a sticky note that reads "es tut mir leid" in increasingly shaky handwriting.
 
-## How it works
+It appears to have something to do with disk defragmentation. Or screen calibration. Or possibly revenge.
 
-- **Self-destruct engine** injected into `index.astro` and `[slug].astro` via client-side scripts, activated only for day-015
-- **Text corruption** replaces characters with unicode lookalikes (phase 1), mojibake/block elements (phase 2), and full zalgo + cyrillic chaos (phase 3)
-- **Terminal restoration** (`index.html`) types fake git commands with realistic output, shuffles absurd build progress lines from a pool of 25
-- **No dependencies** — pure vanilla JS, CSS animations, and a noise canvas
+## Known issues
 
-## Tech notes
+- Running this may void your warranty
+- Has been known to cause unexplained nostalgia for Borland Turbo Vision
+- The SysOp of a BBS in Wuppertal reportedly ran this in 1996 and was never heard from again
+- May or may not contain traces of AUTOEXEC.BAT
 
-- Embed served in dev mode via Vite middleware in `astro.config.mjs`
-- Custom `statusLabel` field in `meta.json` renders "DANGER" instead of "work in progress"
-- `color-scheme: dark` meta tag prevents white flash during page transitions
+## Requirements
+
+- A 5.25" floppy drive (optional but recommended for the full experience)
+- Disregard for personal safety
+- At least 640K of courage (should be enough for anybody)
+
+## Disclaimer
+
+Whatever happens after you click the button is not our fault. You were warned. Multiple times. In several languages. On the label. On the floppy. On this page. You chose to be here. Godspeed.
