@@ -1,0 +1,13 @@
+{
+  "day": 15,
+  "slug": "day-015-self-destruct",
+  "title": "FN_2E8A.PIF",
+  "date": "2026-04-11",
+  "description": "Found this on an old 5\u00bc\" floppy in a box labeled \"DO NOT SHIP\". Pretty sure it doesn't work correctly. No idea why it's here. Don't run it. Move along. Nothing to see.",
+  "tags": ["forbidden", "haunted", "do-not-touch", "cursed-code", "floppy-archaeology", "regret"],
+  "stack": ["COBOL fragment", "Turbo Pascal residue", "HyperCard ghost", "Delphi 3 emotional damage", "GW-BASIC tears"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-015-self-destruct",
+  "status": "wip",
+  "statusLabel": "DANGER",
+  "license_notes": "FlickerKit.bas v0.3 — Borland Shareware License (1993), redistribution permitted if accompanied by a self-addressed stamped envelope. CRT_MELT.PAS — Turbo Pascal Community License, all warranties void upon execution. DESTRUCT.HLP — licensed under the Cooperative Freeware Agreement for Non-Commercial Diskette Distribution (CFANDD), Rev. 2, Hobbyist Addendum C. SysOp approval required for BBS redistribution."
+}

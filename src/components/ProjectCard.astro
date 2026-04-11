@@ -5,7 +5,7 @@ const isTemplate = project.status === 'template';
 const isWip = project.status === 'wip';
 const isIncomplete = project.status === 'incomplete';
 const isFail = project.status === 'fail';
-const statusBadge = isWip ? 'work in progress' : isIncomplete ? 'incomplete' : isFail ? 'fail' : null;
+const statusBadge = isWip ? (project.statusLabel || 'work in progress') : isIncomplete ? 'incomplete' : isFail ? 'fail' : null;
 ---
 
 <a href={`/projects/${project.slug}`} class:list={['project-card', { 'card-template': isTemplate, 'card-wip': isWip, 'card-incomplete': isIncomplete, 'card-fail': isFail }]} style={project.accentColor ? `--color-accent: ${project.accentColor}` : ''} aria-label={`Day ${dayNum}: ${project.title}`}>

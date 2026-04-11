@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>Day 015 — FN_2E8A.PIF</title>
+  <style>html { background: #0a0a0f; }</style>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --border: #2a2a3a;
+      --text: #c8c8d4;
+      --dim: #6a6a7a;
+      --green: #00d4aa;
+      --red: #ff3366;
+      --yellow: #d4aa00;
+      --blue: #6688ff;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .terminal {
+      flex: 1;
+      padding: clamp(1rem, 4vw, 2rem);
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      font-size: clamp(0.75rem, 2vw, 0.9rem);
+      line-height: 1.7;
+    }
+
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      font-size: 0.8rem;
+      color: var(--dim);
+    }
+
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+
+    .terminal-body {
+      background: rgba(10, 10, 15, 0.95);
+      border: 1px solid var(--border);
+      border-radius: 0 0 6px 6px;
+      padding: 1rem;
+      padding-bottom: 50vh;
+    }
+
+    .line { white-space: pre-wrap; word-break: break-all; }
+    .prompt { color: var(--green); }
+    .cmd { color: var(--text); font-weight: 700; }
+    .info { color: var(--dim); }
+    .success { color: var(--green); }
+    .warning { color: var(--yellow); }
+    .error { color: var(--red); }
+    .hash { color: var(--yellow); opacity: 0.7; }
+    .file { color: var(--text); }
+
+    .cursor {
+      display: inline-block;
+      width: 0.6em;
+      height: 1.1em;
+      background: var(--green);
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    .progress-bar { display: inline-block; min-width: 200px; }
+
+    /* Fade out terminal */
+    .terminal.fade-out {
+      transition: opacity 0.8s;
+      opacity: 0;
+    }
+
+    /* Redirect overlay */
+    .redirect-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s;
+    }
+
+    .redirect-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .redirect-text {
+      color: var(--green);
+      font-size: clamp(1rem, 3vw, 1.5rem);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  </style>
+</head>
+<body>
+
+<div class="terminal" id="terminal">
+  <div class="terminal-header">
+    <span class="terminal-dot dot-red"></span>
+    <span class="terminal-dot dot-yellow"></span>
+    <span class="terminal-dot dot-green"></span>
+    <span style="margin-left: 0.5rem;">robinson-cursor.com — recovery</span>
+  </div>
+  <div class="terminal-body" id="output"></div>
+</div>
+
+<div class="redirect-overlay" id="redirect">
+  <div class="redirect-text">deploying...</div>
+</div>
+
+<script>
+const output = document.getElementById('output');
+const terminal = document.getElementById('terminal');
+const redirectOverlay = document.getElementById('redirect');
+
+function addLine(html) {
+  const div = document.createElement('div');
+  div.className = 'line';
+  div.innerHTML = html;
+  output.appendChild(div);
+  // Always scroll the active line into view
+  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  return div;
+}
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function scroll() { output.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }
+
+function typeCommand(text, speed = 40) {
+  return new Promise(resolve => {
+    const line = addLine('<span class="prompt">$ </span><span class="cmd"></span><span class="cursor"></span>');
+    const cmdEl = line.querySelector('.cmd');
+    const cursorEl = line.querySelector('.cursor');
+    let i = 0;
+    const iv = setInterval(() => {
+      if (i < text.length) {
+        cmdEl.textContent += text[i]; i++;
+        scroll();
+      } else { clearInterval(iv); cursorEl.remove(); resolve(); }
+    }, speed + Math.random() * speed * 0.5);
+  });
+}
+
+function progressBar(label, steps, speed) {
+  return new Promise(resolve => {
+    const line = addLine(`<span class="info">${label} </span><span class="progress-bar"></span>`);
+    const bar = line.querySelector('.progress-bar');
+    let i = 0;
+    const iv = setInterval(() => {
+      if (i <= steps) {
+        const pct = Math.round((i / steps) * 100);
+        const filled = Math.round((i / steps) * 30);
+        bar.innerHTML = `<span class="success">${'\u2588'.repeat(filled)}</span><span class="info">${'\u2591'.repeat(30 - filled)}</span> <span class="info">${pct}%</span>`;
+        scroll();
+        i++;
+      } else { clearInterval(iv); resolve(); }
+    }, speed);
+  });
+}
+
+// Absurd build tasks
+function absurdTask(label, count, unit, speed) {
+  return new Promise(resolve => {
+    const line = addLine(`<span class="info">${label} </span><span class="progress-bar"></span>`);
+    const bar = line.querySelector('.progress-bar');
+    let i = 0;
+    const steps = 20 + Math.floor(Math.random() * 15);
+    const iv = setInterval(() => {
+      if (i <= steps) {
+        const val = unit === 'float'
+          ? (Math.random() * count).toFixed(Math.floor(Math.random() * 8) + 2)
+          : unit === 'bigint'
+          ? Math.floor(Math.random() * count).toLocaleString('en-US')
+          : Math.floor((i / steps) * count);
+        const pct = Math.round((i / steps) * 100);
+        bar.innerHTML = `<span class="warning">${val}</span> <span class="info">${pct}%</span>`;
+        scroll();
+        i++;
+      } else { clearInterval(iv); resolve(); }
+    }, speed);
+  });
+}
+
+function h() { return [...Array(7)].map(() => Math.floor(Math.random()*16).toString(16)).join(''); }
+
+async function run() {
+  await wait(400);
+
+  // Assess damage
+  await typeCommand('git status');
+  await wait(300);
+  addLine('<span class="error">fatal: not a git repository (or any parent up to mount point /)</span>');
+  addLine('<span class="error">error: object database corrupted</span>');
+  await wait(500);
+
+  await typeCommand('git fsck --full');
+  await wait(200);
+  addLine('<span class="warning">Checking object directories...</span>');
+  await wait(300);
+  addLine('<span class="error">error: corrupt loose object 3f7a2b1</span>');
+  addLine('<span class="error">error: corrupt loose object 9c4e8d0</span>');
+  addLine('<span class="error">error: corrupt loose object a1f3c7e</span>');
+  addLine('<span class="error">error: unable to unpack header of .git/objects/d4/ea0bf2</span>');
+  addLine('<span class="error">error: inflate: data stream error (invalid distance too far back)</span>');
+  addLine(`<span class="warning">dangling commit ${h()}</span>`);
+  addLine(`<span class="warning">dangling blob ${h()}</span>`);
+  addLine(`<span class="error">missing tree ${h()}</span>`);
+  addLine('<span class="error">Errors found: 7 corrupt, 2 dangling, 1 missing</span>');
+  await wait(600);
+
+  await typeCommand('git reflog');
+  await wait(300);
+  addLine(`<span class="hash">${h()}</span> <span class="info">HEAD@{0}:</span> <span class="error">SELF DESTRUCT \u2014 signal lost</span>`);
+  addLine(`<span class="hash">${h()}</span> <span class="info">HEAD@{1}:</span> <span class="file">commit: day 015: self-destruct \u2014 armed</span>`);
+  addLine(`<span class="hash">${h()}</span> <span class="info">HEAD@{2}:</span> <span class="file">commit: day 014: panic plasma \u2014 complete</span>`);
+  addLine(`<span class="hash">${h()}</span> <span class="info">HEAD@{3}:</span> <span class="file">commit: day 013: aiciiiid \u2014 acid house generator</span>`);
+  addLine(`<span class="hash">${h()}</span> <span class="info">HEAD@{4}:</span> <span class="file">commit: day 012: error-line \u2014 broken typography</span>`);
+  await wait(500);
+
+  addLine('');
+  addLine('<span class="warning">// found intact state at HEAD@{2}, before self-destruct</span>');
+  await wait(400);
+
+  await typeCommand('git reset --hard HEAD@{2}');
+  await wait(300);
+  addLine(`<span class="info">HEAD is now at <span class="hash">${h()}</span> day 014: panic plasma</span>`);
+  await wait(300);
+
+  await typeCommand('git checkout -- .');
+  await wait(200);
+  addLine('<span class="info">Restoring working tree files...</span>');
+  await wait(150);
+
+  const files = [
+    'src/pages/index.astro',
+    'src/components/ProjectCard.astro',
+    'src/components/Header.astro',
+    'src/components/Footer.astro',
+    'src/layouts/Base.astro',
+    'src/styles/global.css',
+    'src/lib/projects.js',
+    'projects/day-015-self-destruct/meta.json',
+    'projects/day-014-panic/index.html',
+    'projects/day-013-aiciiiid/index.html',
+    'projects/day-012-error-line/index.html',
+    'projects/day-011-colony/index.html',
+    'projects/day-010-dead-channel/index.html',
+    'public/favicon.svg',
+    'astro.config.mjs',
+    'package.json',
+  ];
+
+  for (const f of files) {
+    addLine(`<span class="success">  restored </span><span class="file">${f}</span>`);
+    await wait(50 + Math.random() * 70);
+  }
+
+  addLine(`<span class="success">${files.length} files restored</span>`);
+  await wait(400);
+
+  await typeCommand('git diff --stat HEAD');
+  await wait(200);
+  addLine('<span class="success">0 files changed, 0 insertions(+), 0 deletions(-)</span>');
+  addLine('<span class="success">working tree clean</span>');
+  await wait(300);
+
+  await typeCommand('npm run build');
+  await wait(200);
+  addLine('<span class="info">astro  v6.1.1  building static site...</span>');
+  await wait(150);
+
+  // Absurd build tasks — shuffled each time
+  const buildTasks = [
+    () => absurdTask('following the white rabbit', 100, 'int', 60),
+    () => absurdTask('mass-producing mass-produced content', 100, 'int', 50),
+    () => absurdTask('wasting electricity instead of folding proteins', 100, 'int', 55),
+    () => absurdTask('counting bytes', 9999999.99, 'float', 45),
+    () => absurdTask('counting days until orange man leaves office', 1361, 'int', 50),
+    () => absurdTask('reticulating splines', 100, 'int', 40),
+    () => absurdTask('convincing CSS that this is fine', 100, 'int', 55),
+    () => absurdTask('mass-deleting node_modules', 847293, 'bigint', 35),
+    () => absurdTask('asking AI to explain its own code', 100, 'int', 60),
+    () => absurdTask('negotiating with webpack', 100, 'int', 70),
+    () => absurdTask('converting coffee to semicolons', 100, 'int', 45),
+    () => absurdTask('heating the planet one GPU cycle at a time', 100, 'int', 50),
+    () => absurdTask('pretending to understand quantum CSS', 100, 'int', 55),
+    () => absurdTask('searching for meaning in package-lock.json', 284719, 'bigint', 40),
+    () => absurdTask('compressing existential dread', 100, 'int', 50),
+    () => absurdTask('defragmenting the vibes', 100, 'int', 45),
+    () => absurdTask('calculating mass of dark matter in /node_modules', 9.284e15, 'float', 40),
+    () => absurdTask('training AI to feel remorse', 100, 'int', 65),
+    () => absurdTask('hydrating the server (it was thirsty)', 100, 'int', 50),
+    () => absurdTask('aligning divs (chaotic neutral)', 100, 'int', 55),
+    () => absurdTask('filing DMCA against own codebase', 100, 'int', 60),
+    () => absurdTask('converting legacy despair to modern sadness', 100, 'int', 50),
+    () => absurdTask('normalizing database hallucinations', 100, 'int', 45),
+    () => absurdTask('compiling 847 opinions about tabs vs spaces', 847, 'int', 35),
+    () => absurdTask('buffering the unbufferable', 100, 'int', 50),
+  ];
+
+  // Pick 6-8 random ones
+  const shuffled = buildTasks.sort(() => Math.random() - 0.5);
+  const count = 6 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < count; i++) {
+    await shuffled[i]();
+    await wait(80 + Math.random() * 120);
+  }
+
+  await wait(150);
+  addLine('<span class="success">build complete. 23 pages generated in 4.2s.</span>');
+  await wait(300);
+
+  await typeCommand('git push origin main --force-with-lease');
+  await wait(200);
+  addLine('<span class="info">Enumerating objects: 47, done.</span>');
+  addLine('<span class="info">Counting objects: 100% (47/47), done.</span>');
+  addLine('<span class="info">Delta compression using up to 8 threads</span>');
+  addLine('<span class="info">Compressing objects: 100% (23/23), done.</span>');
+  await wait(300);
+  addLine('<span class="info">Writing objects: 100% (47/47), 142.8 KiB, done.</span>');
+  addLine(`<span class="success">To github.com:rxtxr/robinson-cursor.com.git</span>`);
+  addLine(`<span class="success">   ${h()}..${h()}  main -> main</span>`);
+  await wait(400);
+
+  addLine('');
+  addLine('<span class="success">// deploy triggered. site recovering...</span>');
+  await wait(800);
+
+  addLine('');
+  addLine('<span class="success">done.</span>');
+  await wait(600);
+
+  // Fade terminal, show redirect, navigate to detail page
+  terminal.classList.add('fade-out');
+  await wait(400);
+  redirectOverlay.classList.add('active');
+  await wait(1500);
+
+  window.location.href = '/projects/day-015-self-destruct/';
+}
+
+run();
+</script>
+
+</body>
+</html>

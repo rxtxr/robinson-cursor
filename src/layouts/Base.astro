@@ -20,6 +20,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://robinson
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#0a0a0f" />
+    <meta name="color-scheme" content="dark" />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonicalURL} />

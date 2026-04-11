@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import { cpSync, existsSync, lstatSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { cpSync, createReadStream, existsSync, lstatSync, statSync } from 'node:fs';
+import { extname, join, resolve } from 'node:path';
 
 // Copy raw project files to dist/embed/ after Astro build completes
 // Excludes: raw-data/, data/ (except frontend JSONs already in charts/),
@@ -36,4 +36,28 @@ export default defineConfig({
   output: 'static',
   base: '/',
   integrations: [copyProjectsIntegration()],
+  vite: {
+    plugins: [{
+      name: 'serve-embed-dev',
+      configureServer(server) {
+        // In dev mode, serve /embed/* from /projects/* (mirrors the build-time copy)
+        server.middlewares.use('/embed', (req, res, next) => {
+          const filePath = join(process.cwd(), 'projects', req.url);
+          if (existsSync(filePath) && statSync(filePath).isFile()) {
+            const ext = extname(filePath);
+            const mimeTypes = {
+              '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css',
+              '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg',
+              '.svg': 'image/svg+xml', '.wasm': 'application/wasm',
+              '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.wav': 'audio/wav',
+            };
+            res.setHeader('Content-Type', mimeTypes[ext] || 'application/octet-stream');
+            createReadStream(filePath).pipe(res);
+          } else {
+            next();
+          }
+        });
+      }
+    }],
+  },
 });
