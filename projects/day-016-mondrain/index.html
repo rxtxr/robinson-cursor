@@ -298,28 +298,28 @@
           <label for="dep">complexity</label>
           <div class="ctrl-row">
             <input type="range" min="2" max="6" value="4" step="1" id="dep"
-                   oninput="go();">
+                   oninput="render();">
           </div>
         </div>
         <div class="ctrl">
           <label for="lw">line weight</label>
           <div class="ctrl-row">
             <input type="range" min="4" max="16" value="10" step="1" id="lw"
-                   oninput="go();">
+                   oninput="render();">
           </div>
         </div>
         <div class="ctrl">
           <label for="nc">color</label>
           <div class="ctrl-row">
             <input type="range" min="0" max="3" value="3" step="1" id="nc"
-                   oninput="go();">
+                   oninput="render();">
           </div>
         </div>
         <div class="ctrl">
           <label for="tx">texture</label>
           <div class="ctrl-row">
             <input type="range" min="0" max="100" value="80" step="5" id="tx"
-                   oninput="go();">
+                   oninput="render();">
           </div>
         </div>
         <button type="button" class="cta" onclick="go()">neue komposition</button>
@@ -475,8 +475,8 @@
   // ── Aesthetic split point: biased toward golden ratio ───────────────
   function splitT() {
     const g = 0.6180339887;
-    const base = Math.random() < 0.5 ? g : 1 - g;
-    return Math.max(0.18, Math.min(0.82, base + (Math.random() - 0.5) * 0.18));
+    const base = R() < 0.5 ? g : 1 - g;
+    return Math.max(0.18, Math.min(0.82, base + (R() - 0.5) * 0.18));
   }
 
   // ── Recursive subdivision with line snapping ────────────────────────
@@ -495,10 +495,10 @@
     const MIN = 52;
     const canH = h >= MIN * 1.9, canV = w >= MIN * 1.9;
     if (d >= maxD || (!canH && !canV)) { out.push({x,y,w,h}); return; }
-    if (d >= 2 && Math.random() < Math.pow((d-1)/Math.max(maxD-1,1), 1.3) * 0.6) {
+    if (d >= 2 && R() < Math.pow((d-1)/Math.max(maxD-1,1), 1.3) * 0.6) {
       out.push({x,y,w,h}); return;
     }
-    const horiz = canH && canV ? Math.random() < h/(w+h) : canH;
+    const horiz = canH && canV ? R() < h/(w+h) : canH;
     const t = splitT();
     if (horiz) {
       let s = snapTo(Math.round(y + h * t), hSplits);
@@ -548,7 +548,7 @@
       .map(r => ({ r, sc: (r.w*r.h/mx)*(1-c.edgeW) + edgeness(r)*c.edgeW }))
       .sort((a,b) => b.sc - a.sc);
     if (!cands.length) return null;
-    const pick = cands[Math.floor(Math.random() * Math.min(4, cands.length))].r;
+    const pick = cands[Math.floor(R() * Math.min(4, cands.length))].r;
     pick.col = c.hex; pick.rgb = c.rgb; pick.vary = c.vary;
     placed.push(pick);
     return c.name;
@@ -570,15 +570,15 @@
     const placed = [], applied = [];
     const primary = PALETTE.slice(0, Math.min(nColors, 3));
     for (const c of primary) {
-      if (c.name !== 'Red' && Math.random() < 0.15) continue;
+      if (c.name !== 'Red' && R() < 0.15) continue;
       const n = placeColor(c, rects, placed, total);
       if (n) applied.push(n);
     }
     if (nColors >= 3) {
-      if (Math.random() < 0.5) { const n = placeColor(PALETTE[2], rects, placed, total); if (n) applied.push(n); }
-      if (Math.random() < 0.55) { const n = placeColor(PALETTE[3], rects, placed, total); if (n) applied.push(n); }
-      if (Math.random() < 0.25) {
-        const n = placeColor(PALETTE[Math.random()<0.6?0:1], rects, placed, total);
+      if (R() < 0.5) { const n = placeColor(PALETTE[2], rects, placed, total); if (n) applied.push(n); }
+      if (R() < 0.55) { const n = placeColor(PALETTE[3], rects, placed, total); if (n) applied.push(n); }
+      if (R() < 0.25) {
+        const n = placeColor(PALETTE[R()<0.6?0:1], rects, placed, total);
         if (n) applied.push(n);
       }
     }
@@ -884,10 +884,16 @@
   // ══════════════════════════════════════════════════════════════════════
 
   let currentSeed = Math.floor(Math.random() * 100000);
+  let R; // global seeded RNG, reset each render
 
   function go() {
     currentSeed = Math.floor(Math.random() * 100000);
     canvasTextureCache = null;
+    render();
+  }
+
+  function render() {
+    R = seededRand(currentSeed);
 
     const maxD = +document.getElementById('dep').value;
     const lw   = +document.getElementById('lw').value;
