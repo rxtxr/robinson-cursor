@@ -1,5 +1,5 @@
 ---
-const { project, thumbUrl } = Astro.props;
+const { project, thumbUrl, thumbWebp } = Astro.props;
 const dayNum = String(project.day).padStart(3, '0');
 const isTemplate = project.status === 'template';
 const isWip = project.status === 'wip';
@@ -11,7 +11,10 @@ const statusBadge = isWip ? (project.statusLabel || 'work in progress') : isInco
 <a href={`/projects/${project.slug}`} class:list={['project-card', { 'card-template': isTemplate, 'card-wip': isWip, 'card-incomplete': isIncomplete, 'card-fail': isFail }]} style={project.accentColor ? `--color-accent: ${project.accentColor}` : ''} aria-label={`Day ${dayNum}: ${project.title}`}>
   {thumbUrl ? (
     <div class="card-thumb">
-      <img src={thumbUrl} alt="" loading="lazy" />
+      <picture>
+        {thumbWebp && <source srcset={thumbWebp} type="image/webp" />}
+        <img src={thumbUrl} alt="" loading="lazy" />
+      </picture>
     </div>
   ) : (
     <div class="card-thumb card-thumb-empty" aria-hidden="true">

@@ -19,6 +19,9 @@ const thumbFiles = import.meta.glob('/projects/*/thumb.png', { eager: true, quer
 const thumbKey = `/projects/${project.slug}/thumb.png`;
 const thumbUrl = thumbFiles[thumbKey] || null;
 
+const thumbWebpFiles = import.meta.glob('/projects/*/thumb.webp', { eager: true, query: '?url', import: 'default' });
+const thumbWebpUrl = thumbWebpFiles[`/projects/${project.slug}/thumb.webp`] || null;
+
 // Load README if it exists
 const readmeFiles = import.meta.glob('/projects/*/README.md', { query: '?raw', import: 'default', eager: true });
 const readmeKey = `/projects/${project.slug}/README.md`;
@@ -67,7 +70,10 @@ const nextProject = currentIndex < sorted.length - 1 ? sorted[currentIndex + 1] 
 
     {thumbUrl && (
       <a href={`/embed/${project.slug}/index.html`} target="_blank" rel="noopener" class="project-thumb" aria-label={`Run ${project.title}`}>
-        <img src={thumbUrl} alt={`Screenshot of ${project.title}`} loading="lazy" />
+        <picture>
+          {thumbWebpUrl && <source srcset={thumbWebpUrl} type="image/webp" />}
+          <img src={thumbUrl} alt={`Screenshot of ${project.title}`} loading="lazy" />
+        </picture>
       </a>
     )}
 

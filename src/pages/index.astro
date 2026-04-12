@@ -8,6 +8,7 @@ const count = await getProjectCount();
 const remaining = 365 - count;
 
 const thumbFiles = import.meta.glob('/projects/*/thumb.png', { eager: true, query: '?url', import: 'default' });
+const thumbSmWebp = import.meta.glob('/projects/*/thumb-sm.webp', { eager: true, query: '?url', import: 'default' });
 
 const rem = String(remaining).padStart(3, '0');
 const digits = [
@@ -28,7 +29,11 @@ const digits = [
   {projects.length > 0 ? (
     <section class="project-grid" aria-label="All projects">
       {projects.map((project) => (
-        <ProjectCard project={project} thumbUrl={thumbFiles[`/projects/${project.slug}/thumb.png`] || null} />
+        <ProjectCard
+          project={project}
+          thumbUrl={thumbFiles[`/projects/${project.slug}/thumb.png`] || null}
+          thumbWebp={thumbSmWebp[`/projects/${project.slug}/thumb-sm.webp`] || null}
+        />
       ))}
     </section>
   ) : (

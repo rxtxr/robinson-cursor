@@ -9,10 +9,14 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "optimize-thumbs": "node scripts/optimize-thumbs.mjs"
   },
   "dependencies": {
     "astro": "^6.1.1",
     "marked": "^17.0.5"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
   }
 }
