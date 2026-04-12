@@ -273,6 +273,54 @@
       50%      { transform: translateX(-4px) translateY(2px) rotate(-0.15deg); }
       75%      { transform: translateX(5px) translateY(-2px) rotate(0.1deg); }
     }
+
+    /* ── Mobile ──────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      body { padding: 1rem 0.5rem; }
+
+      .scene { margin-bottom: 320px; }
+
+      /* Posters: no tilt, centered below canvas */
+      .poster-title {
+        left: 50%;
+        top: -180px;
+        width: 85%;
+        max-width: 340px;
+        height: auto;
+        aspect-ratio: 420 / 297;
+        transform: translateX(-50%) rotate(0deg);
+      }
+      .poster-ctrl {
+        right: auto;
+        left: 50%;
+        bottom: -280px;
+        width: 70%;
+        max-width: 240px;
+        transform: translateX(-50%) rotate(0deg);
+      }
+
+      .poster-title h1 { font-size: 32px; }
+
+      /* Hidden states — straight vertical movement */
+      .posters-hidden .poster-title {
+        transform: translateX(-50%) translateY(200px);
+      }
+      .posters-hidden .poster-ctrl {
+        transform: translateX(-50%) translateY(-300px);
+      }
+      .posters-hidden:hover .poster-title {
+        transform: translateX(-50%) translateY(170px);
+      }
+      .posters-hidden:hover .poster-ctrl {
+        transform: translateX(-50%) translateY(-250px);
+      }
+
+      .toggle-ui {
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: -30px;
+      }
+    }
   </style>
 </head>
 <body>
