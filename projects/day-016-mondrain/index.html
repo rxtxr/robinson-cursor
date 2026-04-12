@@ -28,6 +28,8 @@
       justify-content: center;
     }
 
+    .mobile-title { display: none; }
+
     .scene {
       position: relative;
       width: 100%;
@@ -278,47 +280,50 @@
     @media (max-width: 640px) {
       body { padding: 1rem 0.5rem; }
 
-      .scene { margin-bottom: 320px; }
+      .scene { margin-bottom: 200px; }
 
-      /* Posters: no tilt, centered below canvas */
-      .poster-title {
-        left: 50%;
-        top: -180px;
-        width: 85%;
-        max-width: 340px;
-        height: auto;
-        aspect-ratio: 420 / 297;
-        transform: translateX(-50%) rotate(0deg);
+      /* Title poster hidden — show plain title instead */
+      .poster-title { display: none; }
+      .mobile-title {
+        display: block;
+        font-size: 28px;
+        font-weight: 900;
+        color: #4a4540;
+        text-align: center;
+        margin-bottom: 1rem;
       }
+
+      /* Controls poster: landscape, centered below canvas */
       .poster-ctrl {
         right: auto;
         left: 50%;
-        bottom: -280px;
-        width: 70%;
-        max-width: 240px;
+        bottom: -160px;
+        width: 90%;
+        max-width: 340px;
+        height: auto;
+        aspect-ratio: 297 / 210; /* DIN landscape */
         transform: translateX(-50%) rotate(0deg);
+        padding: 18px 20px 16px;
       }
 
-      .poster-title h1 { font-size: 32px; }
-
-      /* Hidden states — straight vertical movement */
-      .posters-hidden .poster-title {
-        transform: translateX(-50%) translateY(200px);
-      }
+      /* Hidden state */
       .posters-hidden .poster-ctrl {
-        transform: translateX(-50%) translateY(-300px);
-      }
-      .posters-hidden:hover .poster-title {
-        transform: translateX(-50%) translateY(170px);
+        transform: translateX(-50%) translateY(-200px);
       }
       .posters-hidden:hover .poster-ctrl {
-        transform: translateX(-50%) translateY(-250px);
+        transform: translateX(-50%) translateY(-160px);
       }
 
       .toggle-ui {
         left: 50%;
         transform: translateX(-50%);
-        bottom: -30px;
+        bottom: -24px;
+      }
+      .posters-hidden .toggle-ui {
+        transform: translateX(-50%);
+      }
+      .posters-hidden.mouse-moving .toggle-ui {
+        transform: translateX(-50%);
       }
     }
   </style>
@@ -326,6 +331,8 @@
 <body>
 
   <div class="window-light"></div>
+
+  <h1 class="mobile-title">mondrain</h1>
 
   <div class="scene" id="scene">
 
