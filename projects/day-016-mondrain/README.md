@@ -1,7 +1,6 @@
 # Day 016 — mondrAIn
 
-Painterly Mondrian composition generator. Not just the logic of neoplasticism — the texture of it. Brushstroke direction, pigment variation, paint buildup, canvas depth. Presented as a painting hanging on an atelier wall with warm window light.
-
+Painterly Mondrian composition generator. Not just the logic of neoplasticism — the texture of it. Brushstroke direction, pigment variation, paint buildup, canvas depth.
 ## Features
 
 - Recursive rectangle subdivision with golden ratio bias and line snapping
