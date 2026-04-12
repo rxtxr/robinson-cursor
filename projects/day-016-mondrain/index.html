@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mondrAIn — Day 016</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;600;800;900&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Jost', sans-serif;
+      background-color: #d5cfc7;
+      background-image:
+        /* Shadow gradient from bottom-left */
+        radial-gradient(ellipse at 0% 100%, rgba(0,0,0,0.22) 0%, transparent 55%),
+        /* Subtle vignette */
+        radial-gradient(ellipse at 50% 40%, transparent 20%, rgba(0,0,0,0.12) 100%),
+        /* Coarse plaster texture */
+        url("data:image/svg+xml,%3Csvg width='300' height='300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+      color: #2a2520;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      min-height: 100vh;
+      justify-content: center;
+    }
+
+    .scene {
+      position: relative;
+      width: 100%;
+      max-width: 620px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      max-width: 560px;
+      position: relative;
+      z-index: 2;
+      box-shadow:
+        2px 2px 6px rgba(0,0,0,0.15),
+        6px -3px 14px rgba(0,0,0,0.12),
+        14px -6px 35px rgba(0,0,0,0.10),
+        0 0 60px rgba(0,0,0,0.06),
+        -2px 4px 10px rgba(0,0,0,0.08);
+    }
+
+    /* ── Posters (both tuck behind canvas) ────────────────── */
+    .poster-title, .poster-ctrl {
+      position: absolute;
+      z-index: 1;
+      background: #e8e4dd;
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow:
+        2px 3px 8px rgba(0,0,0,0.10),
+        1px 1px 3px rgba(0,0,0,0.06);
+    }
+
+    /* Title poster — DIN portrait, top-left */
+    .poster-title {
+      left: -77px;
+      top: -230px;
+      width: 420px;
+      height: 297px; /* A3 landscape */
+      padding: 20px;
+      transform: rotate(-0.8deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .poster-title h1 {
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      color: #4a4540;
+      line-height: 1;
+      text-align: center;
+    }
+
+    /* Controls poster — portrait DIN, bottom-right */
+    .poster-ctrl {
+      right: -24px;
+      bottom: -240px;
+      width: 210px;
+      height: 297px; /* DIN 1:1.414 */
+      padding: 24px 20px 22px;
+      transform: rotate(1.3deg);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    /* ── Hidden state (converge toward canvas center) ──── */
+    .posters-hidden .poster-title {
+      transform: rotate(-0.8deg) translate(120px, 260px);
+    }
+    .posters-hidden .poster-ctrl {
+      transform: rotate(1.3deg) translate(-120px, -260px);
+    }
+    /* Hover peek — ease out slightly from center */
+    .posters-hidden:hover .poster-title {
+      transform: rotate(-0.8deg) translate(90px, 220px);
+    }
+    .posters-hidden:hover .poster-ctrl {
+      transform: rotate(1.3deg) translate(-80px, -210px);
+    }
+
+    /* ── Hide/show toggle ────────────────────────────────── */
+    .toggle-ui {
+      position: absolute;
+      z-index: 3;
+      bottom: -36px;
+      left: 0;
+      font-family: 'Jost', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: #7a746a;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 6px 0;
+      letter-spacing: 0.03em;
+      transition: color 0.2s, opacity 0.4s ease;
+    }
+    .toggle-ui:hover { color: #3a3530; }
+
+    /* When hidden, the toggle fades based on mouse movement */
+    .posters-hidden .toggle-ui {
+      opacity: 0;
+      transition: color 0.2s, opacity 0.6s ease 1.5s;
+    }
+    .posters-hidden.mouse-moving .toggle-ui {
+      opacity: 1;
+      transition: color 0.2s, opacity 0.3s ease;
+    }
+
+    /* ── Controls layout (label above slider) ────────────── */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .ctrl {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .ctrl-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 10px;
+      font-weight: 800;
+      color: #5a554e;
+      letter-spacing: 0.02em;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      flex: 1;
+      height: 3px;
+      background: #7a756c;
+      cursor: pointer;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      background: #9a5550;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      background: #9a5550;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .val {
+      font-size: 10px;
+      font-weight: 800;
+      color: #5a554e;
+      min-width: 30px;
+      text-align: right;
+    }
+
+    .cta {
+      font-family: 'Jost', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 7px 16px;
+      border: 2px solid #6a655c;
+      border-radius: 0;
+      background: transparent;
+      color: #5a554e;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: all 0.12s;
+      margin-top: 6px;
+      width: 100%;
+    }
+
+    .cta:hover { background: #5a554e; color: #e8e4dd; }
+
+    .download-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 24px;
+      height: 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #9a9590;
+      transition: color 0.2s;
+      padding: 0;
+    }
+    .download-btn:hover { color: #4a4540; }
+    .download-btn svg { width: 100%; height: 100%; }
+    /* ── Window light overlay ──────────────────────────────────── */
+    .window-light {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .window-light::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: -40%;
+      width: 200%;
+      height: 200%;
+      /* Warm sunbeam — sharper edges, softer intensity */
+      background: linear-gradient(
+        40deg,
+        rgba(255,230,180,0.0) 0%,
+        rgba(255,230,180,0.0) 38%,
+        rgba(255,238,200,0.06) 40%,
+        rgba(255,242,210,0.18) 43%,
+        rgba(255,245,215,0.22) 50%,
+        rgba(255,242,210,0.18) 57%,
+        rgba(255,238,200,0.06) 60%,
+        rgba(255,230,180,0.0) 62%,
+        rgba(255,230,180,0.0) 100%
+      );
+      animation: curtainSway 14s ease-in-out infinite;
+    }
+
+    .window-light::after { display: none; }
+
+    @keyframes curtainSway {
+      0%, 100% { transform: translateX(0) translateY(0) rotate(0deg); }
+      25%      { transform: translateX(6px) translateY(-3px) rotate(0.2deg); }
+      50%      { transform: translateX(-4px) translateY(2px) rotate(-0.15deg); }
+      75%      { transform: translateX(5px) translateY(-2px) rotate(0.1deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="window-light"></div>
+
+  <div class="scene" id="scene">
+
+    <div class="poster-title">
+      <h1>mondrain</h1>
+    </div>
+
+    <canvas id="mc"></canvas>
+
+    <div class="poster-ctrl">
+      <button type="button" class="download-btn" onclick="downloadCanvas()" title="download" aria-label="download composition">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v13M5 12l7 7 7-7M5 20h14"/>
+        </svg>
+      </button>
+      <div class="controls">
+        <div class="ctrl">
+          <label for="dep">complexity</label>
+          <div class="ctrl-row">
+            <input type="range" min="2" max="6" value="4" step="1" id="dep"
+                   oninput="go();">
+          </div>
+        </div>
+        <div class="ctrl">
+          <label for="lw">line weight</label>
+          <div class="ctrl-row">
+            <input type="range" min="4" max="16" value="10" step="1" id="lw"
+                   oninput="go();">
+          </div>
+        </div>
+        <div class="ctrl">
+          <label for="nc">color</label>
+          <div class="ctrl-row">
+            <input type="range" min="0" max="3" value="3" step="1" id="nc"
+                   oninput="go();">
+          </div>
+        </div>
+        <div class="ctrl">
+          <label for="tx">texture</label>
+          <div class="ctrl-row">
+            <input type="range" min="0" max="100" value="80" step="5" id="tx"
+                   oninput="go();">
+          </div>
+        </div>
+        <button type="button" class="cta" onclick="go()">neue komposition</button>
+      </div>
+    </div>
+
+    <button type="button" class="toggle-ui" id="toggleBtn" onclick="toggleUI()">hide ui</button>
+
+    <div id="info" style="display:none"></div>
+  </div>
+
+  <script>
+  // ── Download ──
+  function downloadCanvas() {
+    const link = document.createElement('a');
+    link.download = 'mondrain-' + Date.now() + '.png';
+    link.href = document.getElementById('mc').toDataURL('image/png');
+    link.click();
+  }
+
+  // ── UI toggle ──
+  function toggleUI() {
+    const s = document.getElementById('scene');
+    const btn = document.getElementById('toggleBtn');
+    s.classList.toggle('posters-hidden');
+    btn.textContent = s.classList.contains('posters-hidden') ? 'show ui' : 'hide ui';
+  }
+  // Click on canvas → toggle UI
+  document.addEventListener('click', function(e) {
+    if (e.target.tagName === 'CANVAS') {
+      toggleUI();
+    }
+  });
+
+  // Mouse movement → show "show ui" label, fade after idle
+  let mouseTimer = null;
+  document.addEventListener('mousemove', function() {
+    const s = document.getElementById('scene');
+    if (!s.classList.contains('posters-hidden')) return;
+    s.classList.add('mouse-moving');
+    clearTimeout(mouseTimer);
+    mouseTimer = setTimeout(function() {
+      s.classList.remove('mouse-moving');
+    }, 1800);
+  });
+
+  // ══════════════════════════════════════════════════════════════════════
+  //  mondrAIn — painterly Mondrian composition generator
+  // ══════════════════════════════════════════════════════════════════════
+
+  const cvs = document.getElementById('mc');
+  const ctx = cvs.getContext('2d');
+  const S = 800;
+  const MARGIN = 0; // no margin — fields go edge to edge
+  cvs.width = S;
+  cvs.height = S;
+
+  // ── Utilities ───────────────────────────────────────────────────────
+  function seededRand(seed) {
+    let s = seed | 0;
+    return function() {
+      s = (s * 1664525 + 1013904223) & 0xffffffff;
+      return (s >>> 0) / 4294967296;
+    };
+  }
+
+  function hexToRgb(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+
+  function rgb(r, g, b, a) {
+    return `rgba(${r|0},${g|0},${b|0},${a})`;
+  }
+
+  function varyColor(c, amount, rng) {
+    return c.map(v => Math.max(0, Math.min(255, v + (rng() - 0.5) * amount)));
+  }
+
+  // ── Noise field (layered value noise for organic texture) ───────────
+  function makeNoise(w, h, scale, seed) {
+    const rng = seededRand(seed);
+    const gw = Math.ceil(w / scale) + 2;
+    const gh = Math.ceil(h / scale) + 2;
+    const grid = [];
+    for (let i = 0; i < gh; i++) {
+      grid[i] = [];
+      for (let j = 0; j < gw; j++) grid[i][j] = rng();
+    }
+    return function(x, y) {
+      const fx = x / scale, fy = y / scale;
+      const ix = fx | 0, iy = fy | 0;
+      const dx = fx - ix, dy = fy - iy;
+      const a = grid[iy]?.[ix] ?? 0.5, b = grid[iy]?.[ix+1] ?? 0.5;
+      const c = grid[iy+1]?.[ix] ?? 0.5, d = grid[iy+1]?.[ix+1] ?? 0.5;
+      return a*(1-dx)*(1-dy) + b*dx*(1-dy) + c*(1-dx)*dy + d*dx*dy;
+    };
+  }
+
+  // ── Canvas texture (organic, multi-layered noise) ───────────────────
+  let canvasTextureCache = null;
+  let canvasTextureSeed = 0;
+
+  function generateCanvasTexture(seed) {
+    const tc = document.createElement('canvas');
+    tc.width = S; tc.height = S;
+    const tctx = tc.getContext('2d');
+    const id = tctx.createImageData(S, S);
+    const d = id.data;
+
+    // Layered noise at multiple scales — organic linen feel
+    const n1 = makeNoise(S, S, 3, seed);        // micro fiber
+    const n2 = makeNoise(S, S, 7, seed + 100);  // thread groups
+    const n3 = makeNoise(S, S, 25, seed + 200); // weave irregularity
+    const n4 = makeNoise(S, S, 80, seed + 300); // broad canvas stretch
+    const n5 = makeNoise(S, S, 5, seed + 400);  // cross-weave
+    const rng = seededRand(seed + 500);
+
+    for (let y = 0; y < S; y++) {
+      for (let x = 0; x < S; x++) {
+        const i = (y * S + x) * 4;
+        // Warp coordinates for organic irregularity
+        const wx = x + (n3(x, y) - 0.5) * 6;
+        const wy = y + (n3(x, y) - 0.5) * 6;
+
+        // Linen weave: two thread directions with noise-modulated pitch
+        const pitch = 2.6 + n4(x, y) * 0.8;
+        const warpH = Math.sin(wy * Math.PI / pitch) * 0.06;
+        const warpV = Math.sin(wx * Math.PI / (pitch + 0.3)) * 0.05;
+        // Cross-weave interaction
+        const cross = warpH * warpV * 3.0;
+
+        // Multi-scale fiber noise (NOT axis-aligned)
+        const fiber = (n1(wx, wy) - 0.5) * 0.10;
+        const thread = (n2(wx * 0.9 + wy * 0.1, wy * 0.9 - wx * 0.1) - 0.5) * 0.08;
+        const broad = (n4(x, y) - 0.5) * 0.05;
+        const crossN = (n5(wy, wx) - 0.5) * 0.06; // rotated noise
+        const grain = (rng() - 0.5) * 0.03;
+
+        const v = warpH + warpV + cross + fiber + thread + broad + crossN + grain;
+        const val = Math.round(128 + v * 55);
+        // Slight warm-cool variation
+        d[i] = val + Math.round((n4(x, y) - 0.5) * 3);
+        d[i+1] = val;
+        d[i+2] = val - Math.round((n4(x, y) - 0.5) * 2);
+        d[i+3] = 255;
+      }
+    }
+    tctx.putImageData(id, 0, 0);
+    return tc;
+  }
+
+  // ── Aesthetic split point: biased toward golden ratio ───────────────
+  function splitT() {
+    const g = 0.6180339887;
+    const base = Math.random() < 0.5 ? g : 1 - g;
+    return Math.max(0.18, Math.min(0.82, base + (Math.random() - 0.5) * 0.18));
+  }
+
+  // ── Recursive subdivision with line snapping ────────────────────────
+  let hSplits = [], vSplits = [];
+  const SNAP = 28;
+
+  function snapTo(val, splits) {
+    for (const s of splits) {
+      if (Math.abs(val - s) < SNAP && val !== s) return s;
+    }
+    splits.push(val);
+    return val;
+  }
+
+  function subdivide(x, y, w, h, d, maxD, out) {
+    const MIN = 52;
+    const canH = h >= MIN * 1.9, canV = w >= MIN * 1.9;
+    if (d >= maxD || (!canH && !canV)) { out.push({x,y,w,h}); return; }
+    if (d >= 2 && Math.random() < Math.pow((d-1)/Math.max(maxD-1,1), 1.3) * 0.6) {
+      out.push({x,y,w,h}); return;
+    }
+    const horiz = canH && canV ? Math.random() < h/(w+h) : canH;
+    const t = splitT();
+    if (horiz) {
+      let s = snapTo(Math.round(y + h * t), hSplits);
+      if (s - y < MIN || y + h - s < MIN) { out.push({x,y,w,h}); return; }
+      subdivide(x, y, w, s-y, d+1, maxD, out);
+      subdivide(x, s, w, y+h-s, d+1, maxD, out);
+    } else {
+      let s = snapTo(Math.round(x + w * t), vSplits);
+      if (s - x < MIN || x + w - s < MIN) { out.push({x,y,w,h}); return; }
+      subdivide(x, y, s-x, h, d+1, maxD, out);
+      subdivide(s, y, x+w-s, h, d+1, maxD, out);
+    }
+  }
+
+  // ── Adjacency & edge proximity ──────────────────────────────────────
+  function adj(a, b) {
+    const e = 2;
+    const hT = Math.abs(a.y+a.h - b.y) < e || Math.abs(b.y+b.h - a.y) < e;
+    const vT = Math.abs(a.x+a.w - b.x) < e || Math.abs(b.x+b.w - a.x) < e;
+    const hO = Math.min(a.x+a.w, b.x+b.w) - Math.max(a.x, b.x) > e;
+    const vO = Math.min(a.y+a.h, b.y+b.h) - Math.max(a.y, b.y) > e;
+    return (hT && hO) || (vT && vO);
+  }
+
+  function edgeness(r) {
+    const d = Math.min(r.x, r.y, S - r.x - r.w, S - r.y - r.h);
+    return Math.max(0, 1 - d / (S * 0.28));
+  }
+
+  // ── Color palette & placement ───────────────────────────────────────
+  const WHITE_HEX = '#ECE9E6';
+  const WHITE_RGB = hexToRgb(WHITE_HEX);
+  const CANVAS_RGB = [225, 220, 213]; // bare canvas color
+  const BLACK_HEX = '#181816';
+  const PALETTE = [
+    { hex: '#DC2F27', name: 'Red',    rgb: hexToRgb('#DC2F27'), minF: 0.03, maxF: 0.46, edgeW: 0.42, vary: 14 },
+    { hex: '#1E42A8', name: 'Blue',   rgb: hexToRgb('#1E42A8'), minF: 0.02, maxF: 0.30, edgeW: 0.68, vary: 12 },
+    { hex: '#F5C800', name: 'Yellow', rgb: hexToRgb('#F5C800'), minF: 0.008, maxF: 0.16, edgeW: 0.62, vary: 18 },
+    { hex: BLACK_HEX, name: 'Black',  rgb: hexToRgb(BLACK_HEX), minF: 0.01, maxF: 0.20, edgeW: 0.55, vary: 6 },
+  ];
+
+  function placeColor(c, rects, placed, total) {
+    const mn = c.minF * total, mx = c.maxF * total;
+    const cands = rects
+      .filter(r => r.col === WHITE_HEX && r.w*r.h >= mn && r.w*r.h <= mx
+        && !placed.some(p => adj(r, p)))
+      .map(r => ({ r, sc: (r.w*r.h/mx)*(1-c.edgeW) + edgeness(r)*c.edgeW }))
+      .sort((a,b) => b.sc - a.sc);
+    if (!cands.length) return null;
+    const pick = cands[Math.floor(Math.random() * Math.min(4, cands.length))].r;
+    pick.col = c.hex; pick.rgb = c.rgb; pick.vary = c.vary;
+    placed.push(pick);
+    return c.name;
+  }
+
+  function colorize(rects, nColors) {
+    // Each white field gets a slightly different white (cooler/warmer variation)
+    rects.forEach(r => {
+      const shift = (Math.sin(r.x * 0.013 + r.y * 0.017) * 0.5 + 0.5);
+      const wr = WHITE_RGB[0] + (shift - 0.5) * 8;
+      const wg = WHITE_RGB[1] + (shift - 0.5) * 6;
+      const wb = WHITE_RGB[2] + (shift - 0.3) * 10; // blue bias
+      r.col = WHITE_HEX;
+      r.rgb = [wr | 0, wg | 0, wb | 0];
+      r.vary = 10;
+    });
+    if (nColors === 0) return [];
+    const total = rects.reduce((s,r) => s + r.w*r.h, 0);
+    const placed = [], applied = [];
+    const primary = PALETTE.slice(0, Math.min(nColors, 3));
+    for (const c of primary) {
+      if (c.name !== 'Red' && Math.random() < 0.15) continue;
+      const n = placeColor(c, rects, placed, total);
+      if (n) applied.push(n);
+    }
+    if (nColors >= 3) {
+      if (Math.random() < 0.5) { const n = placeColor(PALETTE[2], rects, placed, total); if (n) applied.push(n); }
+      if (Math.random() < 0.55) { const n = placeColor(PALETTE[3], rects, placed, total); if (n) applied.push(n); }
+      if (Math.random() < 0.25) {
+        const n = placeColor(PALETTE[Math.random()<0.6?0:1], rects, placed, total);
+        if (n) applied.push(n);
+      }
+    }
+    return applied;
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  //  PAINTERLY RENDERING — fields first, then lines on top
+  // ══════════════════════════════════════════════════════════════════════
+
+  function paintField(rect, texAmount) {
+    const rng = seededRand(rect.x * 7919 + rect.y * 6271 + rect.w * 1619);
+    const c = rect.rgb;
+    const isWhite = rect.col === WHITE_HEX;
+    const vary = (isWhite ? rect.vary * 1.0 : rect.vary) * texAmount;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(rect.x, rect.y, rect.w, rect.h);
+    ctx.clip();
+
+    // Base fill
+    ctx.fillStyle = rgb(c[0], c[1], c[2], 1);
+    ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+
+    if (texAmount < 0.05) { ctx.restore(); return; }
+
+    const w = rect.w, h = rect.h, x = rect.x, y = rect.y;
+    const horizontal = rng() < 0.55;
+    const brushW = isWhite ? 22 + rng() * 16 : 16 + rng() * 18;
+    const strokeVary = isWhite ? vary * 1.3 : vary * 1.4;
+
+    // Pass 1: directional brushstrokes
+    const step = brushW * 0.38;
+    if (horizontal) {
+      for (let by = y - brushW; by < y + h + brushW; by += step) {
+        const sr = varyColor(c, strokeVary, rng);
+        const a = 0.3 + rng() * 0.4;
+        ctx.fillStyle = rgb(sr[0], sr[1], sr[2], a * texAmount);
+        ctx.fillRect(x - 2, by + (rng()-0.5)*1.5, w + 4, brushW * (0.8 + rng()*0.4));
+      }
+    } else {
+      for (let bx = x - brushW; bx < x + w + brushW; bx += step) {
+        const sr = varyColor(c, strokeVary, rng);
+        const a = 0.3 + rng() * 0.4;
+        ctx.fillStyle = rgb(sr[0], sr[1], sr[2], a * texAmount);
+        ctx.fillRect(bx + (rng()-0.5)*1.5, y - 2, brushW * (0.8 + rng()*0.4), h + 4);
+      }
+    }
+
+    // Pass 2: cross-strokes
+    if (texAmount > 0.2) {
+      const cb = brushW * 1.6, cs = cb * 0.6;
+      const ca = 0.06 + 0.1 * texAmount;
+      if (horizontal) {
+        for (let bx = x; bx < x+w; bx += cs) {
+          const sr = varyColor(c, strokeVary*0.5, rng);
+          ctx.fillStyle = rgb(sr[0], sr[1], sr[2], ca);
+          ctx.fillRect(bx + (rng()-0.5)*3, y, cb, h);
+        }
+      } else {
+        for (let by = y; by < y+h; by += cs) {
+          const sr = varyColor(c, strokeVary*0.5, rng);
+          ctx.fillStyle = rgb(sr[0], sr[1], sr[2], ca);
+          ctx.fillRect(x, by + (rng()-0.5)*3, w, cb);
+        }
+      }
+    }
+
+    // Pass 3: pigment drift patches
+    if (texAmount > 0.1) {
+      const ds = 60 + rng() * 50;
+      const np = Math.ceil((w * h) / (ds * ds)) * 3;
+      for (let i = 0; i < np; i++) {
+        const px = x + rng()*w, py = y + rng()*h;
+        const pr = ds * (0.4 + rng()*0.9);
+        const l = (rng()-0.5) * vary * 0.7;
+        const da = isWhite ? 0.04 : 0.08;
+        const g = ctx.createRadialGradient(px, py, 0, px, py, pr);
+        g.addColorStop(0, rgb(c[0]+l, c[1]+l*0.8, c[2]+l*0.6, da * texAmount));
+        g.addColorStop(1, rgb(c[0]+l, c[1]+l*0.8, c[2]+l*0.6, 0));
+        ctx.fillStyle = g;
+        ctx.fillRect(px-pr, py-pr, pr*2, pr*2);
+      }
+    }
+
+    ctx.restore();
+  }
+
+  // ── Collect grid lines from rectangles ──────────────────────────────
+  function collectLines(rects) {
+    // Deduplicate: find unique line positions and their extents
+    const hLines = new Map(); // y -> [{x1, x2}]
+    const vLines = new Map(); // x -> [{y1, y2}]
+
+    for (const r of rects) {
+      // Horizontal edges
+      for (const yPos of [r.y, r.y + r.h]) {
+        if (!hLines.has(yPos)) hLines.set(yPos, []);
+        hLines.get(yPos).push({ x1: r.x, x2: r.x + r.w });
+      }
+      // Vertical edges
+      for (const xPos of [r.x, r.x + r.w]) {
+        if (!vLines.has(xPos)) vLines.set(xPos, []);
+        vLines.get(xPos).push({ y1: r.y, y2: r.y + r.h });
+      }
+    }
+
+    // Merge overlapping segments
+    function mergeSegments(segs, key1, key2) {
+      segs.sort((a, b) => a[key1] - b[key1]);
+      const merged = [];
+      let cur = { ...segs[0] };
+      for (let i = 1; i < segs.length; i++) {
+        if (segs[i][key1] <= cur[key2] + 1) {
+          cur[key2] = Math.max(cur[key2], segs[i][key2]);
+        } else {
+          merged.push(cur);
+          cur = { ...segs[i] };
+        }
+      }
+      merged.push(cur);
+      return merged;
+    }
+
+    const lines = [];
+    for (const [yPos, segs] of hLines) {
+      const merged = mergeSegments(segs, 'x1', 'x2');
+      for (const s of merged) {
+        lines.push({ type: 'h', pos: yPos, start: s.x1, end: s.x2 });
+      }
+    }
+    for (const [xPos, segs] of vLines) {
+      const merged = mergeSegments(segs, 'y1', 'y2');
+      for (const s of merged) {
+        lines.push({ type: 'v', pos: xPos, start: s.y1, end: s.y2 });
+      }
+    }
+    return lines;
+  }
+
+  // ── Paint lines ON TOP of fields ────────────────────────────────────
+  function paintLines(lines, lw, texAmount) {
+    const hlw = lw / 2;
+    const rng = seededRand(42);
+
+    for (const line of lines) {
+      // Skip outer canvas border lines entirely
+      if (line.type === 'h' && (line.pos <= 1 || line.pos >= S - 1)) continue;
+      if (line.type === 'v' && (line.pos <= 1 || line.pos >= S - 1)) continue;
+
+      const atStart = line.start <= 1;
+      const atEnd = line.end >= S - 1;
+
+      let drawStart = line.start;
+      let drawEnd = line.end;
+
+      // Some lines don't reach the canvas edge
+      if (atStart && rng() < 0.30) {
+        drawStart = 10 + rng() * 25;
+      }
+      if (atEnd && rng() < 0.30) {
+        drawEnd = S - 10 - rng() * 25;
+      }
+
+      // Base black line
+      ctx.fillStyle = rgb(18, 17, 14, 1);
+      if (line.type === 'h') {
+        ctx.fillRect(drawStart, line.pos - hlw, drawEnd - drawStart, lw);
+      } else {
+        ctx.fillRect(line.pos - hlw, drawStart, lw, drawEnd - drawStart);
+      }
+
+      // "Blitzer" — tiny slivers where canvas peeks through between color and line
+      if (texAmount > 0.15) {
+        const blitzerCount = Math.floor(3 + rng() * 5);
+        for (let b = 0; b < blitzerCount; b++) {
+          if (rng() < 0.6) continue; // sparse
+          const t = rng();
+          const bLen = 3 + rng() * 8;
+          const side = rng() < 0.5 ? -1 : 1;
+          ctx.fillStyle = rgb(CANVAS_RGB[0], CANVAS_RGB[1], CANVAS_RGB[2], 0.5 + rng() * 0.5);
+          if (line.type === 'h') {
+            const bx = drawStart + t * (drawEnd - drawStart);
+            const by = line.pos + side * (hlw - 0.5);
+            ctx.fillRect(bx, by, bLen, 1.2);
+          } else {
+            const by = drawStart + t * (drawEnd - drawStart);
+            const bx = line.pos + side * (hlw - 0.5);
+            ctx.fillRect(bx, by, 1.2, bLen);
+          }
+        }
+      }
+
+      // Painterly texture on line
+      if (texAmount > 0.1) {
+        const len = drawEnd - drawStart;
+        const steps = Math.ceil(len / 10);
+        for (let i = 0; i < steps; i++) {
+          const t = i / steps;
+          const a = (0.03 + rng() * 0.08) * texAmount;
+          const bright = rng() < 0.4;
+          ctx.fillStyle = bright
+            ? rgb(55 + rng()*30, 50 + rng()*25, 42 + rng()*20, a)
+            : rgb(5, 5, 3, a * 0.6);
+
+          if (line.type === 'h') {
+            ctx.fillRect(drawStart + t*len, line.pos - hlw + (rng()-0.5), 10 + rng()*6, lw);
+          } else {
+            ctx.fillRect(line.pos - hlw + (rng()-0.5), drawStart + t*len, lw, 10 + rng()*6);
+          }
+        }
+      }
+    }
+  }
+
+  // ── Paint bare canvas margin ────────────────────────────────────────
+  // ── Stretched canvas depth — subtle shading at edges ──────────────
+  function paintCanvasDepth(texAmount) {
+    if (texAmount < 0.1) return;
+    const edge = 12; // depth zone in pixels
+    const a = 0.06 * texAmount;
+
+    // Subtle darkening at edges — canvas wraps around stretcher bars
+    // Top edge
+    const gt = ctx.createLinearGradient(0, 0, 0, edge);
+    gt.addColorStop(0, `rgba(0,0,0,${a})`);
+    gt.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gt;
+    ctx.fillRect(0, 0, S, edge);
+
+    // Bottom edge
+    const gb = ctx.createLinearGradient(0, S, 0, S - edge);
+    gb.addColorStop(0, `rgba(0,0,0,${a * 0.7})`);
+    gb.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gb;
+    ctx.fillRect(0, S - edge, S, edge);
+
+    // Left edge
+    const gl = ctx.createLinearGradient(0, 0, edge, 0);
+    gl.addColorStop(0, `rgba(0,0,0,${a * 0.8})`);
+    gl.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gl;
+    ctx.fillRect(0, 0, edge, S);
+
+    // Right edge (light hits from left, so right is slightly darker)
+    const gr = ctx.createLinearGradient(S, 0, S - edge, 0);
+    gr.addColorStop(0, `rgba(0,0,0,${a * 0.5})`);
+    gr.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gr;
+    ctx.fillRect(S - edge, 0, edge, S);
+  }
+
+  // ── Canvas texture overlay (organic) ────────────────────────────────
+  function applyCanvasTexture(texAmount) {
+    if (texAmount < 0.05) return;
+    if (!canvasTextureCache || canvasTextureSeed !== currentSeed) {
+      canvasTextureCache = generateCanvasTexture(currentSeed + 9999);
+      canvasTextureSeed = currentSeed;
+    }
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.globalAlpha = 0.05 + texAmount * 0.13;
+    ctx.drawImage(canvasTextureCache, 0, 0);
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.globalAlpha = 0.025 + texAmount * 0.05;
+    ctx.drawImage(canvasTextureCache, 0, 0);
+    ctx.restore();
+  }
+
+  // ── Patina / aging ──────────────────────────────────────────────────
+  function applyPatina(texAmount) {
+    if (texAmount < 0.2) return;
+    const rng = seededRand(currentSeed + 5555);
+
+    // Warm vignette
+    const g = ctx.createRadialGradient(S/2, S/2, S*0.2, S/2, S/2, S*0.7);
+    g.addColorStop(0, 'rgba(0,0,0,0)');
+    g.addColorStop(1, `rgba(30,25,15,${0.04 * texAmount})`);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, S, S);
+
+    // Dust spots
+    if (texAmount > 0.5) {
+      const n = Math.floor(8 * texAmount);
+      for (let i = 0; i < n; i++) {
+        const sx = rng()*S, sy = rng()*S, sr = 15 + rng()*40;
+        const sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
+        sg.addColorStop(0, `rgba(50,42,30,${0.008 * texAmount})`);
+        sg.addColorStop(1, 'rgba(50,42,30,0)');
+        ctx.fillStyle = sg;
+        ctx.fillRect(sx-sr, sy-sr, sr*2, sr*2);
+      }
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  //  MAIN
+  // ══════════════════════════════════════════════════════════════════════
+
+  let currentSeed = Math.floor(Math.random() * 100000);
+
+  function go() {
+    currentSeed = Math.floor(Math.random() * 100000);
+    canvasTextureCache = null;
+
+    const maxD = +document.getElementById('dep').value;
+    const lw   = +document.getElementById('lw').value;
+    const nc   = +document.getElementById('nc').value;
+    const texAmount = +document.getElementById('tx').value / 100;
+
+    // Subdivision (within margin)
+    hSplits = []; vSplits = [];
+    const rects = [];
+    subdivide(0, 0, S, S, 0, maxD, rects);
+
+    // Colorization
+    const colors = colorize(rects, nc);
+
+    // Collect grid lines before rendering
+    const lines = collectLines(rects);
+
+    // ── Render pipeline: fields first, then lines on top ──
+
+    // 1. Base fill (white — fields cover everything edge to edge)
+    ctx.fillStyle = rgb(WHITE_RGB[0], WHITE_RGB[1], WHITE_RGB[2], 1);
+    ctx.fillRect(0, 0, S, S);
+
+    // 2. Paint each field
+    for (const r of rects) paintField(r, texAmount);
+
+    // 3. Black lines ON TOP of fields
+    paintLines(lines, lw, texAmount);
+
+    // 4. Stretched canvas depth (edge shading)
+    paintCanvasDepth(texAmount);
+
+    // 5. Canvas texture
+    applyCanvasTexture(texAmount);
+
+    // 6. Patina
+    applyPatina(texAmount);
+
+    updateInfo(rects, colors);
+  }
+
+  function updateInfo(rects, colors) {
+    const total = rects.reduce((s,r) => s + r.w*r.h, 0);
+    const colored = rects.filter(r => r.col !== WHITE_HEX);
+    const pct = Math.round(colored.reduce((s,r) => s + r.w*r.h, 0) / total * 100);
+    document.getElementById('info').innerHTML = [
+      `${rects.length} fields &middot; ${colors.length ? colors.join(', ') : 'white only'} &middot; ${pct}% colored`,
+      `Golden ratio bias &middot; no adjacent colors &middot; painterly rendering`,
+    ].join('<br>');
+  }
+
+  go();
+  </script>
+</body>
+</html>
