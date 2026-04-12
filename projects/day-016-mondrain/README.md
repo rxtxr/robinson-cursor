@@ -9,11 +9,6 @@ Painterly Mondrian composition generator. Not just the logic of neoplasticism â€
 - Painterly rendering: directional brushstrokes, per-stroke color variation, pigment drift
 - Organic canvas texture (multi-layered value noise)
 - Lines painted on top of fields â€” some don't reach the edge
-- Stretched-canvas depth effect at edges
-- Atelier wall with plaster texture and directional shadow
-- Animated window light with curtain sway
-- Bauhaus-style UI on tilted paper posters (A3 title, A4 controls)
-- Hide/show UI by clicking the painting
 - PNG download
 
 ## Controls
