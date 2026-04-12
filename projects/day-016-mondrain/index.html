@@ -280,7 +280,7 @@
     @media (max-width: 640px) {
       body { padding: 1rem 0.5rem; }
 
-      .scene { margin-bottom: 200px; }
+      .scene { margin-bottom: 0; }
 
       /* Title poster hidden — show plain title instead */
       .poster-title { display: none; }
@@ -293,25 +293,46 @@
         margin-bottom: 1rem;
       }
 
-      /* Controls poster: landscape, centered below canvas */
+      /* Controls poster: landscape, fully below canvas, touchable */
       .poster-ctrl {
+        position: relative;
+        z-index: 3;
         right: auto;
-        left: 50%;
-        bottom: -160px;
+        left: auto;
+        bottom: auto;
         width: 90%;
         max-width: 340px;
         height: auto;
         aspect-ratio: 297 / 210; /* DIN landscape */
-        transform: translateX(-50%) rotate(0deg);
-        padding: 18px 20px 16px;
+        transform: rotate(0deg);
+        padding: 18px 24px 16px;
+        margin: 1.2rem auto 0;
+        touch-action: manipulation;
+      }
+
+      .poster-ctrl input[type="range"] {
+        height: 3px;
+        margin: 8px 0;
+      }
+      .poster-ctrl input[type="range"]::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+      }
+      .poster-ctrl input[type="range"]::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
       }
 
       /* Hidden state */
       .posters-hidden .poster-ctrl {
-        transform: translateX(-50%) translateY(-200px);
+        transform: translateY(40px);
+        opacity: 0;
+        pointer-events: none;
       }
       .posters-hidden:hover .poster-ctrl {
-        transform: translateX(-50%) translateY(-160px);
+        transform: translateY(10px);
+        opacity: 0.6;
+        pointer-events: auto;
       }
 
       .toggle-ui {
