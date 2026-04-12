@@ -335,16 +335,11 @@
         pointer-events: auto;
       }
 
-      .toggle-ui {
-        left: 50%;
-        transform: translateX(-50%);
-        bottom: -24px;
-      }
-      .posters-hidden .toggle-ui {
-        transform: translateX(-50%);
-      }
-      .posters-hidden.mouse-moving .toggle-ui {
-        transform: translateX(-50%);
+      /* No window light on mobile */
+      .window-light { display: none; }
+
+      /* No hide UI on mobile */
+      .toggle-ui { display: none; }
       }
     }
   </style>
@@ -423,9 +418,9 @@
     s.classList.toggle('posters-hidden');
     btn.textContent = s.classList.contains('posters-hidden') ? 'show ui' : 'hide ui';
   }
-  // Click on canvas → toggle UI
+  // Click on canvas → toggle UI (desktop only)
   document.addEventListener('click', function(e) {
-    if (e.target.tagName === 'CANVAS') {
+    if (e.target.tagName === 'CANVAS' && window.innerWidth > 640) {
       toggleUI();
     }
   });
