@@ -7,7 +7,7 @@
   "tags": ["forbidden", "haunted", "do-not-touch", "cursed-code", "floppy-archaeology", "regret"],
   "stack": ["COBOL fragment", "Turbo Pascal residue", "HyperCard ghost", "Delphi 3 emotional damage", "GW-BASIC tears"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-015-self-destruct",
-  "status": "wip",
+  "status": "complete",
   "statusLabel": "DANGER",
   "license_notes": "FlickerKit.bas v0.3 — Borland Shareware License (1993), redistribution permitted if accompanied by a self-addressed stamped envelope. CRT_MELT.PAS — Turbo Pascal Community License, all warranties void upon execution. DESTRUCT.HLP — licensed under the Cooperative Freeware Agreement for Non-Commercial Diskette Distribution (CFANDD), Rev. 2, Hobbyist Addendum C. SysOp approval required for BBS redistribution."
 }
