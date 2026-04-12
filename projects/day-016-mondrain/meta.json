@@ -6,7 +6,7 @@
   "description": "Painterly Mondrian composition generator. Recursive subdivision with golden ratio bias, aesthetic color placement, and canvas texture rendering — brushstrokes, pigment variation, linen weave, patina. Atelier wall presentation with Bauhaus-style UI.",
   "tags": ["generative", "art", "canvas", "mondrian", "de-stijl", "neoplasticism", "painterly", "bauhaus"],
   "stack": ["Canvas 2D", "Procedural texture generation", "Value noise", "CSS animations"],
-  "thumbnail": "thumbnail.png",
+  "thumbnail": "thumb.png",
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-016-mondrain",
   "status": "complete",
   "license_notes": "Jost font (SIL Open Font License). No other external dependencies."
