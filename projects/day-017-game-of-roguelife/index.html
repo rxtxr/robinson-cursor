@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 017 — Game of Roguelife</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #crt {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #crt #game {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  #crt::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 2px,
+      rgba(0,0,0,0.3) 2px,
+      rgba(0,0,0,0.3) 4px
+    );
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  #crt::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 50%,
+      rgba(0,0,0,0.4) 75%,
+      rgba(0,0,0,0.85) 100%
+    );
+    pointer-events: none;
+    z-index: 11;
+  }
+
+  #hud {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 20;
+    pointer-events: none;
+  }
+  #hud .stats { display: flex; gap: 16px; align-items: center; }
+  #hud canvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  #gene-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 8px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    z-index: 20;
+    pointer-events: none;
+  }
+  #gene-bar .gene-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  #gene-bar canvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  .overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px;
+    pointer-events: none; opacity: 0; transition: opacity 0.3s;
+  }
+  .overlay.visible { opacity: 1; pointer-events: auto; }
+  .overlay canvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  #card-screen {
+    position: absolute; inset: 0; background: #000; z-index: 30;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px;
+  }
+  #card-screen.hidden { display: none; }
+  #card-screen canvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  .card-row {
+    display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+  }
+
+  .card-slot {
+    cursor: pointer;
+    transition: transform 0.15s;
+    position: relative;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .card-slot:focus, .card-slot:focus-visible,
+  .card-slot canvas:focus, .card-slot canvas:focus-visible { outline: none; }
+  .card-slot:hover { transform: translateY(-6px); }
+  .card-slot.selected { transform: translateY(-10px); }
+
+
+  .card-slot .card-desc-canvas {
+    position: absolute;
+    bottom: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.15s;
+    pointer-events: none;
+  }
+  .card-slot:hover .card-desc-canvas { opacity: 1; }
+
+  #midgame-screen { background: rgba(0,0,0,0.9); z-index: 25; }
+  #midgame-cards { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+
+  #level-screen { background: transparent; z-index: 25; cursor: pointer; }
+  #death-screen { background: rgba(0,0,0,0.85); z-index: 25; }
+
+  .overlay-btn {
+    background: #000; border: 2px solid #fff; padding: 6px 16px;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .overlay-btn:hover { background: #fff; }
+  .overlay-btn:hover canvas { filter: invert(1); }
+  .overlay-btn canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  /* Win wipe canvas — red scanline fill */
+  #win-wipe {
+    position: absolute;
+    inset: 0;
+    z-index: 24;
+    pointer-events: none;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  #event-flash {
+    position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
+    z-index: 20; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  #event-flash canvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+  #event-flash.visible { opacity: 1; }
+
+  /* Mobile blocker */
+  #mobile-block {
+    display: none;
+    position: fixed; inset: 0; z-index: 999;
+    background: #000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+  }
+  #mobile-block canvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+  @media (max-width: 768px) {
+    #mobile-block { display: flex; }
+    #crt, #card-screen { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="mobile-block"></div>
+
+<div id="crt">
+  <canvas id="game"></canvas>
+  <div id="hud">
+    <div class="stats" id="hud-left"></div>
+    <div class="stats" id="hud-right"></div>
+  </div>
+  <div id="gene-bar"></div>
+  <canvas id="win-wipe"></canvas>
+  <div id="event-flash"></div>
+
+  <div id="midgame-screen" class="overlay">
+    <div id="midgame-cards"></div>
+  </div>
+
+  <div id="level-screen" class="overlay">
+    <div id="level-content"></div>
+  </div>
+
+  <div id="death-screen" class="overlay">
+    <div id="death-content"></div>
+  </div>
+</div>
+
+<div id="card-screen">
+  <div id="card-title"></div>
+  <div class="card-row" id="gene-cards"></div>
+</div>
+
+<script>
+(function(){
+
+  // ==== 3x5 PIXEL FONT (A-Z, 0-9, space, common punctuation) ====
+  const G = { // glyph data: [width, ...pixels]
+    'A': [3, 0,1,0, 1,0,1, 1,1,1, 1,0,1, 1,0,1],
+    'B': [3, 1,1,0, 1,0,1, 1,1,0, 1,0,1, 1,1,0],
+    'C': [3, 0,1,1, 1,0,0, 1,0,0, 1,0,0, 0,1,1],
+    'D': [3, 1,1,0, 1,0,1, 1,0,1, 1,0,1, 1,1,0],
+    'E': [3, 1,1,1, 1,0,0, 1,1,0, 1,0,0, 1,1,1],
+    'F': [3, 1,1,1, 1,0,0, 1,1,0, 1,0,0, 1,0,0],
+    'G': [3, 0,1,1, 1,0,0, 1,0,1, 1,0,1, 0,1,1],
+    'H': [3, 1,0,1, 1,0,1, 1,1,1, 1,0,1, 1,0,1],
+    'I': [3, 1,1,1, 0,1,0, 0,1,0, 0,1,0, 1,1,1],
+    'J': [3, 0,0,1, 0,0,1, 0,0,1, 1,0,1, 0,1,0],
+    'K': [3, 1,0,1, 1,1,0, 1,0,0, 1,1,0, 1,0,1],
+    'L': [3, 1,0,0, 1,0,0, 1,0,0, 1,0,0, 1,1,1],
+    'M': [5, 1,0,0,0,1, 1,1,0,1,1, 1,0,1,0,1, 1,0,0,0,1, 1,0,0,0,1],
+    'N': [4, 1,0,0,1, 1,1,0,1, 1,0,1,1, 1,0,0,1, 1,0,0,1],
+    'O': [3, 0,1,0, 1,0,1, 1,0,1, 1,0,1, 0,1,0],
+    'P': [3, 1,1,0, 1,0,1, 1,1,0, 1,0,0, 1,0,0],
+    'Q': [3, 0,1,0, 1,0,1, 1,0,1, 0,1,0, 0,0,1],
+    'R': [3, 1,1,0, 1,0,1, 1,1,0, 1,0,1, 1,0,1],
+    'S': [3, 0,1,1, 1,0,0, 0,1,0, 0,0,1, 1,1,0],
+    'T': [3, 1,1,1, 0,1,0, 0,1,0, 0,1,0, 0,1,0],
+    'U': [3, 1,0,1, 1,0,1, 1,0,1, 1,0,1, 0,1,0],
+    'V': [3, 1,0,1, 1,0,1, 1,0,1, 0,1,0, 0,1,0],
+    'W': [5, 1,0,0,0,1, 1,0,0,0,1, 1,0,1,0,1, 1,1,0,1,1, 1,0,0,0,1],
+    'X': [3, 1,0,1, 1,0,1, 0,1,0, 1,0,1, 1,0,1],
+    'Y': [3, 1,0,1, 1,0,1, 0,1,0, 0,1,0, 0,1,0],
+    'Z': [3, 1,1,1, 0,0,1, 0,1,0, 1,0,0, 1,1,1],
+    '0': [3, 0,1,0, 1,0,1, 1,0,1, 1,0,1, 0,1,0],
+    '1': [2, 0,1, 1,1, 0,1, 0,1, 1,1],
+    '2': [3, 1,1,0, 0,0,1, 0,1,0, 1,0,0, 1,1,1],
+    '3': [3, 1,1,0, 0,0,1, 1,1,0, 0,0,1, 1,1,0],
+    '4': [3, 1,0,1, 1,0,1, 1,1,1, 0,0,1, 0,0,1],
+    '5': [3, 1,1,1, 1,0,0, 1,1,0, 0,0,1, 1,1,0],
+    '6': [3, 0,1,1, 1,0,0, 1,1,1, 1,0,1, 1,1,1],
+    '7': [3, 1,1,1, 0,0,1, 0,1,0, 0,1,0, 0,1,0],
+    '8': [3, 1,1,1, 1,0,1, 1,1,1, 1,0,1, 1,1,1],
+    '9': [3, 1,1,1, 1,0,1, 1,1,1, 0,0,1, 1,1,0],
+    ' ': [2],
+    '/': [3, 0,0,1, 0,0,1, 0,1,0, 1,0,0, 1,0,0],
+    ':': [1, 0, 1, 0, 1, 0],
+    '+': [3, 0,0,0, 0,1,0, 1,1,1, 0,1,0, 0,0,0],
+    '-': [3, 0,0,0, 0,0,0, 1,1,1, 0,0,0, 0,0,0],
+  };
+
+  // Render a string to a canvas at native pixel size
+  function pixelText(text, color, scale) {
+    text = text.toUpperCase();
+    // Calculate total width
+    let tw = 0;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      const glyph = G[ch];
+      tw += glyph ? glyph[0] : 2;
+      if (i < text.length - 1) tw += 1; // 1px gap
+    }
+    const th = 5;
+    const c = document.createElement('canvas');
+    c.width = tw; c.height = th;
+    const x = c.getContext('2d');
+    x.fillStyle = color || '#fff';
+
+    let cx = 0;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      const glyph = G[ch];
+      if (!glyph) { cx += 3; continue; }
+      const w = glyph[0];
+      for (let p = 1; p < glyph.length; p++) {
+        if (glyph[p]) {
+          const px = (p - 1) % w;
+          const py = Math.floor((p - 1) / w);
+          x.fillRect(cx + px, py, 1, 1);
+        }
+      }
+      cx += w + 1;
+    }
+
+    const s = scale || 3;
+    c.style.width = (tw * s) + 'px';
+    c.style.height = (th * s) + 'px';
+    return c;
+  }
+
+  // ---- 8x8 pixel icons ----
+  const ICONS = {
+    heart: [
+      0,0,0,0,0,0,0,0, 0,1,1,0,1,1,0,0, 1,1,1,1,1,1,1,0,
+      1,1,1,1,1,1,1,0, 0,1,1,1,1,1,0,0, 0,0,1,1,1,0,0,0,
+      0,0,0,1,0,0,0,0, 0,0,0,0,0,0,0,0,
+    ],
+    virus: [
+      0,0,1,0,0,1,0,0, 0,0,0,1,1,0,0,0, 1,0,1,1,1,1,0,1,
+      0,1,1,1,1,1,1,0, 0,1,1,1,1,1,1,0, 1,0,1,1,1,1,0,1,
+      0,0,0,1,1,0,0,0, 0,0,1,0,0,1,0,0,
+    ],
+    shield: [
+      0,1,1,1,1,1,1,0, 0,1,1,1,1,1,1,0, 0,1,1,1,1,1,1,0,
+      0,1,1,1,1,1,1,0, 0,0,1,1,1,1,0,0, 0,0,1,1,1,1,0,0,
+      0,0,0,1,1,0,0,0, 0,0,0,1,1,0,0,0,
+    ],
+    bolt: [
+      0,0,0,1,1,0,0,0, 0,0,1,1,0,0,0,0, 0,1,1,0,0,0,0,0,
+      1,1,1,1,1,1,0,0, 0,0,0,1,1,0,0,0, 0,0,1,1,0,0,0,0,
+      0,1,1,0,0,0,0,0, 1,0,0,0,0,0,0,0,
+    ],
+    skull: [
+      0,1,1,1,1,1,1,0, 1,1,1,1,1,1,1,1, 1,1,0,1,1,0,1,1,
+      1,1,0,1,1,0,1,1, 1,1,1,1,1,1,1,1, 0,1,0,1,1,0,1,0,
+      0,0,1,1,1,1,0,0, 0,0,1,0,0,1,0,0,
+    ],
+    cross: [
+      0,0,0,1,1,0,0,0, 0,0,0,1,1,0,0,0, 0,0,0,1,1,0,0,0,
+      1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1, 0,0,0,1,1,0,0,0,
+      0,0,0,1,1,0,0,0, 0,0,0,1,1,0,0,0,
+    ],
+    bomb: [
+      0,0,0,0,1,1,0,0, 0,0,0,1,0,0,0,0, 0,0,1,1,1,1,0,0,
+      0,1,1,1,1,1,1,0, 0,1,1,1,1,1,1,0, 0,1,1,1,1,1,1,0,
+      0,0,1,1,1,1,0,0, 0,0,0,1,1,0,0,0,
+    ],
+  };
+
+  const MINI_ICONS = {
+    heart:  [0,1,1,0, 1,1,1,1, 0,1,1,0, 0,0,1,0],
+    virus:  [0,1,1,0, 1,1,1,1, 1,1,1,1, 0,1,1,0],
+    shield: [1,1,1,1, 1,1,1,1, 0,1,1,0, 0,1,1,0],
+    bolt:   [0,0,1,0, 0,1,1,0, 1,1,0,0, 0,1,0,0],
+    skull:  [0,1,1,0, 1,0,0,1, 1,1,1,1, 0,1,0,1],
+    cross:  [0,1,1,0, 1,1,1,1, 1,1,1,1, 0,1,1,0],
+    bomb:   [0,0,1,0, 0,1,1,0, 1,1,1,1, 0,1,1,0],
+  };
+
+  function renderIconCanvas(iconKey, size) {
+    const c = document.createElement('canvas');
+    c.width = 8; c.height = 8;
+    const x = c.getContext('2d');
+    x.fillStyle = '#fff';
+    const data = ICONS[iconKey];
+    for (let i = 0; i < 64; i++) {
+      if (data[i]) x.fillRect(i % 8, Math.floor(i / 8), 1, 1);
+    }
+    c.style.width = size + 'px';
+    c.style.height = size + 'px';
+    return c;
+  }
+
+  // ---- Card rendering (3x5 font reused from G) ----
+  const CARD_W = 30, CARD_H = 42, CARD_SCALE = 5;
+  const VALUE_LABELS = ['2','3','4','5','6','7','8','9','10','A'];
+
+  function renderCard(geneDef, valueIndex) {
+    const c = document.createElement('canvas');
+    c.width = CARD_W; c.height = CARD_H;
+    const x = c.getContext('2d');
+
+    // White body with pixel-rounded corners
+    x.fillStyle = '#fff';
+    x.fillRect(1, 0, CARD_W - 2, CARD_H);
+    x.fillRect(0, 1, CARD_W, CARD_H - 2);
+    x.fillStyle = '#000';
+    x.fillRect(0,0,2,1); x.fillRect(0,0,1,2);
+    x.fillRect(CARD_W-2,0,2,1); x.fillRect(CARD_W-1,0,1,2);
+    x.fillRect(0,CARD_H-1,2,1); x.fillRect(0,CARD_H-2,1,2);
+    x.fillRect(CARD_W-2,CARD_H-1,2,1); x.fillRect(CARD_W-1,CARD_H-2,1,2);
+
+    const label = VALUE_LABELS[valueIndex];
+    const iconData = ICONS[geneDef.icon];
+    const miniData = MINI_ICONS[geneDef.icon];
+
+    // Value top-left
+    x.fillStyle = '#000';
+    cardDrawText(x, label, 2, 2);
+    cardDrawMini(x, miniData, 2, 8);
+
+    // Large icon center
+    const ix = Math.floor((CARD_W - 8) / 2);
+    const iy = Math.floor((CARD_H - 8) / 2);
+    for (let i = 0; i < 64; i++) {
+      if (iconData[i]) x.fillRect(ix + (i % 8), iy + Math.floor(i / 8), 1, 1);
+    }
+
+    // Mirrored bottom-right
+    x.save();
+    x.translate(CARD_W, CARD_H);
+    x.rotate(Math.PI);
+    x.fillStyle = '#000';
+    cardDrawText(x, label, 2, 2);
+    cardDrawMini(x, miniData, 2, 8);
+    x.restore();
+
+    c.style.width = (CARD_W * CARD_SCALE) + 'px';
+    c.style.height = (CARD_H * CARD_SCALE) + 'px';
+    return c;
+  }
+
+  function cardDrawText(ctx, text, ox, oy) {
+    text = text.toUpperCase();
+    for (let i = 0; i < text.length; i++) {
+      const glyph = G[text[i]];
+      if (!glyph) { ox += 3; continue; }
+      const w = glyph[0];
+      for (let p = 1; p < glyph.length; p++) {
+        if (glyph[p]) {
+          ctx.fillRect(ox + (p-1) % w, oy + Math.floor((p-1) / w), 1, 1);
+        }
+      }
+      ox += w + 1;
+    }
+  }
+
+  function cardDrawMini(ctx, data, ox, oy) {
+    for (let i = 0; i < 16; i++) {
+      if (data[i]) ctx.fillRect(ox + (i % 4), oy + Math.floor(i / 4), 1, 1);
+    }
+  }
+
+  // ---- Gene definitions ----
+  const GENE_DEFS = [
+    { id: 'fertile',  icon: 'heart',  title: 'Fertile',  desc: 'Breed faster' },
+    { id: 'viral',    icon: 'virus',  title: 'Viral',    desc: 'Infect enemies' },
+    { id: 'tough',    icon: 'shield', title: 'Tough',    desc: 'Cheat death' },
+    { id: 'fast',     icon: 'bolt',   title: 'Fast',     desc: 'Delay waves' },
+    { id: 'toxic',    icon: 'skull',  title: 'Toxic',    desc: 'Kills nearby' },
+    { id: 'regen',    icon: 'cross',  title: 'Regen',    desc: 'Rise again' },
+  ];
+  const GENE_BY_ID = {};
+  GENE_DEFS.forEach(g => GENE_BY_ID[g.id] = g);
+
+  // ---- State ----
+  let round = 0, level = 1;
+  let selectedCards = [];
+  let dealtCards = [];
+  let totalScore = 0;
+  let autoStartTimer = null;
+
+  let nextCardTick = 80, cardTickGap = 80, cardDrawCount = 0;
+
+  // ---- Deal cards ----
+  function dealCards() {
+    dealtCards = [];
+    const pool = [...GENE_DEFS];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    const count = Math.min(4 + Math.floor(round * 0.5), 6);
+    for (let i = 0; i < count && i < pool.length; i++) {
+      const maxVal = round === 0 ? 2 : Math.min(2 + round * 2, 9);
+      dealtCards.push({ gene: pool[i], value: Math.floor(Math.random() * (maxVal + 1)) });
+    }
+  }
+
+  // ---- Card selection UI ----
+  const cardRow = document.getElementById('gene-cards');
+
+  function buildCardUI() {
+    cardRow.innerHTML = '';
+    selectedCards = [];
+    if (autoStartTimer) clearTimeout(autoStartTimer);
+
+    dealtCards.forEach((card, idx) => {
+      const slot = document.createElement('div');
+      slot.className = 'card-slot';
+      slot.appendChild(renderCard(card.gene, card.value));
+
+      // Pixel description on hover
+      const descCvs = pixelText(card.gene.desc + ' +' + (card.value + 2), '#fff', 2);
+      descCvs.className = 'card-desc-canvas';
+      slot.appendChild(descCvs);
+
+      slot.addEventListener('click', () => {
+        const selIdx = selectedCards.indexOf(idx);
+        if (selIdx >= 0) {
+          selectedCards.splice(selIdx, 1);
+          slot.classList.remove('selected');
+        } else if (selectedCards.length < 3) {
+          selectedCards.push(idx);
+          slot.classList.add('selected');
+        }
+        // Auto-start 1s after last selection change
+        if (autoStartTimer) clearTimeout(autoStartTimer);
+        if (selectedCards.length >= 1) {
+          doStart();
+        }
+      });
+      cardRow.appendChild(slot);
+    });
+  }
+
+  function doStart() {
+    if (selectedCards.length < 1) return;
+    const chosen = selectedCards.map(i => ({
+      id: dealtCards[i].gene.id,
+      strength: dealtCards[i].value + 2
+    }));
+    chosen.forEach(c => {
+      activeGenes[c.id] = (activeGenes[c.id] || 0) + c.strength;
+    });
+    document.getElementById('card-screen').classList.add('hidden');
+    renderGeneBar();
+    initLevel();
+  }
+
+
+  // ---- Mid-game card draw ----
+  function dealMidgameCards() {
+    const pool = [...GENE_DEFS];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    const cards = [];
+    for (let i = 0; i < 3 && i < pool.length; i++) {
+      const minVal = Math.min(cardDrawCount, 5);
+      const maxVal = Math.min(3 + cardDrawCount * 2, 9);
+      cards.push({ gene: pool[i], value: Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal });
+    }
+    return cards;
+  }
+
+  function showMidgameCards() {
+    phase = 'cardpick';
+    clearInterval(tickTimer);
+
+    const mgCards = dealMidgameCards();
+    const mgRow = document.getElementById('midgame-cards');
+    mgRow.innerHTML = '';
+
+    mgCards.forEach(card => {
+      const slot = document.createElement('div');
+      slot.className = 'card-slot';
+      slot.appendChild(renderCard(card.gene, card.value));
+
+      const descCvs = pixelText(card.gene.desc + ' +' + (card.value + 2), '#fff', 2);
+      descCvs.className = 'card-desc-canvas';
+      slot.appendChild(descCvs);
+
+      slot.addEventListener('click', () => {
+        activeGenes[card.gene.id] = (activeGenes[card.gene.id] || 0) + card.value + 2;
+        if (card.gene.id === 'fast') {
+          TICK_MS = Math.max(30, TICK_MS_NORMAL - geneStr('fast') * 8);
+        }
+        renderGeneBar();
+        resumeFromCardPick();
+      });
+      mgRow.appendChild(slot);
+    });
+
+    const mgScreen = document.getElementById('midgame-screen');
+    // Click anywhere outside cards = skip
+    function onMgClick(e) {
+      if (!e.target.closest('.card-slot')) {
+        mgScreen.removeEventListener('click', onMgClick);
+        resumeFromCardPick();
+      }
+    }
+    mgScreen.addEventListener('click', onMgClick);
+    mgScreen.classList.add('visible');
+  }
+
+  function resumeFromCardPick() {
+    document.getElementById('midgame-screen').classList.remove('visible');
+    cardDrawCount++;
+    cardTickGap += 60;
+    nextCardTick = tick + cardTickGap;
+    phase = 'running';
+    tickTimer = setInterval(tickFn, TICK_MS);
+  }
+
+  // ---- Level transition with red scanline wipe ----
+  const wipeCanvas = document.getElementById('win-wipe');
+  const wipeCtx = wipeCanvas.getContext('2d');
+
+  // CRT-style raster wipe: each row fills pixel by pixel,
+  // alternating left-to-right / right-to-left like an electron beam
+  function redWipe(onComplete) {
+    wipeCanvas.width = COLS;
+    wipeCanvas.height = ROWS;
+    wipeCanvas.style.width = '100%';
+    wipeCanvas.style.height = '100%';
+    wipeCtx.clearRect(0, 0, COLS, ROWS);
+    wipeCtx.fillStyle = '#c00';
+
+    let row = ROWS - 1;
+    let col = 0;
+    let dir = 1; // 1=left-to-right, -1=right-to-left
+    const pixelsPerFrame = 24; // speed
+
+    wipeRunning = true;
+    function step() {
+      if (!wipeRunning) return;
+      for (let i = 0; i < pixelsPerFrame; i++) {
+        wipeCtx.fillRect(col, row, 1, 1);
+        col += dir;
+        if ((dir === 1 && col >= COLS) || (dir === -1 && col < 0)) {
+          row--;
+          if (row < 0) { if (onComplete) onComplete(); return; }
+          dir = -dir;
+          col = dir === 1 ? 0 : COLS - 1;
+        }
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  let wipeRunning = false;
+
+  function clearWipe() {
+    wipeRunning = false;
+    wipeCtx.clearRect(0, 0, COLS, ROWS);
+  }
+
+  function showLevelComplete() {
+    phase = 'levelcomplete';
+    clearInterval(tickTimer);
+    const score = tick * maxPop;
+    totalScore += score;
+
+    // Pre-render "LEVEL N CLEARED" text onto the wipe canvas
+    // so the raster wipe reveals it as it fills red
+    wipeCanvas.width = COLS;
+    wipeCanvas.height = ROWS;
+    wipeCanvas.style.width = '100%';
+    wipeCanvas.style.height = '100%';
+    wipeCtx.clearRect(0, 0, COLS, ROWS);
+
+    // Draw text centered on the canvas (will be hidden until red fills behind it)
+    const titleText = 'Level ' + level + ' cleared';
+    const scoreText = 'Score ' + score;
+    const totalText = 'Total ' + totalScore;
+
+    // Measure text widths to center them
+    function textWidth(t) {
+      t = t.toUpperCase();
+      let w = 0;
+      for (let i = 0; i < t.length; i++) {
+        const g = G[t[i]];
+        w += g ? g[0] : 2;
+        if (i < t.length - 1) w += 1;
+      }
+      return w;
+    }
+
+    const nextText = 'Next';
+    const tw1 = textWidth(titleText);
+    const tw2 = textWidth(scoreText);
+    const tw3 = textWidth(totalText);
+    const tw4 = textWidth(nextText);
+    const cx1 = Math.floor((COLS - tw1) / 2);
+    const cx2 = Math.floor((COLS - tw2) / 2);
+    const cx3 = Math.floor((COLS - tw3) / 2);
+    const cx4 = Math.floor((COLS - tw4) / 2);
+    const ty = Math.floor(ROWS / 2) - 12;
+
+    const textRows = { title: { x: cx1, y: ty, text: titleText },
+                       score: { x: cx2, y: ty + 8, text: scoreText },
+                       total: { x: cx3, y: ty + 14, text: totalText },
+                       next:  { x: cx4, y: ty + 24, text: nextText } };
+
+    // Run raster wipe, drawing text as rows are reached
+    let row = ROWS - 1;
+    let col = 0;
+    let dir = 1;
+    const pixelsPerFrame = 24;
+
+    // Draw border around NEXT text area on the wipe canvas
+    const nx = textRows.next.x - 2;
+    const ny = textRows.next.y - 2;
+    const nw = tw4 + 4;
+    const nh = 8;
+
+    // Make level-screen clickable immediately
+    const ls = document.getElementById('level-screen');
+    ls.classList.add('visible');
+    function onLevelClick() {
+      ls.removeEventListener('click', onLevelClick);
+      ls.classList.remove('visible');
+      clearWipe();
+      level++; round++;
+      showCardScreen();
+    }
+    ls.addEventListener('click', onLevelClick);
+
+    wipeRunning = true;
+
+    function step() {
+      if (!wipeRunning) return;
+      for (let i = 0; i < pixelsPerFrame; i++) {
+        wipeCtx.fillStyle = '#c00';
+        wipeCtx.fillRect(col, row, 1, 1);
+        col += dir;
+        if ((dir === 1 && col >= COLS) || (dir === -1 && col < 0)) {
+          for (const key in textRows) {
+            const td = textRows[key];
+            const txt = td.text.toUpperCase();
+            let tx = td.x;
+            for (let ci = 0; ci < txt.length; ci++) {
+              const glyph = G[txt[ci]];
+              if (!glyph) { tx += 3; continue; }
+              const w = glyph[0];
+              for (let p = 1; p < glyph.length; p++) {
+                const px = (p - 1) % w;
+                const py = Math.floor((p - 1) / w);
+                if (glyph[p] && td.y + py === row) {
+                  wipeCtx.fillStyle = '#fff';
+                  wipeCtx.fillRect(tx + px, row, 1, 1);
+                }
+              }
+              tx += w + 1;
+            }
+          }
+          if (row >= ny && row <= ny + nh) {
+            wipeCtx.fillStyle = '#fff';
+            if (row === ny) wipeCtx.fillRect(nx, ny, nw, 1);
+            if (row === ny + nh) wipeCtx.fillRect(nx, ny + nh, nw, 1);
+            wipeCtx.fillRect(nx, row, 1, 1);
+            wipeCtx.fillRect(nx + nw - 1, row, 1, 1);
+          }
+          row--;
+          if (row < 0) return;
+          dir = -dir;
+          col = dir === 1 ? 0 : COLS - 1;
+        }
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function showDeathScreen() {
+    phase = 'dead';
+    clearInterval(tickTimer);
+    const score = tick * maxPop;
+    totalScore += score;
+
+    const content = document.getElementById('death-content');
+    content.innerHTML = '';
+    content.appendChild(pixelText('Extinct', '#c00', 4));
+    content.appendChild(pixelText('Level ' + level + ' / ' + tick + ' Ticks', '#fff', 2));
+    content.appendChild(pixelText('Score ' + totalScore, '#fff', 2));
+
+    const ds = document.getElementById('death-screen');
+    ds.style.cursor = 'pointer';
+    ds.classList.add('visible');
+    function onDeathClick() {
+      ds.removeEventListener('click', onDeathClick);
+      ds.classList.remove('visible');
+      round = 0; level = 1; totalScore = 0; activeGenes = {};
+      renderGeneBar();
+      showCardScreen();
+    }
+    ds.addEventListener('click', onDeathClick);
+  }
+
+  function showCardScreen() {
+    const titleEl = document.getElementById('card-title');
+    titleEl.innerHTML = '';
+
+    // R-Pentomino icon centered above title
+    const rpent = document.createElement('canvas');
+    rpent.width = 3; rpent.height = 3;
+    const rx = rpent.getContext('2d');
+    rx.fillStyle = '#c00';
+    // R-pentomino shape: .## / ##. / .#.
+    rx.fillRect(1,0,1,1); rx.fillRect(2,0,1,1);
+    rx.fillRect(0,1,1,1); rx.fillRect(1,1,1,1);
+    rx.fillRect(1,2,1,1);
+    rpent.style.width = '36px';
+    rpent.style.height = '36px';
+    rpent.style.imageRendering = 'pixelated';
+    rpent.style.display = 'block';
+    rpent.style.margin = '0 auto 24px';
+    titleEl.appendChild(rpent);
+
+    titleEl.appendChild(pixelText('Game of Roguelife', '#fff', 4));
+
+    dealCards();
+    buildCardUI();
+    document.getElementById('card-screen').classList.remove('hidden');
+  }
+
+  // ---- Gene bar HUD ----
+  function renderGeneBar() {
+    const bar = document.getElementById('gene-bar');
+    bar.innerHTML = '';
+    for (const id in activeGenes) {
+      const def = GENE_BY_ID[id];
+      if (!def) continue;
+      const item = document.createElement('div');
+      item.className = 'gene-item';
+      item.appendChild(renderIconCanvas(def.icon, 24));
+      item.appendChild(pixelText('' + activeGenes[id], '#fff', 3));
+      bar.appendChild(item);
+    }
+  }
+
+  // ---- HUD rendering ----
+  function updateHUD() {
+    const { mine } = countCells();
+    const left = document.getElementById('hud-left');
+    const right = document.getElementById('hud-right');
+    left.innerHTML = '';
+    right.innerHTML = '';
+    left.appendChild(pixelText('LVL ' + level + '  TICK ' + tick + '  POP ' + mine + '  MAX ' + maxPop, '#fff', 2));
+    right.appendChild(pixelText('Score ' + (totalScore + tick * maxPop), '#fff', 2));
+  }
+
+  // ---- Game state ----
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+
+  const COLS = 160, ROWS = 90;
+  const TICK_MS_NORMAL = 120;
+  let TICK_MS = TICK_MS_NORMAL;
+
+  let grid, ghostGrid;
+  let tick = 0, maxPop = 0;
+  let phase = 'menu';
+  let tickTimer = null;
+  let activeGenes = {};
+
+  const PATTERNS = {
+    block:   [[0,0],[1,0],[0,1],[1,1]],
+    blinker: [[0,0],[1,0],[2,0]],
+    glider:  [[1,0],[2,1],[0,2],[1,2],[2,2]],
+    rpent:   [[1,0],[2,0],[0,1],[1,1],[1,2]],
+    glider_ne: [[0,0],[1,0],[2,0],[2,1],[1,2]],
+    glider_nw: [[0,0],[1,0],[2,0],[0,1],[1,2]],
+    glider_se: [[0,0],[2,1],[1,2],[2,2],[0,2]],
+    glider_sw: [[2,0],[0,1],[0,2],[1,2],[2,2]]
+  };
+
+  const CELL_COLORS = {
+    1: '#fff',  // white (level 1)
+    2: '#c00',  // red (player)
+    3: '#cc0',  // yellow (level 2)
+    4: '#c6c',  // pink (level 3)
+    5: '#48f',  // blue (level 4)
+    6: '#4c4',  // green (level 5)
+    7: '#f84',  // orange (level 6)
+    8: '#0cc',  // cyan (level 7+)
+  };
+
+  function emptyGrid() { return Array.from({length: ROWS}, () => new Uint8Array(COLS)); }
+  function rand(n) { return Math.floor(Math.random() * n); }
+
+  function placePattern(g, pat, x, y, color) {
+    PATTERNS[pat].forEach(([dx,dy]) => {
+      g[(y+dy+ROWS)%ROWS][(x+dx+COLS)%COLS] = color;
+    });
+  }
+
+  function hasGene(id) { return id in activeGenes; }
+  function geneStr(id) { return activeGenes[id] || 0; }
+  // Level colors: 1 white, 2 yellow, 3 pink, 4 blue, 5 green, 6 orange, 7+ cyan
+  const LEVEL_CELL =  [1, 3, 4, 5, 6, 7, 8];
+  const LEVEL_MULT =  [1, 2, 4, 8, 12, 16, 24];
+  function opponentVal() { return LEVEL_CELL[Math.min(level - 1, LEVEL_CELL.length - 1)]; }
+  function enemyMultiplier() { return LEVEL_MULT[Math.min(level - 1, LEVEL_MULT.length - 1)]; }
+
+  function seedOpponent(g) {
+    const ov = opponentVal();
+    const gliderCount = 12;
+    const rpentCount = 6;
+    const clumpCount = 8;
+    const clumpSize = 20;
+    for (let i = 0; i < gliderCount; i++) {
+      const v = ['glider','glider_ne','glider_nw','glider_se','glider_sw'];
+      placePattern(g, v[rand(v.length)], rand(COLS), rand(ROWS), ov);
+    }
+    for (let i = 0; i < rpentCount; i++) placePattern(g, 'rpent', rand(COLS-5)+2, rand(ROWS-5)+2, ov);
+    for (let i = 0; i < clumpCount; i++) {
+      const cx = rand(COLS), cy = rand(ROWS);
+      for (let j = 0; j < clumpSize; j++) g[(cy+rand(7)-3+ROWS)%ROWS][(cx+rand(7)-3+COLS)%COLS] = ov;
+    }
+  }
+
+  function placePlayer(g) {
+    const cx = Math.floor(COLS/2), cy = Math.floor(ROWS/2);
+    for (let dy = -4; dy <= 4; dy++)
+      for (let dx = -4; dx <= 4; dx++)
+        g[(cy+dy+ROWS)%ROWS][(cx+dx+COLS)%COLS] = 0;
+    placePattern(g, 'rpent', cx-1, cy-1, 2);
+  }
+
+  function initLevel() {
+    canvas.width = COLS; canvas.height = ROWS;
+    TICK_MS = hasGene('fast') ? Math.max(30, TICK_MS_NORMAL - geneStr('fast') * 8) : TICK_MS_NORMAL;
+    nextCardTick = 80; cardTickGap = 80; cardDrawCount = 0;
+    grid = emptyGrid(); ghostGrid = emptyGrid();
+    tick = 0; maxPop = 0; phase = 'intro';
+
+    // Collect player and opponent cells separately
+    const playerGrid = emptyGrid();
+    const opponentGrid = emptyGrid();
+    placePlayer(playerGrid);
+    seedOpponent(opponentGrid);
+
+    // Store for staged reveal
+    const playerCells = [];
+    const opponentCells = [];
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      if (playerGrid[y][x] === 2) playerCells.push([x, y]);
+      if (opponentGrid[y][x] > 0) opponentCells.push([x, y, opponentGrid[y][x]]);
+    }
+
+    // Shuffle opponent cells for random reveal
+    for (let i = opponentCells.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [opponentCells[i], opponentCells[j]] = [opponentCells[j], opponentCells[i]];
+    }
+
+    // Phase 1: black screen, then player cells appear one by one
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, COLS, ROWS);
+
+    let pi = 0;
+    const playerInterval = setInterval(() => {
+      if (pi >= playerCells.length) {
+        clearInterval(playerInterval);
+        // Brief pause, then phase 2: opponent cells
+        setTimeout(() => revealOpponent(opponentCells), 300);
+        return;
+      }
+      const [px, py] = playerCells[pi];
+      grid[py][px] = 2;
+      ctx.fillStyle = '#c00';
+      ctx.fillRect(px, py, 1, 1);
+      pi++;
+    }, 60);
+  }
+
+  function revealOpponent(cells) {
+    const ov = opponentVal();
+    let oi = 0;
+    const batchSize = Math.max(1, Math.ceil(cells.length / 30)); // ~30 frames
+    const opponentInterval = setInterval(() => {
+      for (let b = 0; b < batchSize && oi < cells.length; b++, oi++) {
+        const [ox, oy, val] = cells[oi];
+        if (grid[oy][ox] === 0) { // don't overwrite player
+          grid[oy][ox] = val;
+          ctx.fillStyle = CELL_COLORS[ov] || '#fff';
+          ctx.fillRect(ox, oy, 1, 1);
+        }
+      }
+      if (oi >= cells.length) {
+        clearInterval(opponentInterval);
+        // Brief pause, then start game loop
+        setTimeout(() => {
+          phase = 'running';
+          updateHUD();
+          tickTimer = setInterval(tickFn, TICK_MS);
+        }, 400);
+      }
+    }, 30);
+  }
+
+  // ---- Simulation ----
+  function countNeighbors(x, y) {
+    let total = 0, mine = 0, enemy = 0;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      if (dx === 0 && dy === 0) continue;
+      const v = grid[(y+dy+ROWS)%ROWS][(x+dx+COLS)%COLS];
+      if (v > 0) total++;
+      if (v === 2) mine++;
+      if (v !== 0 && v !== 2) enemy++;
+    }
+    return { total, mine, enemy };
+  }
+
+  function stepGrid() {
+    const ng = emptyGrid();
+    const ov = opponentVal();
+
+    const toughChance = hasGene('tough') ? 0.08 + geneStr('tough') * 0.03 : 0;
+    const viralThresh = hasGene('viral') ? Math.max(1, 3 - Math.floor(geneStr('viral') / 4)) : 99;
+    const fertileThresh = hasGene('fertile') ? Math.max(1, 2 - Math.floor(geneStr('fertile') / 6)) : 2;
+    const regenChance = hasGene('regen') ? 0.003 + geneStr('regen') * 0.002 : 0;
+    const em = enemyMultiplier();
+    const enemyToughChance = level >= 2 ? Math.min(0.05 * em, 0.5) : 0;
+    const enemyFertileThresh = em >= 2 ? 1 : 2;
+    const enemyViralThresh = level >= 4 ? Math.max(1, 4 - Math.floor(level / 2)) : 99;
+
+    for (let y = 0; y < ROWS; y++) {
+      for (let x = 0; x < COLS; x++) {
+        const { total, mine, enemy } = countNeighbors(x, y);
+        const current = grid[y][x];
+
+        if (current > 0) {
+          const isMine = current === 2;
+          const isEnemy = current === ov;
+          let survives = total === 2 || total === 3;
+
+          if (!survives && isMine && toughChance > 0) survives = Math.random() < toughChance;
+          if (!survives && isEnemy && enemyToughChance > 0) survives = Math.random() < enemyToughChance;
+
+          if (survives) {
+            if (isEnemy && hasGene('viral') && mine >= viralThresh) {
+              ng[y][x] = 2;
+            } else {
+              ng[y][x] = current;
+            }
+          } else {
+            if (isMine && hasGene('toxic')) {
+              const r = Math.min(1 + Math.floor(geneStr('toxic') / 5), 2);
+              for (let tdy = -r; tdy <= r; tdy++) for (let tdx = -r; tdx <= r; tdx++) {
+                if (tdx === 0 && tdy === 0) continue;
+                const ny = (y+tdy+ROWS)%ROWS, nx = (x+tdx+COLS)%COLS;
+                if (grid[ny][nx] === ov) grid[ny][nx] = 0;
+              }
+            }
+            ng[y][x] = 0;
+          }
+        } else {
+          if (total === 3) {
+            if (mine >= fertileThresh) ng[y][x] = 2;
+            else if (enemy >= enemyFertileThresh) ng[y][x] = ov;
+            else if (mine > enemy) ng[y][x] = 2;
+            else if (enemy > mine) ng[y][x] = ov;
+            else ng[y][x] = Math.random() < 0.5 ? 2 : ov;
+          }
+        }
+      }
+    }
+
+    if (hasGene('regen') && tick % 3 === 0) {
+      for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+        if (ghostGrid[y][x] && ng[y][x] === 0 && Math.random() < regenChance) ng[y][x] = 2;
+      }
+    }
+
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      if (ng[y][x] === 2) ghostGrid[y][x] = 1;
+    }
+
+    grid = ng;
+  }
+
+  function countCells() {
+    let mine = 0, opponent = 0;
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      const v = grid[y][x];
+      if (v === 2) mine++;
+      else if (v !== 0) opponent++;
+    }
+    return { mine, opponent };
+  }
+
+  // ---- Events ----
+  function flashEvent(text) {
+    const el = document.getElementById('event-flash');
+    el.innerHTML = '';
+    el.appendChild(pixelText(text, '#fff', 3));
+    el.classList.add('visible');
+    clearTimeout(flashEvent.t);
+    flashEvent.t = setTimeout(() => el.classList.remove('visible'), 2000);
+  }
+
+  function triggerEvent() {
+    const ov = opponentVal();
+    const type = ['glider_shower','meteor','rpent_blast','noise_rain'][rand(4)];
+    if (type === 'glider_shower') {
+      for (let i = 0; i < 5; i++) {
+        const v = ['glider','glider_ne','glider_nw','glider_se','glider_sw'];
+        placePattern(grid, v[rand(5)], rand(COLS), rand(ROWS), ov);
+      }
+      flashEvent('Glider Swarm');
+    } else if (type === 'meteor') {
+      const cx = rand(COLS), cy = rand(ROWS);
+      for (let j = 0; j < 30; j++) {
+        const nx = (cx+rand(9)-4+COLS)%COLS, ny = (cy+rand(9)-4+ROWS)%ROWS;
+        if (grid[ny][nx] === 0) grid[ny][nx] = ov;
+      }
+      flashEvent('Meteor Strike');
+    } else if (type === 'rpent_blast') {
+      for (let i = 0; i < 3; i++) placePattern(grid, 'rpent', rand(COLS-5)+2, rand(ROWS-5)+2, ov);
+      flashEvent('R-Pent Blast');
+    } else {
+      for (let i = 0; i < 60; i++) { const x=rand(COLS),y=rand(ROWS); if(grid[y][x]===0) grid[y][x]=ov; }
+      flashEvent('Cosmic Rain');
+    }
+  }
+
+  // ---- Tick ----
+  function tickFn() {
+    if (phase !== 'running') return;
+    stepGrid();
+    tick++;
+
+    // if (tick % 30 === 0) triggerEvent();
+
+    const { mine, opponent } = countCells();
+    if (mine + opponent < 20 && tick % 5 === 0) placePattern(grid, 'glider', rand(COLS), rand(ROWS), opponentVal());
+
+    if (mine > maxPop) maxPop = mine;
+
+    if (tick >= nextCardTick && mine > 0) { showMidgameCards(); return; }
+    if (opponent === 0 && tick > 10 && mine > 0) { showLevelComplete(); return; }
+    if (mine === 0 && tick > 5) { showDeathScreen(); return; }
+
+    updateHUD();
+    draw();
+  }
+
+  // ---- Rendering ----
+  function draw() {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, COLS, ROWS);
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      const v = grid[y][x];
+      if (v === 0) continue;
+      ctx.fillStyle = CELL_COLORS[v] || '#fff';
+      ctx.fillRect(x, y, 1, 1);
+    }
+  }
+
+  // ---- Mobile block ----
+  const mb = document.getElementById('mobile-block');
+  mb.appendChild(renderIconCanvas('skull', 48));
+  mb.appendChild(pixelText('No mobile support', '#fff', 3));
+  mb.appendChild(pixelText('in this life', '#fff', 3));
+
+  // ---- Init: preload canvas + grid so first start is instant ----
+  canvas.width = COLS; canvas.height = ROWS;
+  grid = emptyGrid(); ghostGrid = emptyGrid();
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, COLS, ROWS);
+
+  showCardScreen();
+
+})();
+</script>
+</body>
+</html>

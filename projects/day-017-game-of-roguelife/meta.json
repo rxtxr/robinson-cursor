@@ -1,0 +1,12 @@
+{
+  "day": 17,
+  "slug": "day-017-game-of-roguelife",
+  "title": "Game of Roguelife",
+  "date": "2026-04-13",
+  "description": "Roguelike Game of Life — pick gene cards, survive against colored opponents across escalating levels. CRT aesthetic, pixel art cards, all vanilla JS.",
+  "tags": ["game", "game-of-life", "roguelike", "pixel-art", "canvas", "generative"],
+  "stack": ["HTML", "CSS", "JavaScript", "Canvas"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-017-game-of-roguelife",
+  "status": "complete",
+  "license_notes": "No external dependencies."
+}
