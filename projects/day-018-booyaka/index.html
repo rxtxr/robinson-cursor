@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOOYAKA!</title>
+<style>
+  * { margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+  canvas { display: block; width: 100vw; height: 100vh; }
+  #booyaka {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60vw;
+    max-width: 900px;
+    pointer-events: none;
+    opacity: 0;
+    transition: none;
+  }
+  #booyaka.visible { opacity: 1; }
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+<div id="booyaka"></div>
+
+<script type="module">
+import { PATTERNS } from './kontext/src/patterns.js';
+import { seededRandom } from './kontext/src/noise.js';
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const overlay = document.getElementById('booyaka');
+
+// ---- Extended palettes: military + fashion + unusual + futuristic ----
+const ALL_PALETTES = [
+  // Military classics
+  { name: 'Forest',    colors: ['#4B5C29', '#6E7E3D', '#8B7355', '#3A4A1A', '#C2B78F'] },
+  { name: 'Desert',    colors: ['#C8AA7A', '#A3895A', '#7C6440', '#4E3B28', '#E5D3AC'] },
+  { name: 'Arctic',    colors: ['#DDE4E8', '#B5C3CC', '#8FA4B0', '#617A88', '#F4F6F7'] },
+  { name: 'Urban',     colors: ['#888888', '#666666', '#444444', '#BBBBBB', '#333333'] },
+  { name: 'Jungle',    colors: ['#294A1C', '#3D6B28', '#587A39', '#1B3312', '#8A9B58'] },
+  { name: 'Night',     colors: ['#1A1A2E', '#16213E', '#0F3460', '#533483', '#2E4057'] },
+  // Fashion / editorial
+  { name: 'Blush',     colors: ['#F2D1C9', '#E8A598', '#D4726A', '#B5494F', '#F5E0DA'] },
+  { name: 'Lavender',  colors: ['#C8A2C8', '#9B72AA', '#7B4F8A', '#4A2D6B', '#E0CCE0'] },
+  { name: 'Terracotta',colors: ['#C4703F', '#A85B32', '#8B4726', '#6B351E', '#D9A87C'] },
+  { name: 'Sage',      colors: ['#B2C9AB', '#8FAF84', '#6B8F60', '#4A6B3D', '#D4E0CC'] },
+  { name: 'Slate Blue',colors: ['#5B7B9A', '#4A6680', '#3A5168', '#2A3C50', '#8CA8C0'] },
+  // Unusual / bold
+  { name: 'Neon Toxic', colors: ['#0D0D0D', '#39FF14', '#FF073A', '#DFFF00', '#FF6EC7'] },
+  { name: 'Vaporwave', colors: ['#FF71CE', '#01CDFE', '#05FFA1', '#B967FF', '#FFFB96'] },
+  { name: 'Infrared',  colors: ['#1A0A0A', '#8B0000', '#FF1744', '#FF6B6B', '#2D0A0A'] },
+  { name: 'Deep Ocean',colors: ['#001B2E', '#003459', '#005F73', '#0A9396', '#001219'] },
+  { name: 'Rust',      colors: ['#5C2E00', '#8B4513', '#A0522D', '#CD853F', '#3A1D00'] },
+  // Futuristic / sci-fi
+  { name: 'Cyberpunk', colors: ['#0A0A1A', '#FF00FF', '#00FFFF', '#1A1A3A', '#FF1493'] },
+  { name: 'Titanium',  colors: ['#2B2D33', '#3E4147', '#555860', '#787C84', '#1A1C20'] },
+  { name: 'Plasma',    colors: ['#120024', '#3D0066', '#7A00CC', '#B84DFF', '#200040'] },
+  { name: 'Phosphor',  colors: ['#0A1A0A', '#00FF41', '#00CC33', '#008F11', '#003300'] },
+  { name: 'Solar',     colors: ['#FF6B00', '#FFB800', '#FFF200', '#FF3D00', '#CC5500'] },
+  // Monochrome extremes
+  { name: 'Midnight',  colors: ['#0A0A0F', '#151520', '#202030', '#2A2A40', '#050508'] },
+  { name: 'Bone',      colors: ['#F0EAD6', '#DDD5C0', '#C8BFA0', '#B0A880', '#E8E0CC'] },
+  { name: 'Blood',     colors: ['#2D0000', '#5C0000', '#8B0000', '#3A0000', '#1A0000'] },
+];
+
+// ---- Load BOOYAKA SVG variants ----
+const SVG_VARIANTS = [
+  'variants/v1_subtle.svg',
+  'variants/v2_wild.svg',
+  'variants/v3_lean.svg',
+  'variants/v4_scale.svg',
+  'variants/v5_bold.svg',
+  'variants/v6_apart.svg',
+  'variants/v7_italic.svg',
+  'variants/v8_stagger.svg',
+  'variants/v9_tight.svg',
+  'variants/v10_original.svg',
+];
+
+let svgContents = [];
+
+async function loadSVGs() {
+  svgContents = await Promise.all(
+    SVG_VARIANTS.map(async (path) => {
+      try {
+        const resp = await fetch(path);
+        return await resp.text();
+      } catch (e) {
+        return null;
+      }
+    })
+  );
+  svgContents = svgContents.filter(Boolean);
+  console.log(`Loaded ${svgContents.length} SVG variants`);
+}
+
+// ---- Complementary color calculation ----
+function hexToHSL(hex) {
+  let r = parseInt(hex.slice(1, 3), 16) / 255;
+  let g = parseInt(hex.slice(3, 5), 16) / 255;
+  let b = parseInt(hex.slice(5, 7), 16) / 255;
+
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h, s, l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0;
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return [h * 360, s * 100, l * 100];
+}
+
+function hslToHex(h, s, l) {
+  h /= 360; s /= 100; l /= 100;
+  let r, g, b;
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1/3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1/3);
+  }
+  const toHex = x => Math.round(x * 255).toString(16).padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+function getComplementaryColor(palette) {
+  // Average the palette colors, then find complement
+  let totalH = 0, totalS = 0, totalL = 0;
+  palette.forEach(hex => {
+    const [h, s, l] = hexToHSL(hex);
+    totalH += h;
+    totalS += s;
+    totalL += l;
+  });
+  const n = palette.length;
+  let avgH = totalH / n;
+  let avgS = totalS / n;
+  let avgL = totalL / n;
+
+  // Complementary hue (180° opposite)
+  const compH = (avgH + 180) % 360;
+  // Boost saturation for vibrancy, push lightness away from the average
+  const compS = Math.min(100, avgS * 1.3 + 20);
+  const compL = avgL > 50 ? Math.max(15, avgL - 35) : Math.min(85, avgL + 35);
+
+  return hslToHex(compH, compS, compL);
+}
+
+// ---- Main cycle ----
+let cycleTimer = null;
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function generateRandom() {
+  const rng = seededRandom(Date.now() % 100000);
+
+  // Random pattern
+  const pattern = PATTERNS[Math.floor(rng() * PATTERNS.length)];
+
+  // Random palette
+  const palette = ALL_PALETTES[Math.floor(rng() * ALL_PALETTES.length)];
+
+  // Random parameters
+  const scale = 0.3 + rng() * 1.7;
+  const density = 15 + rng() * 75;
+  const seed = Math.floor(rng() * 999) + 1;
+
+  return { pattern, palette, scale, density, seed };
+}
+
+function renderCycle() {
+  resize();
+  const { pattern, palette, scale, density, seed } = generateRandom();
+
+  // Draw camo fullscreen
+  pattern.draw(ctx, canvas.width, canvas.height, palette.colors, scale, density, seed);
+
+  // Pick random SVG variant
+  if (svgContents.length === 0) return;
+  const svgIdx = Math.floor(Math.random() * svgContents.length);
+  let svg = svgContents[svgIdx];
+
+  // Set complementary fill color
+  const compColor = getComplementaryColor(palette.colors);
+  svg = svg.replace(/fill="currentColor"/g, `fill="${compColor}"`);
+
+  // Inject as inline SVG
+  overlay.classList.remove('visible');
+  overlay.innerHTML = svg;
+
+  // Make the injected SVG responsive
+  const svgEl = overlay.querySelector('svg');
+  if (svgEl) {
+    svgEl.style.width = '100%';
+    svgEl.style.height = 'auto';
+  }
+
+  // Fade in
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      overlay.classList.add('visible');
+    });
+  });
+}
+
+// ---- Init ----
+window.addEventListener('resize', () => {
+  clearTimeout(cycleTimer);
+  renderCycle();
+  cycleTimer = setInterval(renderCycle, 500);
+});
+
+loadSVGs().then(() => {
+  resize();
+  renderCycle();
+  cycleTimer = setInterval(renderCycle, 500);
+});
+
+// Click/tap for next
+document.addEventListener('click', () => {
+  clearInterval(cycleTimer);
+  renderCycle();
+  cycleTimer = setInterval(renderCycle, 500);
+});
+</script>
+
+</body>
+</html>

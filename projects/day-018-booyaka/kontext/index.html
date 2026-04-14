@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tarnmuster-Konfigurator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f4f0;
+      --surface: #ffffff;
+      --border: rgba(0,0,0,0.12);
+      --border-strong: rgba(0,0,0,0.25);
+      --text: #1a1a18;
+      --text-muted: #6b6b65;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1a18;
+        --surface: #242422;
+        --border: rgba(255,255,255,0.1);
+        --border-strong: rgba(255,255,255,0.25);
+        --text: #f0efeb;
+        --text-muted: #9a9a94;
+      }
+    }
+
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 24px;
+    }
+
+    header {
+      margin-bottom: 32px;
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    header p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Layout: sidebar + canvas */
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 700px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* Control panel */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .sec-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    /* Pattern & palette buttons */
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+
+    .opt-btn {
+      font-family: inherit;
+      font-size: 12px;
+      padding: 7px 6px;
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      color: var(--text);
+      text-align: center;
+      transition: border-color 0.15s;
+    }
+
+    .opt-btn:hover { border-color: var(--border-strong); }
+    .opt-btn.active {
+      border: 1.5px solid var(--text);
+      font-weight: 700;
+    }
+
+    /* Palette rows */
+    .palette-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .swatch-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .swatch {
+      width: 13px;
+      height: 13px;
+      border-radius: 3px;
+      border: 0.5px solid rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+
+    /* Custom color inputs */
+    #custom-colors { display: none; }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .color-row label {
+      font-size: 12px;
+      color: var(--text-muted);
+      flex: 1;
+    }
+
+    .color-row input[type="color"] {
+      width: 36px;
+      height: 28px;
+      border: 0.5px solid var(--border);
+      border-radius: 4px;
+      padding: 2px;
+      background: none;
+      cursor: pointer;
+    }
+
+    /* Sliders */
+    .slider-block { display: flex; flex-direction: column; gap: 14px; }
+
+    .slider-row { display: flex; flex-direction: column; gap: 4px; }
+
+    .slider-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    .slider-meta .lbl { color: var(--text-muted); }
+    .slider-meta .val { font-weight: 700; }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--text);
+    }
+
+    /* Canvas area */
+    .canvas-area { display: flex; flex-direction: column; gap: 12px; }
+
+    #camo {
+      width: 100%;
+      display: block;
+      border-radius: var(--radius-lg);
+      border: 0.5px solid var(--border);
+    }
+
+    .action-row { display: flex; gap: 8px; }
+
+    .action-btn {
+      font-family: inherit;
+      font-size: 12px;
+      padding: 8px 14px;
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      color: var(--text);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      transition: border-color 0.15s;
+    }
+
+    .action-btn:hover { border-color: var(--border-strong); }
+
+    .action-btn.primary {
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Tarnmuster-Konfigurator</h1>
+    <p>Mustertyp, Farben und Parameter wählen – dann als PNG exportieren.</p>
+  </header>
+
+  <div class="layout">
+
+    <!-- ── Steuerungsleiste ── -->
+    <div class="controls">
+
+      <div>
+        <div class="sec-label">Mustertyp</div>
+        <div class="btn-grid" id="pattern-grid"></div>
+      </div>
+
+      <div>
+        <div class="sec-label">Farbgebung</div>
+        <div class="palette-list" id="palette-list"></div>
+      </div>
+
+      <div id="custom-colors">
+        <div class="sec-label">Eigene Farben</div>
+        <div id="color-inputs" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+
+      <div class="slider-block">
+        <div class="sec-label">Parameter</div>
+
+        <div class="slider-row">
+          <div class="slider-meta">
+            <span class="lbl">Skalierung</span>
+            <span class="val" id="scale-lbl">1.0×</span>
+          </div>
+          <input type="range" id="sl-scale" min="20" max="200" value="100" step="1" />
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-meta">
+            <span class="lbl">Dichte</span>
+            <span class="val" id="density-lbl">50%</span>
+          </div>
+          <input type="range" id="sl-density" min="10" max="100" value="50" step="1" />
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-meta">
+            <span class="lbl">Seed</span>
+            <span class="val" id="seed-lbl">42</span>
+          </div>
+          <input type="range" id="sl-seed" min="1" max="999" value="42" step="1" />
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Canvas + Aktionen ── -->
+    <div class="canvas-area">
+      <canvas id="camo" width="640" height="420"></canvas>
+      <div class="action-row">
+        <button class="action-btn" id="btn-regen">Neu generieren</button>
+        <button class="action-btn primary" id="btn-dl">PNG herunterladen ↓</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ES-Module (benötigt lokalen Server oder Browser mit file://-Modul-Support) -->
+  <script type="module">
+    import { buildUI, render, downloadPng, state } from './src/ui.js';
+
+    buildUI();
+    render();
+
+    document.getElementById('btn-regen').addEventListener('click', render);
+    document.getElementById('btn-dl').addEventListener('click', () => downloadPng());
+  </script>
+
+</body>
+</html>

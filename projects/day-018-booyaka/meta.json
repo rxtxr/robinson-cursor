@@ -1,0 +1,12 @@
+{
+  "day": 18,
+  "slug": "day-018-booyaka",
+  "title": "BOOYAKA!",
+  "date": "2026-04-14",
+  "description": "Fullscreen camo pattern slideshow with graffiti lettering overlay. Procedural camouflage generators (Woodland, Digital, Splinter, Flecktarn, Multicam) based on real military specs. Vectorized graffiti lettering in 10 dynamic variants, composited in complementary colors over randomized patterns.",
+  "tags": ["generative", "canvas", "svg", "camouflage", "typography", "graffiti"],
+  "stack": ["HTML", "CSS", "JavaScript", "Canvas", "SVG", "potrace"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-018-booyaka",
+  "status": "complete",
+  "license_notes": "Camo pattern algorithms based on public military specifications (MARPAT patent US6805957, Flecktarn/Splittertarn public domain). Graffiti lettering is original artwork."
+}

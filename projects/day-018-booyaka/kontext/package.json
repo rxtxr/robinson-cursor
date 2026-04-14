@@ -1,0 +1,15 @@
+{
+  "name": "camo-configurator",
+  "version": "1.0.0",
+  "description": "Browserbasierter Tarnmuster-Konfigurator mit Canvas-Rendering",
+  "type": "module",
+  "scripts": {
+    "start": "npx http-server . -p 8080 -o --cors",
+    "dev": "npx http-server . -p 8080 -o --cors"
+  },
+  "keywords": ["camouflage", "canvas", "pattern-generator"],
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
