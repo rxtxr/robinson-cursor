@@ -1,10 +1,10 @@
 # Day 018 — BOOYAKA!
 
-Fullscreen camo pattern slideshow with graffiti lettering overlay.
+Fullscreen camo pattern slideshow with complementary color lettering overlay.
 
 ## What it does
 
-Every 0.5 seconds: a new procedurally generated camouflage pattern fills the screen, with a vectorized "BOOYAKA!" graffiti lettering composited on top in the complementary color of the camo palette. Click/tap for next.
+Every 0.5 seconds: a new procedurally generated camouflage pattern fills the screen, with lettering composited on top in the complementary color of the camo palette. Click/tap for next.
 
 ## Camo generators
 
@@ -18,15 +18,6 @@ Every 0.5 seconds: a new procedurally generated camouflage pattern fills the scr
 
 24 color palettes: military classics, fashion/editorial, unusual/bold, futuristic/sci-fi, monochrome extremes.
 
-## Lettering
+## Color logic
 
-Original graffiti brush lettering vectorized with potrace, then split into per-letter shapes via weighted Voronoi pixel assignment. 10 dynamic variants with different transforms (rotation, shift, scale). All SVGs use `fill="currentColor"` for color overlay.
-
-## Files
-
-- `index.html` — fullscreen slideshow
-- `booyaka.svg` — main vectorized lettering
-- `variants/` — 10 SVG lettering variants
-- `original.png` — source graffiti artwork
-- `dynamize.py` — letter separation + variant generation script
-- `kontext/` — standalone camo configurator app
+The lettering color is computed as the complementary hue of the averaged camo palette, with boosted saturation and inverted lightness for maximum contrast.
