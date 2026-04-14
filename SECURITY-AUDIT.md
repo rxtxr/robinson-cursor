@@ -1,8 +1,8 @@
-# Security Audit Report — robinson-cursor
+# Security Audit — robinson-cursor
 
-**Date:** 2026-03-31
-**Auditor:** Automated weekly security scan
-**Branch scanned:** `main` (commit `997fd87`)
+**Date:** 2026-04-14  
+**Auditor:** Automated weekly security scan  
+**Package manager:** npm (Node.js / Astro)
 
 ---
 
@@ -11,100 +11,130 @@
 | Severity | Count |
 |----------|-------|
 | Critical | 0     |
-| High     | 0     |
+| High     | 2     |
 | Medium   | 0     |
 | Low      | 2     |
-| Info     | 1     |
+
+> ⚠ **New high-severity findings since last audit (2026-03-31).** Two packages have known CVEs requiring immediate attention.
 
 ---
 
-## 1. Dependency Audit
+## 1. Dependency Audit (npm audit)
 
-**Tool:** `npm audit`
-**Lock file:** `package-lock.json`
+**Tool:** `npm audit` (npm 10.9.7)  
+**Lock file:** `package-lock.json`  
+**Total advisories:** 4 (across 2 packages)
 
-```
-found 0 vulnerabilities
-```
+### HIGH — defu: Prototype Pollution
 
-All npm dependencies (323 total, including transitive) are free of known CVEs.
+| Field       | Value |
+|-------------|-------|
+| Package     | `defu` |
+| Installed   | 6.1.4 |
+| Affected    | ≤ 6.1.4 |
+| Advisory    | [GHSA-737v-mqg7-c878](https://github.com/advisories/GHSA-737v-mqg7-c878) |
+| CWE         | CWE-1321 (Prototype Pollution) |
+| CVSS Score  | 7.5 (High) — CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N |
+| Fix         | Available via `npm audit fix` |
+
+**Description:** `defu` allows prototype pollution via the `__proto__` key in a defaults argument. An attacker who can control the input to a `defu()` call can pollute `Object.prototype`, potentially affecting all objects in the application. `defu` is an indirect dependency pulled in by `astro`.
+
+---
+
+### HIGH — vite: Multiple Vulnerabilities (3 advisories)
+
+| Field       | Value |
+|-------------|-------|
+| Package     | `vite` |
+| Installed   | 7.3.1 |
+| Affected    | 7.0.0 – 7.3.1 |
+| Fix         | Available via `npm audit fix` |
+
+`vite` is an indirect dependency pulled in by `astro`.
+
+#### 1. Path Traversal in Optimized Deps `.map` Handling
+- **Advisory:** [GHSA-4w7w-66w2-5vf9](https://github.com/advisories/GHSA-4w7w-66w2-5vf9)
+- **Severity:** Moderate
+- **CWE:** CWE-22 (Path Traversal), CWE-200 (Exposure of Sensitive Information)
+- **Description:** The Vite dev server improperly handles `.map` file requests for optimized dependencies, potentially allowing path traversal to read arbitrary files from the filesystem.
+
+#### 2. `server.fs.deny` Bypass with Queries
+- **Advisory:** [GHSA-v2wj-q39q-566r](https://github.com/advisories/GHSA-v2wj-q39q-566r)
+- **Severity:** High
+- **CWE:** CWE-180, CWE-284 (Improper Access Control)
+- **Description:** The `server.fs.deny` restriction can be bypassed by appending query parameters to requests, allowing access to files that should be blocked.
+
+#### 3. Arbitrary File Read via Dev Server WebSocket
+- **Advisory:** [GHSA-p9ff-h696-f583](https://github.com/advisories/GHSA-p9ff-h696-f583)
+- **Severity:** High
+- **CWE:** CWE-200, CWE-306
+- **Description:** The Vite development server's WebSocket handler can be exploited to read arbitrary files from the host filesystem without authentication.
+
+> **Note:** All three vite vulnerabilities affect the **development server only** (`astro dev`) and do not affect production builds or Cloudflare Pages deployments. Risk is limited to developer machines during local development.
 
 ---
 
 ## 2. Outdated Dependencies
 
-**Tool:** `npm outdated`
+**Tool:** `npm outdated` + `package-lock.json` inspection
 
-| Package | Current | Wanted | Latest | Notes |
-|---------|---------|--------|--------|-------|
-| astro   | 6.1.1   | 6.1.2  | 6.1.2  | 1 patch behind |
-| marked  | 17.0.5  | 17.0.5 | 17.0.5 | ✅ Current |
+| Package  | Installed | Wanted | Latest | Status                          |
+|----------|-----------|--------|--------|---------------------------------|
+| `marked` | 17.0.5    | 17.0.6 | 18.0.0 | **1 major version behind** ⚠    |
+| `astro`  | 6.1.1     | 6.1.6  | 6.1.6  | Minor patch behind              |
 
-**Action:** Run `npm update astro` to pick up the latest patch release. No major-version lag detected.
+**`marked` 17 → 18:** The package has crossed a major version boundary. Major versions may include security improvements not backported to v17. Upgrading is recommended.
 
 ---
 
 ## 3. Code Security Patterns
 
-### LOW — innerHTML Assignment with XOR-Decoded Data
+### LOW — `innerHTML` Assignment with External Track Data
 
-**File:** `src/pages/privacy.astro:134`
+**File:** `projects/day-007-visualaizer/script.js:76-78`  
 **Severity:** Low
 
-```javascript
+```js
+lic.innerHTML = track.licenseUrl
+  ? `<a href="${track.licenseUrl}" target="_blank">${track.license}</a> — ${track.artist}`
+  : `${track.license} — ${track.artist}`;
+```
+
+`track.licenseUrl`, `track.license`, and `track.artist` are sourced from `tracks.json` (loaded via `fetch('tracks.json')`). If `tracks.json` is ever served from an untrusted or externally-controlled source, this pattern enables stored XSS. The file is currently local and static, making exploitability low.
+
+**Recommended action:** Use `textContent` for plain text fields and validate `track.licenseUrl` against an `https://` allowlist before constructing links.
+
+---
+
+### LOW — `innerHTML` with XOR-Decoded Contact Data
+
+**File:** `src/pages/privacy.astro:134`  
+**Severity:** Low (carried over from 2026-03-31 audit)
+
+```js
 p.innerHTML = lines.map(b64 => xorDecodeBytes(b64, k)).join('<br>');
 ```
 
-The decoded strings (contact name, address, email) are set via `innerHTML`. The source data (`encodedContact`) is a build-time constant derived from hardcoded strings in the Astro frontmatter, so no user-controlled input reaches this call today. However, using `innerHTML` is a risky pattern that can silently introduce XSS if the data source ever changes (e.g., fetched from an API).
+Contact data is XOR-obfuscated at build time and decoded in the browser. The source data is a build-time constant, so there is no runtime attack surface. However, `innerHTML` is unnecessarily risky if the decoded content ever includes HTML-special characters or if the data source changes.
 
-**Recommended fix:** Use `textContent` + DOM construction instead:
-```javascript
-const p = document.createElement('p');
-lines.map(b64 => xorDecodeBytes(b64, k)).forEach((text, i) => {
-  if (i > 0) p.appendChild(document.createElement('br'));
-  p.appendChild(document.createTextNode(text));
-});
-el.appendChild(p);
-```
-
-This eliminates the HTML injection surface entirely while preserving the `<br>`-separated layout.
-
-### LOW — Contact Data Obfuscated with Hardcoded XOR Key (Security Through Obscurity)
-
-**File:** `src/pages/privacy.astro:8`
-**Severity:** Low
-
-```javascript
-const key = 'rc365vibe';
-```
-
-The XOR key used to "hide" contact details is embedded in plaintext in the source file and will be present (split into `keyParts`) in the built JavaScript bundle. Anyone inspecting the page source or the compiled output can trivially reconstruct the contact information. This is by design for GDPR bot-harvesting protection, but should be understood as obfuscation only, not encryption.
-
-**Recommended action:**
-- This is an accepted trade-off for contact anti-harvesting. No action required if the intent is purely to deter automated scraping.
-- Document the intent explicitly with a comment (e.g., `// Anti-harvest obfuscation only — not a security secret`) so future maintainers don't mistake this for real encryption.
-- Do not reuse this key or pattern for anything that actually needs to be secret.
+**Recommended action:** Replace with `textContent` + explicit `<br>` DOM nodes.
 
 ---
 
 ## 4. Configuration Review
 
-### INFO — .env files correctly excluded
-
-Both `.env` and `.env.production` are listed in `.gitignore`. The `projects/day-002-music-charts/.env` is also explicitly excluded. No `.env` files are tracked by git.
-
-### INFO — No Dockerfile found
-
-No container configuration to review.
-
-### INFO — Static site, no server-side attack surface
-
-`astro.config.mjs` configures `output: 'static'` — the site generates no server-side routes or API endpoints, significantly limiting the attack surface.
+- **Dockerfile:** Not present.
+- **`.env` / `.env.production` in `.gitignore`:** Yes — both correctly excluded.
+- **`.env` committed:** No tracked `.env` files found.
+- **`wrangler.jsonc`:** No secrets detected; contains only deployment name and compatibility date.
+- **CORS:** No server-side CORS configuration (static site / Cloudflare Pages).
 
 ---
 
-## Recommended Actions
+## Recommended Actions (Priority Order)
 
-1. **[Low]** Replace `innerHTML` in `privacy.astro:134` with `textContent` + DOM nodes to eliminate the HTML injection pattern.
-2. **[Low]** Add a comment to the XOR key in `privacy.astro` clarifying it is anti-harvest obfuscation, not a security credential.
-3. **[Info]** Run `npm update astro` to update from 6.1.1 → 6.1.2.
+1. **[High]** Run `npm audit fix` to update `defu` and `vite` to patched versions. Verify `astro` build remains functional after the update.
+2. **[High]** Update `marked` from `^17.0.5` to `^18.0.0` in `package.json`, run `npm install`, and review the [marked v18 changelog](https://github.com/markedjs/marked/releases) for breaking changes.
+3. **[Low]** In `day-007-visualaizer/script.js`, replace `innerHTML` with `textContent` for unsanitized track metadata fields.
+4. **[Low]** In `privacy.astro`, replace `innerHTML` with DOM node construction.
+5. **[Low]** Update `astro` from `6.1.1` to `6.1.6` for latest patch fixes.
