@@ -89,13 +89,14 @@
   <h1>ESSENTIA <span>LIVE</span></h1>
   <input type="text" class="url-input" id="urlInput" placeholder="YouTube URL or Video ID" value="https://www.youtube.com/watch?v=Fwi1qgSaxZY" autocomplete="off" spellcheck="false">
   <button class="btn" onclick="loadVideo()">Load</button>
+  <label class="btn" style="background:var(--surface);border:1px solid var(--border);color:var(--text);">Audio File<input type="file" accept="audio/*" style="display:none" onchange="loadAudioFile(this.files[0])"></label>
 </header>
 
 <div class="main">
   <div class="player-wrap" id="playerWrap">
     <div class="placeholder" id="placeholder">
       <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      <span>Paste a YouTube URL above</span>
+      <span>Paste a YouTube URL or drop an audio file</span>
     </div>
     <img id="trackThumb" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
     <div id="playOverlay" onclick="document.getElementById('audioPlayer').play();this.style.display='none';" style="display:none;position:absolute;inset:0;z-index:5;cursor:pointer;background:rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center;">
@@ -111,6 +112,13 @@
       <canvas id="pitchCanvas" style="flex:0.6;width:100%;min-height:0;"></canvas>
       <canvas id="chromaCanvas" style="flex:0.5;width:100%;min-height:0;"></canvas>
     </div>
+    <!-- YouTube IFrame container (online mode) -->
+    <div id="ytContainer" style="display:none;position:absolute;inset:0;z-index:1;">
+      <div id="ytPlayerTarget" style="width:100%;height:100%;"></div>
+    </div>
+    <!-- Capture button for tab audio (online YouTube mode) -->
+    <button id="captureBtn" onclick="startTabCapture()" class="btn" style="display:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:6;background:var(--accent2);padding:14px 28px;font-size:15px;border-radius:10px;box-shadow:0 4px 20px rgba(255,107,157,0.4);">Capture Tab Audio</button>
+    <div id="browserHint" style="display:none;position:absolute;bottom:50px;left:50%;transform:translateX(-50%);z-index:7;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:11px;color:var(--dim);max-width:340px;text-align:center;"></div>
     <div id="trackInfo" style="display:none;position:absolute;bottom:36px;left:0;right:0;padding:6px 14px;background:linear-gradient(transparent,rgba(0,0,0,0.85));color:#fff;font-size:12px;z-index:3;">
       <div id="trackTitle" style="font-weight:600;"></div>
       <div id="trackChannel" style="font-size:10px;color:var(--dim);"></div>
@@ -119,7 +127,7 @@
   </div>
 
   <div class="sidebar">
-    <div class="status" id="status">Paste a YouTube URL to begin</div>
+    <div class="status" id="status">Paste a YouTube URL or drop an audio file</div>
 
     <!-- Track Profile -->
     <div class="panel" id="trackProfile">
@@ -249,6 +257,10 @@
 // ═══════════════════════════════════════════════════════════
 let essentia = null, audioCtx = null, capturing = false;
 let processorNode = null, audioFileSource = null;
+let serverMode = null; // null=unknown, true=yt-dlp server, false=static/online
+let sourceMode = 'element'; // 'element' (audio file/server) or 'stream' (tab capture)
+let captureStream = null;
+let ytPlayer = null, ytApiReady = false;
 
 const FRAME_SIZE = 2048;
 const MEL_BANDS = 96;
@@ -350,7 +362,43 @@ function resetAllState() {
 })();
 
 // ═══════════════════════════════════════════════════════════
-// YouTube URL → Audio
+// Server Detection + YouTube API
+// ═══════════════════════════════════════════════════════════
+async function detectServer() {
+  try {
+    await fetch('/api/info?v=test', { signal: AbortSignal.timeout(2000) });
+    serverMode = true;
+  } catch {
+    serverMode = false;
+    await loadYouTubeAPI();
+  }
+  console.log('[mode]', serverMode ? 'server (yt-dlp)' : 'static (tab capture)');
+}
+
+function loadYouTubeAPI() {
+  return new Promise(resolve => {
+    if (window.YT && window.YT.Player) { ytApiReady = true; resolve(); return; }
+    window.onYouTubeIframeAPIReady = () => { ytApiReady = true; resolve(); };
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+    // Timeout fallback
+    setTimeout(() => { if (!ytApiReady) resolve(); }, 5000);
+  });
+}
+
+function showBrowserHint() {
+  const hint = document.getElementById('browserHint');
+  const isChromium = !!window.chrome || navigator.userAgent.includes('Chrome');
+  if (!isChromium) {
+    hint.textContent = 'Tab audio capture requires Chrome/Chromium — use "Audio File" instead';
+    hint.style.display = 'block';
+    document.getElementById('captureBtn').style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// Load Video / Audio
 // ═══════════════════════════════════════════════════════════
 function extractVideoId(s) {
   s = s.trim();
@@ -366,8 +414,21 @@ async function loadVideo() {
   if (capturing) stopCapture();
   audioCtx = null;
   resetAllState();
-
   document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('ytContainer').style.display = 'none';
+  document.getElementById('captureBtn').style.display = 'none';
+  document.getElementById('browserHint').style.display = 'none';
+
+  if (serverMode === null) await detectServer();
+
+  if (serverMode) {
+    loadVideoServer(id);
+  } else {
+    loadVideoYouTube(id);
+  }
+}
+
+function loadVideoServer(id) {
   const thumb = document.getElementById('trackThumb');
   thumb.src = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
   thumb.style.display = 'block';
@@ -375,6 +436,7 @@ async function loadVideo() {
   setStatus('Loading audio...', 'ok');
 
   const audioEl = document.getElementById('audioPlayer');
+  sourceMode = 'element';
   setupAudioAnalysis(audioEl);
   audioEl.src = `/api/audio?v=${id}`;
   audioEl.style.display = 'block';
@@ -389,7 +451,124 @@ async function loadVideo() {
   }).catch(() => {});
 }
 
+function loadVideoYouTube(id) {
+  document.getElementById('trackThumb').style.display = 'none';
+  document.getElementById('audioPlayer').style.display = 'none';
+  document.getElementById('playOverlay').style.display = 'none';
+  document.getElementById('ytContainer').style.display = 'block';
+
+  if (!ytApiReady) {
+    setStatus('YouTube API not available', 'err');
+    return;
+  }
+
+  if (ytPlayer) {
+    ytPlayer.loadVideoById(id);
+  } else {
+    ytPlayer = new YT.Player('ytPlayerTarget', {
+      videoId: id,
+      width: '100%',
+      height: '100%',
+      playerVars: { autoplay: 1, modestbranding: 1 },
+    });
+  }
+
+  document.getElementById('captureBtn').style.display = 'block';
+  showBrowserHint();
+  setStatus('Click "Capture Tab Audio" to start analysis', 'ok');
+}
+
+async function startTabCapture() {
+  try {
+    const constraints = { audio: true, video: true };
+    // Chrome: preferCurrentTab pre-selects this tab
+    if (navigator.userAgent.includes('Chrome')) {
+      constraints.preferCurrentTab = true;
+    }
+    captureStream = await navigator.mediaDevices.getDisplayMedia(constraints);
+
+    const audioTracks = captureStream.getAudioTracks();
+    if (audioTracks.length === 0) {
+      setStatus('No audio — make sure to enable audio sharing', 'err');
+      captureStream.getTracks().forEach(t => t.stop());
+      captureStream = null;
+      return;
+    }
+
+    // Stop video track (we only need audio)
+    captureStream.getVideoTracks().forEach(t => t.stop());
+
+    if (!audioCtx) {
+      audioCtx = new AudioContext();
+      bufferSampleRate = audioCtx.sampleRate;
+    }
+    audioCtx.resume();
+
+    sourceMode = 'stream';
+    const streamSource = audioCtx.createMediaStreamSource(captureStream);
+    processorNode = audioCtx.createScriptProcessor(FRAME_SIZE, 1, 1);
+    processorNode.onaudioprocess = onAudioProcess;
+    streamSource.connect(processorNode);
+    // Mute output to avoid echo (YouTube already plays the audio)
+    const muteNode = audioCtx.createGain();
+    muteNode.gain.value = 0;
+    processorNode.connect(muteNode);
+    muteNode.connect(audioCtx.destination);
+
+    capturing = true;
+    document.getElementById('captureBtn').style.display = 'none';
+    document.getElementById('browserHint').style.display = 'none';
+    document.getElementById('vizArea').style.display = 'flex';
+    setStatus('Analyzing...', 'ok');
+    requestAnimationFrame(drawMel);
+    requestAnimationFrame(drawViz);
+
+    // Handle stream end (user stops sharing)
+    audioTracks[0].onended = () => {
+      capturing = false;
+      setStatus('Capture stopped');
+      document.getElementById('vizArea').style.display = 'none';
+      document.getElementById('captureBtn').style.display = 'block';
+      showBrowserHint();
+    };
+
+  } catch (e) {
+    if (e.name === 'NotAllowedError') {
+      setStatus('Tab sharing cancelled', 'err');
+    } else {
+      setStatus(`Capture failed: ${e.message}`, 'err');
+    }
+  }
+}
+
+function loadAudioFile(file) {
+  if (!file) return;
+  if (capturing) stopCapture();
+  audioCtx = null;
+  resetAllState();
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('trackThumb').style.display = 'none';
+  document.getElementById('ytContainer').style.display = 'none';
+  document.getElementById('captureBtn').style.display = 'none';
+  document.getElementById('browserHint').style.display = 'none';
+  document.getElementById('trackTitle').textContent = file.name;
+  document.getElementById('trackChannel').textContent = '';
+  document.getElementById('trackInfo').style.display = 'block';
+  const audioEl = document.getElementById('audioPlayer');
+  sourceMode = 'element';
+  setupAudioAnalysis(audioEl);
+  audioEl.src = URL.createObjectURL(file);
+  audioEl.style.display = 'block';
+  setStatus(`${file.name} — press play`, 'ok');
+}
+
 document.getElementById('urlInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadVideo(); });
+
+// Drag & Drop
+const pw = document.getElementById('playerWrap');
+pw.addEventListener('dragover', e => { e.preventDefault(); pw.style.outline = '2px solid var(--accent)'; });
+pw.addEventListener('dragleave', () => pw.style.outline = 'none');
+pw.addEventListener('drop', e => { e.preventDefault(); pw.style.outline = 'none'; if (e.dataTransfer.files[0]) loadAudioFile(e.dataTransfer.files[0]); });
 
 // ═══════════════════════════════════════════════════════════
 // Audio Pipeline Setup
@@ -428,9 +607,11 @@ function setupAudioAnalysis(audioEl) {
 
 function stopCapture() {
   capturing = false;
+  if (captureStream) { captureStream.getTracks().forEach(t => t.stop()); captureStream = null; }
   if (processorNode) { processorNode.disconnect(); processorNode = null; }
   if (audioFileSource) { audioFileSource.disconnect(); audioFileSource = null; }
   if (audioCtx) { audioCtx.close(); audioCtx = null; }
+  sourceMode = 'element';
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -439,8 +620,10 @@ function stopCapture() {
 function onAudioProcess(e) {
   if (!essentia || !capturing) return;
   const input = e.inputBuffer.getChannelData(0);
-  // Pass audio through to speakers
-  e.outputBuffer.getChannelData(0).set(input);
+  // Pass audio through to speakers (only for element sources, not tab capture)
+  if (sourceMode === 'element') {
+    e.outputBuffer.getChannelData(0).set(input);
+  }
 
   // Skip silence
   let sum = 0;
