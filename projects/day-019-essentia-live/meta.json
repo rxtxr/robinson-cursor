@@ -1,0 +1,17 @@
+{
+  "title": "Essentia Live",
+  "day": 19,
+  "date": "2026-04-15",
+  "description": "Real-time audio analysis of YouTube videos using Essentia.js (MTG Barcelona) — mel spectrogram, chroma/HPCP, key detection, MFCC, and spectral features via WebAssembly in the browser.",
+  "tech": ["essentia.js", "webassembly", "web-audio-api", "yt-dlp", "canvas"],
+  "tags": ["audio", "music", "analysis", "MIR", "visualization", "real-time"],
+  "libraries": [
+    {
+      "name": "essentia.js",
+      "version": "0.1.3",
+      "license": "AGPL-3.0",
+      "url": "https://github.com/MTG/essentia.js"
+    }
+  ],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-019-essentia-live"
+}

@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Essentia Live — Real-Time Audio Analysis</title>
+<style>
+  :root {
+    --bg: #0a0a0f; --surface: #14141f; --border: #2a2a3a;
+    --text: #e0e0e8; --dim: #6a6a7a; --accent: #7b68ee;
+    --accent2: #ff6b9d; --green: #4ade80; --yellow: #fbbf24;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'SF Mono','Fira Code',monospace; min-height: 100vh; }
+
+  .header { display:flex; align-items:center; gap:12px; padding:10px 16px; border-bottom:1px solid var(--border); background:var(--surface); }
+  .header h1 { font-size:14px; font-weight:600; color:var(--accent); white-space:nowrap; }
+  .header h1 span { color:var(--dim); font-weight:400; }
+  .url-input { flex:1; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:8px 12px; border-radius:6px; font-family:inherit; font-size:13px; outline:none; }
+  .url-input:focus { border-color:var(--accent); }
+  .url-input::placeholder { color:var(--dim); }
+  .btn { background:var(--accent); color:#fff; border:none; padding:8px 16px; border-radius:6px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .btn:hover { opacity:0.85; }
+
+  .main { display:grid; grid-template-columns:1fr 360px; grid-template-rows:auto 1fr; height:calc(100vh - 45px); }
+
+  .player-wrap { background:#000; position:relative; min-height:280px; }
+  .placeholder { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--dim); font-size:14px; gap:12px; }
+  .placeholder svg { opacity:0.3; }
+
+  .sidebar { background:var(--surface); border-left:1px solid var(--border); padding:12px; display:flex; flex-direction:column; gap:10px; overflow-y:auto; }
+  .panel { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px; }
+  .panel-title { font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:var(--dim); margin-bottom:6px; }
+
+  .profile-row { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+  .profile-row .p-label { font-size:8px; color:var(--dim); width:54px; text-transform:uppercase; letter-spacing:0.5px; }
+  .profile-row .p-label.right { text-align:right; }
+  .profile-track { flex:1; height:10px; background:var(--surface); border-radius:5px; position:relative; overflow:visible; }
+  .profile-marker { position:absolute; top:-1px; width:12px; height:12px; border-radius:50%; background:var(--accent); border:2px solid var(--bg); transition:left 0.8s ease-out; transform:translateX(-50%); }
+  .profile-fill { position:absolute; left:0; top:0; height:100%; border-radius:5px; transition:width 0.8s ease-out; opacity:0.25; }
+
+  .key-display { text-align:center; padding:12px 10px; }
+  .key-value { font-size:42px; font-weight:700; color:var(--accent); line-height:1; }
+  .key-scale { font-size:16px; color:var(--dim); margin-top:2px; }
+  .key-strength { font-size:10px; color:var(--dim); margin-top:6px; }
+
+  .meter { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+  .meter-label { font-size:10px; color:var(--dim); width:72px; text-align:right; }
+  .meter-bar-wrap { flex:1; height:6px; background:var(--surface); border-radius:3px; overflow:hidden; }
+  .meter-bar { height:100%; border-radius:3px; transition:width 0.08s linear; background:var(--accent); }
+  .meter-val { font-size:10px; color:var(--dim); width:52px; font-variant-numeric:tabular-nums; }
+
+  .chroma-wrap { display:flex; gap:2px; align-items:flex-end; height:60px; }
+  .chroma-bin { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; height:100%; justify-content:flex-end; }
+  .chroma-bar { width:100%; border-radius:2px 2px 0 0; transition:height 0.08s linear; min-height:1px; }
+  .chroma-label { font-size:8px; color:var(--dim); }
+
+  .big-val { font-size:20px; font-weight:700; color:var(--accent); }
+  .big-row { display:flex; gap:16px; justify-content:center; text-align:center; }
+  .big-row > div { flex:1; }
+  .big-row .label { font-size:9px; color:var(--dim); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
+
+  .spectrogram-wrap { grid-column:1/-1; border-top:1px solid var(--border); position:relative; min-height:140px; }
+  .spectrogram-wrap canvas { width:100%; height:100%; display:block; }
+  .spec-label { position:absolute; top:6px; left:10px; font-size:9px; text-transform:uppercase; letter-spacing:1.5px; color:var(--dim); pointer-events:none; }
+
+  .status { font-size:10px; color:var(--dim); text-align:center; }
+  .status.ok { color:var(--green); } .status.err { color:var(--accent2); }
+
+  .loading-overlay { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:1000; transition:opacity 0.5s; }
+  .loading-overlay.hidden { opacity:0; pointer-events:none; }
+  .loading-spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  @media (max-width:900px) {
+    .main { grid-template-columns:1fr; grid-template-rows:200px auto 140px; }
+    .sidebar { border-left:none; border-top:1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner"></div>
+  <div style="color:var(--dim);font-size:13px;">Loading Essentia WASM...</div>
+</div>
+
+<header class="header">
+  <h1>ESSENTIA <span>LIVE</span></h1>
+  <input type="text" class="url-input" id="urlInput" placeholder="YouTube URL or Video ID" value="https://www.youtube.com/watch?v=Fwi1qgSaxZY" autocomplete="off" spellcheck="false">
+  <button class="btn" onclick="loadVideo()">Load</button>
+</header>
+
+<div class="main">
+  <div class="player-wrap" id="playerWrap">
+    <div class="placeholder" id="placeholder">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <span>Paste a YouTube URL above</span>
+    </div>
+    <img id="trackThumb" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+    <div id="playOverlay" onclick="document.getElementById('audioPlayer').play();this.style.display='none';" style="display:none;position:absolute;inset:0;z-index:5;cursor:pointer;background:rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center;">
+      <svg width="80" height="80" viewBox="0 0 80 80" style="filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));">
+        <circle cx="40" cy="40" r="38" fill="rgba(0,0,0,0.5)" stroke="white" stroke-width="2"/>
+        <polygon points="32,24 32,56 58,40" fill="white"/>
+      </svg>
+    </div>
+    <!-- Visualization canvases -->
+    <div id="vizArea" style="display:none;position:absolute;inset:0;z-index:2;display:none;flex-direction:column;">
+      <canvas id="scopeCanvas" style="flex:1;width:100%;min-height:0;"></canvas>
+      <canvas id="spectrumCanvas" style="flex:1;width:100%;min-height:0;"></canvas>
+      <canvas id="pitchCanvas" style="flex:0.6;width:100%;min-height:0;"></canvas>
+      <canvas id="chromaCanvas" style="flex:0.5;width:100%;min-height:0;"></canvas>
+    </div>
+    <div id="trackInfo" style="display:none;position:absolute;bottom:36px;left:0;right:0;padding:6px 14px;background:linear-gradient(transparent,rgba(0,0,0,0.85));color:#fff;font-size:12px;z-index:3;">
+      <div id="trackTitle" style="font-weight:600;"></div>
+      <div id="trackChannel" style="font-size:10px;color:var(--dim);"></div>
+    </div>
+    <audio id="audioPlayer" controls style="display:none;position:absolute;bottom:0;left:0;right:0;width:100%;z-index:10;"></audio>
+  </div>
+
+  <div class="sidebar">
+    <div class="status" id="status">Paste a YouTube URL to begin</div>
+
+    <!-- Track Profile -->
+    <div class="panel" id="trackProfile">
+      <div class="panel-title">Track Profile</div>
+      <div class="profile-row" data-dim="brightness">
+        <span class="p-label right">warm</span>
+        <div class="profile-track"><div class="profile-fill" style="background:var(--yellow)"></div><div class="profile-marker" style="left:50%"></div></div>
+        <span class="p-label">bright</span>
+      </div>
+      <div class="profile-row" data-dim="roughness">
+        <span class="p-label right">smooth</span>
+        <div class="profile-track"><div class="profile-fill" style="background:var(--accent2)"></div><div class="profile-marker" style="left:50%"></div></div>
+        <span class="p-label">rough</span>
+      </div>
+      <div class="profile-row" data-dim="density">
+        <span class="p-label right">sparse</span>
+        <div class="profile-track"><div class="profile-fill" style="background:var(--accent)"></div><div class="profile-marker" style="left:50%"></div></div>
+        <span class="p-label">dense</span>
+      </div>
+      <div class="profile-row" data-dim="dynamics">
+        <span class="p-label right">compressed</span>
+        <div class="profile-track"><div class="profile-fill" style="background:var(--green)"></div><div class="profile-marker" style="left:50%"></div></div>
+        <span class="p-label">dynamic</span>
+      </div>
+      <div class="profile-row" data-dim="tonality">
+        <span class="p-label right">atonal</span>
+        <div class="profile-track"><div class="profile-fill" style="background:#c084fc"></div><div class="profile-marker" style="left:50%"></div></div>
+        <span class="p-label">tonal</span>
+      </div>
+      <div class="profile-row" data-dim="harmonicMovement">
+        <span class="p-label right">static</span>
+        <div class="profile-track"><div class="profile-fill" style="background:#f472b6"></div><div class="profile-marker" style="left:50%"></div></div>
+        <span class="p-label">active</span>
+      </div>
+      <div class="profile-row" data-dim="freqBalance">
+        <span class="p-label right">bass</span>
+        <div class="profile-track"><div class="profile-fill" style="background:#fb923c"></div><div class="profile-marker" style="left:50%"></div></div>
+        <span class="p-label">treble</span>
+      </div>
+      <div class="profile-row" data-dim="mood">
+        <span class="p-label right">dark</span>
+        <div class="profile-track"><div class="profile-fill" style="background:var(--yellow)"></div><div class="profile-marker" style="left:50%"></div></div>
+        <span class="p-label">bright</span>
+      </div>
+      <div class="profile-row" data-dim="rhythmStability">
+        <span class="p-label right">free</span>
+        <div class="profile-track"><div class="profile-fill" style="background:var(--green)"></div><div class="profile-marker" style="left:50%"></div></div>
+        <span class="p-label">steady</span>
+      </div>
+      <div class="profile-row" data-dim="inharmonicity">
+        <span class="p-label right">pure</span>
+        <div class="profile-track"><div class="profile-fill" style="background:#c084fc"></div><div class="profile-marker" style="left:50%"></div></div>
+        <span class="p-label">noisy</span>
+      </div>
+    </div>
+
+    <!-- Key + Chords -->
+    <div class="panel key-display">
+      <div class="panel-title">Key / Chords</div>
+      <div class="key-value" id="keyValue">—</div>
+      <div class="key-scale" id="keyScale">&nbsp;</div>
+      <div class="key-strength" id="keyStrength">&nbsp;</div>
+    </div>
+
+    <!-- Pitch -->
+    <div class="panel">
+      <div class="panel-title">Pitch</div>
+      <div class="big-row">
+        <div><div class="big-val" id="pitchVal">—</div><div class="label">Hz</div></div>
+        <div><div class="big-val" id="pitchNote">—</div><div class="label">Note</div></div>
+        <div><div class="big-val" id="tuningVal">—</div><div class="label">Tuning</div></div>
+      </div>
+    </div>
+
+    <!-- Rhythm -->
+    <div class="panel">
+      <div class="panel-title">Rhythm (buffer)</div>
+      <div class="big-row">
+        <div><div class="big-val" id="bpmVal">—</div><div class="label">BPM</div></div>
+        <div><div class="big-val" id="danceVal">—</div><div class="label">Dance</div></div>
+        <div><div class="big-val" id="dynVal">—</div><div class="label">Dynamic</div></div>
+      </div>
+    </div>
+
+    <!-- Meters -->
+    <div class="panel">
+      <div class="panel-title">Levels</div>
+      <div class="meter"><span class="meter-label">RMS</span><div class="meter-bar-wrap"><div class="meter-bar" id="rmsMeter" style="width:0%;background:var(--green)"></div></div><span class="meter-val" id="rmsVal">—</span></div>
+      <div class="meter"><span class="meter-label">Energy</span><div class="meter-bar-wrap"><div class="meter-bar" id="energyMeter" style="width:0%"></div></div><span class="meter-val" id="energyVal">—</span></div>
+      <div class="meter"><span class="meter-label">Centroid</span><div class="meter-bar-wrap"><div class="meter-bar" id="centroidMeter" style="width:0%;background:var(--yellow)"></div></div><span class="meter-val" id="centroidVal">—</span></div>
+      <div class="meter"><span class="meter-label">Dissonance</span><div class="meter-bar-wrap"><div class="meter-bar" id="dissMeter" style="width:0%;background:var(--accent2)"></div></div><span class="meter-val" id="dissVal">—</span></div>
+      <div class="meter"><span class="meter-label">Complexity</span><div class="meter-bar-wrap"><div class="meter-bar" id="specComplMeter" style="width:0%"></div></div><span class="meter-val" id="specComplVal">—</span></div>
+      <div class="meter"><span class="meter-label">Inharm.</span><div class="meter-bar-wrap"><div class="meter-bar" id="inharmMeter" style="width:0%;background:#c084fc"></div></div><span class="meter-val" id="inharmVal">—</span></div>
+    </div>
+
+    <!-- HPCP Chroma -->
+    <div class="panel">
+      <div class="panel-title">Chroma / HPCP</div>
+      <div class="chroma-wrap" id="chromaWrap"></div>
+    </div>
+
+    <!-- Spectral Contrast -->
+    <div class="panel">
+      <div class="panel-title">Spectral Contrast</div>
+      <canvas id="specContrastCanvas" width="300" height="40"></canvas>
+    </div>
+
+    <!-- MFCC -->
+    <div class="panel">
+      <div class="panel-title">MFCC</div>
+      <canvas id="mfccCanvas" width="300" height="40"></canvas>
+    </div>
+  </div>
+
+  <div class="spectrogram-wrap">
+    <span class="spec-label">Mel Spectrogram</span>
+    <canvas id="melCanvas"></canvas>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/essentia.js@0.1.3/dist/essentia-wasm.web.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/essentia.js@0.1.3/dist/essentia.js-core.umd.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// State
+// ═══════════════════════════════════════════════════════════
+let essentia = null, audioCtx = null, capturing = false;
+let processorNode = null, audioFileSource = null;
+
+const FRAME_SIZE = 2048;
+const MEL_BANDS = 96;
+const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+let hpcpAccum = new Float32Array(12), hpcpFrameCount = 0;
+const KEY_FRAMES = 60;
+let melHistory = [];
+const MEL_MAX = 500;
+
+// Viz state
+let currentWaveform = null;   // Float32Array — raw audio frame
+let currentSpectrum = null;   // Float32Array — spectrum magnitudes
+let pitchHistory = [];        // scrolling pitch values
+let chromaHistory = [];       // scrolling HPCP frames
+const VIZ_HISTORY_MAX = 400;
+
+// Buffer for long-window analysis (BPM, Danceability, etc.)
+let audioBuffer = [];
+const BUFFER_SECONDS = 12;
+let bufferSampleRate = 48000;
+
+// ── Track Profile Accumulators ──
+const PROFILE_WINDOW = 200; // ~10s of frames
+let profileFrameCount = 0;
+const profileAccum = {
+  centroid: [], dissonance: [], specComplexity: [], inharm: [],
+  keyConfidence: 0, keyScale: '', hpcpHistory: [], melBandsHistory: [],
+  // From buffer analysis
+  dynamics: 0, rhythmStability: 0, bpm: 0,
+};
+
+function resetProfile() {
+  profileFrameCount = 0;
+  profileAccum.centroid = []; profileAccum.dissonance = [];
+  profileAccum.specComplexity = []; profileAccum.inharm = [];
+  profileAccum.keyConfidence = 0; profileAccum.keyScale = '';
+  profileAccum.hpcpHistory = []; profileAccum.melBandsHistory = [];
+  profileAccum.dynamics = 0; profileAccum.rhythmStability = 0; profileAccum.bpm = 0;
+  // Reset profile markers to center
+  document.querySelectorAll('.profile-marker').forEach(m => m.style.left = '50%');
+  document.querySelectorAll('.profile-fill').forEach(f => f.style.width = '50%');
+}
+
+function resetAllState() {
+  melHistory = [];
+  hpcpAccum.fill(0);
+  hpcpFrameCount = 0;
+  audioBuffer = [];
+  pitchHistory = [];
+  chromaHistory = [];
+  currentWaveform = null;
+  currentSpectrum = null;
+  resetProfile();
+  onAudioProcess._ec = 0;
+  // Reset rhythm/buffer UI
+  document.getElementById('bpmVal').textContent = '—';
+  document.getElementById('danceVal').textContent = '—';
+  document.getElementById('dynVal').textContent = '—';
+  // Reset key
+  document.getElementById('keyValue').textContent = '—';
+  document.getElementById('keyScale').textContent = '\u00a0';
+  document.getElementById('keyStrength').textContent = '\u00a0';
+  // Reset pitch
+  document.getElementById('pitchVal').textContent = '—';
+  document.getElementById('pitchNote').textContent = '—';
+  document.getElementById('tuningVal').textContent = '—';
+}
+
+// ═══════════════════════════════════════════════════════════
+// Init Essentia
+// ═══════════════════════════════════════════════════════════
+(async function initEssentia() {
+  try {
+    const wasm = await EssentiaWASM({
+      locateFile: p => 'https://cdn.jsdelivr.net/npm/essentia.js@0.1.3/dist/' + p
+    });
+    essentia = new Essentia(wasm);
+    console.log('[init] Essentia', essentia.version);
+    document.getElementById('loading').classList.add('hidden');
+  } catch (e) {
+    document.getElementById('loading').innerHTML =
+      `<div style="color:var(--accent2)">WASM load failed: ${e.message}</div>`;
+  }
+})();
+
+// ═══════════════════════════════════════════════════════════
+// Build Chroma UI
+// ═══════════════════════════════════════════════════════════
+(function() {
+  const w = document.getElementById('chromaWrap');
+  NOTE_NAMES.forEach((n, i) => {
+    const b = document.createElement('div'); b.className = 'chroma-bin';
+    const bar = document.createElement('div'); bar.className = 'chroma-bar';
+    bar.id = `chroma-${i}`; bar.style.background = `hsl(${i*30},70%,55%)`;
+    const l = document.createElement('span'); l.className = 'chroma-label'; l.textContent = n;
+    b.appendChild(bar); b.appendChild(l); w.appendChild(b);
+  });
+})();
+
+// ═══════════════════════════════════════════════════════════
+// YouTube URL → Audio
+// ═══════════════════════════════════════════════════════════
+function extractVideoId(s) {
+  s = s.trim();
+  if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
+  const m = s.match(/(?:youtube\.com\/watch\?.*v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+async function loadVideo() {
+  const id = extractVideoId(document.getElementById('urlInput').value);
+  if (!id) return setStatus('Invalid URL', 'err');
+
+  if (capturing) stopCapture();
+  audioCtx = null;
+  resetAllState();
+
+  document.getElementById('placeholder').style.display = 'none';
+  const thumb = document.getElementById('trackThumb');
+  thumb.src = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+  thumb.style.display = 'block';
+  document.getElementById('playOverlay').style.display = 'flex';
+  setStatus('Loading audio...', 'ok');
+
+  const audioEl = document.getElementById('audioPlayer');
+  setupAudioAnalysis(audioEl);
+  audioEl.src = `/api/audio?v=${id}`;
+  audioEl.style.display = 'block';
+  audioEl.load();
+
+  fetch(`/api/info?v=${id}`).then(r => r.ok ? r.json() : null).then(info => {
+    if (!info) return;
+    document.getElementById('trackTitle').textContent = info.title;
+    document.getElementById('trackChannel').textContent = info.channel;
+    document.getElementById('trackInfo').style.display = 'block';
+    setStatus(`${info.title} — press play`, 'ok');
+  }).catch(() => {});
+}
+
+document.getElementById('urlInput').addEventListener('keydown', e => { if (e.key === 'Enter') loadVideo(); });
+
+// ═══════════════════════════════════════════════════════════
+// Audio Pipeline Setup
+// ═══════════════════════════════════════════════════════════
+function setupAudioAnalysis(audioEl) {
+  function ensurePipeline() {
+    if (audioCtx) return;
+    if (!essentia) return setStatus('Essentia not loaded', 'err');
+    audioCtx = new AudioContext();
+    audioCtx.resume();
+    bufferSampleRate = audioCtx.sampleRate;
+    audioFileSource = audioCtx.createMediaElementSource(audioEl);
+    processorNode = audioCtx.createScriptProcessor(FRAME_SIZE, 1, 1);
+    processorNode.onaudioprocess = onAudioProcess;
+    audioFileSource.connect(processorNode);
+    processorNode.connect(audioCtx.destination); // single path: source → processor → speakers
+    console.log('[audio] Pipeline ready, sampleRate:', audioCtx.sampleRate);
+  }
+  audioEl.onplay = () => {
+    ensurePipeline(); if (audioCtx) audioCtx.resume(); capturing = true;
+    document.getElementById('playOverlay').style.display = 'none';
+    document.getElementById('vizArea').style.display = 'flex';
+    document.getElementById('trackThumb').style.display = 'none';
+    setStatus('Analyzing...', 'ok'); requestAnimationFrame(drawMel); requestAnimationFrame(drawViz);
+  };
+  audioEl.onpause = () => {
+    capturing = false;
+    document.getElementById('playOverlay').style.display = 'flex';
+    document.getElementById('vizArea').style.display = 'none';
+    document.getElementById('trackThumb').style.display = 'block';
+    setStatus('Paused');
+  };
+  audioEl.onended = () => { capturing = false; runBufferAnalysis(); setStatus('Ended'); };
+  audioEl.onseeked = () => { melHistory = []; hpcpAccum.fill(0); hpcpFrameCount = 0; audioBuffer = []; resetProfile(); };
+}
+
+function stopCapture() {
+  capturing = false;
+  if (processorNode) { processorNode.disconnect(); processorNode = null; }
+  if (audioFileSource) { audioFileSource.disconnect(); audioFileSource = null; }
+  if (audioCtx) { audioCtx.close(); audioCtx = null; }
+}
+
+// ═══════════════════════════════════════════════════════════
+// Per-Frame Audio Processing
+// ═══════════════════════════════════════════════════════════
+function onAudioProcess(e) {
+  if (!essentia || !capturing) return;
+  const input = e.inputBuffer.getChannelData(0);
+  // Pass audio through to speakers
+  e.outputBuffer.getChannelData(0).set(input);
+
+  // Skip silence
+  let sum = 0;
+  for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
+  if (sum / input.length < 1e-6) return; // skip near-silence
+
+  // Buffer for long-window analysis
+  const maxSamples = BUFFER_SECONDS * bufferSampleRate;
+  audioBuffer.push(new Float32Array(input));
+  while (audioBuffer.reduce((a, b) => a + b.length, 0) > maxSamples) audioBuffer.shift();
+
+  const trash = [];
+  let rms = 0, energy = 0, centroid = 0, dissonance = 0, inharm = 0, specCompl = 0;
+  let pitch = 0, tuning = 0;
+  let melArray = null, mfccArray = null, hpcpArray = null, specContrastArray = null;
+  let keyInfo = null;
+
+  try {
+    const signal = essentia.arrayToVector(input); trash.push(signal);
+
+    // Waveform for oscilloscope
+    currentWaveform = new Float32Array(input);
+
+    // Basic
+    rms = essentia.RMS(signal).rms;
+    energy = essentia.Energy(signal).energy;
+
+    // Windowing → Spectrum
+    const w = essentia.Windowing(signal); trash.push(w.frame);
+    const sp = essentia.Spectrum(w.frame); trash.push(sp.spectrum);
+    currentSpectrum = essentia.vectorToArray(sp.spectrum);
+
+    // Mel Bands
+    const mel = essentia.MelBands(sp.spectrum, 22050, sp.spectrum.size(), false, 0, 'unit_sum', MEL_BANDS); trash.push(mel.bands);
+    const melRaw = essentia.vectorToArray(mel.bands);
+    melArray = new Float32Array(melRaw.length);
+    for (let i = 0; i < melRaw.length; i++) melArray[i] = Math.log10(1 + melRaw[i] * 1000);
+    melHistory.push(melArray);
+    if (melHistory.length > MEL_MAX) melHistory.shift();
+
+    // MFCC
+    const mfcc = essentia.MFCC(sp.spectrum); trash.push(mfcc.mfcc, mfcc.bands);
+    mfccArray = essentia.vectorToArray(mfcc.mfcc);
+
+    // Centroid
+    centroid = essentia.Centroid(sp.spectrum, bufferSampleRate / 2).centroid;
+
+    // Spectral Peaks
+    const peaks = essentia.SpectralPeaks(sp.spectrum, 0, 5000, 50, 40, 'frequency', bufferSampleRate);
+    trash.push(peaks.frequencies, peaks.magnitudes);
+
+    // Dissonance
+    try { dissonance = essentia.Dissonance(peaks.frequencies, peaks.magnitudes).dissonance; } catch (_) {}
+
+    // Inharmonicity
+    try { inharm = essentia.Inharmonicity(peaks.frequencies, peaks.magnitudes).inharmonicity; } catch (_) {}
+
+    // Tuning Frequency
+    try { tuning = essentia.TuningFrequency(peaks.frequencies, peaks.magnitudes).tuningFrequency; } catch (_) {}
+
+    // Spectral Complexity
+    try { specCompl = essentia.SpectralComplexity(sp.spectrum).spectralComplexity; } catch (_) {}
+
+    // Spectral Contrast
+    try {
+      const sc = essentia.SpectralContrast(sp.spectrum);
+      specContrastArray = essentia.vectorToArray(sc.spectralContrast);
+      trash.push(sc.spectralContrast, sc.spectralValley);
+    } catch (e) {
+      if (!onAudioProcess._scErr) { console.warn('[sc] error:', e.message); onAudioProcess._scErr = true; }
+    }
+
+    // HPCP
+    const hpcp = essentia.HPCP(peaks.frequencies, peaks.magnitudes); trash.push(hpcp.hpcp);
+    hpcpArray = essentia.vectorToArray(hpcp.hpcp);
+
+    // Pitch (YIN)
+    try {
+      const p = essentia.PitchYin(signal);
+      pitch = p.pitch;
+    } catch (_) {}
+
+    // Viz histories
+    pitchHistory.push(pitch > 20 ? pitch : 0);
+    if (pitchHistory.length > VIZ_HISTORY_MAX) pitchHistory.shift();
+    if (hpcpArray && hpcpArray.length >= 12) {
+      chromaHistory.push(Array.from(hpcpArray.slice(0, 12)));
+      if (chromaHistory.length > VIZ_HISTORY_MAX) chromaHistory.shift();
+    }
+
+    // Accumulate HPCP → Key
+    if (hpcpArray.length >= 12) {
+      for (let i = 0; i < 12; i++) hpcpAccum[i] += hpcpArray[i];
+      hpcpFrameCount++;
+    }
+    if (hpcpFrameCount >= KEY_FRAMES) {
+      const avg = new Float32Array(12);
+      for (let i = 0; i < 12; i++) avg[i] = hpcpAccum[i] / hpcpFrameCount;
+      const v = essentia.arrayToVector(avg); trash.push(v);
+      const kr = essentia.Key(v);
+      keyInfo = { key: kr.key, scale: kr.scale, strength: kr.strength };
+      profileAccum.keyConfidence = kr.strength;
+      profileAccum.keyScale = kr.scale;
+      hpcpAccum.fill(0); hpcpFrameCount = 0;
+    }
+
+    // Run buffer analysis every ~10s
+    if (audioBuffer.length > 0 && audioBuffer.length % 200 === 0) {
+      setTimeout(runBufferAnalysis, 0);
+    }
+
+  } catch (err) {
+    if (!onAudioProcess._ec) onAudioProcess._ec = 0;
+    if (onAudioProcess._ec++ < 5) console.warn('Frame error:', err.message);
+  } finally {
+    for (const o of trash) { try { o.delete(); } catch (_) {} }
+  }
+
+  // ── Feed Profile Accumulators ──
+  profileAccum.centroid.push(centroid);
+  profileAccum.dissonance.push(dissonance);
+  profileAccum.specComplexity.push(specCompl);
+  profileAccum.inharm.push(inharm);
+  if (hpcpArray && hpcpArray.length >= 12) profileAccum.hpcpHistory.push(Array.from(hpcpArray.slice(0, 12)));
+  if (melArray) profileAccum.melBandsHistory.push(melArray);
+  // Trim to window
+  for (const k of ['centroid','dissonance','specComplexity','inharm']) {
+    if (profileAccum[k].length > PROFILE_WINDOW) profileAccum[k].shift();
+  }
+  if (profileAccum.hpcpHistory.length > PROFILE_WINDOW) profileAccum.hpcpHistory.shift();
+  if (profileAccum.melBandsHistory.length > PROFILE_WINDOW) profileAccum.melBandsHistory.shift();
+  profileFrameCount++;
+  if (profileFrameCount % 40 === 0) updateProfile();
+
+  // Update UI
+  updateMeters(rms, energy, centroid, dissonance, specCompl, inharm);
+  updatePitch(pitch, tuning);
+  if (hpcpArray) updateChroma(hpcpArray);
+  if (mfccArray) updateCanvas('mfccCanvas', mfccArray, -100, 100);
+  if (specContrastArray) {
+    const scMin = Math.min(...specContrastArray);
+    const scMax = Math.max(...specContrastArray);
+    updateCanvas('specContrastCanvas', specContrastArray, scMin, scMax || 1);
+  }
+  if (keyInfo) updateKey(keyInfo);
+}
+
+// ═══════════════════════════════════════════════════════════
+// Buffer Analysis (BPM, Danceability, DynamicComplexity)
+// ═══════════════════════════════════════════════════════════
+function runBufferAnalysis() {
+  if (!essentia || audioBuffer.length === 0) return;
+
+  // Concatenate buffer
+  const totalLen = audioBuffer.reduce((a, b) => a + b.length, 0);
+  const full = new Float32Array(totalLen);
+  let offset = 0;
+  for (const chunk of audioBuffer) { full.set(chunk, offset); offset += chunk.length; }
+
+  const signal = essentia.arrayToVector(full);
+
+  // BPM
+  try {
+    const bt = essentia.BeatTrackerDegara(signal);
+    const ticks = essentia.vectorToArray(bt.ticks);
+    bt.ticks.delete();
+    if (ticks.length >= 2) {
+      const intervals = [];
+      for (let i = 1; i < ticks.length; i++) intervals.push(ticks[i] - ticks[i-1]);
+      const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+      const bpm = avgInterval > 0 ? Math.round(60 / avgInterval) : 0;
+      document.getElementById('bpmVal').textContent = bpm || '—';
+      profileAccum.bpm = bpm;
+      // Rhythm stability = inverse of interval variance (normalized)
+      const mean = avgInterval;
+      const variance = intervals.reduce((s, v) => s + (v - mean) ** 2, 0) / intervals.length;
+      const cv = mean > 0 ? Math.sqrt(variance) / mean : 1; // coefficient of variation
+      profileAccum.rhythmStability = Math.max(0, Math.min(1, 1 - cv * 3));
+    }
+  } catch (e) { console.warn('BPM:', e.message); }
+
+  // Danceability
+  try {
+    const d = essentia.Danceability(signal);
+    document.getElementById('danceVal').textContent = d.danceability.toFixed(2);
+  } catch (e) { console.warn('Dance:', e.message); }
+
+  // Dynamic Complexity
+  try {
+    const dc = essentia.DynamicComplexity(signal);
+    document.getElementById('dynVal').textContent = dc.dynamicComplexity.toFixed(1);
+    profileAccum.dynamics = Math.min(1, dc.dynamicComplexity / 15); // normalize ~0-15 → 0-1
+  } catch (e) { console.warn('DynCompl:', e.message); }
+
+  signal.delete();
+}
+
+// ═══════════════════════════════════════════════════════════
+// UI Updates
+// ═══════════════════════════════════════════════════════════
+function setStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = 'status' + (type ? ` ${type}` : '');
+}
+
+function updateMeters(rms, energy, centroid, dissonance, specCompl, inharm) {
+  const set = (id, pct, val) => {
+    document.getElementById(id + 'Meter').style.width = Math.min(pct, 100) + '%';
+    document.getElementById(id + 'Val').textContent = val;
+  };
+  set('rms', rms * 200, rms.toFixed(3));
+  set('energy', Math.sqrt(energy) * 100, energy.toFixed(3));
+  set('centroid', centroid / 8000 * 100, Math.round(centroid) + ' Hz');
+  set('diss', dissonance * 100, dissonance.toFixed(2));
+  set('specCompl', Math.min(specCompl / 20 * 100, 100), specCompl.toFixed(1));
+  set('inharm', inharm * 100, inharm.toFixed(3));
+}
+
+function updatePitch(pitch, tuning) {
+  document.getElementById('pitchVal').textContent = pitch > 20 ? Math.round(pitch) : '—';
+  if (pitch > 20) {
+    const midi = 12 * Math.log2(pitch / 440) + 69;
+    const note = NOTE_NAMES[Math.round(midi) % 12];
+    const octave = Math.floor(Math.round(midi) / 12) - 1;
+    document.getElementById('pitchNote').textContent = note + octave;
+  } else {
+    document.getElementById('pitchNote').textContent = '—';
+  }
+  document.getElementById('tuningVal').textContent = tuning > 0 ? tuning.toFixed(1) : '—';
+}
+
+function updateChroma(hpcp) {
+  const max = Math.max(...hpcp, 0.001);
+  for (let i = 0; i < 12; i++) {
+    const bar = document.getElementById(`chroma-${i}`);
+    bar.style.height = Math.max(1, (hpcp[i] / max) * 54) + 'px';
+    bar.style.background = `hsl(${i * 30}, 70%, ${30 + (hpcp[i] / max) * 40}%)`;
+  }
+}
+
+function updateKey(info) {
+  document.getElementById('keyValue').textContent = info.key;
+  document.getElementById('keyScale').textContent = info.scale;
+  document.getElementById('keyStrength').textContent = `confidence: ${(info.strength * 100).toFixed(0)}%`;
+}
+
+function updateCanvas(id, data, minVal, maxVal) {
+  const canvas = document.getElementById(id);
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  const barW = w / data.length;
+  for (let i = 0; i < data.length; i++) {
+    const norm = Math.max(0, Math.min(1, (data[i] - minVal) / (maxVal - minVal)));
+    ctx.fillStyle = `hsl(${i * (360 / data.length)}, 60%, 50%)`;
+    ctx.fillRect(i * barW, h - norm * h, barW - 1, norm * h);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// Track Profile
+// ═══════════════════════════════════════════════════════════
+function avg(arr) { return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0; }
+function median(arr) {
+  if (!arr.length) return 0;
+  const s = [...arr].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+// Smoothed profile values — EMA to prevent jitter
+const profileSmoothed = {};
+const PROFILE_SMOOTH = 0.15; // lower = smoother
+
+function updateProfile() {
+  const p = profileAccum;
+  if (p.centroid.length < 60) return;
+
+  const raw = {};
+
+  // Brightness: spectral centroid. Typical music: 500–4000 Hz
+  // Use median to reduce outlier sensitivity
+  const medCentroid = median(p.centroid);
+  raw.brightness = Math.max(0, Math.min(1, (medCentroid - 300) / 4000));
+
+  // Roughness: dissonance. Typical range 0.3–0.5 for music
+  const medDiss = median(p.dissonance);
+  raw.roughness = Math.max(0, Math.min(1, (medDiss - 0.2) / 0.4));
+
+  // Density: spectral complexity. Typical: 2–15
+  const medCompl = median(p.specComplexity);
+  raw.density = Math.max(0, Math.min(1, (medCompl - 1) / 15));
+
+  // Dynamics: from buffer analysis, or estimate from RMS variance
+  if (p.dynamics > 0) {
+    raw.dynamics = p.dynamics;
+  } else if (p.centroid.length > 30) {
+    // Fallback: use coefficient of variation of recent RMS-like centroid spread
+    raw.dynamics = 0.5;
+  }
+
+  // Tonality: just use key confidence directly — it's already 0–1
+  // High confidence = clearly tonal, low = ambiguous/atonal
+  raw.tonality = p.keyConfidence;
+
+  // Harmonic Movement: cosine distance between consecutive HPCP frames
+  if (p.hpcpHistory.length > 20) {
+    let totalDist = 0, count = 0;
+    for (let i = 1; i < p.hpcpHistory.length; i++) {
+      const a = p.hpcpHistory[i - 1], b = p.hpcpHistory[i];
+      let dot = 0, na = 0, nb = 0;
+      for (let j = 0; j < 12; j++) { dot += a[j] * b[j]; na += a[j] ** 2; nb += b[j] ** 2; }
+      const cos = (na > 0 && nb > 0) ? dot / (Math.sqrt(na) * Math.sqrt(nb)) : 1;
+      totalDist += 1 - cos; // 0 = identical, 1 = orthogonal
+      count++;
+    }
+    const avgDist = totalDist / count;
+    raw.harmonicMovement = Math.min(1, avgDist * 5); // typical 0–0.2
+  } else {
+    raw.harmonicMovement = 0.5;
+  }
+
+  // Frequency Balance: ratio of energy in upper vs lower mel bands
+  if (p.melBandsHistory.length > 20) {
+    let lowE = 0, highE = 0;
+    const mid = Math.floor(MEL_BANDS / 2);
+    for (const mb of p.melBandsHistory) {
+      for (let i = 0; i < mid; i++) lowE += mb[i];
+      for (let i = mid; i < mb.length; i++) highE += mb[i];
+    }
+    const total = lowE + highE;
+    raw.freqBalance = total > 0 ? highE / total : 0.5;
+    // Normalize: typical range is 0.1–0.5 (music is usually bass-heavy)
+    raw.freqBalance = Math.max(0, Math.min(1, (raw.freqBalance - 0.05) / 0.5));
+  } else {
+    raw.freqBalance = 0.5;
+  }
+
+  // Mood: major/minor is the strongest signal, plus brightness and tempo as modifiers
+  let mood = 0.5;
+  if (p.keyScale === 'major') mood = 0.7;
+  if (p.keyScale === 'minor') mood = 0.3;
+  // Modulate gently with brightness
+  mood += (raw.brightness - 0.5) * 0.15;
+  // Modulate gently with tempo
+  if (p.bpm > 130) mood += 0.08;
+  else if (p.bpm > 0 && p.bpm < 80) mood -= 0.08;
+  raw.mood = Math.max(0, Math.min(1, mood));
+
+  // Rhythmic Stability: from buffer analysis
+  raw.rhythmStability = p.rhythmStability;
+
+  // Inharmonicity: typical values in music are 0.0–0.15
+  const medInharm = median(p.inharm);
+  raw.inharmonicity = Math.max(0, Math.min(1, medInharm / 0.2));
+
+  // Apply EMA smoothing and render
+  for (const [dim, val] of Object.entries(raw)) {
+    if (!(dim in profileSmoothed)) profileSmoothed[dim] = val;
+    else profileSmoothed[dim] += PROFILE_SMOOTH * (val - profileSmoothed[dim]);
+
+    const row = document.querySelector(`.profile-row[data-dim="${dim}"]`);
+    if (!row) continue;
+    const marker = row.querySelector('.profile-marker');
+    const fill = row.querySelector('.profile-fill');
+    const pct = Math.max(2, Math.min(98, profileSmoothed[dim] * 100));
+    marker.style.left = pct + '%';
+    fill.style.width = pct + '%';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// Mel Spectrogram Renderer
+// ═══════════════════════════════════════════════════════════
+const melCanvas = document.getElementById('melCanvas');
+const melCtx = melCanvas.getContext('2d');
+
+function melColor(t) {
+  t = Math.max(0, Math.min(1, t));
+  if (t < 0.33) { const s = t/0.33; return `rgb(${s*120|0},${s*20|0},${40+s*80|0})`; }
+  if (t < 0.66) { const s = (t-0.33)/0.33; return `rgb(${120+s*135|0},${20+s*60|0},${120-s*80|0})`; }
+  const s = (t-0.66)/0.34; return `rgb(255,${80+s*175|0},${40+s*60|0})`;
+}
+
+function drawMel() {
+  if (!capturing) return;
+  const rect = melCanvas.parentElement.getBoundingClientRect();
+  if (melCanvas.width !== rect.width || melCanvas.height !== rect.height) {
+    melCanvas.width = rect.width; melCanvas.height = rect.height;
+  }
+  const w = melCanvas.width, h = melCanvas.height, cols = melHistory.length;
+  if (!cols) { requestAnimationFrame(drawMel); return; }
+  melCtx.clearRect(0, 0, w, h);
+  const colW = Math.max(1, w / MEL_MAX), bandH = h / MEL_BANDS;
+  let gMax = 0;
+  for (const f of melHistory) for (let i = 0; i < f.length; i++) if (f[i] > gMax) gMax = f[i];
+  if (gMax < 0.001) gMax = 1;
+  const startX = w - cols * colW;
+  for (let c = 0; c < cols; c++) {
+    const f = melHistory[c], x = startX + c * colW;
+    for (let b = 0; b < f.length; b++) {
+      melCtx.fillStyle = melColor(f[b] / gMax);
+      melCtx.fillRect(x, h - (b + 1) * bandH, colW + 0.5, bandH + 0.5);
+    }
+  }
+  requestAnimationFrame(drawMel);
+}
+
+// ═══════════════════════════════════════════════════════════
+// Player Visualizations
+// ═══════════════════════════════════════════════════════════
+function sizeCanvas(canvas) {
+  const r = canvas.getBoundingClientRect();
+  if (canvas.width !== r.width || canvas.height !== r.height) {
+    canvas.width = r.width; canvas.height = r.height;
+  }
+}
+
+function drawViz() {
+  if (!capturing) return;
+  drawScope();
+  drawSpectrum();
+  drawPitchTrack();
+  drawChromagram();
+  requestAnimationFrame(drawViz);
+}
+
+// ── Oscilloscope ──
+function drawScope() {
+  const c = document.getElementById('scopeCanvas');
+  sizeCanvas(c);
+  const ctx = c.getContext('2d');
+  const w = c.width, h = c.height;
+  ctx.fillStyle = 'rgba(10,10,15,0.85)';
+  ctx.fillRect(0, 0, w, h);
+
+  if (!currentWaveform) return;
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(42,42,58,0.5)';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(0, h/2); ctx.lineTo(w, h/2);
+  ctx.moveTo(0, h/4); ctx.lineTo(w, h/4);
+  ctx.moveTo(0, 3*h/4); ctx.lineTo(w, 3*h/4);
+  ctx.stroke();
+
+  // Waveform
+  ctx.strokeStyle = '#4ade80';
+  ctx.lineWidth = 1.5;
+  ctx.shadowColor = '#4ade80';
+  ctx.shadowBlur = 4;
+  ctx.beginPath();
+  const step = Math.max(1, Math.floor(currentWaveform.length / w));
+  for (let i = 0; i < w; i++) {
+    const idx = Math.floor(i * currentWaveform.length / w);
+    const v = currentWaveform[idx];
+    const y = (1 - v) * h / 2;
+    if (i === 0) ctx.moveTo(i, y); else ctx.lineTo(i, y);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Label
+  ctx.fillStyle = 'rgba(106,106,122,0.6)';
+  ctx.font = '9px monospace';
+  ctx.fillText('OSCILLOSCOPE', 8, 12);
+}
+
+// ── Frequency Spectrum ──
+function drawSpectrum() {
+  const c = document.getElementById('spectrumCanvas');
+  sizeCanvas(c);
+  const ctx = c.getContext('2d');
+  const w = c.width, h = c.height;
+  ctx.fillStyle = 'rgba(10,10,15,0.85)';
+  ctx.fillRect(0, 0, w, h);
+
+  if (!currentSpectrum || currentSpectrum.length === 0) return;
+
+  // Use log frequency scale — only show up to ~16kHz
+  const maxBin = Math.min(currentSpectrum.length, Math.floor(16000 / bufferSampleRate * currentSpectrum.length * 2));
+  const numBars = Math.min(w, 128);
+  const barW = w / numBars;
+
+  // Find max for normalization
+  let maxVal = 0;
+  for (let i = 1; i < maxBin; i++) if (currentSpectrum[i] > maxVal) maxVal = currentSpectrum[i];
+  if (maxVal < 1e-6) maxVal = 1;
+
+  const grad = ctx.createLinearGradient(0, h, 0, 0);
+  grad.addColorStop(0, '#7b68ee'); grad.addColorStop(0.5, '#c084fc'); grad.addColorStop(1, '#ff6b9d');
+
+  for (let i = 0; i < numBars; i++) {
+    // Log-spaced bin mapping
+    const frac = i / numBars;
+    const binIdx = Math.floor(Math.pow(frac, 2) * maxBin);
+    const binEnd = Math.floor(Math.pow((i + 1) / numBars, 2) * maxBin);
+    let val = 0;
+    for (let b = binIdx; b < binEnd && b < maxBin; b++) val = Math.max(val, currentSpectrum[b]);
+    const db = val > 0 ? Math.max(0, 1 + Math.log10(val / maxVal)) : 0;
+    const barH = db * h * 0.9;
+    ctx.fillStyle = grad;
+    ctx.fillRect(i * barW, h - barH, barW - 1, barH);
+  }
+
+  ctx.fillStyle = 'rgba(106,106,122,0.6)';
+  ctx.font = '9px monospace';
+  ctx.fillText('SPECTRUM', 8, 12);
+}
+
+// ── Pitch Track ──
+function drawPitchTrack() {
+  const c = document.getElementById('pitchCanvas');
+  sizeCanvas(c);
+  const ctx = c.getContext('2d');
+  const w = c.width, h = c.height;
+  ctx.fillStyle = 'rgba(10,10,15,0.85)';
+  ctx.fillRect(0, 0, w, h);
+
+  if (pitchHistory.length < 2) return;
+
+  // Pitch range: 50–2000 Hz, log scale
+  const minP = Math.log2(50), maxP = Math.log2(2000);
+
+  // Grid: note lines
+  ctx.strokeStyle = 'rgba(42,42,58,0.4)';
+  ctx.lineWidth = 0.5;
+  ctx.font = '8px monospace';
+  ctx.fillStyle = 'rgba(106,106,122,0.3)';
+  for (const freq of [100, 200, 440, 1000]) {
+    const y = h - (Math.log2(freq) - minP) / (maxP - minP) * h;
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    ctx.fillText(freq + 'Hz', w - 40, y - 2);
+  }
+
+  // Pitch line
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = '#fbbf24';
+  ctx.shadowBlur = 3;
+  ctx.beginPath();
+  let started = false;
+  const cols = pitchHistory.length;
+  const startX = w - cols * (w / VIZ_HISTORY_MAX);
+  for (let i = 0; i < cols; i++) {
+    const p = pitchHistory[i];
+    if (p < 20) { started = false; continue; }
+    const x = startX + i * (w / VIZ_HISTORY_MAX);
+    const y = h - (Math.log2(p) - minP) / (maxP - minP) * h;
+    if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = 'rgba(106,106,122,0.6)';
+  ctx.font = '9px monospace';
+  ctx.fillText('PITCH', 8, 12);
+}
+
+// ── Chromagram ──
+function drawChromagram() {
+  const c = document.getElementById('chromaCanvas');
+  sizeCanvas(c);
+  const ctx = c.getContext('2d');
+  const w = c.width, h = c.height;
+  ctx.fillStyle = 'rgba(10,10,15,0.85)';
+  ctx.fillRect(0, 0, w, h);
+
+  if (chromaHistory.length < 2) return;
+
+  const cols = chromaHistory.length;
+  const colW = Math.max(1, w / VIZ_HISTORY_MAX);
+  const rowH = h / 12;
+  const startX = w - cols * colW;
+
+  // Find max
+  let gMax = 0;
+  for (const f of chromaHistory) for (let i = 0; i < 12; i++) if (f[i] > gMax) gMax = f[i];
+  if (gMax < 0.001) gMax = 1;
+
+  for (let c2 = 0; c2 < cols; c2++) {
+    const f = chromaHistory[c2];
+    const x = startX + c2 * colW;
+    for (let n = 0; n < 12; n++) {
+      const val = f[n] / gMax;
+      const hue = n * 30;
+      const light = 10 + val * 50;
+      ctx.fillStyle = `hsl(${hue},70%,${light}%)`;
+      ctx.fillRect(x, h - (n + 1) * rowH, colW + 0.5, rowH + 0.5);
+    }
+  }
+
+  // Note labels
+  ctx.fillStyle = 'rgba(224,224,232,0.4)';
+  ctx.font = '7px monospace';
+  for (let n = 0; n < 12; n++) {
+    ctx.fillText(NOTE_NAMES[n], 3, h - n * rowH - rowH/2 + 3);
+  }
+
+  ctx.fillStyle = 'rgba(106,106,122,0.6)';
+  ctx.font = '9px monospace';
+  ctx.fillText('CHROMAGRAM', 30, 10);
+}
+</script>
+</body>
+</html>
