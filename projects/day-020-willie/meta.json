@@ -1,0 +1,12 @@
+{
+  "day": 20,
+  "slug": "day-020-willie",
+  "title": "Willie",
+  "date": "2026-04-16",
+  "description": "Work-in-progress restoration of the 1928 Disney short Steamboat Willie (public domain since 2024) — flat-field, deflicker, denoise on the first minute. Stabilization, dust cleanup, and 4K upscale still open.",
+  "tags": ["video", "restoration", "deflicker", "denoise", "ffmpeg", "animation", "archive", "wip"],
+  "stack": ["FFmpeg", "Python", "NumPy", "Pillow", "SciPy", "Real-ESRGAN (planned)"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-020-willie",
+  "status": "in-progress",
+  "license_notes": "Steamboat Willie (1928, Walt Disney / Ub Iwerks) — public domain in the US since January 1, 2024. Real-ESRGAN (BSD-3-Clause), RIFE (MIT), FFmpeg (LGPL/GPL)."
+}

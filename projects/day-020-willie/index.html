@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Willie — Steamboat Willie Restoration (WIP)</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #0a0a0a; color: #eaeaea;
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    main { max-width: 960px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    h1 { font-size: 2rem; margin: 0 0 0.25rem; letter-spacing: 0.02em; }
+    .sub { color: #888; margin: 0 0 1.5rem; font-size: 0.9rem; }
+    .tag { display: inline-block; padding: 0.15rem 0.5rem; border: 1px solid #553; color: #cb8;
+      border-radius: 3px; font-size: 0.72rem; letter-spacing: 0.08em; margin-right: 0.4rem;
+      vertical-align: middle; }
+    video { width: 100%; display: block; border-radius: 6px; background: #000; }
+    .tabs { display: flex; gap: 0.5rem; margin: 0 0 0.75rem; }
+    .tab { background: #141414; color: #aaa; border: 1px solid #222; padding: 0.5rem 0.9rem;
+      font: inherit; font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
+    .tab.active { background: #1c1c1c; color: #eaeaea; border-color: #444; }
+    .tab:hover { color: #eaeaea; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .card { border: 1px solid #222; border-radius: 6px; padding: 1rem 1.25rem; background: #111;
+      margin-top: 1.5rem; }
+    .card h2 { font-size: 0.95rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #bbb; margin: 0 0 0.75rem; }
+    ul { padding-left: 1.1rem; margin: 0.25rem 0; }
+    li { margin: 0.2rem 0; font-size: 0.88rem; line-height: 1.5; }
+    li code { background: #1c1c1c; padding: 0 0.3rem; border-radius: 3px; font-size: 0.82rem; }
+    .ok  { color: #8aca8a; }
+    .mid { color: #d9b36a; }
+    .bad { color: #c97070; }
+    p { line-height: 1.55; font-size: 0.9rem; }
+    a { color: #9ad; }
+    .cap { color: #888; font-size: 0.8rem; margin: 0.5rem 0 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Willie</h1>
+    <p class="sub">
+      <span class="tag">WIP</span>
+      Restoration of <em>Steamboat Willie</em> (1928) — first 60 s.
+    </p>
+
+    <div class="tabs">
+      <button class="tab active" data-target="restored">Restored</button>
+      <button class="tab" data-target="compare">Original vs. restored</button>
+    </div>
+
+    <div class="panel active" id="restored">
+      <video src="willie_test_denoised_1min.mp4" controls playsinline preload="metadata"></video>
+      <p class="cap">Flat-field → deflicker (v6) → nlmeans denoise → mild unsharp.</p>
+    </div>
+    <div class="panel" id="compare">
+      <video src="willie_test_compare_1min.mp4" controls playsinline preload="metadata"></video>
+      <p class="cap">Left: source scan. Right: restored pipeline output.</p>
+    </div>
+
+    <div class="card">
+      <h2>What works · what doesn't</h2>
+      <ul>
+        <li><span class="ok">flicker — dark &amp; mid greys:</span> visibly reduced</li>
+        <li><span class="mid">flicker — bright greys:</span> still insufficient</li>
+        <li><span class="mid">shadow / vignette:</span> flat-field fix landed, more tuning possible</li>
+        <li><span class="bad">stabilization:</span> failed — vidstab fights hand-drawn motion</li>
+        <li><span class="bad">noise reduction:</span> unsatisfying — softens fine line strokes</li>
+        <li><span class="bad">dust / scratch removal:</span> failed — eats 1–2-frame animation strokes</li>
+        <li><span class="mid">upscale:</span> Real-ESRGAN pipeline scripted, not yet run end-to-end</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Planned next steps</h2>
+      <ul>
+        <li>Content-masked percentile gain to catch bright-grey flicker</li>
+        <li>Real-ESRGAN 4× upscale in 100-frame batches (not in <code>/tmp</code>)</li>
+        <li>Post-upscale unsharp</li>
+        <li>Optional RIFE 24 → 48 fps</li>
+        <li>Audio hiss reduction on the original Opus track</li>
+        <li>Proper before / after scrubber viewer</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Note</h2>
+      <p>Archival film restoration is hard, and animation breaks most of the
+      off-the-shelf tools built for live action (temporal medians eat line strokes,
+      vidstab fights drawn motion, radial vignette filters don't match asymmetric
+      gate shading). This day ships the best 1-minute pass of the current pipeline;
+      the project will be picked up again later.</p>
+      <p>Source: public domain since 2024-01-01. Pipeline scripts are in
+      <code>scripts/</code>.</p>
+    </div>
+  </main>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.panel');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        const target = document.getElementById(tab.dataset.target);
+        target.classList.add('active');
+        panels.forEach(p => { const v = p.querySelector('video'); if (v && p !== target) v.pause(); });
+      });
+    });
+  </script>
+</body>
+</html>
