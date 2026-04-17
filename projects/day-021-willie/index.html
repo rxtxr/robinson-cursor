@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Willie — Steamboat Willie Restoration (v4)</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #0a0a0a; color: #eaeaea;
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    h1 { font-size: 2rem; margin: 0 0 0.25rem; letter-spacing: 0.02em; }
+    .sub { color: #888; margin: 0 0 1.5rem; font-size: 0.9rem; }
+    .tag { display: inline-block; padding: 0.15rem 0.5rem; border: 1px solid #3a5a3a;
+      color: #9bc59b; border-radius: 3px; font-size: 0.72rem; letter-spacing: 0.08em;
+      margin-right: 0.4rem; vertical-align: middle; }
+
+    .tabs { display: flex; gap: 0.5rem; margin: 0 0 0.75rem; flex-wrap: wrap; }
+    .tab { background: #141414; color: #aaa; border: 1px solid #222; padding: 0.5rem 0.9rem;
+      font: inherit; font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
+    .tab.active { background: #1c1c1c; color: #eaeaea; border-color: #444; }
+    .tab:hover { color: #eaeaea; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* scrubber */
+    .scrubber { position: relative; width: 100%; background: #000; border-radius: 6px;
+      overflow: hidden; aspect-ratio: 1296 / 1080; user-select: none; }
+    .scrubber video { position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      display: block; }
+    .scrubber .after { clip-path: inset(0 0 0 var(--split, 50%)); }
+    .scrubber .split { position: absolute; top: 0; bottom: 0; width: 2px;
+      background: #fff; left: var(--split, 50%); transform: translateX(-1px);
+      pointer-events: none; box-shadow: 0 0 6px rgba(0,0,0,0.8); }
+    .scrubber .handle { position: absolute; top: 50%; left: var(--split, 50%);
+      transform: translate(-50%, -50%); width: 36px; height: 36px; border-radius: 50%;
+      background: #fff; cursor: ew-resize; box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center; color: #000;
+      font-size: 0.7rem; letter-spacing: 0.05em; font-weight: bold; }
+    .scrubber .label { position: absolute; top: 0.6rem; padding: 0.25rem 0.6rem;
+      background: rgba(0,0,0,0.65); color: #fff; font-size: 0.75rem;
+      letter-spacing: 0.1em; border-radius: 3px; pointer-events: none; }
+    .scrubber .label.l { left: 0.6rem; }
+    .scrubber .label.r { right: 0.6rem; }
+
+    .controls { display: flex; gap: 0.5rem; margin-top: 0.75rem; align-items: center; }
+    .controls button { background: #141414; color: #eaeaea; border: 1px solid #333;
+      padding: 0.45rem 0.9rem; font: inherit; font-size: 0.82rem; cursor: pointer;
+      border-radius: 4px; }
+    .controls button:hover { border-color: #555; }
+    .controls .time { color: #888; font-size: 0.8rem; margin-left: auto; }
+
+    video.single { width: 100%; display: block; border-radius: 6px; background: #000; }
+
+    .card { border: 1px solid #222; border-radius: 6px; padding: 1rem 1.25rem;
+      background: #111; margin-top: 1.5rem; }
+    .card h2 { font-size: 0.95rem; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #bbb; margin: 0 0 0.75rem; }
+    ul { padding-left: 1.1rem; margin: 0.25rem 0; }
+    li { margin: 0.2rem 0; font-size: 0.88rem; line-height: 1.5; }
+    li code { background: #1c1c1c; padding: 0 0.3rem; border-radius: 3px; font-size: 0.82rem; }
+    .ok  { color: #8aca8a; }
+    .mid { color: #d9b36a; }
+    .bad { color: #c97070; }
+    p { line-height: 1.55; font-size: 0.9rem; }
+    a { color: #9ad; }
+    .cap { color: #888; font-size: 0.8rem; margin: 0.5rem 0 0; }
+    .pipeline { font-size: 0.8rem; color: #bbb; background: #1a1a1a; padding: 0.6rem 0.8rem;
+      border-radius: 4px; overflow-x: auto; white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Willie</h1>
+    <p class="sub">
+      <span class="tag">v4 · complete</span>
+      Restoration of <em>Steamboat Willie</em> (1928) — full 7:40, with a
+      before/after scrubber on the first minute.
+    </p>
+
+    <div class="tabs">
+      <button class="tab active" data-target="scrubber">Before / after scrubber (60 s)</button>
+      <button class="tab" data-target="full">Full film (7:40, restored)</button>
+    </div>
+
+    <div class="panel active" id="scrubber">
+      <div class="scrubber" id="scr">
+        <video class="before" src="willie_original_60s.mp4"
+               muted playsinline preload="metadata"></video>
+        <video class="after"  src="willie_restored_60s.mp4"
+               muted playsinline preload="metadata"></video>
+        <span class="label l">ORIGINAL</span>
+        <span class="label r">RESTORED</span>
+        <div class="split"></div>
+        <div class="handle" aria-label="Drag to compare">||</div>
+      </div>
+      <div class="controls">
+        <button id="btnPlay">Play</button>
+        <button id="btnMute">Unmute</button>
+        <span class="time" id="time">0:00 / 1:00</span>
+      </div>
+      <p class="cap">Drag the handle to compare. Both tracks play in sync; the
+      restored side is the v4 pipeline output. Audio is the source track.</p>
+    </div>
+
+    <div class="panel" id="full">
+      <video class="single" src="willie_full_restored.mp4" controls playsinline preload="metadata"></video>
+      <p class="cap">Full 7&nbsp;min 40&nbsp;s, h264 2-pass 340 kb/s · 864×720 to fit under Cloudflare's 25 MB per-file limit.</p>
+    </div>
+
+    <div class="card">
+      <h2>Pipeline (v4)</h2>
+      <div class="pipeline">raw → flatfield → stabilize → deflicker (global) → deflicker (residual bilateral + motion gate) → nlmeans denoise + unsharp</div>
+      <ul style="margin-top: 0.75rem;">
+        <li><b>Stabilize:</b> ORB features + RANSAC similarity fit, per-pair delta clamped to ±8 px / ±0.6° / ±1 % scale to reject scene cuts and outlier animation; cumulative trajectory Gaussian-smoothed (σ=15 frames); inverse warp with BORDER_REPLICATE.</li>
+        <li><b>Global deflicker (v6 gentle):</b> 64-point percentile curve per frame, temporal rolling mean over 21 frames, gain LUT clamped to ±25 %, 80 % blend with identity.</li>
+        <li><b>Residual deflicker:</b> per-pixel temporal Gaussian (σ=5) + bilateral weight (T=12 gray) to pull flicker-sized deviations toward the smoothed baseline while preserving content. <b>Motion gate</b> samples neighbor frames at offsets ±1, ±σ, ±2σ to catch approaching and receding motion — prevents ghosts before or after character movement.</li>
+        <li><b>Denoise:</b> <code>nlmeans=s=4:p=3:r=9</code> + mild <code>unsharp</code>.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>What works · what doesn't · what's next</h2>
+      <ul>
+        <li><span class="ok">gate-weave stabilization:</span> ~σ=2 px of sub-pixel correction, no wobble-fighting on hand-drawn motion (the bug that killed vidstab in v1).</li>
+        <li><span class="ok">flicker — dark &amp; mid greys:</span> further reduced by the residual pass.</li>
+        <li><span class="ok">flicker — bright greys / mid-gray walls:</span> now handled by per-pixel bilateral correction (was open in v1).</li>
+        <li><span class="ok">ghosting before/after motion:</span> fixed by the 3-offset motion gate.</li>
+        <li><span class="ok">shadow / vignette:</span> flat-field map recomputed over the full 7:40 sample.</li>
+        <li><span class="mid">cel misregistration:</span> not yet addressed — background plate and character cel had minor mis-alignment on the original animation stand. Would require separate figure/plate masks, then independent registration.</li>
+        <li><span class="mid">upscale, RIFE 48 fps, audio hiss:</span> open; would be a follow-up day.</li>
+        <li><span class="ok">dust / scratch:</span> the source scan is already cleaned upstream — no extra pass needed.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Source &amp; licensing</h2>
+      <p>Steamboat Willie (1928, Walt Disney / Ub Iwerks) — public domain in the US
+      since 2024-01-01. Pipeline in <code>scripts/</code>.
+      Dependencies: OpenCV (Apache-2.0), NumPy / SciPy (BSD), Pillow (HPND),
+      FFmpeg (LGPL/GPL). Day 20 was the WIP that shipped flat-field + v6 deflicker
+      only; v4 is the continuation.</p>
+    </div>
+  </main>
+
+  <script>
+    // Tabs
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.panel');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        const target = document.getElementById(tab.dataset.target);
+        target.classList.add('active');
+        panels.forEach(p => {
+          const v = p.querySelector('video');
+          if (v && p !== target) v.pause();
+        });
+      });
+    });
+
+    // Scrubber
+    const scr = document.getElementById('scr');
+    const before = scr.querySelector('.before');
+    const after  = scr.querySelector('.after');
+    const btnPlay = document.getElementById('btnPlay');
+    const btnMute = document.getElementById('btnMute');
+    const tEl = document.getElementById('time');
+
+    function setSplit(pct) {
+      pct = Math.max(0, Math.min(100, pct));
+      scr.style.setProperty('--split', pct + '%');
+    }
+    setSplit(50);
+
+    function splitFromEvent(e) {
+      const rect = scr.getBoundingClientRect();
+      const x = ('touches' in e ? e.touches[0].clientX : e.clientX) - rect.left;
+      setSplit((x / rect.width) * 100);
+    }
+    let dragging = false;
+    scr.addEventListener('mousedown', (e) => { dragging = true; splitFromEvent(e); });
+    window.addEventListener('mousemove', (e) => { if (dragging) splitFromEvent(e); });
+    window.addEventListener('mouseup', () => { dragging = false; });
+    scr.addEventListener('touchstart', (e) => { dragging = true; splitFromEvent(e); }, { passive: true });
+    window.addEventListener('touchmove', (e) => { if (dragging) splitFromEvent(e); }, { passive: true });
+    window.addEventListener('touchend', () => { dragging = false; });
+
+    // Keep both videos in sync: drive after from before (single source of truth).
+    before.addEventListener('play',  () => { after.currentTime = before.currentTime; after.play(); btnPlay.textContent = 'Pause'; });
+    before.addEventListener('pause', () => { after.pause(); btnPlay.textContent = 'Play'; });
+    before.addEventListener('seeked', () => { after.currentTime = before.currentTime; });
+    before.addEventListener('timeupdate', () => {
+      // re-sync if drifted > 0.08 s
+      if (Math.abs(after.currentTime - before.currentTime) > 0.08) {
+        after.currentTime = before.currentTime;
+      }
+      const fmt = (t) => {
+        t = Math.max(0, t|0);
+        return (t/60|0) + ':' + String(t%60).padStart(2, '0');
+      };
+      const dur = isFinite(before.duration) ? before.duration : 60;
+      tEl.textContent = fmt(before.currentTime) + ' / ' + fmt(dur);
+    });
+
+    btnPlay.addEventListener('click', () => {
+      if (before.paused) before.play(); else before.pause();
+    });
+    btnMute.addEventListener('click', () => {
+      const m = !before.muted;
+      before.muted = m; after.muted = m;
+      btnMute.textContent = m ? 'Unmute' : 'Mute';
+    });
+  </script>
+</body>
+</html>

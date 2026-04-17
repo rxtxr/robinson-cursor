@@ -1,0 +1,12 @@
+{
+  "day": 21,
+  "slug": "day-021-willie",
+  "title": "Willie (v4)",
+  "date": "2026-04-18",
+  "description": "Full 7:40 restoration of the 1928 Disney short Steamboat Willie — gate-weave stabilization (OpenCV ORB+RANSAC), global + per-pixel bilateral deflicker with a motion-gated temporal kernel that prevents pre- and post-motion ghosts, nlmeans denoise. Ships a before/after scrubber and the complete film.",
+  "tags": ["video", "restoration", "stabilization", "deflicker", "ffmpeg", "opencv", "animation", "archive"],
+  "stack": ["FFmpeg", "Python", "OpenCV", "NumPy", "SciPy", "Pillow"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-021-willie",
+  "status": "complete",
+  "license_notes": "Steamboat Willie (1928, Walt Disney / Ub Iwerks) — public domain in the US since January 1, 2024. OpenCV (Apache-2.0), NumPy/SciPy (BSD), Pillow (HPND), FFmpeg (LGPL/GPL)."
+}
