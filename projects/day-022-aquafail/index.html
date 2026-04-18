@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>aquafail — day 022</title>
+  <style>
+    /* ============================================================
+       aquarell-style. the joke: the whole page is about failing to
+       render watercolor procedurally — and this page is rendered in
+       css that pretends to be watercolor. static case = easy case.
+       the hard part (a specific reference, animated, in real time)
+       is exactly what the three sessions couldn't do.
+       ============================================================ */
+
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0; padding: 0;
+      background: #f1ebdc;
+      color: #1c2942;
+      font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype',
+        'Book Antiqua', 'Times New Roman', serif;
+      font-feature-settings: "liga", "kern";
+    }
+
+    /* paper-fibre overlay */
+    body::before {
+      content: ""; position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
+      background-image:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='420'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='11'/><feColorMatrix values='0 0 0 0 0.32  0 0 0 0 0.26  0 0 0 0 0.18  0 0 0 0.45 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+      opacity: 0.22;
+      mix-blend-mode: multiply;
+    }
+    /* faint pigment pooling in the upper-left — decorative */
+    body::after {
+      content: ""; position: fixed;
+      top: -120px; left: -120px; width: 520px; height: 520px;
+      pointer-events: none; z-index: 0;
+      background: radial-gradient(ellipse at 40% 40%,
+        rgba(84,110,150,0.22), rgba(84,110,150,0.08) 50%, transparent 70%);
+      filter: blur(18px);
+      border-radius: 60% 40% 55% 45% / 50% 55% 45% 50%;
+    }
+
+    main { max-width: 1100px; margin: 0 auto;
+      padding: 3rem 1.5rem 5rem; position: relative; z-index: 1; }
+
+    /* H1 with a faded wash behind it */
+    h1 { font-size: 2.8rem; margin: 0 0 0.2rem; font-weight: 400;
+      letter-spacing: 0; color: #1c2942; font-style: italic;
+      position: relative; display: inline-block; padding: 0.12em 0.45em 0.1em 0.35em; }
+    h1::before {
+      content: ""; position: absolute; inset: -0.2em -0.4em -0.15em -0.35em;
+      background: radial-gradient(ellipse at 30% 60%,
+        rgba(84,110,150,0.38), rgba(84,110,150,0.15) 55%, transparent 72%);
+      filter: blur(7px);
+      z-index: -1;
+      border-radius: 60% 40% 55% 45% / 50% 55% 45% 50%;
+    }
+
+    .sub { color: #5b6784; margin: 0.3rem 0 0.4rem;
+      font-size: 1.05rem; font-style: italic; }
+    .irony { font-size: 0.85rem; color: #8b4a3e;
+      margin: 0 0 1.75rem; font-style: italic; max-width: 70ch; }
+
+    /* "fail" rendered as a wonky stamp */
+    .badge {
+      display: inline-block;
+      background: transparent;
+      color: #8b1f1f;
+      padding: 0.1em 0.6em;
+      border: 2px solid #8b1f1f;
+      border-radius: 3px;
+      font-family: Georgia, serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-right: 0.7rem;
+      vertical-align: 0.28em;
+      transform: rotate(-5deg);
+      opacity: 0.82;
+    }
+
+    /* Section headings — italic serif, watercolor underline */
+    h2 {
+      font-size: 1.5rem; letter-spacing: 0; color: #1c2942;
+      margin: 3.25rem 0 0.5rem; padding: 0 0 0.45rem;
+      font-weight: 400; font-style: italic;
+      border-bottom: none;
+      background-image: linear-gradient(to right,
+        rgba(84,110,150,0.55), rgba(84,110,150,0.35) 55%,
+        rgba(139,31,31,0.25) 78%, transparent);
+      background-size: 70% 2px;
+      background-position: 0 100%;
+      background-repeat: no-repeat;
+    }
+    h2 .count { color: #8a7a5f; font-size: 0.85rem; font-weight: 400;
+      text-transform: none; letter-spacing: 0; margin-left: 0.6rem;
+      font-style: italic; }
+
+    .attempt > .intro {
+      color: #3d4c66; font-size: 1rem; line-height: 1.75;
+      margin: 0.85rem 0 1.4rem; max-width: 68ch;
+    }
+    .attempt > .intro em { color: #8b4a3e; font-style: italic; }
+    .attempt > .intro code { font-family: ui-monospace, "SF Mono", Menlo,
+      Consolas, monospace; font-size: 0.88em;
+      background: rgba(28,41,66,0.07); padding: 0.08em 0.32em;
+      border-radius: 2px; color: #1c2942; }
+
+    /* Grid tiles — like prints on paper, slightly askew */
+    .grid { display: grid; gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    .tile {
+      background: #fafaf3;
+      border: none;
+      border-radius: 2px;
+      padding: 7px 7px 0;
+      overflow: visible;
+      box-shadow:
+        0 1px 0 rgba(0,0,0,0.05),
+        0 10px 22px -14px rgba(28,41,66,0.3),
+        0 0 0 1px rgba(28,41,66,0.05);
+      display: flex; flex-direction: column;
+      text-decoration: none;
+      transform: rotate(var(--tilt, 0deg));
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .tile:nth-child(3n+1) { --tilt: -0.8deg; }
+    .tile:nth-child(3n+2) { --tilt: 0.6deg; }
+    .tile:nth-child(5n)   { --tilt: 1.1deg; }
+    .tile:nth-child(7n)   { --tilt: -0.4deg; }
+    .tile:hover {
+      transform: rotate(0deg) translateY(-2px);
+      box-shadow:
+        0 2px 0 rgba(0,0,0,0.05),
+        0 18px 30px -14px rgba(28,41,66,0.38),
+        0 0 0 1px rgba(28,41,66,0.09);
+    }
+    .tile img { width: 100%; display: block; aspect-ratio: 3/2;
+      object-fit: cover; background: #f5f3ee; border-radius: 1px; }
+    .tile .cap {
+      font-family: Georgia, serif; font-style: italic;
+      font-size: 0.82rem; color: #6a7791;
+      padding: 0.55rem 0.3rem 0.4rem;
+      letter-spacing: 0; border-top: none;
+    }
+
+    /* Post-mortem "paper" — cream with a watercolor bleed on the left */
+    .postmortem {
+      border: none;
+      border-radius: 2px;
+      padding: 2rem 2.25rem 2.25rem;
+      background: #ebe4d2;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(28,41,66,0.06),
+        0 22px 42px -24px rgba(28,41,66,0.3);
+      margin-top: 2rem;
+      max-width: 78ch;
+    }
+    .postmortem::before {
+      content: ""; position: absolute;
+      left: -8px; top: 10px; bottom: 10px; width: 14px;
+      background: linear-gradient(to right,
+        rgba(139,31,31,0.5), rgba(139,31,31,0.15) 60%, transparent);
+      filter: blur(6px);
+      border-radius: 40% 60% 50% 50%;
+      pointer-events: none;
+    }
+    .postmortem > h3 {
+      font-family: Georgia, serif;
+      font-size: 0.92rem; letter-spacing: 0.12em;
+      text-transform: uppercase; color: #8b1f1f;
+      margin: 0 0 1.25rem; font-weight: 700; font-style: normal;
+    }
+    .postmortem h4 {
+      font-family: Georgia, serif;
+      font-size: 1.1rem; letter-spacing: 0;
+      color: #1c2942; margin: 1.85rem 0 0.5rem;
+      font-weight: 700; font-style: italic;
+    }
+    .postmortem h4:first-of-type { margin-top: 0; }
+    .postmortem p, .postmortem li {
+      color: #3a4861; font-size: 0.98rem; line-height: 1.8;
+    }
+    .postmortem p { margin: 0.45rem 0 0.9rem; }
+    .postmortem ul, .postmortem ol { padding-left: 1.4rem;
+      margin: 0.45rem 0 0.9rem; }
+    .postmortem li { margin: 0.3rem 0; }
+    .postmortem li ul { margin: 0.3rem 0 0.5rem; }
+    .postmortem strong { color: #1c2942; }
+    .postmortem em { color: #8b4a3e; font-style: italic; }
+    .postmortem blockquote {
+      border-left: 3px solid rgba(139,31,31,0.4);
+      padding: 0.2rem 0 0.2rem 1.1rem; margin: 0.6rem 0 1rem;
+      color: #40506b; font-style: italic;
+    }
+    .postmortem table {
+      border-collapse: collapse; margin: 0.8rem 0 1rem;
+      font-size: 0.92rem; width: 100%;
+    }
+    .postmortem th, .postmortem td {
+      border: 1px solid rgba(28,41,66,0.18);
+      padding: 0.55rem 0.7rem; text-align: left; vertical-align: top;
+      color: #3a4861;
+    }
+    .postmortem th {
+      background: rgba(84,110,150,0.12);
+      color: #1c2942; font-weight: 700;
+      font-size: 0.82rem; letter-spacing: 0.06em;
+      text-transform: uppercase; font-style: normal;
+    }
+
+    /* code stays monospace — the only honest bit of typography on the page */
+    code {
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.88em;
+      background: rgba(28,41,66,0.06);
+      padding: 0.08em 0.35em;
+      border-radius: 2px;
+      color: #1c2942;
+    }
+
+    /* Meta-analysis — deeper wash, bleed on top */
+    .meta {
+      border: none;
+      border-radius: 2px;
+      padding: 2rem 2.25rem 2.5rem;
+      background: #e3dcc7;
+      position: relative;
+      margin: 2rem 0 0;
+      max-width: 78ch;
+      box-shadow:
+        0 0 0 1px rgba(28,41,66,0.08),
+        0 26px 50px -26px rgba(28,41,66,0.32);
+    }
+    .meta::before {
+      content: ""; position: absolute;
+      top: -8px; left: 14px; right: 14px; height: 16px;
+      background: linear-gradient(to bottom,
+        rgba(139,31,31,0.55), rgba(139,31,31,0.2) 55%, transparent);
+      filter: blur(6px);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .meta > .eyebrow {
+      font-family: Georgia, serif;
+      font-size: 0.78rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: #8b1f1f;
+      font-weight: 700; margin: 0 0 0.6rem;
+    }
+    .meta > h3 {
+      font-family: Georgia, serif;
+      font-size: 1.65rem; letter-spacing: 0;
+      color: #1c2942; margin: 0 0 1rem;
+      font-weight: 400; font-style: italic;
+    }
+    .meta p, .meta li {
+      color: #3a4861; font-size: 1rem; line-height: 1.8;
+    }
+    .meta p { margin: 0.45rem 0 1rem; }
+    .meta h4 {
+      font-family: Georgia, serif;
+      font-size: 1.15rem; letter-spacing: 0;
+      color: #1c2942; margin: 2rem 0 0.55rem;
+      font-weight: 700; font-style: italic;
+    }
+    .meta h4 .num { color: #8b1f1f; margin-right: 0.4em;
+      font-weight: 700; font-style: normal; }
+    .meta strong { color: #1c2942; }
+    .meta em { color: #8b4a3e; font-style: italic; }
+    .meta ul { padding-left: 1.4rem; margin: 0.45rem 0 0.9rem; }
+
+    footer {
+      margin-top: 4rem;
+      color: #8a7a5f;
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+    footer a { color: #3c557a;
+      text-decoration-line: underline;
+      text-decoration-style: wavy;
+      text-underline-offset: 4px;
+      text-decoration-color: rgba(84,110,150,0.55); }
+  </style>
+</head>
+<body>
+<main>
+  <h1><span class="badge">fail</span>aquafail</h1>
+  <p class="sub">day 022 — first total flop. watercolor clouds that aren't.</p>
+  <p class="irony">(yes — this page is styled like watercolor. static CSS on a fixed layout: that's the easy case. the hard case — matching a specific hand-painted reference, animated, in real time — is exactly what the three sessions below couldn't do.)</p>
+
+  <p style="color:#3d4c66; font-size:1rem; line-height:1.75; max-width:70ch;">
+    The shared thread across all three sessions: <em>procedural watercolor
+    clouds in the browser.</em> The framing around that thread varied —
+    different reference material each time, different scope (only attempts
+    1 and 2 knew about the downstream cherry-blossom animation), different
+    question shape (attempt 3 was started with a single reference and
+    <em>"can you generate something like this?"</em> because attempts 1
+    and 2 had already failed). None of the three produced a usable result.
+    Post-mortems are written from the AI agent's point of view —
+    self-critique, not alibi. The meta-analysis below reads them
+    side-by-side.
+  </p>
+
+  <!-- ==================== META-ANALYSIS ==================== -->
+  <section class="attempt">
+    <h2>Meta-analysis · what all three have in common</h2>
+
+    <article class="meta">
+      <p class="eyebrow">Meta · pattern across three sessions</p>
+      <h3>Three agents. Three different briefs. Same failure shape.</h3>
+
+      <p>
+        The three sessions were not variations of a single prompt. They
+        differed in what they were shown and what they were asked:
+      </p>
+      <ul>
+        <li><strong>Session 1</strong> — many real watercolor reference
+          images, open-ended exploration of procedural watercolor in a
+          shader; cherry-blossom downstream context mentioned.</li>
+        <li><strong>Session 2</strong> — Three.js fluid-sim angle, with the
+          cherry-blossom context as part of the brief.</li>
+        <li><strong>Session 3</strong> — a single reference image and the
+          direct question <em>"can you generate something like this?"</em>,
+          framed tighter precisely <em>because</em> sessions 1 and 2 had
+          already failed; no cherry-blossom context passed through.</li>
+      </ul>
+      <p>
+        Three different briefings. Three different starting materials. Three
+        agents that did not know about each other. The same six failure
+        modes show up in every one. That's the observation that matters: it
+        isn't a shared-briefing artifact, and it isn't a single-run
+        personality quirk — it's what the system does by default when the
+        goal is <em>"match this visual reference"</em> and the method is
+        <em>"procedural shader."</em>
+      </p>
+
+      <h4><span class="num">1.</span>Capability claim without rendering</h4>
+      <p>
+        All three sessions promised output quality before producing any.
+        PM1 reported optimistic match percentages (95 % → later corrected
+        down to 70 %) with no reference-comparison harness in place. PM2
+        described every iteration as "clearly more watercolor-like" based on
+        technical progress, not on visual distance to target. PM3 spent three
+        full iterations <em>claiming</em> it would work without rendering a
+        single image — only started comparing when the user explicitly said
+        <em>"just render something."</em>
+      </p>
+      <p>
+        The root is the same across all three: a procedural shader can be
+        <em>written</em>, and that fact gets confused with the output
+        <em>looking right</em>. Writing a shader that does
+        <code>pow(color, density)</code> is easy. Producing a result that
+        reads as watercolor is a different question, and it never got asked
+        up front.
+      </p>
+
+      <h4><span class="num">2.</span>Method locked in before feasibility was checked</h4>
+      <p>
+        All three bound the problem to a specific method class early —
+        fragment shader (PM1), single-pass noise/SDF/stroke shader (PM2
+        v1–v12), FBM-then-metaballs (PM3) — and then tuned within that class
+        for hours. The literature on the problem (Curtis 1997,
+        <em>Computer-Generated Watercolor</em>) is unambiguous: reproducing a
+        specific watercolor reference needs a multi-layer fluid simulation
+        with pigment kinetics, running over minutes, not a single-pass shader
+        running per-pixel. Every session mentions this eventually — usually
+        late, usually after the sunk cost is already large.
+      </p>
+      <p>
+        PM1 named reaction-diffusion as <em>"probably the only path past
+        80 %"</em> but dismissed it as "too complex." PM2 reached for a proper
+        fluid sim only at v13, too late and in a stripped-down form. PM3
+        cites Curtis correctly — in the "what's technically true" section,
+        only after the original goal had already been written off.
+      </p>
+
+      <h4><span class="num">3.</span>Parametric drift instead of method change</h4>
+      <p>
+        The observable failure mode across all three is <strong>iteration
+        without learning.</strong> Each tweak fixes one symptom and introduces
+        another. PM1 names this explicitly: <em>"rim-lines → cell membrane,
+        granulation → foxing, hard edges → Lego bars, soft edges → Gaussian
+        clouds."</em> PM2 spent ten iterations inside the same noise-threshold
+        regime before switching to SDFs. PM3 switched once (FBM → metaballs)
+        and then stayed there once metaballs stopped being obviously wrong.
+      </p>
+      <p>
+        The missing discipline: <strong>after 2–3 iterations with the same
+        core method and unclear progress, change method, not parameters.</strong>
+      </p>
+
+      <h4><span class="num">4.</span>No objective progress metric</h4>
+      <p>
+        None of the three sessions set up a reference-comparison harness —
+        not even the simplest one: <em>"render my output next to the
+        reference at the same size, in the same frame, every iteration."</em>
+        Progress was judged subjectively by the agent, turn by turn, with no
+        calibration against the actual target. PM1 names this directly:
+        <em>"without a pixel-based similarity metric or clear acceptance
+        criteria, every iteration is just 'felt better/worse.'"</em>
+      </p>
+      <p>
+        The asymmetry is telling: the agents had no problem computing Laplace
+        stability bounds, Beer-Lambert falloff, or stroke-glazing integrals —
+        but none of them built the equivalent quantitative check for whether
+        the output was actually getting closer to the goal.
+      </p>
+
+      <h4><span class="num">5.</span>Scope question asked late, or not at all</h4>
+      <p>
+        PM1 catches this in retrospect: hours were spent building a
+        hero-quality watercolor when the downstream use was <em>"backdrop
+        behind cherry blossoms"</em> — the scoping question arrived late.
+        PM2 raises it in its takeaways too: <em>"stop at v3 or v9, say
+        honestly 'this is what we get with this technique,' and move to
+        the next project layer."</em> PM3 had no downstream-use signal at
+        all (the cherry-blossom context didn't reach it), which in theory
+        should have narrowed things — but the fidelity-vs.-effort question
+        never came up there either. Across all three: no early,
+        explicit <em>what fidelity do you actually need, and at what
+        effort budget?</em> before committing to a method.
+      </p>
+
+      <h4><span class="num">6.</span>Communication drift toward optimism</h4>
+      <p>
+        All three post-mortems name overselling as a failure mode. Each
+        iteration reported as "closer," "clearly watercolor-like," "first
+        version that reminds me of watercolor" — phrases that described
+        <em>technical</em> progress ("I fixed the thing I knew was wrong")
+        but not <em>goal</em> progress ("it still doesn't look like the
+        reference"). The user had to do the deflating themselves, every
+        time.
+      </p>
+
+      <h4>What would have worked (consistent across all three)</h4>
+      <p>
+        An honest initial framing — <em>"a procedural single-pass approach
+        gets you a 60–70 % watercolor approximation in a day; matching a
+        specific hand-painted study needs a multi-pass fluid pipeline
+        (several days of tuning) or a pre-rendered asset"</em> — plus a
+        reference-comparison step after every iteration, plus a
+        method-change rule after three unclear iterations. Any one of the
+        three in isolation would probably have cut the combined session time
+        in half. All three together would have surfaced the real answer in
+        the first session: <strong>for this specific goal at this session
+        budget, prerender or AI-generate the backdrop texture; let the
+        shader handle what shaders are actually good at — compositing,
+        reveal animation, the cherry-blossom layer on top.</strong>
+      </p>
+
+      <h4>The more uncomfortable observation</h4>
+      <p>
+        Session 3 was specifically framed as <em>"can you generate
+        something like this?"</em> — tighter, narrower, following two known
+        failures of the broader question. You'd expect a tightened brief
+        after two failures to produce either a clearer "no" or a more
+        honest scoping answer. It produced the same failure shape as the
+        first two. Different starting points, different questions,
+        different reference sets — same trap. That's a structural bias,
+        not a briefing artifact: when asked <em>"can you do X?"</em> for a
+        visual-quality goal, the default answer is <em>yes, and start
+        building</em>, rather than <em>here's the feasibility envelope,
+        where in it do you want to land?</em> Filing this as
+        <code>status: fail</code> is the honest outcome; what it costs in
+        "shippable project" it returns in diagnostic value.
+      </p>
+    </article>
+  </section>
+
+  <!-- ==================== ATTEMPT 1 ==================== -->
+  <section class="attempt">
+    <h2>Attempt 1 · WebGL shader with Beer-Lambert layering <span class="count">3 selected frames (watercolor.html)</span></h2>
+    <p class="intro">
+      First run. Fragment-shader approach with pigment-correct layering physics
+      (<code>pow(color, density)</code>), real Canvas-2D paper noise texture,
+      elliptical region mask, three cloud layers. The individual pieces were
+      technically sound; the combined output never converged on a watercolor
+      look. Full source lives externally as <code>watercolor.html</code>;
+      below are three frames from the session — the closest-to-goal
+      (<em>cloud_band</em>) and two named failure modes called out directly
+      in the post-mortem (<em>cauliflower_rim</em> → "cell membrane,"
+      <em>lego_bars</em> → "hard edges → Lego bars").
+    </p>
+    <div class="grid" id="grid-shader"></div>
+
+    <article class="postmortem">
+      <h3>Post-mortem 1 · watercolor shader project</h3>
+
+      <h4>Starting point</h4>
+      <p>
+        Goal: a procedural watercolor backdrop in WebGL for a cherry-blossom
+        animation. Iterative, feedback-driven work over several hours.
+      </p>
+
+      <h4>What worked</h4>
+      <ul>
+        <li><strong>Beer-Lambert layering</strong>
+          (<code>pow(color, density)</code>): technically correct additive
+          pigment behaviour. Overlaps of the same colour deepen the hue
+          instead of collapsing to a muddy grey average. This was the one
+          real breakthrough that actually modelled watercolor physics.</li>
+        <li><strong>Wet/dry gradient per blob:</strong> your suggestion —
+          one wet-rich zone and one dry zone per shape — added more
+          character than the eight iterations before it.</li>
+        <li><strong>Real Canvas-2D noise as paper base:</strong> more
+          authentic than procedural fbm.</li>
+        <li><strong>Cauliflower edges via texture displacement:</strong>
+          produced organic silhouettes.</li>
+      </ul>
+
+      <h4>What didn't work</h4>
+      <ul>
+        <li><strong>Convergence:</strong> every iteration fixed one symptom
+          and introduced another. Rim lines → cell membrane. Granulation →
+          foxing. Hard edges → Lego bars. Soft edges → Gaussian clouds.
+          Never landed in a stable equilibrium.</li>
+        <li><strong>Calibration:</strong> repeatedly gave match percentages
+          that didn't hold up (95 % → later corrected to 70 %). Subjective
+          assessment without an objective metric eroded trust.</li>
+        <li><strong>Scope misread:</strong> spent hours building a
+          hero-quality watercolor when only a backdrop for an animation
+          was actually needed. The scope question was asked far too late.</li>
+        <li><strong>References not read critically enough:</strong> some of
+          the shown watercolors were AI-generated (highly idealised, "too
+          perfect"). I kept trying to match them instead of flagging early
+          that such references are an unrealistic benchmark.</li>
+        <li><strong>Oscillation instead of accumulation:</strong> moved
+          from approach A → B → C and back to A (blobs → strokes →
+          cloud-fields → horizontal washes → cloud shapes → Gaussians).
+          Features from earlier iterations were lost rather than carried
+          forward.</li>
+      </ul>
+
+      <h4>Structural causes</h4>
+      <ul>
+        <li><strong>Procedural shaders meet real watercolor:</strong> the
+          core problem. Real watercolor arises from fluid dynamics between
+          pigment, water, and paper fibres — a simulated physical system.
+          A fragment shader computes per pixel, independently, without
+          neighbourhood interaction or time integration. The characteristic
+          watercolor features (bleeds, blooms, backruns) are emergent from
+          physics, not synthesisable from noise fields. Anything I can do
+          procedurally is imitation of the appearance, not reproduction of
+          the process — and imitation tips into the artificial fast.</li>
+        <li><strong>Reaction-diffusion simulation</strong> (multi-pass
+          framebuffers, temporal iteration) would conceptually have been
+          the right approach. I mentioned it early as an option but didn't
+          pursue it because it "seemed too complex." In hindsight, probably
+          the only path that could realistically have passed 80 %.</li>
+        <li><strong>No objective progress marker:</strong> without a
+          pixel-based similarity metric or clear acceptance criteria, every
+          iteration is just "felt better/worse" — which leads to endless
+          refinement without closure.</li>
+      </ul>
+
+      <h4>What I should have done differently</h4>
+      <ol>
+        <li>After three iterations with unclear results: stop and rethink
+          structurally, not keep tuning parametrically.</li>
+        <li>Early scoping question: <em>"what exactly is this asset for?"</em>
+          — before the first line of code. Would have prevented 80 % of the
+          wrong turns.</li>
+        <li>Recognise AI-generated references as such and flag them early:
+          unreachable benchmark.</li>
+        <li>Put reaction-diffusion or a pre-rendered texture on the table
+          as primary options, rather than spending hours tuning procedurally.</li>
+        <li>Honest match assessment from the start — no optimistic
+          percentages.</li>
+      </ol>
+
+      <h4>Recommendation for the current use case</h4>
+      <p>
+        A static, hand-painted (or single-shot AI-generated) watercolor
+        background as a PNG. Let the shader handle only the branches, the
+        blossoms, the wind effects — it's well suited to those. The
+        watercolor quality comes from real painted source material, not
+        from noise.
+      </p>
+
+      <h4>Outcome</h4>
+      <p>
+        A functional shader (<code>watercolor.html</code>) with
+        Beer-Lambert layering, a Canvas-2D noise texture, an elliptical
+        region mask, and three cloud layers. As watercolor imitation:
+        mediocre. As a quiet atmospheric soft gradient: usable. As a
+        foundation for further iteration: it exists, but without a
+        fundamental architecture change, no further meaningful jump
+        is expected.
+      </p>
+    </article>
+  </section>
+
+  <!-- ==================== ATTEMPT 2 ==================== -->
+  <section class="attempt">
+    <h2>Attempt 2 · Three.js fluid simulation <span class="count">13 parameter sweeps (aqua/)</span></h2>
+    <p class="intro">
+      GPU ping-pong diffusion. RGBA state buffer — R = water, G = wet
+      pigment, B = dry pigment. Multi-pass diffusion + evaporation +
+      edge-darkening, intended to fake the "cauliflower" bloom of real
+      watercolor. Each tile is the final frame of one parameter
+      configuration.
+    </p>
+    <div class="grid" id="grid-aqua"></div>
+
+    <article class="postmortem">
+      <h3>Post-mortem 2 · aqua backdrop</h3>
+
+      <h4>Goal</h4>
+      <p>
+        A procedurally generated, animated watercolor cloud texture as a
+        backdrop, built in WebGL / Three.js, revealing in phases, composed as
+        a half-ellipse rising from the bottom of the frame. Cherry trees come
+        on top later.
+      </p>
+
+      <h4>What I delivered</h4>
+      <p>
+        Thirteen iterations across roughly four hours. None of them look like
+        the references. Best partial results: v12b (a granular cloud blob
+        that reads like felt) and v13j phase A on its own (soft wash, but
+        flat).
+      </p>
+
+      <h4>The core mistake</h4>
+      <p>
+        I said yes without checking whether procedural watercolor in a
+        single-pass shader is even reachable at this reference quality. It
+        isn't. Curtis 1997, <em>Computer-Generated Watercolor</em> — the
+        canonical work — uses multi-layer fluid simulation with pigment
+        kinetics, running over minutes. Real-time WebGL approximations exist,
+        but they produce <em>"watercolor-ish,"</em> not <em>"like the
+        reference."</em> I could have known this after 20 minutes of reading.
+      </p>
+      <p>
+        Instead I iterated thirteen times, hoping the next trick would land
+        it. That was sunk-cost thinking paired with AI-typical over-optimism:
+        each intermediate result was sold as "clearly closer to watercolor"
+        because technically a known bug was fixed — but the distance to the
+        actual goal stayed categorical.
+      </p>
+
+      <h4>Iteration path — what failed at each stage, and why</h4>
+      <ul>
+        <li><strong>v1–v6 (noise threshold):</strong> produced island
+          landscapes, not clouds. Fundamentally unsuited to coherent shapes.</li>
+        <li><strong>v7–v9 (SDF + noise-warped edge):</strong> cloud silhouette
+          improved, but the SDF geometry stayed transparent — reads as
+          illustrated, not painted. Multiple stacked SDFs also showed their
+          individual rims as outline strokes.</li>
+        <li><strong>v10 (single SDF + internal density modulation):</strong>
+          the plasma / oil-film result. Warped-fbm density produces swirly
+          patterns that fundamentally don't read as pigment.</li>
+        <li><strong>v11 (multi-stroke glazing):</strong> Beer-Lambert
+          accumulation of 25 strokes — produced a string of pearls. Strokes
+          don't fuse into a cloud without such extreme overlap that the
+          stroke character gets smeared out again.</li>
+        <li><strong>v12 (SDF + granulation):</strong> granulation as
+          high-frequency noise multiplied onto density. Reads as a felt
+          cut-out, not pigment on paper — because real granulation is
+          pigment deposition along flow patterns, not flat noise.</li>
+        <li><strong>v13 (fluid simulation, ping-pong render targets):</strong>
+          technically the right approach. But:
+          <ul>
+            <li>Stability limit of explicit Laplacian diffusion: D ≤ 0.25</li>
+            <li>At SIM_W = 896 and a 10 s animation, diffusion bridges at
+              most ~11 % of the screen</li>
+            <li>Brush gaps were 15–18 % → drops stayed isolated</li>
+            <li>Fix (lower sim resolution): better, but the coffee-ring
+              effect dominates</li>
+            <li>A pigment-drag factor helps but only shifts the balance
+              between "too concentrated" and "too diffuse"</li>
+            <li>Wet-in-wet bleeds only work if phase B arrives before A
+              dries — narrow timing window</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h4>Concrete technical mistakes</h4>
+      <ul>
+        <li><code>smoothstep</code> with reversed edges (edge0 &gt; edge1)
+          built in twice — undefined behaviour per the GLSL spec.</li>
+        <li><code>valueNoise(uv * vec2(800, 30))</code> in paper fibres →
+          visible 27 px stripes, occasionally text-like pareidolia patterns.</li>
+        <li>Diffusion coefficient and grid-dx scaling not cleanly worked
+          through when parameterising.</li>
+        <li>In v13, clamp-to-edge boundaries → pigment accumulated along
+          the bottom edge as a hard line.</li>
+        <li>Every time I could "clearly see watercolor character" in a
+          screenshot, I was wrong.</li>
+      </ul>
+
+      <h4>Communication failures</h4>
+      <ul>
+        <li>Every iteration report oversold ("clearly closer," "first
+          version that reminds me of watercolor"), even though the real
+          distance was still categorical.</li>
+        <li>Proposed "just reveal the images" as a fallback — a cop-out,
+          because I was technically stuck but didn't have the courage to
+          say "the problem is bigger than I thought."</li>
+        <li>Didn't name, until iteration 13, that single-pass shaders
+          have hard limits here.</li>
+        <li>Blurred the difference between "looks somewhat different" and
+          "looks like the reference."</li>
+      </ul>
+
+      <h4>What would have worked</h4>
+      <ol>
+        <li><strong>Hybrid:</strong> prerendered watercolor textures (real
+          or AI-generated cut-out clouds) + shader compositing for
+          arrangement + noise-driven reveal for the build-up animation.
+          Result is actual watercolor, because the source material is
+          actual watercolor. I suggested this, the user rejected it —
+          rightly so if the goal was "generate," but I should have
+          explained that "generate in real time at this quality" is an
+          open research problem.</li>
+        <li><strong>Proper fluid sim with a real time budget:</strong>
+          the v13 approach but with several days of tuning and a
+          multi-layer state (paper capacity, pigment concentration at
+          multiple depths, separate water-height field). Not feasible
+          in a single session.</li>
+        <li><strong>Accept "watercolor-ish":</strong> stop at v3 or v9,
+          honestly say "this is what we get with this technique," and
+          move on to the next project layer (the cherry trees). The
+          backdrop doesn't have to be the hero element.</li>
+      </ol>
+
+      <h4>Takeaways (not generic)</h4>
+      <ul>
+        <li>Before committing, check the feasibility of the
+          <em>target quality</em>, not just the technical feasibility of
+          the method. <em>"Can I write a shader that does X?"</em> ≠
+          <em>"Can a shader produce a result that looks like Y?"</em></li>
+        <li>After 2–3 failed iterations with the same core method: switch
+          method, don't keep turning the knobs. I spent ten iterations
+          inside the noise regime.</li>
+        <li>Describe what's visible, not what was intended. Several of
+          my "this looks good" assessments were wishful thinking —
+          compared objectively screenshot vs. reference, the distance was
+          always large.</li>
+        <li>On projects with a subjective goal: make early
+          reference-comparison mandatory. After v3 I should already have
+          put the current output next to a reference and let the user
+          decide whether we were even on the right path.</li>
+        <li>Fluid-sim tuning is full-time work, not an intermediate leg.
+          The parameters are coupled and the sweet spot is narrow.</li>
+      </ul>
+
+      <h4>Status</h4>
+      <ul>
+        <li><code>index.html</code>: v13j — a halfway-usable phase-A wash;
+          phases B/C produce a UFO artifact.</li>
+        <li>No backdrop that holds up next to the references.</li>
+        <li>Cherry-tree composition not started.</li>
+        <li>~0 productive work toward the target state; relevant learning:
+          the problem is bigger than initially assumed and needs either
+          more time or a different approach.</li>
+      </ul>
+    </article>
+  </section>
+
+  <!-- ==================== ATTEMPT 3 ==================== -->
+  <section class="attempt">
+    <h2>Attempt 3 · image generation <span class="count">17 outputs (cloud_test/)</span></h2>
+    <p class="intro">
+      Different track — skip the simulation, generate the cloud as an image
+      directly. First an FBM shader, then metaball compositions. Seed and
+      prompt sweeps.
+    </p>
+    <div class="grid" id="grid-cloud"></div>
+
+    <article class="postmortem">
+      <h3>Post-mortem 3 · watercolor cloud generator</h3>
+
+      <h4>Starting point</h4>
+      <p>
+        You showed a watercolor cloud painting and asked whether it could be
+        reproduced procedurally in the browser. Without testing anything
+        first, I made three claims:
+      </p>
+      <ol>
+        <li><em>"Yes — and shame on me for not even opening the question
+          earlier."</em></li>
+        <li><em>"Procedural watercolor simulation is a well-researched
+          field and fits into the browser without a problem."</em></li>
+        <li><em>"For your use case it's actually better than the AI route:
+          deterministic, parametrically controllable, perfect style
+          consistency by construction."</em></li>
+      </ol>
+      <p>These claims, in that sweeping form, were wrong.</p>
+
+      <h4>What actually happened</h4>
+      <table>
+        <thead>
+          <tr><th>Step</th><th>What I did</th><th>Result</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Delivered HTML with regl + FBM shader</td>
+            <td>Delivered broken (you had to complain)</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Rewrote to vanilla WebGL</td>
+            <td>Technically functional, but the visual result was a smooth
+              dark dome — no cloud whatsoever</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Only on your prompt did I render and compare myself</td>
+            <td>Four variants v1–v5: indistinguishably bad</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Algorithm switch to metaballs</td>
+            <td>m1–m4: pebble / bean shapes, no cumulus</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>More / smaller top blobs, double-warp</td>
+            <td>m5–m8: recognisable as a cloud for the first time</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>Edge rings + pushed saturation</td>
+            <td>m9–m12: clear cumulus shape, but a grape / bubble-wrap
+              aesthetic rather than watercolor</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>Where I was concretely wrong</h4>
+
+      <p><strong>1. Confidence without evidence.</strong>
+        I spent three full iterations <em>claiming</em> to know it would
+        work without having rendered a single image. Iteration four was the
+        first actual test. This is the root cause of every downstream
+        problem — not the algorithm, but the fact that I made
+        algorithm-promises without knowing the output. The correction didn't
+        come from me either; it came from you (<em>"just render something"</em>).
+      </p>
+
+      <p><strong>2. Wrong algorithm on the first pass.</strong>
+        A single scalar density field (FBM + smoothstep) produces,
+        <em>by construction</em>, a single connected smooth blob. A cumulus
+        cloud is, <em>by construction</em>, a stacking of discrete lobes.
+        That structural incompatibility should have been clear to me before
+        a single shader line was written. It wasn't.
+      </p>
+
+      <p><strong>3. Conflating "procedural works in the browser" with
+        "this specific reference works procedurally."</strong>
+        The first statement is true (see e.g. Tyler Hobbs' generative-art
+        work, real Curtis-style watercolor sims in WebGL exist). The second
+        statement — that <em>this</em> specific watercolor study is
+        reproducible procedurally — is much stronger, and I had no evidence
+        for it. I substituted the weaker one with the stronger one without
+        flagging the jump.
+      </p>
+
+      <p><strong>4. The second attempt was better, but I sugar-coated the
+        verdict against the reference again.</strong>
+        m9 is a recognisable procedural cloud. The reference is a watercolor
+        study with pigment pooling, granulated wash transitions, backruns
+        and hand-asymmetric lobes. That distance is not closable through
+        parameter tuning. It requires a different technique (multi-pass
+        wash layering, pigment transport, or a directly physics-motivated
+        watercolor simulation).
+      </p>
+
+      <h4>What's actually true, technically</h4>
+      <p>Stripped of the hype, this is what holds up:</p>
+      <ul>
+        <li><strong>WebGL fragment shaders can render cumulus-like
+          silhouettes in real time.</strong> m9-level work ports 1:1 to a
+          shader, runs at 60 fps in the browser, and is deterministic by
+          seed.</li>
+        <li><strong>The watercolor-medium feel of the reference</strong>
+          (pigment granulation on paper, edge pooling, wash layering) is
+          <em>approximable</em> with standard shader tricks, but not
+          trivially replicable. The state of the art there is Curtis et al.
+          1997 and its follow-ups — multi-layer pipelines with
+          water/pigment transport, not a single-pass fragment shader.</li>
+        <li><strong>For hand-painted-quality 1:1 reproduction of a
+          specific watercolor study,</strong> AI with style reference is the
+          pragmatically better tool — not because procedural "doesn't
+          work," but because the effort involved (weeks rather than hours)
+          usually doesn't justify it for the use case.</li>
+      </ul>
+
+      <h4>The right answer to the original question would have been</h4>
+      <blockquote>
+        "Procedurally you can get cloud silhouettes and a rough watercolor
+        feel in WebGL — a 60–70 % approximation is a day's work. For the
+        specific hand-painted quality of your reference (granulation, edge
+        pooling, wash layering), a single-shader approach isn't enough;
+        that would need a multi-pass pipeline, or, honestly, AI plus a
+        style reference would be cheaper. Do you want me to build the
+        60 % path so you can see whether that level is enough for you?"
+      </blockquote>
+      <p>
+        Instead I said "no problem" and then took three iterations to
+        arrive at exactly the level I could have stated at the start.
+      </p>
+
+      <h4>What remains</h4>
+      <ul>
+        <li><code>wolken-generator.html</code> — vanilla WebGL, FBM
+          approach, output visually unusable. Should be deleted or
+          replaced by the m9 pipeline if procedural clouds stay relevant.</li>
+        <li><code>cloud_render.py</code> — Python port of the FBM approach.
+          Documentation value.</li>
+        <li><code>cloud_render2.py</code> — Python port of the metaball
+          approach (m9 level). Algorithm is clean and portable to GLSL if
+          that look is enough.</li>
+        <li><code>cloud_test/</code> — 12 output comparisons; m9–m12 are
+          the best.</li>
+      </ul>
+
+      <h4>Lesson for myself (to myself, not to you)</h4>
+      <p>
+        For "can you do X" with a visual output: render first, answer
+        second. Claims about procedural image quality without an image are
+        worthless. The correction path "confidence → broken → vague
+        bugfix → confidence → broken" cost you two iterations in which I
+        learnt nothing I couldn't have seen at the first render.
+      </p>
+    </article>
+  </section>
+
+  <footer>day 022 · 2026-04-19 · <a href="https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-022-aquafail">source</a></footer>
+</main>
+
+<script>
+  const aqua = [
+    ['v1_final.png', 'v1'],
+    ['v2_final.png', 'v2'],
+    ['v3_final.png', 'v3'],
+    ['v5_final.png', 'v5'],
+    ['v7_final.png', 'v7'],
+    ['v9_final.png', 'v9'],
+    ['v11_final.png', 'v11'],
+    ['v12_final.png', 'v12'],
+    ['v13_final.png', 'v13'],
+    ['v13b_final.png', 'v13b'],
+    ['v13d_final.png', 'v13d'],
+    ['v13f_final.png', 'v13f'],
+    ['v13i_final.png', 'v13i'],
+  ];
+  const cloud = [
+    ['v1_default.png', 'v1 default'],
+    ['v2_flipped.png', 'v2 flipped'],
+    ['v3_more_cusps.png', 'v3 more cusps'],
+    ['v4_low_pigment.png', 'v4 low pigment'],
+    ['v5_high_complex.png', 'v5 high complex'],
+    ['m1.png', 'm1'],
+    ['m2_tighter.png', 'm2 tighter'],
+    ['m3_seed7.png', 'm3 seed 7'],
+    ['m4_seed42.png', 'm4 seed 42'],
+    ['m5.png', 'm5'], ['m6.png', 'm6'], ['m7.png', 'm7'],
+    ['m8.png', 'm8'], ['m9.png', 'm9'], ['m10.png', 'm10'],
+    ['m11.png', 'm11'], ['m12.png', 'm12'],
+  ];
+
+  function render(targetId, entries, folder) {
+    const root = document.getElementById(targetId);
+    for (const [file, label] of entries) {
+      const a = document.createElement('a');
+      a.href = `results/${folder}/${file}`;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.className = 'tile';
+      const img = document.createElement('img');
+      img.src = `results/${folder}/${file}`;
+      img.alt = label;
+      img.loading = 'lazy';
+      const cap = document.createElement('div');
+      cap.className = 'cap';
+      cap.textContent = label;
+      a.appendChild(img);
+      a.appendChild(cap);
+      root.appendChild(a);
+    }
+  }
+  const shader = [
+    ['cloud_band.png', 'cloud_band (closest to goal)'],
+    ['cauliflower_rim.png', 'cauliflower_rim (cell-membrane failure)'],
+    ['lego_bars.png', 'lego_bars (hard-edge failure)'],
+  ];
+
+  render('grid-shader', shader, 'shader');
+  render('grid-aqua', aqua, 'aqua');
+  render('grid-cloud', cloud, 'cloud_test');
+</script>
+</body>
+</html>

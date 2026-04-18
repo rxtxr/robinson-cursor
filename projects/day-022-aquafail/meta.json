@@ -1,0 +1,12 @@
+{
+  "day": 22,
+  "slug": "day-022-aquafail",
+  "title": "aquafail",
+  "date": "2026-04-19",
+  "description": "First total flop. Goal: procedural watercolor clouds as a backdrop for a cherry-blossom animation. Three separate sessions, three AI runs, same failure shape. Includes a meta-analysis of what all three got wrong.",
+  "tags": ["watercolor", "clouds", "experiment", "fail", "shader", "webgl", "generative"],
+  "stack": ["Three.js", "GLSL"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-022-aquafail",
+  "status": "fail",
+  "license_notes": "three.js (MIT) via unpkg CDN."
+}
