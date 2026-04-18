@@ -36,7 +36,7 @@ source lives externally as `watercolor.html`.
   entirely: skip the simulation, generate the cloud as an image via FBM
   then metaballs. Seventeen outputs in `results/cloud_test/`. Three full
   iterations of claiming the approach would work without rendering a
-  single image; only started actually comparing when the user said *"just
+  single image; actual comparison only happened after an explicit *"just
   render something."* m9–m12 reach cumulus silhouette but read as grapes
   or bubble wrap, not watercolor.
 

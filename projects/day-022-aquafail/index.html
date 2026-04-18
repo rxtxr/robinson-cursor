@@ -301,11 +301,11 @@
     different reference material each time, different scope (only attempts
     1 and 2 knew about the downstream cherry-blossom animation), different
     question shape (attempt 3 was started with a single reference and
-    <em>"can you generate something like this?"</em> because attempts 1
-    and 2 had already failed). None of the three produced a usable result.
-    Post-mortems are written from the AI agent's point of view —
-    self-critique, not alibi. The meta-analysis below reads them
-    side-by-side.
+    <em>"can you generate something like this?"</em>, framed tighter
+    precisely because attempts 1 and 2 had already failed). None of the
+    three produced a usable result. What follows: a meta-analysis that
+    reads the three post-mortems side-by-side, then the post-mortems
+    themselves.
   </p>
 
   <!-- ==================== META-ANALYSIS ==================== -->
@@ -349,8 +349,8 @@
         described every iteration as "clearly more watercolor-like" based on
         technical progress, not on visual distance to target. PM3 spent three
         full iterations <em>claiming</em> it would work without rendering a
-        single image — only started comparing when the user explicitly said
-        <em>"just render something."</em>
+        single image — actual comparison only began after an explicit
+        <em>"just render something"</em> from my side.
       </p>
       <p>
         The root is the same across all three: a procedural shader can be
@@ -399,18 +399,19 @@
       <h4><span class="num">4.</span>No objective progress metric</h4>
       <p>
         None of the three sessions set up a reference-comparison harness —
-        not even the simplest one: <em>"render my output next to the
-        reference at the same size, in the same frame, every iteration."</em>
-        Progress was judged subjectively by the agent, turn by turn, with no
-        calibration against the actual target. PM1 names this directly:
+        not even the simplest one: <em>"render the current output next to
+        the reference, same size, same frame, every iteration."</em>
+        Progress was judged subjectively, turn by turn, with no calibration
+        against the actual target. PM1 names this directly:
         <em>"without a pixel-based similarity metric or clear acceptance
         criteria, every iteration is just 'felt better/worse.'"</em>
       </p>
       <p>
-        The asymmetry is telling: the agents had no problem computing Laplace
-        stability bounds, Beer-Lambert falloff, or stroke-glazing integrals —
-        but none of them built the equivalent quantitative check for whether
-        the output was actually getting closer to the goal.
+        The asymmetry is telling: none of the three sessions struggled with
+        computing Laplace stability bounds, Beer-Lambert falloff, or
+        stroke-glazing integrals — but none built the equivalent
+        quantitative check for whether the output was actually getting
+        closer to the goal.
       </p>
 
       <h4><span class="num">5.</span>Scope question asked late, or not at all</h4>
@@ -430,12 +431,12 @@
 
       <h4><span class="num">6.</span>Communication drift toward optimism</h4>
       <p>
-        All three post-mortems name overselling as a failure mode. Each
-        iteration reported as "closer," "clearly watercolor-like," "first
-        version that reminds me of watercolor" — phrases that described
-        <em>technical</em> progress ("I fixed the thing I knew was wrong")
-        but not <em>goal</em> progress ("it still doesn't look like the
-        reference"). The user had to do the deflating themselves, every
+        All three post-mortems name overselling as a failure mode. Every
+        iteration got reported as "closer," "clearly watercolor-like,"
+        "first version that actually reads as watercolor" — phrases that
+        described <em>technical</em> progress (a known bug was fixed) but
+        not <em>goal</em> progress (the output still didn't look like the
+        reference). The deflating came from outside the session, every
         time.
       </p>
 
@@ -504,11 +505,11 @@
         <li><strong>Beer-Lambert layering</strong>
           (<code>pow(color, density)</code>): technically correct additive
           pigment behaviour. Overlaps of the same colour deepen the hue
-          instead of collapsing to a muddy grey average. This was the one
-          real breakthrough that actually modelled watercolor physics.</li>
-        <li><strong>Wet/dry gradient per blob:</strong> your suggestion —
-          one wet-rich zone and one dry zone per shape — added more
-          character than the eight iterations before it.</li>
+          instead of collapsing to a muddy grey average. The one real
+          breakthrough that actually modelled watercolor physics.</li>
+        <li><strong>Wet/dry gradient per blob</strong> — one wet-rich
+          zone and one dry zone per shape — added more character than the
+          eight iterations before it.</li>
         <li><strong>Real Canvas-2D noise as paper base:</strong> more
           authentic than procedural fbm.</li>
         <li><strong>Cauliflower edges via texture displacement:</strong>
@@ -521,19 +522,20 @@
           and introduced another. Rim lines → cell membrane. Granulation →
           foxing. Hard edges → Lego bars. Soft edges → Gaussian clouds.
           Never landed in a stable equilibrium.</li>
-        <li><strong>Calibration:</strong> repeatedly gave match percentages
-          that didn't hold up (95 % → later corrected to 70 %). Subjective
-          assessment without an objective metric eroded trust.</li>
-        <li><strong>Scope misread:</strong> spent hours building a
-          hero-quality watercolor when only a backdrop for an animation
-          was actually needed. The scope question was asked far too late.</li>
-        <li><strong>References not read critically enough:</strong> some of
-          the shown watercolors were AI-generated (highly idealised, "too
-          perfect"). I kept trying to match them instead of flagging early
-          that such references are an unrealistic benchmark.</li>
-        <li><strong>Oscillation instead of accumulation:</strong> moved
-          from approach A → B → C and back to A (blobs → strokes →
-          cloud-fields → horizontal washes → cloud shapes → Gaussians).
+        <li><strong>Calibration:</strong> match percentages given during
+          the session didn't hold up (95 % → later corrected to 70 %).
+          Subjective assessment without an objective metric eroded trust.</li>
+        <li><strong>Scope misread:</strong> hours spent building a
+          hero-quality watercolor when only a backdrop for an animation was
+          actually needed. The scope question was asked far too late.</li>
+        <li><strong>References not read critically enough:</strong> some
+          of the watercolors used as targets were AI-generated (highly
+          idealised, "too perfect"). The session kept chasing them instead
+          of flagging early that such references are an unrealistic
+          benchmark.</li>
+        <li><strong>Oscillation instead of accumulation:</strong> the
+          approach moved from A → B → C and back to A (blobs → strokes
+          → cloud-fields → horizontal washes → cloud shapes → Gaussians).
           Features from earlier iterations were lost rather than carried
           forward.</li>
       </ul>
@@ -546,21 +548,22 @@
           A fragment shader computes per pixel, independently, without
           neighbourhood interaction or time integration. The characteristic
           watercolor features (bleeds, blooms, backruns) are emergent from
-          physics, not synthesisable from noise fields. Anything I can do
-          procedurally is imitation of the appearance, not reproduction of
-          the process — and imitation tips into the artificial fast.</li>
+          physics, not synthesisable from noise fields. Anything procedurally
+          achievable along this path is imitation of the appearance, not
+          reproduction of the process — and imitation tips into the
+          artificial fast.</li>
         <li><strong>Reaction-diffusion simulation</strong> (multi-pass
           framebuffers, temporal iteration) would conceptually have been
-          the right approach. I mentioned it early as an option but didn't
-          pursue it because it "seemed too complex." In hindsight, probably
-          the only path that could realistically have passed 80 %.</li>
+          the right approach. It was raised early as an option but not
+          pursued — deemed "too complex" at the time. In hindsight,
+          probably the only path that could realistically have passed 80 %.</li>
         <li><strong>No objective progress marker:</strong> without a
           pixel-based similarity metric or clear acceptance criteria, every
           iteration is just "felt better/worse" — which leads to endless
           refinement without closure.</li>
       </ul>
 
-      <h4>What I should have done differently</h4>
+      <h4>What should have been done differently</h4>
       <ol>
         <li>After three iterations with unclear results: stop and rethink
           structurally, not keep tuning parametrically.</li>
@@ -620,7 +623,7 @@
         on top later.
       </p>
 
-      <h4>What I delivered</h4>
+      <h4>What came out</h4>
       <p>
         Thirteen iterations across roughly four hours. None of them look like
         the references. Best partial results: v12b (a granular cloud blob
@@ -630,20 +633,21 @@
 
       <h4>The core mistake</h4>
       <p>
-        I said yes without checking whether procedural watercolor in a
-        single-pass shader is even reachable at this reference quality. It
-        isn't. Curtis 1997, <em>Computer-Generated Watercolor</em> — the
-        canonical work — uses multi-layer fluid simulation with pigment
-        kinetics, running over minutes. Real-time WebGL approximations exist,
-        but they produce <em>"watercolor-ish,"</em> not <em>"like the
-        reference."</em> I could have known this after 20 minutes of reading.
+        The session committed to a procedural single-pass shader approach
+        without first checking whether that can even reach reference
+        quality. It can't. Curtis 1997,
+        <em>Computer-Generated Watercolor</em> — the canonical work —
+        uses multi-layer fluid simulation with pigment kinetics, running
+        over minutes. Real-time WebGL approximations exist, but they
+        produce <em>"watercolor-ish,"</em> not <em>"like the reference."</em>
+        Twenty minutes of reading would have established that up front.
       </p>
       <p>
-        Instead I iterated thirteen times, hoping the next trick would land
-        it. That was sunk-cost thinking paired with AI-typical over-optimism:
-        each intermediate result was sold as "clearly closer to watercolor"
-        because technically a known bug was fixed — but the distance to the
-        actual goal stayed categorical.
+        Instead the session produced thirteen iterations, each on the hope
+        that the next trick would land it. Sunk-cost thinking paired with
+        AI-typical over-optimism: each intermediate result was framed as
+        "clearly closer to watercolor" because technically a known bug was
+        fixed — but the distance to the actual goal stayed categorical.
       </p>
 
       <h4>Iteration path — what failed at each stage, and why</h4>
@@ -692,8 +696,8 @@
           through when parameterising.</li>
         <li>In v13, clamp-to-edge boundaries → pigment accumulated along
           the bottom edge as a hard line.</li>
-        <li>Every time I could "clearly see watercolor character" in a
-          screenshot, I was wrong.</li>
+        <li>Every "clearly shows watercolor character" call made on a
+          screenshot turned out wrong when checked against the reference.</li>
       </ul>
 
       <h4>Communication failures</h4>
@@ -701,13 +705,13 @@
         <li>Every iteration report oversold ("clearly closer," "first
           version that reminds me of watercolor"), even though the real
           distance was still categorical.</li>
-        <li>Proposed "just reveal the images" as a fallback — a cop-out,
-          because I was technically stuck but didn't have the courage to
-          say "the problem is bigger than I thought."</li>
-        <li>Didn't name, until iteration 13, that single-pass shaders
-          have hard limits here.</li>
-        <li>Blurred the difference between "looks somewhat different" and
-          "looks like the reference."</li>
+        <li>"Just reveal the images" was floated as a fallback — a cop-out
+          born of being technically stuck but not yet willing to name
+          "the problem is bigger than expected."</li>
+        <li>The fact that single-pass shaders have hard limits here
+          wasn't named until iteration 13.</li>
+        <li>The difference between "looks somewhat different" and
+          "looks like the reference" kept getting blurred.</li>
       </ul>
 
       <h4>What would have worked</h4>
@@ -716,38 +720,38 @@
           or AI-generated cut-out clouds) + shader compositing for
           arrangement + noise-driven reveal for the build-up animation.
           Result is actual watercolor, because the source material is
-          actual watercolor. I suggested this, the user rejected it —
-          rightly so if the goal was "generate," but I should have
-          explained that "generate in real time at this quality" is an
-          open research problem.</li>
+          actual watercolor. The option was suggested early and set aside
+          — reasonable given the "generate" framing, but the trade-off
+          wasn't surfaced at the time: <em>"generate in real time at this
+          quality"</em> is an open research problem.</li>
         <li><strong>Proper fluid sim with a real time budget:</strong>
           the v13 approach but with several days of tuning and a
           multi-layer state (paper capacity, pigment concentration at
           multiple depths, separate water-height field). Not feasible
           in a single session.</li>
         <li><strong>Accept "watercolor-ish":</strong> stop at v3 or v9,
-          honestly say "this is what we get with this technique," and
-          move on to the next project layer (the cherry trees). The
-          backdrop doesn't have to be the hero element.</li>
+          honestly say "this is what this technique gets us," and move on
+          to the next project layer (the cherry trees). The backdrop
+          doesn't have to be the hero element.</li>
       </ol>
 
       <h4>Takeaways (not generic)</h4>
       <ul>
         <li>Before committing, check the feasibility of the
           <em>target quality</em>, not just the technical feasibility of
-          the method. <em>"Can I write a shader that does X?"</em> ≠
+          the method. <em>"Can a shader be written that does X?"</em> ≠
           <em>"Can a shader produce a result that looks like Y?"</em></li>
         <li>After 2–3 failed iterations with the same core method: switch
-          method, don't keep turning the knobs. I spent ten iterations
-          inside the noise regime.</li>
-        <li>Describe what's visible, not what was intended. Several of
-          my "this looks good" assessments were wishful thinking —
-          compared objectively screenshot vs. reference, the distance was
-          always large.</li>
+          method, don't keep turning the knobs. Ten iterations stayed
+          inside the noise regime here.</li>
+        <li>Describe what's visible, not what was intended. Several
+          "this looks good" assessments in this session were wishful
+          thinking — screenshot vs. reference, objectively compared, the
+          distance was always large.</li>
         <li>On projects with a subjective goal: make early
-          reference-comparison mandatory. After v3 I should already have
-          put the current output next to a reference and let the user
-          decide whether we were even on the right path.</li>
+          reference-comparison mandatory. After v3 the current output
+          should already have been placed next to a reference, with a
+          decision point attached: <em>are we even on the right path?</em></li>
         <li>Fluid-sim tuning is full-time work, not an intermediate leg.
           The parameters are coupled and the sweet spot is narrow.</li>
       </ul>
@@ -780,16 +784,16 @@
 
       <h4>Starting point</h4>
       <p>
-        You showed a watercolor cloud painting and asked whether it could be
-        reproduced procedurally in the browser. Without testing anything
-        first, I made three claims:
+        A watercolor cloud painting was the reference, with the question
+        whether it could be reproduced procedurally in the browser. Without
+        anything being tested first, three confident claims came back:
       </p>
       <ol>
         <li><em>"Yes — and shame on me for not even opening the question
           earlier."</em></li>
         <li><em>"Procedural watercolor simulation is a well-researched
           field and fits into the browser without a problem."</em></li>
-        <li><em>"For your use case it's actually better than the AI route:
+        <li><em>"For this use case it's actually better than the AI route:
           deterministic, parametrically controllable, perfect style
           consistency by construction."</em></li>
       </ol>
@@ -798,23 +802,25 @@
       <h4>What actually happened</h4>
       <table>
         <thead>
-          <tr><th>Step</th><th>What I did</th><th>Result</th></tr>
+          <tr><th>Step</th><th>What happened</th><th>Result</th></tr>
         </thead>
         <tbody>
           <tr>
             <td>1</td>
-            <td>Delivered HTML with regl + FBM shader</td>
-            <td>Delivered broken (you had to complain)</td>
+            <td>HTML with regl + FBM shader delivered</td>
+            <td>Arrived broken; needed a complaint before a rewrite
+              happened</td>
           </tr>
           <tr>
             <td>2</td>
-            <td>Rewrote to vanilla WebGL</td>
+            <td>Rewrite to vanilla WebGL</td>
             <td>Technically functional, but the visual result was a smooth
               dark dome — no cloud whatsoever</td>
           </tr>
           <tr>
             <td>3</td>
-            <td>Only on your prompt did I render and compare myself</td>
+            <td>An actual render-and-compare only happened after it was
+              explicitly asked for</td>
             <td>Four variants v1–v5: indistinguishably bad</td>
           </tr>
           <tr>
@@ -836,23 +842,23 @@
         </tbody>
       </table>
 
-      <h4>Where I was concretely wrong</h4>
+      <h4>Where the approach was concretely wrong</h4>
 
       <p><strong>1. Confidence without evidence.</strong>
-        I spent three full iterations <em>claiming</em> to know it would
-        work without having rendered a single image. Iteration four was the
-        first actual test. This is the root cause of every downstream
-        problem — not the algorithm, but the fact that I made
-        algorithm-promises without knowing the output. The correction didn't
-        come from me either; it came from you (<em>"just render something"</em>).
+        Three full iterations went by under the claim that it would work,
+        without a single image rendered. Iteration four was the first
+        actual test. Root cause of every downstream problem — not the
+        algorithm, but algorithm-promises offered without the output being
+        known. The reset didn't come from inside the session; it took an
+        explicit <em>"just render something"</em> from my side to force it.
       </p>
 
       <p><strong>2. Wrong algorithm on the first pass.</strong>
         A single scalar density field (FBM + smoothstep) produces,
         <em>by construction</em>, a single connected smooth blob. A cumulus
         cloud is, <em>by construction</em>, a stacking of discrete lobes.
-        That structural incompatibility should have been clear to me before
-        a single shader line was written. It wasn't.
+        That structural incompatibility should have been obvious before a
+        single shader line was written. It wasn't.
       </p>
 
       <p><strong>3. Conflating "procedural works in the browser" with
@@ -860,13 +866,13 @@
         The first statement is true (see e.g. Tyler Hobbs' generative-art
         work, real Curtis-style watercolor sims in WebGL exist). The second
         statement — that <em>this</em> specific watercolor study is
-        reproducible procedurally — is much stronger, and I had no evidence
-        for it. I substituted the weaker one with the stronger one without
-        flagging the jump.
+        reproducible procedurally — is much stronger, and no evidence
+        existed for it. The weaker claim got substituted for the stronger
+        one without the jump being flagged.
       </p>
 
-      <p><strong>4. The second attempt was better, but I sugar-coated the
-        verdict against the reference again.</strong>
+      <p><strong>4. The second attempt was better, but the verdict against
+        the reference got sugar-coated again.</strong>
         m9 is a recognisable procedural cloud. The reference is a watercolor
         study with pigment pooling, granulated wash transitions, backruns
         and hand-asymmetric lobes. That distance is not closable through
@@ -906,8 +912,9 @@
         60 % path so you can see whether that level is enough for you?"
       </blockquote>
       <p>
-        Instead I said "no problem" and then took three iterations to
-        arrive at exactly the level I could have stated at the start.
+        Instead the answer was "no problem," and it took three iterations
+        to arrive at exactly the level that could have been stated at the
+        start.
       </p>
 
       <h4>What remains</h4>
@@ -924,13 +931,14 @@
           the best.</li>
       </ul>
 
-      <h4>Lesson for myself (to myself, not to you)</h4>
+      <h4>Lesson</h4>
       <p>
-        For "can you do X" with a visual output: render first, answer
-        second. Claims about procedural image quality without an image are
-        worthless. The correction path "confidence → broken → vague
-        bugfix → confidence → broken" cost you two iterations in which I
-        learnt nothing I couldn't have seen at the first render.
+        For <em>"can you do X?"</em> with a visual output: render first,
+        answer second. Claims about procedural image quality without an
+        image are worthless. The correction path "confidence → broken →
+        vague bugfix → confidence → broken" cost two iterations that
+        produced no learning beyond what the first render would have
+        shown.
       </p>
     </article>
   </section>
