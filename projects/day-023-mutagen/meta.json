@@ -1,9 +1,9 @@
 {
   "day": 23,
   "slug": "day-023-mutagen",
-  "title": "Mutagen",
+  "title": "Mutagen (Alpha 0.1)",
   "date": "2026-04-19",
-  "description": "Browser monster-builder roguelike: pick mutations under a 15-point budget, fight auto-battles with a card deck, level up, fuse, survive. Vite+TS, dice combat with type matrix and status effects, 75 FLUX2-Pro sprites indexed by single and multi-mutation sets, hit-reaction visuals tied to attack type + level.",
+  "description": "Alpha 0.1 of a browser monster-builder roguelike: pick mutations under a 15-point budget, fight auto-battles with a card deck, level up, fuse, survive. Vite+TS, dice combat with type matrix and status effects, 75 FLUX2-Pro sprites indexed by single and multi-mutation sets, hit-reaction visuals tied to attack type + level.",
   "tags": ["game", "monster", "roguelike", "cards", "svg", "dice", "flux"],
   "stack": ["Vite", "TypeScript", "SVG", "LocalStorage", "FLUX2-Pro"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-023-mutagen",

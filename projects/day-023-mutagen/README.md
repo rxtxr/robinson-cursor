@@ -1,5 +1,7 @@
 # day-023 — Mutagen
 
+> **Alpha 0.1** — first playable release, tagged `mutagen-0.1.0-alpha`
+
 Browser-based monster-builder. Design a creature by picking mutations under a 15-point budget, then fight a run of auto-battlers while a card deck gives you turn-level control. Level-up, fuse mutations, survive.
 
 ## Status
