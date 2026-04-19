@@ -121,7 +121,8 @@ export const MUTATIONS: Record<string, MutationDef> = {
     description: 'Sharpened senses. +1 Tempo per level, +10% hit chance.',
   },
 
-  // --- Weapons (new) ---
+  // --- Weapons (disabled — no FLUX sprites yet, re-enable when sprites ship) ---
+  /*
   blade: {
     id: 'blade',
     name: 'Blade',
@@ -150,10 +151,12 @@ export const MUTATIONS: Record<string, MutationDef> = {
     },
     description: 'Heavy weapon. +4 Attack, -1 Tempo per level. 2d6 · 30% stun.',
   },
+  */
 
-  // --- Ability: Invisibility (new) ---
-  // Passive dodge chance. Checked in damage.ts before damage calc;
-  // on dodge: "Miss!" instead of damage.
+  // --- Ability: Invisibility (disabled — no FLUX sprite yet) ---
+  // Passive dodge chance. When re-enabled, damage.ts already handles the
+  // lookup: `defenderState.mutations.find((m) => m.id === 'invisibility')`.
+  /*
   invisibility: {
     id: 'invisibility',
     name: 'Invisibility',
@@ -162,6 +165,7 @@ export const MUTATIONS: Record<string, MutationDef> = {
     statBonuses: {},
     description: 'Passive: chance to go invisible (untouchable) per attack. Lv1 20%, Lv5 60%.',
   },
+  */
 
   // --- Fusions ---
   magma_crust: {

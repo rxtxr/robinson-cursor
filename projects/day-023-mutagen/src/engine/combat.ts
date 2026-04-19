@@ -22,7 +22,7 @@ import type {
 import { chooseAction } from './actions.ts';
 import { applyEnemyCard, enemyPickCard } from './ai.ts';
 import { calculateDamage, magmaCounter } from './damage.ts';
-import { computeEffectiveStats } from './stats.ts';
+import { TEMPO_MAX, TEMPO_MIN, computeEffectiveStats } from './stats.ts';
 
 const HAND_SIZE = 3;
 const HAND_LIMIT = 5;
@@ -40,7 +40,7 @@ export function startBattle(player: PlayerState): BattleState {
   };
   enemy.currentHp = computeEffectiveStats(enemy).hp;
 
-  player.monster.currentHp = computeEffectiveStats(player.monster).hp;
+  player.monster.currentHp = computeEffectiveStats(player.monster, undefined, player.bonusStats).hp;
   player.monster.statusEffects = [];
   player.monster.turnModifiers = [];
 
@@ -92,10 +92,10 @@ export function endCardPhase(battle: BattleState, player: PlayerState): void {
   const enemyCard = enemyPickCard(battle);
   if (enemyCard) applyEnemyCard(battle, enemyCard, battle.enemy);
 
-  const playerStats = computeEffectiveStats(player.monster);
+  const playerStats = computeEffectiveStats(player.monster, undefined, player.bonusStats);
   const enemyStats = computeEffectiveStats(battle.enemy);
-  const playerTempo = Math.max(1, Math.min(3, Math.floor(playerStats.tempo)));
-  const enemyTempo = Math.max(1, Math.min(3, Math.floor(enemyStats.tempo)));
+  const playerTempo = Math.max(TEMPO_MIN, Math.min(TEMPO_MAX, Math.floor(playerStats.tempo)));
+  const enemyTempo = Math.max(TEMPO_MIN, Math.min(TEMPO_MAX, Math.floor(enemyStats.tempo)));
 
   battle.pendingActors = planActorSequence(playerTempo, enemyTempo);
   battle.forceUsed = false;
@@ -123,6 +123,7 @@ export interface TickResult {
   rolls?: number[];          // individual rolls
   modifier?: number;         // attack + bonus + level-1
   rollTotal?: number;        // sum(rolls) + modifier
+  actionLevel?: number;      // mutation level that fired (1..5) — drives hit-reaction intensity
   // Invisibility dodge?
   missed?: boolean;
   // Status outcome: if the action carries a status effect:
@@ -146,7 +147,7 @@ export function tickAutobattle(
     return { done: true };
   }
 
-  const playerStats = computeEffectiveStats(player.monster);
+  const playerStats = computeEffectiveStats(player.monster, undefined, player.bonusStats);
   const enemyStats = computeEffectiveStats(battle.enemy);
 
   const actor = battle.pendingActors.shift()!;
@@ -157,10 +158,22 @@ export function tickAutobattle(
       battle.log.push('Your monster is stunned.');
       result.skipReason = 'stun';
     } else {
+      // Double Strike repeat: reuse the previously chosen mutation so the
+      // same action fires again (with fresh dice).
+      let choice = null as ReturnType<typeof chooseAction>;
+      if (battle.forcedRepeatMutationId) {
+        const def = getMutation(battle.forcedRepeatMutationId);
+        if (def.action) {
+          choice = { mutationId: battle.forcedRepeatMutationId, action: def.action };
+        }
+        battle.forcedRepeatMutationId = undefined;
+      }
       const force = !battle.forceUsed ? battle.playerForcedTag : undefined;
       const forceBonus = !battle.forceUsed ? (battle.playerForcedBonus ?? 0) : 0;
-      battle.forceUsed = true;
-      const choice = chooseAction(player.monster, playerStats, force);
+      if (!choice) {
+        battle.forceUsed = true;
+        choice = chooseAction(player.monster, playerStats, force);
+      }
       if (!choice) {
         battle.log.push('Your monster has no action available.');
         result.skipReason = 'no-action';
@@ -186,6 +199,7 @@ export function tickAutobattle(
         result.modifier = res.modifier;
         result.rollTotal = res.rollTotal;
         result.missed = res.missed;
+        result.actionLevel = level;
         for (const se of res.statusEffects) {
           rollStatus(battle, se, battle.enemy, 'player', result);
         }
@@ -194,6 +208,16 @@ export function tickAutobattle(
           player.monster.currentHp -= counter;
           battle.log.push(`  Enemy Magma Crust triggers: ${counter} fire`);
           result.counterDamage = counter;
+        }
+
+        // Double Strike: queue a repeat of the same action on the next tick.
+        // Consume only on a real action (not on misses — misses spent the
+        // action intentionally, but the repeat should still fire).
+        if (battle.playerDoubleStrike) {
+          battle.playerDoubleStrike = false;
+          battle.forcedRepeatMutationId = choice.mutationId;
+          battle.pendingActors!.unshift('player');
+          battle.log.push('  Double Strike — action repeats next tick.');
         }
       }
     }
@@ -231,6 +255,7 @@ export function tickAutobattle(
         result.modifier = res.modifier;
         result.rollTotal = res.rollTotal;
         result.missed = res.missed;
+        result.actionLevel = level;
         for (const se of res.statusEffects) {
           rollStatus(battle, se, player.monster, 'enemy', result);
         }
@@ -279,14 +304,27 @@ function checkDeath(battle: BattleState, player: PlayerState): boolean {
   if (player.monster.currentHp <= 0) {
     battle.subPhase = 'end';
     battle.log.push('Your monster has fallen.');
+    revertEmpowered(battle, player);
     return true;
   }
   if (battle.enemy.currentHp <= 0) {
     battle.subPhase = 'end';
     battle.log.push('Enemy defeated!');
+    revertEmpowered(battle, player);
     return true;
   }
   return false;
+}
+
+/** Undo `strengthen` level boosts at battle end — one decrement per recorded
+ *  id (repeated ids stack correctly). Floor at Lv1 as a safety net. */
+function revertEmpowered(battle: BattleState, player: PlayerState): void {
+  if (!battle.empoweredRevert || battle.empoweredRevert.length === 0) return;
+  for (const id of battle.empoweredRevert) {
+    const m = player.monster.mutations.find((x) => x.id === id);
+    if (m) m.level = Math.max(1, m.level - 1);
+  }
+  battle.empoweredRevert = [];
 }
 
 function planActorSequence(pTempo: number, eTempo: number): ('player' | 'enemy')[] {
@@ -368,7 +406,7 @@ function applyPlayerCard(
       });
       return;
     case 'heal': {
-      const maxHp = computeEffectiveStats(player.monster).hp;
+      const maxHp = computeEffectiveStats(player.monster, undefined, player.bonusStats).hp;
       player.monster.currentHp = Math.min(
         maxHp,
         player.monster.currentHp + def.effect.amount + bonus,
@@ -414,6 +452,35 @@ function applyPlayerCard(
       }
       player.monster.statusEffects = [];
       return;
+    case 'empower_mutation': {
+      // Pick a random non-maxed own mutation and bump its level by 1.
+      // Reverted on battle end via battle.empoweredRevert.
+      const candidates = player.monster.mutations.filter((m) => m.level < 5);
+      if (candidates.length === 0) {
+        battle.log.push('Empower: no mutation can be leveled up.');
+        return;
+      }
+      const pick = candidates[Math.floor(Math.random() * candidates.length)]!;
+      pick.level += 1;
+      battle.empoweredRevert = battle.empoweredRevert ?? [];
+      battle.empoweredRevert.push(pick.id);
+      battle.log.push(`Empower: ${getMutation(pick.id).name} → Lv${pick.level} (this fight).`);
+      return;
+    }
+    case 'double_strike':
+      battle.playerDoubleStrike = true;
+      battle.log.push('Double Strike armed — next action fires twice.');
+      return;
+    case 'permanent_stat': {
+      player.bonusStats = { ...(player.bonusStats ?? {}) };
+      const prev = (player.bonusStats[def.effect.stat] ?? 0);
+      player.bonusStats[def.effect.stat] = prev + def.effect.delta;
+      const sign = def.effect.delta >= 0 ? '+' : '';
+      battle.log.push(
+        `Haste: ${sign}${def.effect.delta} ${def.effect.stat} permanent (total ${sign}${prev + def.effect.delta}).`,
+      );
+      return;
+    }
   }
 }
 
@@ -537,9 +604,13 @@ function pickEnemy(player: PlayerState) {
   return applyReinforcements(scaled, wins);
 }
 
-export function maxHp(m: MonsterState): number {
-  return computeEffectiveStats(m).hp;
+/** Max HP including turn modifiers. Pass the player's bonusStats when the
+ *  monster is the player's — without it, permanent HP boosts wouldn't show. */
+export function maxHp(m: MonsterState, bonusStats?: Partial<StatBlock>): number {
+  return computeEffectiveStats(m, undefined, bonusStats).hp;
 }
-export function effectiveStats(m: MonsterState): StatBlock {
-  return computeEffectiveStats(m);
+/** Effective stat block for UI. Pass bonusStats for the player so Haste and
+ *  other `permanent_stat` cards show up in the stat display. */
+export function effectiveStats(m: MonsterState, bonusStats?: Partial<StatBlock>): StatBlock {
+  return computeEffectiveStats(m, undefined, bonusStats);
 }

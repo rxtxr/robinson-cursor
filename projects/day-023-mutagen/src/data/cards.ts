@@ -101,18 +101,15 @@ export const CARDS: Record<string, CardDef> = {
     id: 'strengthen',
     name: 'Empower Mutation',
     cost: 1,
-    // Mutation-level boost also isn't a distinct effect type yet. Placeholder
-    // until combat engine supports it. TODO.
-    effect: { kind: 'self_mod', stat: 'attack', delta: 1, duration: 99 },
-    description: '+1 level on a random own mutation for this fight (engine TODO).',
+    effect: { kind: 'empower_mutation' },
+    description: '+1 level on a random own mutation for this fight.',
   },
   double_strike: {
     id: 'double_strike',
     name: 'Double Strike',
     cost: 2,
-    // Also engine TODO. Placeholder for Phase 1.
-    effect: { kind: 'self_mod', stat: 'tempo', delta: 1, duration: 1 },
-    description: 'Repeats next action (engine TODO).',
+    effect: { kind: 'double_strike' },
+    description: 'Your next action fires twice.',
   },
   aegis: {
     id: 'aegis',
@@ -125,9 +122,8 @@ export const CARDS: Record<string, CardDef> = {
     id: 'tempo_boost',
     name: 'Haste',
     cost: 0,
-    // "Permanent" is another engine TODO — modeled here as a very long duration.
-    effect: { kind: 'self_mod', stat: 'tempo', delta: 1, duration: 9999 },
-    description: '+1 Tempo permanently.',
+    effect: { kind: 'permanent_stat', stat: 'tempo', delta: 1 },
+    description: '+1 Tempo permanently (persists across battles).',
   },
   antidote: {
     id: 'antidote',

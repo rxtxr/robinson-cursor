@@ -48,7 +48,7 @@ function paint(root: HTMLElement): void {
   const s = getState();
   if (!s.player) return;
   const player = s.player;
-  const stats = computeStats(player.monster);
+  const stats = computeStats(player.monster, player.bonusStats);
 
   const fusionBanner =
     grantedFusions.length > 0

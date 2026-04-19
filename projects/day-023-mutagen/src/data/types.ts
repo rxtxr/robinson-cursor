@@ -100,7 +100,15 @@ export type CardEffect =
   // effects. cleanse removes all active statuses from self.
   | { kind: 'status_boost'; chanceAdd: number; uses: number }
   | { kind: 'status_immune'; uses: number }
-  | { kind: 'cleanse' };
+  | { kind: 'cleanse' }
+  // empower_mutation: +1 level on a random own mutation for this fight only.
+  // Revert on battle end. Picks uniformly among non-maxed mutations.
+  | { kind: 'empower_mutation' }
+  // double_strike: the next player action repeats with a fresh dice roll.
+  // Consumed only on a successful action (not on stun/paralysis skips).
+  | { kind: 'double_strike' }
+  // permanent_stat: writes into player.bonusStats, persists across battles.
+  | { kind: 'permanent_stat'; stat: keyof StatBlock; delta: number };
 
 export interface CardInDeck {
   defId: string;
@@ -131,6 +139,15 @@ export interface BattleState {
   playerStatusBoost?: { chanceAdd: number; uses: number };
   // Status immunity: blocks the next N incoming status effects on the player.
   playerStatusImmune?: number;
+  // Ids of mutations temporarily empowered by `strengthen`. Reverted on
+  // battle end — decrement level by 1 per entry.
+  empoweredRevert?: string[];
+  // True until the next player action fires — then the action runs twice.
+  playerDoubleStrike?: boolean;
+  // When set, the next player tick uses this action instead of picking fresh.
+  // Used to implement the literal "repeat the same action" semantics of
+  // double_strike. Cleared after consumption.
+  forcedRepeatMutationId?: string;
 }
 
 export interface PlayerState {
@@ -140,6 +157,9 @@ export interface PlayerState {
   battlesWon: number;
   // Card id of a freshly cursed deck; the levelup screen shows a banner for it.
   pendingCurseNotice?: string;
+  // Permanent stat boosts earned by cards like Haste. Additive on top of
+  // mutation-derived stats. Persists across battles (part of the save).
+  bonusStats?: Partial<StatBlock>;
 }
 
 export interface GameState {

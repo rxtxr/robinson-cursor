@@ -149,20 +149,181 @@ button.ghost:hover:not(:disabled) { color: var(--fg); border-color: var(--muted)
   position: relative;
   overflow: visible;
 }
-.monster-svg {
+.monster-svg,
+.monster-png {
   width: 200px;
   height: 200px;
   transition: filter 0.2s ease;
 }
+.monster-png {
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  /* PNG sprites ship with pure-white #FFFFFF backgrounds. Keep the white —
+     the dark monster-frame gets a bright inset that reads like a paper card. */
+  background: #fff;
+  border-radius: 6px;
+  user-select: none;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+}
 
-/* --- Attacker: SVG glow in type color --- */
-.side.attacking-physical .monster-svg { filter: drop-shadow(0 0 10px rgba(255,255,255,0.9)); }
-.side.attacking-poison   .monster-svg { filter: drop-shadow(0 0 14px rgba(94,220,94,0.95)); }
-.side.attacking-fire     .monster-svg { filter: drop-shadow(0 0 14px rgba(255,110,60,0.95)); }
-.side.attacking-electric .monster-svg { filter: drop-shadow(0 0 14px rgba(255,220,90,0.95)); }
+/* --- Attacker: glow on the sprite in type color --- */
+.side.attacking-physical .monster-svg,
+.side.attacking-physical .monster-png { filter: drop-shadow(0 0 10px rgba(255,255,255,0.9)); }
+.side.attacking-poison   .monster-svg,
+.side.attacking-poison   .monster-png { filter: drop-shadow(0 0 14px rgba(94,220,94,0.95)); }
+.side.attacking-fire     .monster-svg,
+.side.attacking-fire     .monster-png { filter: drop-shadow(0 0 14px rgba(255,110,60,0.95)); }
+.side.attacking-electric .monster-svg,
+.side.attacking-electric .monster-png { filter: drop-shadow(0 0 14px rgba(255,220,90,0.95)); }
 
 /* --- Defender: brief shield glow --- */
-.side.defending .monster-svg { filter: drop-shadow(0 0 10px rgba(90,160,255,0.9)); }
+.side.defending .monster-svg,
+.side.defending .monster-png { filter: drop-shadow(0 0 10px rgba(90,160,255,0.9)); }
+
+/* --- Hit reaction on defender: shake + type-colored splash --- */
+/* Shake amplitude scales with --hit-intensity (1..5, set inline on .side).
+ * Large, slow enough to read, strong enough to feel the hit. */
+.side.damage-flash .monster-svg,
+.side.damage-flash .monster-png {
+  animation: hit-shake 0.7s cubic-bezier(.36, .07, .19, .97) both;
+  transform-origin: 50% 60%;
+}
+@keyframes hit-shake {
+  0%   { transform: translate(0, 0) rotate(0); }
+  8%   { transform: translate(calc(var(--hit-intensity, 2) *  8px), calc(var(--hit-intensity, 2) * -2px)) rotate(calc(var(--hit-intensity, 2) *  1.2deg)); }
+  18%  { transform: translate(calc(var(--hit-intensity, 2) * -7px), calc(var(--hit-intensity, 2) *  3px)) rotate(calc(var(--hit-intensity, 2) * -1.2deg)); }
+  30%  { transform: translate(calc(var(--hit-intensity, 2) *  6px),  1px) rotate(calc(var(--hit-intensity, 2) *  0.9deg)); }
+  45%  { transform: translate(calc(var(--hit-intensity, 2) * -4.5px), calc(var(--hit-intensity, 2) * -1.5px)) rotate(calc(var(--hit-intensity, 2) * -0.7deg)); }
+  60%  { transform: translate(calc(var(--hit-intensity, 2) *  3px), 0) rotate(calc(var(--hit-intensity, 2) *  0.4deg)); }
+  75%  { transform: translate(calc(var(--hit-intensity, 2) * -1.5px), 0) rotate(0); }
+  100% { transform: translate(0, 0) rotate(0); }
+}
+
+/* Diagnostic tint on the side frame when it takes damage — helps debug that
+ * the damage-flash class is actually being applied. Doesn't depend on the
+ * child shake/splash, so if you only see this pulse and no shake, the CSS
+ * animation on the sprite is the issue. */
+.side.damage-flash {
+  animation: hit-frame-pulse 0.7s ease-out both;
+}
+@keyframes hit-frame-pulse {
+  0%   { box-shadow: inset 0 0 0 0 rgba(255, 80, 80, 0); }
+  15%  { box-shadow: inset 0 0 0 4px rgba(255, 80, 80, 0.85); }
+  100% { box-shadow: inset 0 0 0 0 rgba(255, 80, 80, 0); }
+}
+
+/* Splash overlay — absolute, sits on top of the monster. */
+.hit-splash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  border-radius: 6px;
+  animation: hit-splash-fade calc(0.55s + var(--hit-intensity, 2) * 0.05s) ease-out forwards;
+}
+.hit-splash::before,
+.hit-splash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+@keyframes hit-splash-fade {
+  0%   { opacity: 0;   transform: scale(calc(0.55 + var(--hit-intensity, 2) * 0.05)); }
+  25%  { opacity: 1;   transform: scale(calc(1.05 + var(--hit-intensity, 2) * 0.08)); }
+  100% { opacity: 0;   transform: scale(calc(1.3  + var(--hit-intensity, 2) * 0.12)); }
+}
+
+/* Physical — white flash + diagonal impact streaks */
+.hit-splash.type-physical {
+  background: radial-gradient(circle at center,
+    rgba(255,255,255,0.9) 0%,
+    rgba(255,255,255,0.45) 35%,
+    transparent 62%);
+}
+.hit-splash.type-physical::before {
+  background:
+    linear-gradient( 50deg, transparent 45%, rgba(255,255,255,1) 48%, rgba(255,255,255,1) 52%, transparent 55%),
+    linear-gradient(-32deg, transparent 45%, rgba(240,240,240,1) 48%, rgba(240,240,240,1) 52%, transparent 55%);
+  animation: slash-lines 0.55s ease-out forwards;
+}
+
+/* Poison — green splatter droplets, soft overall wash */
+.hit-splash.type-poison {
+  background: radial-gradient(circle at center,
+    rgba(80,240,100,0.8) 0%,
+    rgba(80,240,100,0.4)  35%,
+    transparent 62%);
+}
+.hit-splash.type-poison::before {
+  background:
+    radial-gradient(circle at 25% 30%, rgba(160,255,160,0.95) 0%, rgba(120,220,120,0) 7%),
+    radial-gradient(circle at 72% 28%, rgba(140,240,140,0.9)  0%, rgba(120,220,120,0) 6%),
+    radial-gradient(circle at 30% 72%, rgba(160,255,160,0.9)  0%, rgba(120,220,120,0) 8%),
+    radial-gradient(circle at 78% 70%, rgba(140,240,140,0.95) 0%, rgba(120,220,120,0) 7%),
+    radial-gradient(circle at 52% 52%, rgba(200,255,200,0.9)  0%, rgba(120,220,120,0) 5%);
+  animation: splatter 0.48s ease-out forwards;
+}
+
+/* Fire — hot orange radial with flickering rays */
+.hit-splash.type-fire {
+  background: radial-gradient(circle at center,
+    rgba(255,120,40,0.9) 0%,
+    rgba(255,90,20,0.55) 30%,
+    rgba(180,40,0,0.25)  55%,
+    transparent 72%);
+}
+.hit-splash.type-fire::before {
+  background: conic-gradient(from 0deg,
+    rgba(255,180,60,0.85), rgba(255,120,40,0.15) 35deg,
+    rgba(255,220,100,0.75) 70deg, rgba(255,120,40,0.1) 105deg,
+    rgba(255,160,60,0.85) 140deg, rgba(255,120,40,0.12) 175deg,
+    rgba(255,200,80,0.8) 210deg, rgba(255,120,40,0.1) 245deg,
+    rgba(255,180,60,0.85) 280deg, rgba(255,120,40,0.12) 315deg,
+    rgba(255,180,60,0.85));
+  filter: blur(2px);
+  animation: fire-burst 0.5s ease-out forwards;
+}
+
+/* Electric — blue-white flash + zigzag bolts */
+.hit-splash.type-electric {
+  background: radial-gradient(circle at center,
+    rgba(160,220,255,0.9) 0%,
+    rgba(100,180,255,0.55) 32%,
+    transparent 62%);
+}
+.hit-splash.type-electric::before {
+  background:
+    linear-gradient( 68deg, transparent 42%, rgba(220,240,255,1) 48%, rgba(255,255,255,1) 50%, rgba(220,240,255,1) 52%, transparent 58%),
+    linear-gradient(-18deg, transparent 44%, rgba(180,220,255,1) 48%, rgba(255,255,255,1) 50%, rgba(180,220,255,1) 52%, transparent 56%),
+    linear-gradient(100deg, transparent 46%, rgba(180,220,255,0.8) 49%, rgba(180,220,255,0.8) 51%, transparent 54%);
+  filter: drop-shadow(0 0 3px rgba(180,220,255,0.9));
+  animation: zap 0.35s steps(3, end) forwards;
+}
+
+@keyframes slash-lines {
+  0%   { opacity: 0; transform: scale(0.7) rotate(-8deg); }
+  25%  { opacity: 1; transform: scale(1) rotate(0); }
+  100% { opacity: 0; transform: scale(1.08) rotate(6deg); }
+}
+@keyframes splatter {
+  0%   { opacity: 0; transform: scale(0.4); }
+  35%  { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 0; transform: scale(1.12); }
+}
+@keyframes fire-burst {
+  0%   { opacity: 0; transform: scale(0.55) rotate(0); }
+  30%  { opacity: 1; transform: scale(1) rotate(25deg); }
+  100% { opacity: 0; transform: scale(1.25) rotate(55deg); }
+}
+@keyframes zap {
+  0%   { opacity: 0; transform: scale(0.8) rotate(-6deg); }
+  20%  { opacity: 1; transform: scale(1) rotate(0); }
+  45%  { opacity: 0.3; transform: scale(1.03); }
+  60%  { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 0; transform: scale(1.15) rotate(3deg); }
+}
 
 /* --- Mutation badge over the attacker monster --- */
 .active-mutation-badge {

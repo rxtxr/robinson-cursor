@@ -16,6 +16,7 @@ import {
   startBattle,
   tickAutobattle,
 } from '../engine/combat.ts';
+import { TEMPO_MAX, TEMPO_MIN } from '../engine/stats.ts';
 import { renderMonster } from '../render/monster.ts';
 import { getState, setState } from '../state/store.ts';
 import { hpBarHtml, statBlockHtml } from './ui-shared.ts';
@@ -26,7 +27,6 @@ const TICK_MS = 900;
 let tickTimer: number | null = null;
 let lastPlayerHp: number | null = null;
 let lastEnemyHp: number | null = null;
-let lastBattleRef: BattleState | null = null;
 let lastTick: TickResult | null = null;
 // Monotonic counter so identical ticks retrigger the CSS animation.
 let tickStamp = 0;
@@ -44,11 +44,11 @@ export function renderBattle(root: HTMLElement): void {
     return;
   }
 
-  if (lastBattleRef !== s.battle) {
-    resetBattleTrackers();
-    lastBattleRef = s.battle;
-  }
-
+  // Trackers are reset explicitly at battle start (the !s.battle branch
+  // above) and at the end-screen "continue" button. We do NOT reset on every
+  // render — scheduleTick spreads `battle` into a new object each tick, which
+  // would null lastPlayerHp / lastEnemyHp / lastTick before paint can read
+  // them, and the damage-flash + hit effects would never fire.
   paint(root, s as GameState & { player: PlayerState; battle: BattleState });
 }
 
@@ -68,9 +68,9 @@ function paint(
 ): void {
   const { player, battle } = s;
 
-  const playerStats = effectiveStats(player.monster);
+  const playerStats = effectiveStats(player.monster, player.bonusStats);
   const enemyStats = effectiveStats(battle.enemy);
-  const playerMax = maxHp(player.monster);
+  const playerMax = maxHp(player.monster, player.bonusStats);
   const enemyMax = maxHp(battle.enemy);
 
   const playerDamaged =
@@ -135,6 +135,10 @@ function paint(
   const rolls = showTickFx ? (lastTick!.rolls ?? []) : [];
   const modifier = showTickFx ? (lastTick!.modifier ?? 0) : 0;
   const rollTotal = showTickFx ? (lastTick!.rollTotal ?? 0) : 0;
+  // Hit-reaction intensity follows the attacking mutation's level (1..5).
+  // Used to scale shake amplitude and splash overlay size on the defender.
+  const hitIntensity = showTickFx ? Math.max(1, Math.min(5, lastTick!.actionLevel ?? 1)) : 1;
+  const hitLanded = showTickFx && !missed && (dmgValue ?? 0) > 0;
 
   root.innerHTML = `
     <div class="screen battle">
@@ -163,6 +167,8 @@ function paint(
           rollTotal: attackerSide === 'player' ? rollTotal : 0,
           missed: attackerSide === 'player' ? missed : false,
           showMissOverDefender: defenderSide === 'player' && missed,
+          hitType: defenderSide === 'player' && hitLanded ? attackType ?? null : null,
+          hitIntensity,
         })}
         ${sideHtml({
           side: 'enemy',
@@ -184,6 +190,8 @@ function paint(
           rollTotal: attackerSide === 'enemy' ? rollTotal : 0,
           missed: attackerSide === 'enemy' ? missed : false,
           showMissOverDefender: defenderSide === 'enemy' && missed,
+          hitType: defenderSide === 'enemy' && hitLanded ? attackType ?? null : null,
+          hitIntensity,
         })}
       </div>
       <section class="cards-row ${autobattle ? 'locked' : ''}">
@@ -284,6 +292,10 @@ interface SideParams {
   rollTotal: number;
   missed: boolean;
   showMissOverDefender: boolean;
+  // Hit-reaction overlay: set on defender when a hit actually landed.
+  hitType: DamageType | null;
+  // Drives shake amplitude + splash size (1..5, usually mutation level).
+  hitIntensity: number;
 }
 
 function sideHtml(p: SideParams): string {
@@ -297,6 +309,11 @@ function sideHtml(p: SideParams): string {
     : '';
   const counterFloat = p.counterDamage
     ? `<div class="damage-float counter" data-stamp="${tickStamp}">-${p.counterDamage}</div>`
+    : '';
+  // Type-colored splash overlay on the defender. Intensity scales with
+  // attacker's mutation level via the --hit-intensity CSS variable.
+  const hitSplash = p.hitType
+    ? `<div class="hit-splash type-${p.hitType}" data-stamp="${tickStamp}"></div>`
     : '';
 
   let attackBadge = '';
@@ -322,11 +339,12 @@ function sideHtml(p: SideParams): string {
   ].filter(Boolean).join(' ');
 
   return `
-    <section class="${sideClasses}">
+    <section class="${sideClasses}" style="--hit-intensity:${p.hitIntensity}">
       <h3>${p.label}</h3>
       <div class="monster-frame">
         ${renderMonster(p.mName)}
         ${attackBadge}
+        ${hitSplash}
         ${dmgFloat}
         ${missFloat}
         ${counterFloat}
@@ -359,7 +377,7 @@ function phaseLabel(p: BattleState['subPhase']): string {
 }
 
 function tempoBadgeHtml(tempo: number, who: 'player' | 'enemy'): string {
-  const clamped = Math.max(1, Math.min(3, Math.floor(tempo)));
+  const clamped = Math.max(TEMPO_MIN, Math.min(TEMPO_MAX, Math.floor(tempo)));
   const s = getState();
   const battle = s.battle;
   const pending = battle?.pendingActors?.filter((a) => a === who).length ?? 0;

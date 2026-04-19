@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && rm -rf assets && cp -r dist/. . && rm -rf dist",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "import-monsters": "node scripts/import-monsters.mjs"
   },
   "devDependencies": {
     "typescript": "^5.6.3",
