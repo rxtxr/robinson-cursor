@@ -1,0 +1,12 @@
+{
+  "day": 23,
+  "slug": "day-023-mutagen",
+  "title": "Mutagen",
+  "date": "2026-04-19",
+  "description": "Browser-based monster-builder: pick mutations under a 15-point budget, fight auto-battles with a card deck, level up, fuse, survive. Vite+TS, inline-SVG monsters, dice-based combat with type matrix and status effects.",
+  "tags": ["game", "monster", "roguelike", "cards", "svg", "dice"],
+  "stack": ["Vite", "TypeScript", "SVG", "LocalStorage"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-023-mutagen",
+  "status": "complete",
+  "license_notes": "Vite (MIT), TypeScript (Apache-2.0). No runtime deps."
+}
