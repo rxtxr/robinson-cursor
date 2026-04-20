@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Musical Gravity Field</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { min-height: 600px; }
+body { background: #06060c; color: #c8c8d0; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; overflow: hidden; }
+canvas { display: block; cursor: crosshair; }
+#ui { position: fixed; top: 0; left: 44px; right: 0; padding: 10px 16px; display: flex; align-items: center; gap: 14px; z-index: 10; background: linear-gradient(180deg, rgba(6,6,12,0.95) 0%, rgba(6,6,12,0.7) 80%, transparent 100%); pointer-events: none; }
+#ui > * { pointer-events: auto; flex-shrink: 0; }
+.sub { font-size: 11px; color: #555; white-space: nowrap; }
+.sep { width: 1px; height: 14px; background: #1e1e2a; }
+
+#brand { position: fixed; left: 22px; bottom: 18px; transform-origin: left bottom; transform: rotate(-90deg); white-space: nowrap; font-size: 13px; letter-spacing: 0.04em; pointer-events: none; z-index: 6; }
+.brand-title { color: #e8c56a; font-weight: 700; }
+.brand-sep { color: #2a2a33; margin: 0 10px; }
+.brand-sub { color: #555; }
+.ctrl { display: flex; gap: 4px; align-items: center; }
+.btn { background: #12121a; border: 1px solid #1e1e2a; color: #888; padding: 4px 10px; border-radius: 4px; font: inherit; font-size: 11px; cursor: pointer; transition: all 0.1s; white-space: nowrap; }
+.btn:hover { border-color: #444; color: #c8c8d0; }
+.btn.act { border-color: #e8c56a; color: #e8c56a; background: #1a1810; }
+#legend { position: fixed; right: 22px; writing-mode: vertical-rl; white-space: nowrap; font-size: 13px; letter-spacing: 0.04em; z-index: 6; pointer-events: auto; }
+.legend-item { cursor: pointer; transition: opacity 0.15s; }
+.legend-item:hover { filter: brightness(1.3); }
+.legend-item.dim { opacity: 0.25; }
+.legend-sep { color: #2a2a33; margin-inline: 10px; }
+
+#tooltip { position: fixed; display: none; background: rgba(12,12,20,0.95); border: 1px solid #2a2a3a; border-radius: 6px; padding: 9px 12px; font-size: 12px; pointer-events: none; z-index: 20; max-width: 340px; backdrop-filter: blur(8px); }
+#tooltip .tt-artist { color: #e8c56a; font-weight: 700; }
+#tooltip .tt-track { color: #c8c8d0; }
+#tooltip .tt-info { color: #888; font-size: 10px; margin-top: 3px; }
+#tooltip .tt-mood { display: inline-block; padding: 1px 7px; border-radius: 3px; font-size: 10px; margin-top: 3px; }
+
+#y-label { position: fixed; left: 56px; font-size: 10px; color: #444; letter-spacing: 0.15em; text-transform: uppercase; z-index: 5; pointer-events: none; }
+#x-label { position: fixed; bottom: 6px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #2a2a33; letter-spacing: 0.15em; text-transform: uppercase; z-index: 5; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="brand">
+  <span class="brand-title">Musical Gravity Field</span><span class="brand-sep">·</span><span class="brand-sub" id="count"></span>
+</div>
+<div id="ui">
+  <div class="ctrl">
+    <button class="btn" data-y="key" onclick="setY('key')">Key</button>
+    <button class="btn" data-y="dance" onclick="setY('dance')">Regularity</button>
+    <button class="btn" data-y="loud" onclick="setY('loud')">Loud</button>
+    <button class="btn act" data-y="complexity" onclick="setY('complexity')">Complexity</button>
+  </div>
+  <span class="sep"></span>
+  <div class="ctrl">
+    <button class="btn act" data-c="mood" onclick="setColor('mood')">Mood</button>
+    <button class="btn" data-c="energy" onclick="setColor('energy')">Energy</button>
+    <button class="btn" data-c="scale" onclick="setColor('scale')">Maj/Min</button>
+  </div>
+  <span class="sep"></span>
+  <div class="ctrl">
+    <button class="btn act" data-s="plays" onclick="setSize('plays')">Plays</button>
+    <button class="btn" data-s="equal" onclick="setSize('equal')">Equal</button>
+  </div>
+</div>
+<div id="legend"></div>
+<div id="tooltip"></div>
+<div id="y-label">Dynamic Complexity</div>
+<div id="x-label">BPM</div>
+<canvas id="c"></canvas>
+
+<script>
+const MOOD_COLORS = {
+  happy: '#f0d87a', melancholic: '#4a90d9', aggressive: '#e74c3c', calm: '#81c784',
+  dark: '#7b68ae', dreamy: '#ce93d8', energetic: '#ff9800', romantic: '#e91e63', unknown: '#333'
+};
+const ENERGY_COLORS = { high: '#ff9800', medium: '#e8c56a', low: '#4a90d9' };
+const SCALE_COLORS = { major: '#e8c56a', minor: '#4a90d9' };
+const KEYS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const KEY_Y = {}; KEYS.forEach((k, i) => KEY_Y[k] = i);
+
+let data = [], filtered = [];
+let yMode = 'complexity', colorMode = 'mood', sizeMode = 'plays';
+let hiddenCategories = new Set();
+let hovered = null;
+let pan = { x: 0, y: 0 }, zoom = 1;
+let dragging = false, dragStart = null, panStart = null;
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const tooltip = document.getElementById('tooltip');
+
+let plotW = 1000, plotH = 600;
+const MIN_W = 1000, MIN_H = 600;
+
+function resize() {
+  plotW = Math.max(window.innerWidth, MIN_W);
+  plotH = Math.max(window.innerHeight, MIN_H);
+  const uiH = document.getElementById('ui').offsetHeight || 56;
+  MARGIN.top = uiH + 18;
+  document.getElementById('y-label').style.top = (uiH + 4) + 'px';
+  document.getElementById('legend').style.top = (uiH + 18) + 'px';
+  canvas.width = plotW * devicePixelRatio;
+  canvas.height = plotH * devicePixelRatio;
+  canvas.style.width = plotW + 'px';
+  canvas.style.height = plotH + 'px';
+  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  draw();
+}
+window.addEventListener('resize', resize);
+
+// Coordinate mapping
+const MARGIN = { top: 56, right: 24, bottom: 52, left: 56 };
+const BPM_MIN = 60, BPM_MAX = 200;
+
+function xScale(bpm) {
+  const w = plotW - MARGIN.left - MARGIN.right;
+  return MARGIN.left + ((bpm - BPM_MIN) / (BPM_MAX - BPM_MIN)) * w;
+}
+
+function yScale(val, mode) {
+  const h = plotH - MARGIN.top - MARGIN.bottom;
+  let norm;
+  if (mode === 'key') norm = val / 11;
+  else if (mode === 'dance') norm = (val - 0.6) / 2.5;
+  else if (mode === 'loud') norm = val;
+  else if (mode === 'complexity') norm = val / 12;
+  else norm = val;
+  return MARGIN.top + (1 - norm) * h;
+}
+
+function getY(t) {
+  if (yMode === 'key') return KEY_Y[t.k] ?? 0;
+  if (yMode === 'dance') return t.d;
+  if (yMode === 'loud') return t.l;
+  if (yMode === 'complexity') return t.c;
+  return 0;
+}
+
+function getColor(t) {
+  if (colorMode === 'mood') return MOOD_COLORS[t.m] || MOOD_COLORS.unknown;
+  if (colorMode === 'energy') return ENERGY_COLORS[t.e] || '#333';
+  if (colorMode === 'scale') return SCALE_COLORS[t.s] || '#333';
+  return '#888';
+}
+
+function getCategory(t) {
+  if (colorMode === 'mood') return t.m || 'unknown';
+  if (colorMode === 'energy') return t.e || 'unknown';
+  if (colorMode === 'scale') return t.s || 'unknown';
+  return '';
+}
+
+function getRadius(t) {
+  if (sizeMode === 'equal') return 2;
+  return Math.max(1.5, Math.min(12, Math.sqrt(t.p) * 0.7));
+}
+
+function getCategories() {
+  if (colorMode === 'mood') return Object.keys(MOOD_COLORS);
+  if (colorMode === 'energy') return Object.keys(ENERGY_COLORS);
+  if (colorMode === 'scale') return Object.keys(SCALE_COLORS);
+  return [];
+}
+
+function getColorMap() {
+  if (colorMode === 'mood') return MOOD_COLORS;
+  if (colorMode === 'energy') return ENERGY_COLORS;
+  if (colorMode === 'scale') return SCALE_COLORS;
+  return {};
+}
+
+function updateLegend() {
+  const cats = getCategories();
+  const colors = getColorMap();
+  const items = cats.filter(c => c !== 'unknown').map(c =>
+    `<span class="legend-item${hiddenCategories.has(c) ? ' dim' : ''}" style="color:${colors[c]}" onclick="toggleCategory('${c}')">${c}</span>`
+  );
+  document.getElementById('legend').innerHTML = items.join('<span class="legend-sep">·</span>');
+}
+
+function toggleCategory(cat) {
+  if (hiddenCategories.has(cat)) hiddenCategories.delete(cat);
+  else hiddenCategories.add(cat);
+  applyFilter();
+  updateLegend();
+  draw();
+}
+
+function applyFilter() {
+  filtered = data.filter(t => !hiddenCategories.has(getCategory(t)));
+  updateCount();
+}
+
+function updateCount() {
+  const tracks = filtered.length;
+  const artists = new Set(filtered.map(t => t.a)).size;
+  const plays = filtered.reduce((s, t) => s + t.p, 0);
+  document.getElementById('count').textContent =
+    `${tracks.toLocaleString('de')} tracks · ${artists.toLocaleString('de')} artists · ${plays.toLocaleString('de')} plays`;
+}
+
+// Drawing
+function draw() {
+  const W = plotW, H = plotH;
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid lines
+  ctx.strokeStyle = '#111118';
+  ctx.lineWidth = 0.5;
+
+  // BPM grid
+  for (let bpm = 60; bpm <= 200; bpm += 20) {
+    const x = xScale(bpm);
+    ctx.beginPath(); ctx.moveTo(x, MARGIN.top); ctx.lineTo(x, H - MARGIN.bottom); ctx.stroke();
+    ctx.fillStyle = '#222';
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(bpm, x, H - MARGIN.bottom + 18);
+  }
+
+  // Y grid
+  if (yMode === 'key') {
+    KEYS.forEach((k, i) => {
+      const y = yScale(i, 'key');
+      ctx.beginPath(); ctx.moveTo(MARGIN.left, y); ctx.lineTo(W - MARGIN.right, y); ctx.stroke();
+      ctx.fillStyle = '#222';
+      ctx.font = '12px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(k, MARGIN.left - 8, y + 4);
+    });
+  } else {
+    const labels = yMode === 'dance' ? [0.6, 1.0, 1.4, 1.8, 2.2, 2.6, 3.0] :
+                   yMode === 'loud' ? [0, 0.2, 0.4, 0.6, 0.8, 1.0] :
+                   [0, 2, 4, 6, 8, 10, 12];
+    labels.forEach(v => {
+      const y = yScale(v, yMode);
+      ctx.beginPath(); ctx.moveTo(MARGIN.left, y); ctx.lineTo(W - MARGIN.right, y); ctx.stroke();
+      ctx.fillStyle = '#222';
+      ctx.font = '12px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(yMode === 'loud' ? v.toFixed(1) : v, MARGIN.left - 8, y + 4);
+    });
+  }
+
+  // Density heatmap (fast low-res)
+  const cellW = 8, cellH = 8;
+  const cols = Math.ceil(W / cellW), rows = Math.ceil(H / cellH);
+  const density = new Float32Array(cols * rows);
+
+  for (const t of filtered) {
+    const px = xScale(t.bpm);
+    const py = yScale(getY(t), yMode);
+    const ci = Math.floor(px / cellW), ri = Math.floor(py / cellH);
+    if (ci >= 0 && ci < cols && ri >= 0 && ri < rows) {
+      density[ri * cols + ci] += t.p;
+    }
+  }
+
+  const maxDensity = Math.max(...density);
+  if (maxDensity > 0) {
+    for (let ri = 0; ri < rows; ri++) {
+      for (let ci = 0; ci < cols; ci++) {
+        const v = density[ri * cols + ci];
+        if (v <= 0) continue;
+        const a = Math.min(0.15, (v / maxDensity) * 0.3);
+        ctx.fillStyle = `rgba(232, 197, 106, ${a})`;
+        ctx.fillRect(ci * cellW, ri * cellH, cellW, cellH);
+      }
+    }
+  }
+
+  // Points (draw small first, big on top)
+  const sorted = [...filtered].sort((a, b) => a.p - b.p);
+
+  for (const t of sorted) {
+    const px = xScale(t.bpm);
+    const py = yScale(getY(t), yMode);
+    const r = getRadius(t);
+    const color = getColor(t);
+
+    ctx.globalAlpha = Math.min(0.85, 0.3 + (t.p / 50) * 0.5);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // Hovered point highlight
+  if (hovered) {
+    const px = xScale(hovered.bpm);
+    const py = yScale(getY(hovered), yMode);
+    const r = getRadius(hovered);
+
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(px, py, r + 3, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Glow
+    ctx.shadowColor = getColor(hovered);
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = getColor(hovered);
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+}
+
+// Interaction
+function findNearest(mx, my) {
+  let best = null, bestDist = 20;
+  for (const t of filtered) {
+    const px = xScale(t.bpm);
+    const py = yScale(getY(t), yMode);
+    const d = Math.hypot(mx - px, my - py);
+    if (d < bestDist) { best = t; bestDist = d; }
+  }
+  return best;
+}
+
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  const t = findNearest(e.clientX - rect.left, e.clientY - rect.top);
+  if (t !== hovered) {
+    hovered = t;
+    draw();
+    if (t) {
+      const mc = MOOD_COLORS[t.m] || '#555';
+      tooltip.style.display = 'block';
+      tooltip.innerHTML = `
+        <div class="tt-artist">${t.a}</div>
+        <div class="tt-track">${t.t}</div>
+        <div class="tt-info">${t.bpm} BPM · ${t.k} ${t.s} · ${t.p} plays</div>
+        <div class="tt-info">regularity: ${t.d} · loud: ${t.l} · complexity: ${t.c}</div>
+        ${t.m && t.m !== 'unknown' ? `<span class="tt-mood" style="background:${mc}33;color:${mc}">${t.m}</span>` : ''}
+        ${t.e ? `<span class="tt-mood" style="background:#8882;color:#aaa">${t.e} energy</span>` : ''}
+        ${t.v ? `<span class="tt-mood" style="background:#8882;color:#aaa">${t.v}</span>` : ''}
+      `;
+      let tx = e.clientX + 14, ty = e.clientY - 10;
+      if (tx + 300 > window.innerWidth) tx = e.clientX - 310;
+      if (ty + 120 > window.innerHeight) ty = e.clientY - 120;
+      tooltip.style.left = tx + 'px';
+      tooltip.style.top = ty + 'px';
+    } else {
+      tooltip.style.display = 'none';
+    }
+  }
+});
+
+canvas.addEventListener('mouseleave', () => {
+  hovered = null;
+  tooltip.style.display = 'none';
+  draw();
+});
+
+// Controls
+function setY(mode) {
+  yMode = mode;
+  document.querySelectorAll('[data-y]').forEach(b => b.classList.toggle('act', b.dataset.y === mode));
+  const labels = { key: 'Key', dance: 'Rhythm Regularity', loud: 'Loudness', complexity: 'Dynamic Complexity' };
+  document.getElementById('y-label').textContent = labels[mode];
+  draw();
+}
+
+function setColor(mode) {
+  colorMode = mode;
+  hiddenCategories.clear();
+  document.querySelectorAll('[data-c]').forEach(b => b.classList.toggle('act', b.dataset.c === mode));
+  applyFilter();
+  updateLegend();
+  draw();
+}
+
+function setSize(mode) {
+  sizeMode = mode;
+  document.querySelectorAll('[data-s]').forEach(b => b.classList.toggle('act', b.dataset.s === mode));
+  draw();
+}
+
+// Load data
+fetch('scatter_data.json')
+  .then(r => r.json())
+  .then(d => {
+    data = d;
+    applyFilter();
+    updateLegend();
+    resize();
+  });
+</script>
+</body>
+</html>
