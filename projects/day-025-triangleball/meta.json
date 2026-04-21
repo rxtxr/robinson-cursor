@@ -1,0 +1,12 @@
+{
+  "day": 25,
+  "slug": "day-025-triangleball",
+  "title": "Triangleball",
+  "date": "2026-04-21",
+  "description": "A deforming polygonal sphere of 5,120 triangles — anthracite PBR surface with environment reflections, wrapped in a neon-purple wireframe that blooms. Five deformation modes cross-fade continuously around a 55-second cycle: radial-big, radial-pulse, noise-breath, twist-spiral, axial-waves.",
+  "tags": ["three.js", "webgl", "generative", "geometry", "bloom"],
+  "stack": ["Three.js", "WebGL2", "GLSL", "EffectComposer", "Line2"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-025-triangleball",
+  "status": "complete",
+  "license_notes": "Three.js 0.161 (MIT) via unpkg CDN, including postprocessing (UnrealBloomPass, OutputPass), environments (RoomEnvironment), and lines (LineSegments2, LineSegmentsGeometry, LineMaterial). No other runtime dependencies."
+}

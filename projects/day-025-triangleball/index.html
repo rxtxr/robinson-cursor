@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<title>dreiecksnetz — 4k polygonal mesh</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #07070a;
+    overflow: hidden;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #c9c9d4;
+  }
+  canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+  }
+  #hud {
+    position: fixed;
+    left: 14px;
+    bottom: 12px;
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    opacity: .55;
+    pointer-events: none;
+    user-select: none;
+    text-shadow: 0 0 6px #000;
+  }
+  #hud b { color: #d9b6ff; font-weight: normal; }
+</style>
+</head>
+<body>
+<div id="hud">
+  mode: <b id="mode">—</b> · 4k internal · <span id="fps">--</span> fps
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
+import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+
+// Half-res internal render (1920×1080) with 4× MSAA on the composer render target.
+// UnrealBloomPass is the dominant GPU cost at 4K (~221M fragment ops/frame for 5-level blur).
+// At 1/2 linear size it's ~¼ the cost, and the heavy gaussian blur hides the resolution drop.
+// MSAA on the main pass restores the geometric edge crispness we'd otherwise lose on the surface.
+const W = 1920, H = 1080;
+
+// `antialias: true` here would enable MSAA on the default framebuffer — but we render to
+// offscreen render targets via EffectComposer, so that flag does nothing. Drop it.
+const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H, false);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.85;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x06060a);
+scene.fog = new THREE.FogExp2(0x06060a, 0.012);
+
+const camera = new THREE.PerspectiveCamera(38, W / H, 0.1, 200);
+camera.position.set(0, 0, 9);
+
+// environment reflections for the anthracite metal
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+// lighting — directional key + fill + purple rim
+const key = new THREE.DirectionalLight(0xfff4e2, 0.9);
+key.position.set(5, 6, 4);
+scene.add(key);
+
+const fill = new THREE.DirectionalLight(0x6a8fff, 0.35);
+fill.position.set(-6, -2, 3);
+scene.add(fill);
+
+const rim = new THREE.PointLight(0xaa33ff, 1.6, 30, 1.4);
+rim.position.set(-4, 2, -5);
+scene.add(rim);
+
+// --- mesh ---
+const DETAIL = 4; // 20 * 4^DETAIL triangles → 4=5120, 5=20480
+const geo = new THREE.IcosahedronGeometry(2.4, DETAIL);
+geo.deleteAttribute('uv');
+
+// keep undeformed copy of vertices so each frame restarts from base shape
+const basePos = new Float32Array(geo.attributes.position.array);
+const baseNormal = new Float32Array(geo.attributes.normal.array);
+
+const surfaceMat = new THREE.MeshStandardMaterial({
+  color: 0x1a1a1f,
+  metalness: 0.82,
+  roughness: 0.48,
+  flatShading: true,
+  envMapIntensity: 0.55,
+});
+const surface = new THREE.Mesh(geo, surfaceMat);
+scene.add(surface);
+
+// neon purple wireframe — Line2/LineSegments2 renders each edge as a screen-space
+// quad with smooth AA alpha falloff (fixes "treppen" that 1-px GL lines show at 4K→viewport downscale)
+// Buffer layout required by LineSegmentsGeometry: per edge, 6 floats [sx,sy,sz,ex,ey,ez]
+const triCount = geo.attributes.position.count / 3;
+const edgeCount = triCount * 3;
+const edgeFloats = new Float32Array(edgeCount * 6);
+
+const wireGeo = new LineSegmentsGeometry();
+wireGeo.setPositions(edgeFloats); // binds the Float32Array; we mutate it in place each frame
+
+// HDR-boosted purple so bloom fires on the lines but not on the tame surface specular
+const lineColor = new THREE.Color(0xc24bff).multiplyScalar(1.8);
+const wireMat = new LineMaterial({
+  color: lineColor,
+  linewidth: 1.2, // render-target pixels; halved to keep the same apparent display thickness after the half-res drop
+  resolution: new THREE.Vector2(W, H),
+  transparent: true,
+  opacity: 0.95,
+  toneMapped: false,
+  worldUnits: false,
+  dashed: false,
+});
+const wire = new LineSegments2(wireGeo, wireMat);
+wire.frustumCulled = false; // bounding sphere doesn't auto-update when we stream positions
+scene.add(wire);
+
+// --- post: bloom gives the lines their neon glow ---
+// Custom render target with MSAA 4× — restores geometric edge AA on the surface at half resolution.
+// HalfFloat keeps HDR precision for the bloom threshold to cleanly separate lines from surface.
+const composerRT = new THREE.WebGLRenderTarget(W, H, {
+  type: THREE.HalfFloatType,
+  samples: 4,
+});
+const composer = new EffectComposer(renderer, composerRT);
+composer.setSize(W, H);
+composer.addPass(new RenderPass(scene, camera));
+// strength, radius, threshold — threshold raised so only the HDR purple lines bloom, not the surface
+const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 0.55, 0.7, 0.85);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+// --- 3d value noise (compact, good enough for organic deform) ---
+// integer bit-mix hash — ~10× faster than sin-based and avoids transcendental in the hot path
+function hash(x, y, z) {
+  let h = Math.imul(x | 0, 73856093) ^ Math.imul(y | 0, 19349663) ^ Math.imul(z | 0, 83492791);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  h = (h ^ (h >>> 16)) >>> 0;
+  return h / 4294967296;
+}
+function smooth(t) { return t * t * (3 - 2 * t); }
+function noise3(x, y, z) {
+  const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+  const xf = x - xi, yf = y - yi, zf = z - zi;
+  const u = smooth(xf), v = smooth(yf), w = smooth(zf);
+  const n000 = hash(xi,     yi,     zi);
+  const n100 = hash(xi + 1, yi,     zi);
+  const n010 = hash(xi,     yi + 1, zi);
+  const n110 = hash(xi + 1, yi + 1, zi);
+  const n001 = hash(xi,     yi,     zi + 1);
+  const n101 = hash(xi + 1, yi,     zi + 1);
+  const n011 = hash(xi,     yi + 1, zi + 1);
+  const n111 = hash(xi + 1, yi + 1, zi + 1);
+  const x00 = n000 + u * (n100 - n000);
+  const x10 = n010 + u * (n110 - n010);
+  const x01 = n001 + u * (n101 - n001);
+  const x11 = n011 + u * (n111 - n011);
+  const y0 = x00 + v * (x10 - x00);
+  const y1 = x01 + v * (x11 - x01);
+  return (y0 + w * (y1 - y0)) * 2 - 1;
+}
+
+// --- animation patterns: all modes evaluated every frame, weighted-summed into one continuous
+// deformation. Weights are smooth cosine bumps around a cycle so there's never a discontinuity ---
+const MODES = ['radial-big', 'radial-pulse', 'noise-breath', 'twist-spiral', 'axial-waves'];
+const MODE_SECONDS = 11;
+const MODE_COUNT = MODES.length;
+const CYCLE = MODE_SECONDS * MODE_COUNT;
+const SPAN = 1.35; // per-mode half-width in mode-slots; >1 means modes overlap strongly
+const HALF = MODE_COUNT / 2;
+const hud = {
+  mode: document.getElementById('mode'),
+  fps: document.getElementById('fps'),
+};
+
+const posAttr = geo.attributes.position;
+const weights = new Float32Array(MODE_COUNT);
+
+function computeModeWeights(t) {
+  const cyclePos = ((t % CYCLE) + CYCLE) % CYCLE / MODE_SECONDS; // 0..MODE_COUNT
+  let total = 0;
+  for (let i = 0; i < MODE_COUNT; i++) {
+    let d = cyclePos - i;
+    if (d > HALF) d -= MODE_COUNT;
+    if (d < -HALF) d += MODE_COUNT;
+    const ad = Math.abs(d);
+    const w = ad < SPAN ? 0.5 + 0.5 * Math.cos(Math.PI * ad / SPAN) : 0;
+    weights[i] = w;
+    total += w;
+  }
+  if (total > 0) for (let i = 0; i < MODE_COUNT; i++) weights[i] /= total;
+}
+
+function deform(t) {
+  computeModeWeights(t);
+
+  // HUD: show the two strongest modes
+  let i0 = 0, i1 = 0;
+  for (let i = 1; i < MODE_COUNT; i++) if (weights[i] > weights[i0]) i0 = i;
+  for (let i = 0; i < MODE_COUNT; i++) if (i !== i0 && weights[i] > weights[i1]) i1 = i;
+  hud.mode.textContent = weights[i1] > 0.05
+    ? `${MODES[i0]} · ${MODES[i1]}`
+    : MODES[i0];
+
+  const w0 = weights[0], w1 = weights[1], w2 = weights[2], w3 = weights[3], w4 = weights[4];
+
+  // precompute time-varying mode parameters (hoisted out of per-vertex loop)
+  const twistPerY   = 0.9 * Math.sin(t * 0.6); // rotation increment per unit of y
+  const twistGlobal = 0.4 * Math.sin(t * 0.4); // whole-mesh rotation added uniformly
+  const globalBreath = Math.sin(t * 1.1) * 0.08;
+
+  const arr = posAttr.array;
+
+  for (let i = 0; i < arr.length; i += 3) {
+    const bx = basePos[i], by = basePos[i + 1], bz = basePos[i + 2];
+    const nx = baseNormal[i], ny = baseNormal[i + 1], nz = baseNormal[i + 2];
+
+    let dispN = 0;
+    let twist = 0;
+    let sway = 0;
+
+    // mode 0: radial-big — wider, slower rings from +Z pole, nearly 2× the amplitude of mode 1.
+    // Camera is held still while this mode dominates (see frame()) so the pulse reads clearly.
+    if (w0 > 0.02) {
+      const r = Math.acos(Math.max(-1, Math.min(1, bz / 2.4)));
+      const d = Math.sin(r * 2.5 - t * 1.5) * 0.55
+              + Math.sin(r * 6.0 - t * 2.1) * 0.15;
+      dispN += d * w0;
+    }
+    // mode 1: radial-pulse — tighter/faster rings, smaller amplitude (blends out of mode 0)
+    if (w1 > 0.02) {
+      const r = Math.acos(Math.max(-1, Math.min(1, bz / 2.4)));
+      const d = Math.sin(r * 4 - t * 2.2) * 0.28 + Math.sin(r * 9 - t * 3.3) * 0.08;
+      dispN += d * w1;
+    }
+    // mode 2: layered 3d noise breathing
+    if (w2 > 0.02) {
+      const s = 0.7;
+      const n  = noise3(bx * s + t * 0.15, by * s,             bz * s - t * 0.2);
+      const n2 = noise3(bx * s * 2.3,      by * s * 2.3 + t * 0.4, bz * s * 2.3);
+      dispN += (n * 0.45 + n2 * 0.12 + globalBreath) * w2;
+    }
+    // mode 3: twisting spiral
+    if (w3 > 0.02) {
+      twist += (by * twistPerY + twistGlobal) * w3;
+      dispN += Math.sin(by * 3 + t * 2) * 0.12 * w3;
+    }
+    // mode 4: axial sine waves on xyz
+    if (w4 > 0.02) {
+      const d = Math.sin(bx * 2.2 + t * 2.4) * 0.14
+              + Math.sin(by * 2.2 + t * 1.8 + 1.3) * 0.14
+              + Math.sin(bz * 2.2 + t * 2.1 + 2.6) * 0.14;
+      dispN += d * w4;
+      sway += Math.sin(by * 1.5 + t * 1.2) * 0.1 * w4;
+    }
+
+    let x = bx + nx * dispN + sway;
+    let y = by + ny * dispN;
+    let z = bz + nz * dispN;
+
+    if (twist !== 0) {
+      const c = Math.cos(twist), s = Math.sin(twist);
+      const xr = x * c - z * s;
+      const zr = x * s + z * c;
+      x = xr; z = zr;
+    }
+
+    arr[i] = x;
+    arr[i + 1] = y;
+    arr[i + 2] = z;
+  }
+
+  posAttr.needsUpdate = true;
+  // no computeVertexNormals: flatShading uses dFdx/dFdy in the fragment shader,
+  // so per-vertex normals are unused and updating them every frame was pure overhead
+
+  // stream triangle edges into LineSegmentsGeometry buffer (stride 6 per edge: startXYZ endXYZ)
+  for (let t = 0; t < triCount; t++) {
+    const va = t * 9;           // triangle vertex a, x-offset in arr
+    const vb = va + 3;          // b
+    const vc = va + 6;          // c
+    const off = t * 18;         // 3 edges * 6 floats per edge
+
+    const ax = arr[va],     ay = arr[va + 1], az = arr[va + 2];
+    const bx = arr[vb],     by = arr[vb + 1], bz = arr[vb + 2];
+    const cx = arr[vc],     cy = arr[vc + 1], cz = arr[vc + 2];
+
+    // edge a→b
+    edgeFloats[off]      = ax; edgeFloats[off + 1]  = ay; edgeFloats[off + 2]  = az;
+    edgeFloats[off + 3]  = bx; edgeFloats[off + 4]  = by; edgeFloats[off + 5]  = bz;
+    // edge b→c
+    edgeFloats[off + 6]  = bx; edgeFloats[off + 7]  = by; edgeFloats[off + 8]  = bz;
+    edgeFloats[off + 9]  = cx; edgeFloats[off + 10] = cy; edgeFloats[off + 11] = cz;
+    // edge c→a
+    edgeFloats[off + 12] = cx; edgeFloats[off + 13] = cy; edgeFloats[off + 14] = cz;
+    edgeFloats[off + 15] = ax; edgeFloats[off + 16] = ay; edgeFloats[off + 17] = az;
+  }
+  wireGeo.attributes.instanceStart.data.needsUpdate = true;
+}
+
+// --- main loop ---
+let start = performance.now();
+let lastFpsUpdate = 0;
+let lastFrameT = 0;
+let frames = 0;
+
+// camera orbit uses accumulated phase so its angular speed can vary over time without jumps
+let orbitPhase = 0;
+let yBobPhase = 0;
+
+function frame(now) {
+  const t = (now - start) / 1000;
+  const dt = Math.min(0.1, t - lastFrameT); // clamp in case of tab-switch pauses
+  lastFrameT = t;
+
+  deform(t); // populates `weights` before camera uses them
+
+  // radial-big holds the camera still; as its weight hands off to the other modes,
+  // angular speed ramps in smoothly without phase jumps.
+  // Smoothstep threshold means the orbit is fully parked while mode 0 dominates
+  // (weights[0] > 0.7) and only wakes up once that mode fades (< 0.3).
+  const w0 = weights[0];
+  let stillness = (w0 - 0.3) / 0.4; // 0..1 across w0 ∈ [0.3, 0.7]
+  if (stillness < 0) stillness = 0; else if (stillness > 1) stillness = 1;
+  const orbitActive = 1 - stillness * stillness * (3 - 2 * stillness); // smoothstep-eased
+  orbitPhase += 0.08 * orbitActive * dt;
+  yBobPhase  += 0.13 * orbitActive * dt;
+
+  const cr = 8.5 + Math.sin(t * 0.18) * 0.4;
+  camera.position.x = Math.sin(orbitPhase) * cr;
+  camera.position.z = Math.cos(orbitPhase) * cr;
+  camera.position.y = Math.sin(yBobPhase) * 1.4;
+  camera.lookAt(0, 0, 0);
+
+  // animated rim light colour — breathing purple
+  const hue = 0.78 + Math.sin(t * 0.3) * 0.03;
+  rim.color.setHSL(hue, 0.9, 0.55);
+
+  composer.render();
+
+  frames++;
+  if (now - lastFpsUpdate > 500) {
+    hud.fps.textContent = Math.round((frames * 1000) / (now - lastFpsUpdate));
+    frames = 0;
+    lastFpsUpdate = now;
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame((t) => { start = t; lastFpsUpdate = t; frame(t); });
+
+// resize: canvas stays 4k internally, CSS fits to viewport — but keep aspect correct
+function onResize() {
+  // camera aspect locked to the 4k canvas, CSS does the fitting
+  camera.aspect = W / H;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', onResize);
+onResize();
+</script>
+</body>
+</html>
