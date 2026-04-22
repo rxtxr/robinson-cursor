@@ -3,7 +3,7 @@
   "slug": "day-026-durchbruch",
   "title": "/\\~~||",
   "date": "2026-04-23",
-  "description": "Three photos — mountain, forest, water — each posterised into its own number of luminance bands, every band simplified to polygonal masks via Moore boundary tracing and Douglas–Peucker, then clipped from the original image. The resulting slices drift horizontally across the viewport at staggered per-slice speeds, wrapping at the right edge. Dark sky is removed by border flood-fill, blown-out highlights are softly rolled off, and texturally flat regions are filtered out by a luminance-variance threshold.",
+  "description": "/\\ a peak.  ~~ a current.  || a grove of trunks.  Three photographs cut along their tonal seams, reassembled as polygons, set adrift at staggered speeds. Sky flooded away, highlights folded back, flatness refused — the composition never twice the same.",
   "tags": ["canvas", "posterize", "polygon", "collage", "animation", "tonwert"],
   "stack": ["Canvas 2D", "ImageBitmap", "Moore Boundary Tracing", "Douglas-Peucker", "Connected Components"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-026-durchbruch",
