@@ -1,6 +1,6 @@
 # Day 026 — /\\~~||
 
-Three photos — mountain, forest, water — are decomposed into polygonal slices that drift horizontally across the viewport at staggered speeds. The title glyph `/\~~||` encodes the three motifs: the peak for the summit, the waves for the water, the bars for the tree trunks.
+Three photos — mountain, forest, water — are decomposed into polygonal slices that drift horizontally across the viewport at staggered speeds.
 
 ## Per-image pipeline
 
