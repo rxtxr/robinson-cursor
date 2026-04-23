@@ -1,0 +1,2 @@
+# Raw upstream data — 33 MB. Regenerate with `python3 data/fetch.py`.
+data/trees_raw.geojson

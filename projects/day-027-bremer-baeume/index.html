@@ -1,0 +1,916 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+<meta name="color-scheme" content="light" />
+<meta name="theme-color" content="#efe8d8" />
+<title>Bremer Bäume — 74.939 Straßenbäume</title>
+<style>
+  :root {
+    --paper: #efe8d8;
+    --paper-soft: #f6f1e3;
+    --ink: #1f221b;
+    --ink-soft: #4a4e43;
+    --ink-faint: #8b8c82;
+    --dot-default: #2d4f2a;
+    --dot-dim: #c9c2ae;
+    --accent: #b34a1a;
+    --chip-bg: rgba(255, 252, 242, 0.94);
+    --chip-border: rgba(31, 34, 27, 0.14);
+    --chip-shadow: 0 1px 0 rgba(31, 34, 27, 0.04), 0 4px 14px rgba(31, 34, 27, 0.06);
+    --sheet-shadow: 0 -2px 18px rgba(31, 34, 27, 0.08);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-top: env(safe-area-inset-top, 0px);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino,
+                 Georgia, "Times New Roman", serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior: none;
+    touch-action: none;
+  }
+  canvas#map {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    touch-action: none;
+  }
+
+  header#title {
+    position: fixed;
+    top: calc(var(--safe-top) + 14px);
+    left: 16px;
+    z-index: 4;
+    pointer-events: none;
+    user-select: none;
+    mix-blend-mode: multiply;
+  }
+  header#title h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+  }
+  header#title p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  button#reset {
+    position: fixed;
+    top: calc(var(--safe-top) + 14px);
+    right: 14px;
+    z-index: 4;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--chip-border);
+    background: var(--chip-bg);
+    color: var(--ink-soft);
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: var(--chip-shadow);
+    opacity: 0;
+    transform: scale(0.86);
+    pointer-events: none;
+    transition: opacity 0.16s ease, transform 0.16s ease, background 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  button#reset.show {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+  button#reset:active { transform: scale(0.94); background: var(--paper-soft); }
+  button#reset svg { display: block; }
+
+  #filters {
+    position: fixed;
+    left: 0; right: 0;
+    bottom: 0;
+    z-index: 3;
+    padding: 10px 14px calc(12px + var(--safe-bottom));
+    background: linear-gradient(to top,
+      rgba(239, 232, 216, 0.96) 40%,
+      rgba(239, 232, 216, 0.6) 85%,
+      rgba(239, 232, 216, 0) 100%);
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    touch-action: pan-x;
+  }
+  #filters::-webkit-scrollbar { display: none; }
+  #filters .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    margin-right: 8px;
+    border-radius: 999px;
+    border: 1px solid var(--chip-border);
+    background: var(--chip-bg);
+    color: var(--ink-soft);
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: var(--chip-shadow);
+    transition: transform 0.12s ease, border-color 0.12s ease, background 0.15s ease, color 0.15s ease;
+    font-family: inherit;
+  }
+  #filters .chip:last-child { margin-right: 14px; }
+  #filters .chip:active { transform: scale(0.96); }
+  #filters .chip .swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--dot-default);
+    flex: 0 0 auto;
+  }
+  #filters .chip .count {
+    color: var(--ink-faint);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
+  }
+  #filters .chip.active {
+    background: var(--ink);
+    color: var(--paper-soft);
+    border-color: var(--ink);
+  }
+  #filters .chip.active .count { color: rgba(255, 252, 242, 0.55); }
+
+  aside#info {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(66px + var(--safe-bottom));
+    z-index: 5;
+    background: var(--paper-soft);
+    border: 1px solid var(--chip-border);
+    border-radius: 14px;
+    padding: 14px 16px 14px 18px;
+    box-shadow: var(--sheet-shadow);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 2px 14px;
+    align-items: start;
+    transform: translateY(12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.18s ease, opacity 0.18s ease;
+  }
+  aside#info.show {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  aside#info .marker {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--dot-default);
+    margin-top: 5px;
+    grid-row: 1 / span 3;
+    box-shadow: 0 0 0 3px rgba(31, 34, 27, 0.06);
+  }
+  aside#info .lines {
+    min-width: 0;
+    grid-column: 2 / 3;
+  }
+  aside#info h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: 0.005em;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  aside#info .latin {
+    margin: 2px 0 0;
+    font-size: 12px;
+    font-style: italic;
+    color: var(--ink-soft);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  aside#info .facts {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: var(--ink-faint);
+    letter-spacing: 0.03em;
+  }
+  aside#info .facts span + span::before {
+    content: "·";
+    margin: 0 6px;
+    opacity: 0.6;
+  }
+  aside#info .close {
+    grid-column: 3 / 4;
+    grid-row: 1 / 2;
+    width: 26px; height: 26px;
+    border: none;
+    background: transparent;
+    color: var(--ink-faint);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 50%;
+    padding: 0;
+    font-family: inherit;
+    justify-self: end;
+  }
+  aside#info .close:active { background: rgba(31, 34, 27, 0.05); }
+
+  #loading {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--paper);
+    z-index: 10;
+    transition: opacity 0.6s ease;
+    color: var(--ink-soft);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  #loading.done { opacity: 0; pointer-events: none; }
+  #loading .pulse {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--dot-default);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(0.82); opacity: 0.4; }
+    50%      { transform: scale(1.25); opacity: 1; }
+  }
+
+  footer#attrib {
+    position: fixed;
+    left: 16px;
+    right: 70px;
+    top: calc(var(--safe-top) + 58px);
+    z-index: 3;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    pointer-events: auto;
+    user-select: none;
+    mix-blend-mode: multiply;
+  }
+  footer#attrib a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(139, 140, 130, 0.45);
+  }
+  footer#attrib a:active { color: var(--ink); }
+
+  @media (min-width: 760px) {
+    header#title h1 { font-size: 28px; }
+    header#title p  { font-size: 13px; }
+    #filters { padding-left: 24px; padding-right: 24px; }
+    aside#info { left: auto; right: 24px; bottom: calc(80px + var(--safe-bottom)); max-width: 420px; }
+    footer#attrib { left: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="map"></canvas>
+
+<header id="title">
+  <h1>Bremer Bäume</h1>
+  <p id="subtitle">lädt…</p>
+</header>
+
+<footer id="attrib">
+  Daten: <a href="https://www.umweltbetrieb-bremen.de/bremens-baeume" target="_blank" rel="noopener">Umweltbetrieb Bremen — Baumkataster</a>
+</footer>
+
+<button id="reset" title="Ansicht zurücksetzen" aria-label="Ansicht zurücksetzen">
+  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+    <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+          d="M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5"/>
+  </svg>
+</button>
+
+<div id="filters" aria-label="Filter nach Gattung"></div>
+
+<aside id="info" aria-live="polite">
+  <span class="marker" id="info-marker"></span>
+  <div class="lines">
+    <h2 id="info-name">—</h2>
+    <p class="latin" id="info-latin">—</p>
+    <p class="facts" id="info-facts"></p>
+  </div>
+  <button class="close" id="info-close" aria-label="Schließen">×</button>
+</aside>
+
+<div id="loading">
+  <div class="pulse"></div>
+  <div>Baumkataster wird geladen</div>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- data sources ---------- */
+
+const DATA_URL = "./trees.json";
+
+// Top 14 genera get dedicated colors + German labels. Everything else falls
+// through to "Sonstige" (other). Colors chosen for botanical-print feel on
+// warm paper — readable side by side, distinct in hue+value.
+const GENUS_STYLES = [
+  { genus: "Quercus",       de: "Eiche",       color: "#2d5016" },
+  { genus: "Tilia",         de: "Linde",       color: "#b8892a" },
+  { genus: "Acer",          de: "Ahorn",       color: "#c9511d" },
+  { genus: "Carpinus",      de: "Hainbuche",   color: "#5c7033" },
+  { genus: "Sorbus",        de: "Vogelbeere",  color: "#a23324" },
+  { genus: "Platanus",      de: "Platane",     color: "#7a9d5e" },
+  { genus: "Fraxinus",      de: "Esche",       color: "#3a6d78" },
+  { genus: "Betula",        de: "Birke",       color: "#7a7a6a" },
+  { genus: "Alnus",         de: "Erle",        color: "#264653" },
+  { genus: "Prunus",        de: "Kirsche",     color: "#c97298" },
+  { genus: "Crataegus",     de: "Weißdorn",    color: "#7a2e4b" },
+  { genus: "Robinia",       de: "Robinie",     color: "#9d9b3a" },
+  { genus: "Corylus",       de: "Hasel",       color: "#8b6a3a" },
+  { genus: "Aesculus",      de: "Kastanie",    color: "#5a3a28" },
+];
+const OTHER_STYLE = { genus: "*", de: "Sonstige", color: "#4a5646" };
+const DOT_DEFAULT = "#2d4f2a";
+const DOT_DIM     = "#c9c2ae";
+
+/* ---------- DOM ---------- */
+
+const canvas   = document.getElementById("map");
+const ctx      = canvas.getContext("2d", { alpha: false });
+const subtitle = document.getElementById("subtitle");
+const filters  = document.getElementById("filters");
+const resetBtn = document.getElementById("reset");
+const infoEl   = document.getElementById("info");
+const infoName = document.getElementById("info-name");
+const infoLatin= document.getElementById("info-latin");
+const infoFacts= document.getElementById("info-facts");
+const infoMark = document.getElementById("info-marker");
+const infoClose= document.getElementById("info-close");
+const loading  = document.getElementById("loading");
+
+/* ---------- view state ---------- */
+
+const fmt = new Intl.NumberFormat("de-DE");
+
+let data = null;                 // parsed trees.json
+let genusByTree = null;          // Int16Array: genus-style index per tree (-1 = other)
+let activeGenus = null;          // index into GENUS_STYLES, -1 for "other", or null for all
+let selectedTree = -1;
+
+let W = 0, H = 0, dpr = 1;
+let latCenter = 0;
+let lngCenter = 0;
+let pxPerLat  = 4000;            // scale — how many css-px one degree of latitude is
+let minScale  = 1000;            // fit-all scale
+let maxScale  = 1200000;         // up to ~tight neighbourhood
+let needsDraw = false;
+
+/* ---------- setup ---------- */
+
+function resize() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width  = Math.floor(W * dpr);
+  canvas.height = Math.floor(H * dpr);
+  canvas.style.width  = W + "px";
+  canvas.style.height = H + "px";
+  needsDraw = true;
+}
+window.addEventListener("resize", () => { resize(); fitAll(false); });
+
+function project(lng, lat) {
+  // simple equirectangular anchored at latCenter; lng scaled by cos(latCenter)
+  const cosLat = Math.cos(latCenter * Math.PI / 180);
+  const x = (lng - lngCenter) * pxPerLat * cosLat + W / 2;
+  const y = -(lat - latCenter) * pxPerLat + H / 2;
+  return [x, y];
+}
+
+function unproject(x, y) {
+  const cosLat = Math.cos(latCenter * Math.PI / 180);
+  const lng = (x - W / 2) / (pxPerLat * cosLat) + lngCenter;
+  const lat = -(y - H / 2) / pxPerLat + latCenter;
+  return [lng, lat];
+}
+
+let fitBounds = null;             // pre-computed percentile bounds for the main cluster
+
+function computeFitBounds() {
+  // Use 2.5/97.5 percentile bounds so a handful of outlying Bremen-Nord trees
+  // don't dominate the initial fit. The bbox itself is still in data.bbox and
+  // everything is reachable by panning.
+  const lngs = Float64Array.from(data.lng).sort();
+  const lats = Float64Array.from(data.lat).sort();
+  const loIdx = Math.floor(lngs.length * 0.025);
+  const hiIdx = Math.floor(lngs.length * 0.975);
+  fitBounds = {
+    minLng: lngs[loIdx],  maxLng: lngs[hiIdx],
+    minLat: lats[loIdx],  maxLat: lats[hiIdx],
+  };
+}
+
+function fitAll(_animated) {
+  if (!data) return;
+  if (!fitBounds) computeFitBounds();
+  const { minLng, maxLng, minLat, maxLat } = fitBounds;
+  latCenter = (minLat + maxLat) / 2;
+  lngCenter = (minLng + maxLng) / 2;
+  const cosLat = Math.cos(latCenter * Math.PI / 180);
+
+  const isPortrait = H > W;
+  const padX = 24;
+  const padTop = isPortrait ? 74 : 80;
+  const padBottom = isPortrait ? 80 : 82;
+  const availW = Math.max(60, W - 2 * padX);
+  const availH = Math.max(60, H - padTop - padBottom);
+  const scaleByLng = availW / ((maxLng - minLng) * cosLat);
+  const scaleByLat = availH / (maxLat - minLat);
+  // If aspect differs strongly (tall mobile, wide map) allow a little
+  // cropping — mix between contain (min) and cover (max).
+  const contain = Math.min(scaleByLng, scaleByLat);
+  const cover   = Math.max(scaleByLng, scaleByLat);
+  const mix = isPortrait ? 0.35 : 0.12;           // 0 = contain, 1 = cover
+  const target = (contain * (1 - mix) + cover * mix) * 0.97;
+
+  pxPerLat = target;
+  minScale = Math.min(scaleByLng, scaleByLat) * 0.55;
+
+  // center in the visual band between top and bottom chrome
+  const yShift = (padTop - padBottom) / 2 / pxPerLat;
+  latCenter += yShift;
+
+  needsDraw = true;
+  hideInfo();
+  snapshotFit();
+  updateResetBtn();
+}
+
+let fitScaleSnapshot = 0;
+let fitLngSnapshot = 0;
+let fitLatSnapshot = 0;
+
+function snapshotFit() {
+  fitScaleSnapshot = pxPerLat;
+  fitLngSnapshot = lngCenter;
+  fitLatSnapshot = latCenter;
+}
+
+function updateResetBtn() {
+  const zoomedOrPanned = fitScaleSnapshot > 0 && (
+    Math.abs(pxPerLat / fitScaleSnapshot - 1) > 0.03 ||
+    Math.abs(lngCenter - fitLngSnapshot) * pxPerLat > 8 ||
+    Math.abs(latCenter - fitLatSnapshot) * pxPerLat > 8
+  );
+  const shouldShow = activeGenus !== null || selectedTree >= 0 || zoomedOrPanned;
+  resetBtn.classList.toggle("show", shouldShow);
+}
+
+/* ---------- rendering ---------- */
+
+function draw() {
+  needsDraw = false;
+  if (!data) return;
+
+  // fill background
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = "#efe8d8";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.restore();
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const lngs = data.lng, lats = data.lat;
+  const n = lngs.length;
+  const cosLat = Math.cos(latCenter * Math.PI / 180);
+  const scaleX = pxPerLat * cosLat;
+  const scaleY = pxPerLat;
+  const cx = W / 2, cy = H / 2;
+
+  // radius grows gently with zoom
+  const zoomT = (pxPerLat - 1000) / (200000 - 1000);
+  let radius = 0.9 + Math.max(0, Math.min(1, zoomT)) * 2.8;
+  if (pxPerLat > 150000) radius += (pxPerLat - 150000) / 200000 * 2.0;
+  const r = Math.max(0.7, radius);
+
+  // selective colouring: when a filter is active, dim-draw the rest first,
+  // then over-draw the highlighted genus last so it sits on top.
+  const hasFilter = activeGenus !== null;
+  const filterColor = hasFilter
+    ? (activeGenus === -1 ? OTHER_STYLE.color : GENUS_STYLES[activeGenus].color)
+    : DOT_DEFAULT;
+
+  // pass 1: non-matching (or all if no filter)
+  ctx.fillStyle = hasFilter ? DOT_DIM : filterColor;
+  ctx.beginPath();
+  for (let i = 0; i < n; i++) {
+    if (hasFilter && genusByTree[i] === activeGenus) continue;
+    const x = (lngs[i] - lngCenter) * scaleX + cx;
+    if (x < -4 || x > W + 4) continue;
+    const y = -(lats[i] - latCenter) * scaleY + cy;
+    if (y < -4 || y > H + 4) continue;
+    ctx.moveTo(x + r, y);
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+  }
+  ctx.fill();
+
+  // pass 2: matching genus, drawn bolder
+  if (hasFilter) {
+    ctx.fillStyle = filterColor;
+    const rHi = r + (pxPerLat > 40000 ? 0.8 : 0.5);
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      if (genusByTree[i] !== activeGenus) continue;
+      const x = (lngs[i] - lngCenter) * scaleX + cx;
+      if (x < -6 || x > W + 6) continue;
+      const y = -(lats[i] - latCenter) * scaleY + cy;
+      if (y < -6 || y > H + 6) continue;
+      ctx.moveTo(x + rHi, y);
+      ctx.arc(x, y, rHi, 0, Math.PI * 2);
+    }
+    ctx.fill();
+  }
+
+  // selected tree highlight ring
+  if (selectedTree >= 0) {
+    const x = (lngs[selectedTree] - lngCenter) * scaleX + cx;
+    const y = -(lats[selectedTree] - latCenter) * scaleY + cy;
+    const g = genusByTree[selectedTree];
+    const col = g === -1 ? OTHER_STYLE.color : GENUS_STYLES[g].color;
+    ctx.beginPath();
+    ctx.arc(x, y, r + 6, 0, Math.PI * 2);
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x, y, r + 10, 0, Math.PI * 2);
+    ctx.strokeStyle = col + "55";
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x, y, Math.max(r, 2.2), 0, Math.PI * 2);
+    ctx.fillStyle = col;
+    ctx.fill();
+  }
+}
+
+function tick() {
+  if (needsDraw) draw();
+  requestAnimationFrame(tick);
+}
+
+/* ---------- spatial index for tap hit-testing ---------- */
+
+let gridCell = 0.002;             // degrees (~150 m in Bremen latitude-ish)
+const grid = new Map();
+
+function buildGrid() {
+  grid.clear();
+  const lngs = data.lng, lats = data.lat;
+  for (let i = 0; i < lngs.length; i++) {
+    const gx = Math.floor(lngs[i] / gridCell);
+    const gy = Math.floor(lats[i] / gridCell);
+    const key = gx + "," + gy;
+    let bucket = grid.get(key);
+    if (!bucket) { bucket = []; grid.set(key, bucket); }
+    bucket.push(i);
+  }
+}
+
+function hitTest(cssX, cssY) {
+  // screen-space radius for tap — finger ≈ 22 css px
+  const pickRadius = 22;
+  const [lng, lat] = unproject(cssX, cssY);
+  const cosLat = Math.cos(latCenter * Math.PI / 180);
+  // Convert pick radius to degree offsets; number of grid cells to search
+  const dLat = pickRadius / pxPerLat;
+  const dLng = pickRadius / (pxPerLat * cosLat);
+  const cellsX = Math.max(1, Math.ceil(dLng / gridCell));
+  const cellsY = Math.max(1, Math.ceil(dLat / gridCell));
+  const gx = Math.floor(lng / gridCell);
+  const gy = Math.floor(lat / gridCell);
+
+  const lngs = data.lng, lats = data.lat;
+  const filtering = activeGenus !== null;
+  const pickR2 = pickRadius * pickRadius;
+
+  function search(matchFilter) {
+    let best = -1, bestD2 = pickR2;
+    for (let dy = -cellsY; dy <= cellsY; dy++) {
+      for (let dx = -cellsX; dx <= cellsX; dx++) {
+        const key = (gx + dx) + "," + (gy + dy);
+        const bucket = grid.get(key);
+        if (!bucket) continue;
+        for (let k = 0; k < bucket.length; k++) {
+          const i = bucket[k];
+          if (matchFilter && genusByTree[i] !== activeGenus) continue;
+          const x = (lngs[i] - lngCenter) * pxPerLat * cosLat + W / 2;
+          const y = -(lats[i] - latCenter) * pxPerLat + H / 2;
+          const ddx = x - cssX, ddy = y - cssY;
+          const d2 = ddx * ddx + ddy * ddy;
+          if (d2 < bestD2) { bestD2 = d2; best = i; }
+        }
+      }
+    }
+    return best;
+  }
+
+  let best = search(filtering);
+  if (best < 0 && filtering) best = search(false);
+  return best;
+}
+
+/* ---------- input: pan / pinch / tap / double-tap / wheel ---------- */
+
+const pointers = new Map();
+let dragStart = null;             // { x, y, lng0, lat0 }
+let pinchStart = null;            // { dist, scale0, center: {lng, lat} }
+let tapCandidate = null;          // { startX, startY, t, moved }
+let lastTap = { t: 0, x: 0, y: 0 };
+
+canvas.addEventListener("pointerdown", onPointerDown, { passive: false });
+canvas.addEventListener("pointermove", onPointerMove, { passive: false });
+canvas.addEventListener("pointerup", onPointerUp);
+canvas.addEventListener("pointercancel", onPointerUp);
+canvas.addEventListener("pointerleave", onPointerUp);
+canvas.addEventListener("wheel", onWheel, { passive: false });
+
+function onPointerDown(e) {
+  canvas.setPointerCapture(e.pointerId);
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointers.size === 1) {
+    dragStart = { x: e.clientX, y: e.clientY, lng0: lngCenter, lat0: latCenter };
+    tapCandidate = { startX: e.clientX, startY: e.clientY, t: performance.now(), moved: false };
+    pinchStart = null;
+  } else if (pointers.size === 2) {
+    const pts = [...pointers.values()];
+    const dx = pts[0].x - pts[1].x, dy = pts[0].y - pts[1].y;
+    pinchStart = {
+      dist: Math.hypot(dx, dy) || 1,
+      scale0: pxPerLat,
+      centerX: (pts[0].x + pts[1].x) / 2,
+      centerY: (pts[0].y + pts[1].y) / 2,
+      lngFix: null, latFix: null,
+    };
+    const [flng, flat] = unproject(pinchStart.centerX, pinchStart.centerY);
+    pinchStart.lngFix = flng;
+    pinchStart.latFix = flat;
+    dragStart = null;
+    tapCandidate = null;
+  }
+}
+
+function onPointerMove(e) {
+  if (!pointers.has(e.pointerId)) return;
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+  if (pointers.size === 1 && dragStart) {
+    const dx = e.clientX - dragStart.x;
+    const dy = e.clientY - dragStart.y;
+    if (tapCandidate && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) tapCandidate.moved = true;
+    const cosLat = Math.cos(latCenter * Math.PI / 180);
+    lngCenter = dragStart.lng0 - dx / (pxPerLat * cosLat);
+    latCenter = dragStart.lat0 + dy / pxPerLat;
+    needsDraw = true;
+    updateResetBtn();
+  } else if (pointers.size === 2 && pinchStart) {
+    const pts = [...pointers.values()];
+    const dx = pts[0].x - pts[1].x, dy = pts[0].y - pts[1].y;
+    const dist = Math.hypot(dx, dy) || 1;
+    const newCenterX = (pts[0].x + pts[1].x) / 2;
+    const newCenterY = (pts[0].y + pts[1].y) / 2;
+    const factor = dist / pinchStart.dist;
+    let newScale = pinchStart.scale0 * factor;
+    newScale = Math.max(minScale, Math.min(maxScale, newScale));
+    pxPerLat = newScale;
+    // keep the pinch-start geo-point under the current midpoint
+    const cosLat = Math.cos(latCenter * Math.PI / 180);
+    lngCenter = pinchStart.lngFix - (newCenterX - W / 2) / (pxPerLat * cosLat);
+    latCenter = pinchStart.latFix + (newCenterY - H / 2) / pxPerLat;
+    needsDraw = true;
+    updateResetBtn();
+  }
+}
+
+function onPointerUp(e) {
+  pointers.delete(e.pointerId);
+  if (pointers.size < 2) pinchStart = null;
+  if (pointers.size === 0) {
+    if (tapCandidate && !tapCandidate.moved && performance.now() - tapCandidate.t < 400) {
+      handleTap(tapCandidate.startX, tapCandidate.startY);
+    }
+    tapCandidate = null;
+    dragStart = null;
+  } else if (pointers.size === 1) {
+    const [only] = pointers.values();
+    dragStart = { x: only.x, y: only.y, lng0: lngCenter, lat0: latCenter };
+    tapCandidate = null;
+  }
+}
+
+function handleTap(x, y) {
+  const now = performance.now();
+  const dt = now - lastTap.t;
+  const ddx = x - lastTap.x, ddy = y - lastTap.y;
+  if (dt < 300 && Math.hypot(ddx, ddy) < 24) {
+    // double-tap → zoom in toward the tap
+    zoomAt(x, y, 1.9);
+    lastTap = { t: 0, x: 0, y: 0 };
+    hideInfo();
+    return;
+  }
+  lastTap = { t: now, x, y };
+  setTimeout(() => {
+    if (lastTap.t === now) {
+      // still the most recent, treat as single tap
+      const idx = hitTest(x, y);
+      if (idx >= 0) selectTree(idx); else hideInfo();
+    }
+  }, 260);
+}
+
+function zoomAt(cssX, cssY, factor) {
+  const [lng0, lat0] = unproject(cssX, cssY);
+  pxPerLat = Math.max(minScale, Math.min(maxScale, pxPerLat * factor));
+  const cosLat = Math.cos(latCenter * Math.PI / 180);
+  lngCenter = lng0 - (cssX - W / 2) / (pxPerLat * cosLat);
+  latCenter = lat0 + (cssY - H / 2) / pxPerLat;
+  needsDraw = true;
+  updateResetBtn();
+}
+
+function onWheel(e) {
+  e.preventDefault();
+  const factor = Math.exp(-e.deltaY * 0.0018);
+  zoomAt(e.clientX, e.clientY, factor);
+}
+
+/* ---------- filter chips ---------- */
+
+function buildFilterChips() {
+  const counts = new Array(GENUS_STYLES.length).fill(0);
+  let otherCount = 0;
+  for (let i = 0; i < genusByTree.length; i++) {
+    const g = genusByTree[i];
+    if (g === -1) otherCount++;
+    else counts[g]++;
+  }
+
+  const items = [
+    { idx: null, label: "Alle", count: genusByTree.length, color: DOT_DEFAULT },
+    ...GENUS_STYLES.map((s, i) => ({
+      idx: i, label: s.de, count: counts[i], color: s.color,
+    })).filter(it => it.count > 0)
+      .sort((a, b) => b.count - a.count),
+    { idx: -1, label: "Sonstige", count: otherCount, color: OTHER_STYLE.color },
+  ];
+
+  filters.innerHTML = "";
+  for (const it of items) {
+    const chip = document.createElement("button");
+    chip.className = "chip" + (activeGenus === it.idx ? " active" : "");
+    chip.dataset.idx = it.idx === null ? "" : String(it.idx);
+    chip.innerHTML =
+      `<span class="swatch" style="background:${it.color}"></span>` +
+      `<span>${it.label}</span>` +
+      `<span class="count">${fmt.format(it.count)}</span>`;
+    chip.addEventListener("click", () => {
+      const idx = it.idx;
+      activeGenus = (activeGenus === idx) ? null : idx;
+      refreshChipStates();
+      needsDraw = true;
+      updateResetBtn();
+    });
+    filters.appendChild(chip);
+  }
+}
+
+function refreshChipStates() {
+  [...filters.children].forEach(ch => {
+    const raw = ch.dataset.idx;
+    const idx = raw === "" ? null : Number(raw);
+    ch.classList.toggle("active", idx === activeGenus);
+  });
+}
+
+/* ---------- info card ---------- */
+
+function selectTree(i) {
+  selectedTree = i;
+  const sp = data.species[data.sp[i]];
+  const g  = genusByTree[i];
+  const color = g === -1 ? OTHER_STYLE.color : GENUS_STYLES[g].color;
+  infoMark.style.background = color;
+
+  const german = sp.d || (g >= 0 ? GENUS_STYLES[g].de : "Unbekannt");
+  infoName.textContent = german;
+
+  const latinParts = [sp.g, sp.s].filter(Boolean).join(" ");
+  infoLatin.textContent = latinParts || "—";
+  infoLatin.style.display = latinParts ? "" : "none";
+
+  const facts = [];
+  const yr = data.yr[i];
+  if (yr && yr >= 1900 && yr <= 2030) facts.push(`gepflanzt ${yr}`);
+  const h = data.h[i];
+  if (h && h > 0 && h < 90) facts.push(`${h} m hoch`);
+  const rr = data.r[i];
+  if (rr && rr > 0 && rr < 300) {
+    const meters = (rr / 10).toLocaleString("de-DE", { maximumFractionDigits: 1 });
+    facts.push(`Krone Ø ${(meters * 2).toLocaleString("de-DE", { maximumFractionDigits: 1 })} m`);
+  }
+  infoFacts.innerHTML = facts.map(f => `<span>${f}</span>`).join("");
+
+  infoEl.classList.add("show");
+  needsDraw = true;
+  updateResetBtn();
+}
+
+function hideInfo() {
+  selectedTree = -1;
+  infoEl.classList.remove("show");
+  needsDraw = true;
+}
+infoClose.addEventListener("click", hideInfo);
+
+/* ---------- reset ---------- */
+
+resetBtn.addEventListener("click", () => {
+  activeGenus = null;
+  selectedTree = -1;
+  refreshChipStates();
+  infoEl.classList.remove("show");
+  fitAll(false);
+});
+
+/* ---------- boot ---------- */
+
+async function boot() {
+  resize();
+  try {
+    const res = await fetch(DATA_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    data = await res.json();
+  } catch (e) {
+    loading.textContent = "Fehler beim Laden: " + e.message;
+    return;
+  }
+
+  // assign genus-style index per tree
+  const idxByGenus = new Map(GENUS_STYLES.map((s, i) => [s.genus, i]));
+  const n = data.sp.length;
+  genusByTree = new Int16Array(n);
+  for (let i = 0; i < n; i++) {
+    const genus = data.species[data.sp[i]].g;
+    const idx = idxByGenus.has(genus) ? idxByGenus.get(genus) : -1;
+    genusByTree[i] = idx;
+  }
+
+  buildGrid();
+  buildFilterChips();
+  subtitle.textContent = fmt.format(data.meta.count) + " Straßenbäume";
+  fitAll(false);
+  loading.classList.add("done");
+  setTimeout(() => loading.remove(), 700);
+  requestAnimationFrame(tick);
+}
+
+boot();
+</script>
+</body>
+</html>

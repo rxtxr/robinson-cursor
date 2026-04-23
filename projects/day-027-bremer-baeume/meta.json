@@ -1,0 +1,12 @@
+{
+  "day": 27,
+  "slug": "day-027-bremer-baeume",
+  "title": "Bremer Bäume",
+  "date": "2026-04-23",
+  "description": "74.939 Straßenbäume aus dem Baumkataster des Umweltbetrieb Bremen als Punktwolke. Nach Gattung filtern, Baum antippen — Art, Pflanzjahr, Höhe, Kronendurchmesser. Die Stadt ist lesbar, obwohl keine Straße gezeichnet ist.",
+  "tags": ["daten", "karte", "open-data", "bremen", "bäume", "canvas", "interaktiv"],
+  "stack": ["Canvas 2D", "Pointer Events", "ArcGIS REST (Umweltbetrieb Bremen)", "Python (Fetch + Compact)"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-027-bremer-baeume",
+  "status": "complete",
+  "license_notes": "Daten aus dem öffentlichen Baumkataster des Umweltbetrieb Bremen (ArcGIS-MapServer 'WMS_Baumkataster_UBB_offen', Layer 0 'Straßenbäume mit Kronenradius'), abgerufen am 2026-04-23. Lizenz nicht explizit ausgewiesen; Nutzung als nicht-kommerzielles Visualisierungsexperiment mit Quellenangabe. Keine Laufzeit-Abhängigkeiten — Vanilla HTML/JS mit Canvas 2D und Pointer Events."
+}
