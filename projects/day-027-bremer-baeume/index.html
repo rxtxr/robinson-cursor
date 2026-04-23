@@ -59,16 +59,33 @@
     margin: 0;
     font-size: 22px;
     font-weight: 500;
+    line-height: 1.1;
     letter-spacing: 0.01em;
     color: var(--ink);
   }
-  header#title p {
-    margin: 2px 0 0;
+  header#title p#subtitle {
+    margin: 4px 0 0;
     font-size: 12px;
+    line-height: 1.1;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--ink-faint);
   }
+  header#title p#attrib {
+    margin: 7px 0 0;
+    font-size: 10px;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    pointer-events: auto;
+    max-width: min(80vw, 360px);
+  }
+  header#title p#attrib a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(139, 140, 130, 0.5);
+  }
+  header#title p#attrib a:active { color: var(--ink); }
 
   button#reset {
     position: fixed;
@@ -306,32 +323,12 @@
     50%      { transform: scale(1.25); opacity: 1; }
   }
 
-  footer#attrib {
-    position: fixed;
-    left: 16px;
-    right: 70px;
-    top: calc(var(--safe-top) + 58px);
-    z-index: 3;
-    font-size: 10px;
-    letter-spacing: 0.06em;
-    color: var(--ink-faint);
-    pointer-events: auto;
-    user-select: none;
-    mix-blend-mode: multiply;
-  }
-  footer#attrib a {
-    color: inherit;
-    text-decoration: none;
-    border-bottom: 1px solid rgba(139, 140, 130, 0.45);
-  }
-  footer#attrib a:active { color: var(--ink); }
-
   @media (min-width: 760px) {
     header#title h1 { font-size: 28px; }
-    header#title p  { font-size: 13px; }
+    header#title p#subtitle { font-size: 13px; }
+    header#title p#attrib   { font-size: 11px; max-width: 520px; }
     #filters { padding-left: 24px; padding-right: 24px; }
     aside#info { left: auto; right: 24px; bottom: calc(80px + var(--safe-bottom)); max-width: 420px; }
-    footer#attrib { left: 24px; }
   }
 </style>
 </head>
@@ -342,14 +339,13 @@
 <header id="title">
   <h1 id="title-h">Bremen Trees</h1>
   <p id="subtitle">loading…</p>
+  <p id="attrib">
+    <span id="attrib-prefix">Data:</span>
+    <a id="attrib-link"
+       href="https://www.umweltbetrieb-bremen.de/bremens-baeume/was-sie-fuer-uns-leisten-15375"
+       target="_blank" rel="noopener">Umweltbetrieb Bremen — Tree Cadastre</a>
+  </p>
 </header>
-
-<footer id="attrib">
-  <span id="attrib-prefix">Data:</span>
-  <a id="attrib-link"
-     href="https://www.umweltbetrieb-bremen.de/bremens-baeume/was-sie-fuer-uns-leisten-15375"
-     target="_blank" rel="noopener">Umweltbetrieb Bremen — Tree Cadastre</a>
-</footer>
 
 <div id="lang" role="group" aria-label="Language">
   <button data-lang="en" class="active">EN</button>
