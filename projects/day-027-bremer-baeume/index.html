@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
 <meta name="color-scheme" content="light" />
 <meta name="theme-color" content="#efe8d8" />
-<title>Bremer Bäume — 74.939 Straßenbäume</title>
+<title>Bremen Trees — 74,939 street trees</title>
 <style>
   :root {
     --paper: #efe8d8;
@@ -100,6 +100,41 @@
   }
   button#reset:active { transform: scale(0.94); background: var(--paper-soft); }
   button#reset svg { display: block; }
+
+  #lang {
+    position: fixed;
+    top: calc(var(--safe-top) + 14px);
+    right: 60px;
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    height: 38px;
+    padding: 0;
+    border: 1px solid var(--chip-border);
+    border-radius: 999px;
+    background: var(--chip-bg);
+    box-shadow: var(--chip-shadow);
+    overflow: hidden;
+    font-family: inherit;
+  }
+  #lang button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--ink-faint);
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    padding: 0 10px;
+    height: 100%;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  #lang button.active {
+    background: var(--ink);
+    color: var(--paper-soft);
+  }
+  #lang button:active { transform: scale(0.96); }
 
   #filters {
     position: fixed;
@@ -305,22 +340,30 @@
 <canvas id="map"></canvas>
 
 <header id="title">
-  <h1>Bremer Bäume</h1>
-  <p id="subtitle">lädt…</p>
+  <h1 id="title-h">Bremen Trees</h1>
+  <p id="subtitle">loading…</p>
 </header>
 
 <footer id="attrib">
-  Daten: <a href="https://www.umweltbetrieb-bremen.de/bremens-baeume" target="_blank" rel="noopener">Umweltbetrieb Bremen — Baumkataster</a>
+  <span id="attrib-prefix">Data:</span>
+  <a id="attrib-link"
+     href="https://www.umweltbetrieb-bremen.de/bremens-baeume/was-sie-fuer-uns-leisten-15375"
+     target="_blank" rel="noopener">Umweltbetrieb Bremen — Tree Cadastre</a>
 </footer>
 
-<button id="reset" title="Ansicht zurücksetzen" aria-label="Ansicht zurücksetzen">
+<div id="lang" role="group" aria-label="Language">
+  <button data-lang="en" class="active">EN</button>
+  <button data-lang="de">DE</button>
+</div>
+
+<button id="reset" title="Reset view" aria-label="Reset view">
   <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
     <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
           d="M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5"/>
   </svg>
 </button>
 
-<div id="filters" aria-label="Filter nach Gattung"></div>
+<div id="filters" aria-label="Filter by genus"></div>
 
 <aside id="info" aria-live="polite">
   <span class="marker" id="info-marker"></span>
@@ -329,12 +372,12 @@
     <p class="latin" id="info-latin">—</p>
     <p class="facts" id="info-facts"></p>
   </div>
-  <button class="close" id="info-close" aria-label="Schließen">×</button>
+  <button class="close" id="info-close" aria-label="Close">×</button>
 </aside>
 
 <div id="loading">
   <div class="pulse"></div>
-  <div>Baumkataster wird geladen</div>
+  <div id="loading-text">Loading tree cadastre</div>
 </div>
 
 <script>
@@ -344,47 +387,97 @@
 
 const DATA_URL = "./trees.json";
 
-// Top 14 genera get dedicated colors + German labels. Everything else falls
-// through to "Sonstige" (other). Colors chosen for botanical-print feel on
-// warm paper — readable side by side, distinct in hue+value.
+// Top 14 genera get dedicated colors + common names. Everything else falls
+// through to the "other" style. Colors chosen for botanical-print feel on
+// warm paper — readable side by side, distinct in hue and value.
 const GENUS_STYLES = [
-  { genus: "Quercus",       de: "Eiche",       color: "#2d5016" },
-  { genus: "Tilia",         de: "Linde",       color: "#b8892a" },
-  { genus: "Acer",          de: "Ahorn",       color: "#c9511d" },
-  { genus: "Carpinus",      de: "Hainbuche",   color: "#5c7033" },
-  { genus: "Sorbus",        de: "Vogelbeere",  color: "#a23324" },
-  { genus: "Platanus",      de: "Platane",     color: "#7a9d5e" },
-  { genus: "Fraxinus",      de: "Esche",       color: "#3a6d78" },
-  { genus: "Betula",        de: "Birke",       color: "#7a7a6a" },
-  { genus: "Alnus",         de: "Erle",        color: "#264653" },
-  { genus: "Prunus",        de: "Kirsche",     color: "#c97298" },
-  { genus: "Crataegus",     de: "Weißdorn",    color: "#7a2e4b" },
-  { genus: "Robinia",       de: "Robinie",     color: "#9d9b3a" },
-  { genus: "Corylus",       de: "Hasel",       color: "#8b6a3a" },
-  { genus: "Aesculus",      de: "Kastanie",    color: "#5a3a28" },
+  { genus: "Quercus",   en: "Oak",            de: "Eiche",      color: "#2d5016" },
+  { genus: "Tilia",     en: "Linden",         de: "Linde",      color: "#b8892a" },
+  { genus: "Acer",      en: "Maple",          de: "Ahorn",      color: "#c9511d" },
+  { genus: "Carpinus",  en: "Hornbeam",       de: "Hainbuche",  color: "#5c7033" },
+  { genus: "Sorbus",    en: "Rowan",          de: "Vogelbeere", color: "#a23324" },
+  { genus: "Platanus",  en: "Plane",          de: "Platane",    color: "#7a9d5e" },
+  { genus: "Fraxinus",  en: "Ash",            de: "Esche",      color: "#3a6d78" },
+  { genus: "Betula",    en: "Birch",          de: "Birke",      color: "#7a7a6a" },
+  { genus: "Alnus",     en: "Alder",          de: "Erle",       color: "#264653" },
+  { genus: "Prunus",    en: "Cherry",         de: "Kirsche",    color: "#c97298" },
+  { genus: "Crataegus", en: "Hawthorn",       de: "Weißdorn",   color: "#7a2e4b" },
+  { genus: "Robinia",   en: "Black Locust",   de: "Robinie",    color: "#9d9b3a" },
+  { genus: "Corylus",   en: "Hazel",          de: "Hasel",      color: "#8b6a3a" },
+  { genus: "Aesculus",  en: "Horse Chestnut", de: "Kastanie",   color: "#5a3a28" },
 ];
-const OTHER_STYLE = { genus: "*", de: "Sonstige", color: "#4a5646" };
+const OTHER_STYLE = { genus: "*", en: "Other", de: "Sonstige", color: "#4a5646" };
 const DOT_DEFAULT = "#2d4f2a";
 const DOT_DIM     = "#c9c2ae";
 
+/* ---------- i18n ---------- */
+
+const I18N = {
+  en: {
+    title:       "Bremen Trees",
+    countSuffix: "street trees",
+    attribPrefix:"Data:",
+    attribLink:  "Umweltbetrieb Bremen — Tree Cadastre",
+    loading:     "Loading tree cadastre",
+    all:         "All",
+    filterAria:  "Filter by genus",
+    resetTitle:  "Reset view",
+    closeAria:   "Close",
+    planted:     (y) => `planted ${y}`,
+    height:      (h) => `${h} m tall`,
+    crown:       (d) => `crown Ø ${d} m`,
+    unknown:     "Unknown",
+  },
+  de: {
+    title:       "Bremer Bäume",
+    countSuffix: "Straßenbäume",
+    attribPrefix:"Daten:",
+    attribLink:  "Umweltbetrieb Bremen — Baumkataster",
+    loading:     "Baumkataster wird geladen",
+    all:         "Alle",
+    filterAria:  "Filter nach Gattung",
+    resetTitle:  "Ansicht zurücksetzen",
+    closeAria:   "Schließen",
+    planted:     (y) => `gepflanzt ${y}`,
+    height:      (h) => `${h} m hoch`,
+    crown:       (d) => `Krone Ø ${d} m`,
+    unknown:     "Unbekannt",
+  },
+};
+
+let lang = (() => {
+  try {
+    const saved = localStorage.getItem("bremer-baeume-lang");
+    if (saved === "de" || saved === "en") return saved;
+  } catch (_) { /* private mode etc. */ }
+  return "en";  // explicit default — user chose English default
+})();
+function t() { return I18N[lang]; }
+
 /* ---------- DOM ---------- */
 
-const canvas   = document.getElementById("map");
-const ctx      = canvas.getContext("2d", { alpha: false });
-const subtitle = document.getElementById("subtitle");
-const filters  = document.getElementById("filters");
-const resetBtn = document.getElementById("reset");
-const infoEl   = document.getElementById("info");
-const infoName = document.getElementById("info-name");
-const infoLatin= document.getElementById("info-latin");
-const infoFacts= document.getElementById("info-facts");
-const infoMark = document.getElementById("info-marker");
-const infoClose= document.getElementById("info-close");
-const loading  = document.getElementById("loading");
+const canvas    = document.getElementById("map");
+const ctx       = canvas.getContext("2d", { alpha: false });
+const titleEl   = document.getElementById("title-h");
+const subtitle  = document.getElementById("subtitle");
+const attribPre = document.getElementById("attrib-prefix");
+const attribLnk = document.getElementById("attrib-link");
+const filters   = document.getElementById("filters");
+const resetBtn  = document.getElementById("reset");
+const langGroup = document.getElementById("lang");
+const infoEl    = document.getElementById("info");
+const infoName  = document.getElementById("info-name");
+const infoLatin = document.getElementById("info-latin");
+const infoFacts = document.getElementById("info-facts");
+const infoMark  = document.getElementById("info-marker");
+const infoClose = document.getElementById("info-close");
+const loading   = document.getElementById("loading");
+const loadingTx = document.getElementById("loading-text");
 
 /* ---------- view state ---------- */
 
-const fmt = new Intl.NumberFormat("de-DE");
+let numberFmt = new Intl.NumberFormat("en-US");
+function fmt(n) { return numberFmt.format(n); }
 
 let data = null;                 // parsed trees.json
 let genusByTree = null;          // Int16Array: genus-style index per tree (-1 = other)
@@ -516,6 +609,7 @@ function draw() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   const lngs = data.lng, lats = data.lat;
+  const genArr = genusByTree;
   const n = lngs.length;
   const cosLat = Math.cos(latCenter * Math.PI / 180);
   const scaleX = pxPerLat * cosLat;
@@ -527,43 +621,83 @@ function draw() {
   let radius = 0.9 + Math.max(0, Math.min(1, zoomT)) * 2.8;
   if (pxPerLat > 150000) radius += (pxPerLat - 150000) / 200000 * 2.0;
   const r = Math.max(0.7, radius);
+  const arcMode = r > 2.6;          // above that, arcs read as round dots; below, squares blend in anyway
+  const d = r * 2;
 
-  // selective colouring: when a filter is active, dim-draw the rest first,
-  // then over-draw the highlighted genus last so it sits on top.
   const hasFilter = activeGenus !== null;
   const filterColor = hasFilter
     ? (activeGenus === -1 ? OTHER_STYLE.color : GENUS_STYLES[activeGenus].color)
     : DOT_DEFAULT;
 
-  // pass 1: non-matching (or all if no filter)
-  ctx.fillStyle = hasFilter ? DOT_DIM : filterColor;
-  ctx.beginPath();
-  for (let i = 0; i < n; i++) {
-    if (hasFilter && genusByTree[i] === activeGenus) continue;
-    const x = (lngs[i] - lngCenter) * scaleX + cx;
-    if (x < -4 || x > W + 4) continue;
-    const y = -(lats[i] - latCenter) * scaleY + cy;
-    if (y < -4 || y > H + 4) continue;
-    ctx.moveTo(x + r, y);
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-  }
-  ctx.fill();
+  // screen bounds in GEO space — precompute once so the inner loop does only
+  // an int-compare and a float multiply, no per-tree unit conversion
+  const lngLeft  = lngCenter - (cx + 4) / scaleX;
+  const lngRight = lngCenter + (cx + 4) / scaleX;
+  const latBot   = latCenter - (cy + 4) / scaleY;   // screen-bottom = lowest lat
+  const latTop   = latCenter + (cy + 4) / scaleY;
 
-  // pass 2: matching genus, drawn bolder
+  // pass 1: non-matching (or all if no filter). fillRect per tree is roughly
+  // 5× faster than batched arcs at this count, with no visible difference at
+  // r ≤ 2.5 px. We keep the batched-arc path for zoomed-in views.
+  ctx.fillStyle = hasFilter ? DOT_DIM : filterColor;
+  if (arcMode) {
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      if (hasFilter && genArr[i] === activeGenus) continue;
+      const lng = lngs[i];
+      if (lng < lngLeft || lng > lngRight) continue;
+      const lat = lats[i];
+      if (lat < latBot || lat > latTop) continue;
+      const x = (lng - lngCenter) * scaleX + cx;
+      const y = -(lat - latCenter) * scaleY + cy;
+      ctx.moveTo(x + r, y);
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+    }
+    ctx.fill();
+  } else {
+    for (let i = 0; i < n; i++) {
+      if (hasFilter && genArr[i] === activeGenus) continue;
+      const lng = lngs[i];
+      if (lng < lngLeft || lng > lngRight) continue;
+      const lat = lats[i];
+      if (lat < latBot || lat > latTop) continue;
+      const x = (lng - lngCenter) * scaleX + cx;
+      const y = -(lat - latCenter) * scaleY + cy;
+      ctx.fillRect(x - r, y - r, d, d);
+    }
+  }
+
+  // pass 2: matching genus on top, slightly bolder
   if (hasFilter) {
     ctx.fillStyle = filterColor;
     const rHi = r + (pxPerLat > 40000 ? 0.8 : 0.5);
-    ctx.beginPath();
-    for (let i = 0; i < n; i++) {
-      if (genusByTree[i] !== activeGenus) continue;
-      const x = (lngs[i] - lngCenter) * scaleX + cx;
-      if (x < -6 || x > W + 6) continue;
-      const y = -(lats[i] - latCenter) * scaleY + cy;
-      if (y < -6 || y > H + 6) continue;
-      ctx.moveTo(x + rHi, y);
-      ctx.arc(x, y, rHi, 0, Math.PI * 2);
+    const dHi = rHi * 2;
+    if (arcMode) {
+      ctx.beginPath();
+      for (let i = 0; i < n; i++) {
+        if (genArr[i] !== activeGenus) continue;
+        const lng = lngs[i];
+        if (lng < lngLeft || lng > lngRight) continue;
+        const lat = lats[i];
+        if (lat < latBot || lat > latTop) continue;
+        const x = (lng - lngCenter) * scaleX + cx;
+        const y = -(lat - latCenter) * scaleY + cy;
+        ctx.moveTo(x + rHi, y);
+        ctx.arc(x, y, rHi, 0, Math.PI * 2);
+      }
+      ctx.fill();
+    } else {
+      for (let i = 0; i < n; i++) {
+        if (genArr[i] !== activeGenus) continue;
+        const lng = lngs[i];
+        if (lng < lngLeft || lng > lngRight) continue;
+        const lat = lats[i];
+        if (lat < latBot || lat > latTop) continue;
+        const x = (lng - lngCenter) * scaleX + cx;
+        const y = -(lat - latCenter) * scaleY + cy;
+        ctx.fillRect(x - rHi, y - rHi, dHi, dHi);
+      }
     }
-    ctx.fill();
   }
 
   // selected tree highlight ring
@@ -782,22 +916,29 @@ function onWheel(e) {
 
 /* ---------- filter chips ---------- */
 
-function buildFilterChips() {
-  const counts = new Array(GENUS_STYLES.length).fill(0);
-  let otherCount = 0;
+let genusCounts = null;
+let otherCount = 0;
+
+function computeGenusCounts() {
+  genusCounts = new Array(GENUS_STYLES.length).fill(0);
+  otherCount = 0;
   for (let i = 0; i < genusByTree.length; i++) {
     const g = genusByTree[i];
     if (g === -1) otherCount++;
-    else counts[g]++;
+    else genusCounts[g]++;
   }
+}
+
+function buildFilterChips() {
+  if (!genusCounts) computeGenusCounts();
 
   const items = [
-    { idx: null, label: "Alle", count: genusByTree.length, color: DOT_DEFAULT },
+    { idx: null, label: t().all, count: genusByTree.length, color: DOT_DEFAULT },
     ...GENUS_STYLES.map((s, i) => ({
-      idx: i, label: s.de, count: counts[i], color: s.color,
+      idx: i, label: s[lang], count: genusCounts[i], color: s.color,
     })).filter(it => it.count > 0)
       .sort((a, b) => b.count - a.count),
-    { idx: -1, label: "Sonstige", count: otherCount, color: OTHER_STYLE.color },
+    { idx: -1, label: OTHER_STYLE[lang], count: otherCount, color: OTHER_STYLE.color },
   ];
 
   filters.innerHTML = "";
@@ -808,7 +949,7 @@ function buildFilterChips() {
     chip.innerHTML =
       `<span class="swatch" style="background:${it.color}"></span>` +
       `<span>${it.label}</span>` +
-      `<span class="count">${fmt.format(it.count)}</span>`;
+      `<span class="count">${fmt(it.count)}</span>`;
     chip.addEventListener("click", () => {
       const idx = it.idx;
       activeGenus = (activeGenus === idx) ? null : idx;
@@ -832,33 +973,52 @@ function refreshChipStates() {
 
 function selectTree(i) {
   selectedTree = i;
+  renderInfoCard();
+  infoEl.classList.add("show");
+  needsDraw = true;
+  updateResetBtn();
+}
+
+function renderInfoCard() {
+  if (selectedTree < 0 || !data) return;
+  const i = selectedTree;
   const sp = data.species[data.sp[i]];
   const g  = genusByTree[i];
   const color = g === -1 ? OTHER_STYLE.color : GENUS_STYLES[g].color;
   infoMark.style.background = color;
 
-  const german = sp.d || (g >= 0 ? GENUS_STYLES[g].de : "Unbekannt");
-  infoName.textContent = german;
-
+  const german = sp.d || (g >= 0 ? GENUS_STYLES[g].de : t().unknown);
   const latinParts = [sp.g, sp.s].filter(Boolean).join(" ");
-  infoLatin.textContent = latinParts || "—";
-  infoLatin.style.display = latinParts ? "" : "none";
 
+  // EN: scientific binomial first, German common name underneath (the common
+  // name is German-only in the source data — we surface it because that's the
+  // label on the physical tree sign in Bremen).
+  // DE: German common name first, scientific in italic.
+  if (lang === "en" && latinParts) {
+    infoName.textContent = latinParts;
+    infoLatin.textContent = german;
+    infoLatin.style.fontStyle = "normal";
+    infoLatin.style.display = german ? "" : "none";
+  } else {
+    infoName.textContent = german;
+    infoLatin.textContent = latinParts;
+    infoLatin.style.fontStyle = "italic";
+    infoLatin.style.display = latinParts ? "" : "none";
+  }
+
+  const tr = t();
+  const locale = lang === "de" ? "de-DE" : "en-US";
   const facts = [];
   const yr = data.yr[i];
-  if (yr && yr >= 1900 && yr <= 2030) facts.push(`gepflanzt ${yr}`);
+  if (yr && yr >= 1900 && yr <= 2030) facts.push(tr.planted(yr));
   const h = data.h[i];
-  if (h && h > 0 && h < 90) facts.push(`${h} m hoch`);
+  if (h && h > 0 && h < 90) facts.push(tr.height(h));
   const rr = data.r[i];
   if (rr && rr > 0 && rr < 300) {
-    const meters = (rr / 10).toLocaleString("de-DE", { maximumFractionDigits: 1 });
-    facts.push(`Krone Ø ${(meters * 2).toLocaleString("de-DE", { maximumFractionDigits: 1 })} m`);
+    const diameter = (rr / 10 * 2).toLocaleString(locale, { maximumFractionDigits: 1 });
+    facts.push(tr.crown(diameter));
   }
   infoFacts.innerHTML = facts.map(f => `<span>${f}</span>`).join("");
-
-  infoEl.classList.add("show");
-  needsDraw = true;
-  updateResetBtn();
 }
 
 function hideInfo() {
@@ -878,6 +1038,46 @@ resetBtn.addEventListener("click", () => {
   fitAll(false);
 });
 
+/* ---------- language switching ---------- */
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  numberFmt = new Intl.NumberFormat(lang === "de" ? "de-DE" : "en-US");
+
+  const tr = t();
+  titleEl.textContent = tr.title;
+  attribPre.textContent = tr.attribPrefix;
+  attribLnk.textContent = tr.attribLink;
+  resetBtn.title = tr.resetTitle;
+  resetBtn.setAttribute("aria-label", tr.resetTitle);
+  filters.setAttribute("aria-label", tr.filterAria);
+  infoClose.setAttribute("aria-label", tr.closeAria);
+  loadingTx.textContent = tr.loading;
+  document.title = `${tr.title} — ${fmt(data?.meta?.count ?? 74939)} ${tr.countSuffix}`;
+
+  if (data) subtitle.textContent = `${fmt(data.meta.count)} ${tr.countSuffix}`;
+
+  // update toggle state
+  langGroup.querySelectorAll("button").forEach(btn =>
+    btn.classList.toggle("active", btn.dataset.lang === lang));
+
+  if (genusByTree) buildFilterChips();
+  if (selectedTree >= 0) renderInfoCard();
+}
+
+langGroup.querySelectorAll("button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const next = btn.dataset.lang;
+    if (next === lang) return;
+    lang = next;
+    try { localStorage.setItem("bremer-baeume-lang", lang); } catch (_) {}
+    applyLang();
+  });
+});
+
+// apply initial language to static DOM immediately (before data loads)
+applyLang();
+
 /* ---------- boot ---------- */
 
 async function boot() {
@@ -887,23 +1087,31 @@ async function boot() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     data = await res.json();
   } catch (e) {
-    loading.textContent = "Fehler beim Laden: " + e.message;
+    const errPrefix = lang === "de" ? "Fehler beim Laden" : "Failed to load";
+    loading.textContent = `${errPrefix}: ${e.message}`;
     return;
   }
+
+  // Promote hot arrays to typed arrays: plain JS Arrays access ~3–5× slower
+  // than typed arrays in tight loops because of boxed float + property lookup.
+  // Float32 gives ~7 significant digits — at Bremen latitude that's ~0.5 m
+  // positional precision, well under the 1 m rounding we baked into the data.
+  data.lng = new Float32Array(data.lng);
+  data.lat = new Float32Array(data.lat);
+  data.sp  = new Uint16Array(data.sp);    // ≤ 341 species → fits easily
 
   // assign genus-style index per tree
   const idxByGenus = new Map(GENUS_STYLES.map((s, i) => [s.genus, i]));
   const n = data.sp.length;
-  genusByTree = new Int16Array(n);
+  genusByTree = new Int8Array(n);         // Int8 is enough: 14 styles or -1 (other)
   for (let i = 0; i < n; i++) {
     const genus = data.species[data.sp[i]].g;
-    const idx = idxByGenus.has(genus) ? idxByGenus.get(genus) : -1;
-    genusByTree[i] = idx;
+    genusByTree[i] = idxByGenus.has(genus) ? idxByGenus.get(genus) : -1;
   }
 
   buildGrid();
   buildFilterChips();
-  subtitle.textContent = fmt.format(data.meta.count) + " Straßenbäume";
+  applyLang();  // sets subtitle from meta.count and current language
   fitAll(false);
   loading.classList.add("done");
   setTimeout(() => loading.remove(), 700);

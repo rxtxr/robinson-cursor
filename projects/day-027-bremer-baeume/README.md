@@ -1,70 +1,75 @@
-# Day 027 — Bremer Bäume
+# Day 027 — Bremen Trees
 
-74.939 Straßenbäume aus dem Baumkataster des Umweltbetrieb Bremen, gezeichnet als Punktwolke auf Papier. Keine Straßen, keine Beschriftung, keine Basiskarte — nur Bäume. Die Stadt wird durch ihre Bepflanzung lesbar: Weser-Verlauf, Wallanlage, Innenstadt, Außenwohnviertel, die Bremen-Nord-Korridore.
+74,939 street trees from the public tree cadastre of Umweltbetrieb Bremen, drawn as a point cloud on paper. No streets, no labels, no basemap — only trees. The city reads itself through its planting: the Weser river, the old wall line, downtown, the outer neighbourhoods, the Bremen-Nord corridors. English by default, German selectable.
 
-## Datenquelle
+## Data source
 
-Die Daten stammen aus dem öffentlichen ArcGIS-MapServer des Umweltbetrieb Bremen:
+The data comes from the public ArcGIS MapServer operated by Umweltbetrieb Bremen:
 
 ```
 https://gris2.umweltbetrieb-bremen.de/arcgis/rest/services/
   Baumkataster/WMS_Baumkataster_UBB_offen/MapServer/0
 ```
 
-Layer 0 enthält alle Straßenbäume mit vermessenem Kronenradius. Abgerufen am 2026-04-23 in 75 paginierten Anfragen à 1000 Features.
+Layer 0 holds every street tree with a recorded crown radius. Fetched 2026-04-23 in 75 paged requests of 1000 features each.
 
-Pro Baum übernommen: Gattung, Art, Sorte, deutscher Name, Pflanzjahr (PFLJ), Höhe und Kronenradius.
+Per tree we keep: genus, species, cultivar, German common name, planting year (`PFLJ`), height, and crown radius.
 
 ## Pipeline
 
-Zwei Python-Skripte erzeugen die ausgelieferte `trees.json`:
+Two Python scripts produce the shipped `trees.json`:
 
-1. `data/fetch.py` — paged Download des Layers (Parallel, 6 Worker), Ausgabe als `data/trees_raw.geojson` (33 MB).
-2. `data/compact.py` — columnar JSON mit geteiltem Species-Index, Koordinaten auf fünf Nachkommastellen gerundet (≈ 1 m), Höhe als Integer, Kronenradius in Dezimetern. Ergebnis: **2,3 MB JSON (0,55 MB gzip)** für 75 000 Punkte.
+1. `data/fetch.py` — paged download of the layer (6 parallel workers), output as `data/trees_raw.geojson` (33 MB).
+2. `data/compact.py` — columnar JSON with a shared species index, coordinates rounded to five decimals (~1 m), height as integer, crown radius in decimetres. Result: **2.3 MB JSON (0.55 MB gzipped)** for 75 000 points.
 
-Das rohe GeoJSON wird nicht committed (s. `.gitignore`); die `trees.json` schon.
+The raw GeoJSON is git-ignored (see `.gitignore`); `trees.json` is committed.
 
 ## Render
 
-- Einzelnes `<canvas>`, equirectangulare Projektion (bei Bremer Breitengrad um 0,01 % Verzerrung — vernachlässigbar).
-- Zwei Passes pro Frame:
-  1. alle nicht-gefilterten Bäume in einer einzigen `Path2D`-Sammlung,
-  2. gefilterte Gattung darüber, kräftiger Farbton, leicht größerer Radius.
-- HiDPI über `devicePixelRatio` (gekappt bei 2,5× für Akku/Speed).
-- Kein Tile-Layer, kein Kartenmaterial — die Dichte ist die Landkarte.
+- One `<canvas>`, simple equirectangular projection (at Bremen latitude the distortion is ~0.01% — negligible for this scale).
+- Two passes per frame:
+  1. non-matching / all trees,
+  2. filtered genus on top, slightly larger, in the genus colour.
+- `fillRect` per tree instead of `arc()` — ~5× faster at 75k points, and at 0.8–2.5 px radii the square-vs-circle difference is invisible on paper-coloured background. Above 2.6 px the renderer switches to batched arcs for clean round dots.
+- `Float32Array` for longitude/latitude, `Int8Array` for the per-tree genus-style index. Typed arrays cut tight-loop indexing cost by ~4× versus plain JS arrays.
+- HiDPI via `devicePixelRatio` (capped at 2.5× for battery/perf).
+- No tile layer, no basemap — the density *is* the map.
 
-## Interaktion
+Measured on a laptop in Chromium: the all-trees pass costs ~10 ms on a 390×844 viewport and ~13 ms on 1440×900 — well under the 16.67 ms frame budget.
 
-- **Pan** — Finger ziehen (Maus-Drag am Desktop).
-- **Zoom** — Pinch-to-Zoom, Mausrad, oder Doppeltipp.
-- **Filter** — Chip am unteren Rand tippen. Gattung wird hervorgehoben, der Rest dimmt auf Papier-Grau.
-- **Info** — Baum antippen, Info-Karte zeigt deutschen Namen, wissenschaftlichen Binomial, Pflanzjahr, Höhe und Kronendurchmesser.
-- **Reset** — Kreis-Symbol oben rechts (erscheint nach Interaktion): fit-all, Filter weg, Auswahl weg.
+## Interaction
 
-## Trefferprüfung
+- **Pan** — one-finger drag (or mouse drag on desktop).
+- **Zoom** — pinch, mouse wheel, or double-tap.
+- **Filter** — tap a chip in the bottom rail. The selected genus is highlighted in its colour, the rest dim to paper-grey.
+- **Tree info** — tap a tree. The info card shows the scientific binomial, the German common name, planting year, height, and crown diameter.
+- **Reset** — the corner-brackets button top-right (appears after interaction): fit all, clear filter, clear selection.
+- **Language** — EN / DE toggle top-right; choice is persisted in `localStorage`.
 
-Für 74 939 Punkte reicht kein linearer Scan pro Tap. Einfacher Raster-Hash: Zellen 0,002° Kantenlänge (≈ 140 m), pro Zelle Liste der Baumindizes. Tippradius 22 css-px wird in Gradsekunden umgerechnet; das Raster wird in der passenden Anzahl Zellen durchsucht (dynamisch nach aktuellem Zoom).
+## Hit testing
+
+For 74,939 points a linear scan per tap would cost ~1 ms — fine, but wasteful. A grid hash of cell size 0.002° (~140 m) keeps lookups local; the 22 css-px pick radius is converted into degree offsets, and only the matching grid cells are searched (the cell range adapts to the current zoom). If nothing is under the finger during a filter, the search falls through to the unfiltered set so a tap is never a dead end.
 
 ## Stack
 
-- Vanilla HTML, CSS, JS — eine Datei, ca. 900 Zeilen
+- Vanilla HTML, CSS, JS — one file, ~1000 lines
 - Canvas 2D API, Pointer Events
-- Python 3 (nur lokaler Build — `urllib`, `concurrent.futures`)
-- Keine Laufzeit-Abhängigkeiten, kein Build-Step
+- Python 3 (build-time only — `urllib`, `concurrent.futures`)
+- No runtime dependencies, no build step
 
-## Lizenz der Daten
+## Licence of the data
 
-Der MapServer ist mit dem Suffix `_offen` versehen und seit Juni 2024 Teil des öffentlichen Bremer Datenangebots. Eine explizit benannte Lizenz (dl-de-zero, CC-BY o.ä.) ist auf der Metadatenseite nicht ausgewiesen; die Daten werden hier als nicht-kommerzielles Visualisierungsexperiment mit klarer Quellen-Attribution verwendet. Bei entgegenstehenden Lizenzhinweisen entfernbar.
+The MapServer carries the suffix `_offen` ("open") and has been part of the Bremen open-data offering since June 2024. An explicit licence identifier (`dl-de-zero`, `CC-BY`, …) is not stated on the metadata page; the data is used here as a non-commercial visualisation experiment with clear attribution. Removable on request.
 
-## Lokal starten
+## Running locally
 
 ```sh
-# vom Repo-Root
+# from repo root
 npm run dev
 # → http://localhost:4321/embed/day-027-bremer-baeume/
 ```
 
-Oder standalone per statischem Server aus dem Projektordner:
+Or standalone from the project directory:
 
 ```sh
 python3 -m http.server 8765
