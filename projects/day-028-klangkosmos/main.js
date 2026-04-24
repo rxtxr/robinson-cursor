@@ -3,18 +3,38 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // ---------- Data loading + classification ----------
 
+// Note: folder is named `scrobbles/` not `data/` — the archive site's
+// build integration strips any folder called `data/` (used by day-002
+// to hold a 7 GB DuckDB that must not be deployed).
 const DATA_URLS = [
-  './data/top_artists.json',
-  './data/loyalty.json',
-  './data/top_tracks.json',
+  './scrobbles/top_artists.json',
+  './scrobbles/loyalty.json',
+  './scrobbles/top_tracks.json',
   './covers.json'
 ];
 
+async function fetchJson(url, fallback) {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return fallback;
+    const data = await r.json();
+    // Guard against servers returning non-matching shape (e.g. SPA HTML fallback
+    // parsed as null or a 200-status "not found" object).
+    if (Array.isArray(fallback) && !Array.isArray(data)) return fallback;
+    if (!Array.isArray(fallback) && typeof data !== 'object') return fallback;
+    return data;
+  } catch (_) {
+    return fallback;
+  }
+}
+
 async function loadData() {
-  const [topArtists, loyalty, topTracks, coversRaw] = await Promise.all(
-    DATA_URLS.map(u => fetch(u).then(r => r.ok ? r.json() : {}).catch(() => ({})))
-  );
-  const covers = coversRaw || {};
+  const [topArtists, loyalty, topTracks, covers] = await Promise.all([
+    fetchJson('./scrobbles/top_artists.json', []),
+    fetchJson('./scrobbles/loyalty.json', []),
+    fetchJson('./scrobbles/top_tracks.json', []),
+    fetchJson('./covers.json', {})
+  ]);
 
   const loyaltyByName = new Map();
   for (const a of loyalty) loyaltyByName.set(a.n, a);

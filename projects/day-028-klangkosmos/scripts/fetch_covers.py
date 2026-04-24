@@ -24,7 +24,7 @@ from pathlib import Path
 UA = "klangkosmos/1.0 (https://robinson-cursor.com; marius.bruns@gmail.com)"
 
 PROJECT = Path(__file__).resolve().parent.parent
-DATA = PROJECT / "data"
+DATA = PROJECT / "scrobbles"
 COVERS = PROJECT / "covers"
 COVERS.mkdir(exist_ok=True)
 

@@ -95,7 +95,10 @@ day-028-klangkosmos/
 ├── meta.json               archive metadata
 ├── README.md               this file
 ├── thumb.png / .webp / -sm.webp   preview (1200×630 / 400×210)
-├── data/
+├── scrobbles/              (named `scrobbles/` not `data/` because the
+│   │                        archive site's Astro integration strips any
+│   │                        folder called `data/` — that was designed
+│   │                        for day-002's 7 GB DuckDB)
 │   ├── top_artists.json    ~36 KB
 │   ├── loyalty.json        ~68 KB
 │   └── top_tracks.json     ~38 KB
