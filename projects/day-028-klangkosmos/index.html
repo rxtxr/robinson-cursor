@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>klangkosmos — day 028</title>
+<style>
+  :root {
+    --fg: #e8eef8;
+    --fg-dim: #8d98ad;
+    --panel: rgba(8, 10, 20, 0.78);
+    --panel-border: rgba(255, 255, 255, 0.08);
+    --accent: #ffd166;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #05060a;
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Mono", "Roboto Mono", Menlo, monospace;
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
+    touch-action: none;
+  }
+  canvas { display: block; }
+  #scene {
+    position: fixed;
+    inset: 0;
+    cursor: grab;
+  }
+  #scene:active { cursor: grabbing; }
+
+  .panel {
+    position: fixed;
+    background: var(--panel);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    max-width: 320px;
+    z-index: 10;
+    pointer-events: auto;
+  }
+
+  #title {
+    top: 12px;
+    left: 12px;
+    line-height: 1.4;
+  }
+  #title h1 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  #title .sub {
+    color: var(--fg-dim);
+    font-size: 11px;
+  }
+  #title .count {
+    color: var(--accent);
+  }
+
+  #legend {
+    bottom: 12px;
+    left: 12px;
+    max-width: 280px;
+  }
+  #legend .row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+    font-size: 11px;
+    color: var(--fg-dim);
+  }
+  #legend .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  #legend .dot.sun { background: radial-gradient(circle at 30% 30%, #ffe9a0, #ff9a3d); box-shadow: 0 0 8px #ffb84d; }
+  #legend .dot.earth { background: #4a90e2; box-shadow: 0 0 6px #4a90e2; }
+  #legend .dot.planet { background: #c77dff; }
+  #legend .dot.asteroid { background: #9aa3b4; border-radius: 2px; }
+  #legend .dot.moon { background: #d4d4d4; }
+
+  #info {
+    top: 12px;
+    right: 12px;
+    width: 280px;
+    display: none;
+  }
+  #info.visible { display: block; }
+  #info .close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    cursor: pointer;
+    color: var(--fg-dim);
+    font-size: 16px;
+    user-select: none;
+    line-height: 1;
+  }
+  #info .close:hover { color: var(--fg); }
+  #info .kind {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  #info h2 {
+    margin: 0 0 10px 0;
+    font-size: 15px;
+    font-weight: 600;
+    padding-right: 20px;
+    word-break: break-word;
+  }
+  #info dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 14px;
+    font-size: 11px;
+  }
+  #info dt {
+    color: var(--fg-dim);
+  }
+  #info dd {
+    margin: 0;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  #info .bar {
+    margin-top: 10px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  #info .bar span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #c77dff, #ffd166);
+  }
+  #info .years {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(22, 1fr);
+    gap: 1px;
+    height: 10px;
+  }
+  #info .years i {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  #info .years i.on {
+    background: var(--accent);
+  }
+
+  #tooltip {
+    position: fixed;
+    pointer-events: none;
+    padding: 4px 8px;
+    background: var(--panel);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.12s;
+    transform: translate(-50%, calc(-100% - 8px));
+  }
+  #tooltip.visible { opacity: 1; }
+
+  #controls {
+    bottom: 12px;
+    right: 12px;
+    display: flex;
+    gap: 6px;
+    padding: 6px;
+  }
+  #controls button {
+    background: transparent;
+    border: 1px solid var(--panel-border);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  #controls button:hover { background: rgba(255, 255, 255, 0.06); }
+  #controls button.on { background: rgba(255, 209, 102, 0.12); color: var(--accent); border-color: rgba(255, 209, 102, 0.3); }
+
+  #loader {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #05060a;
+    color: var(--fg-dim);
+    z-index: 100;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+  #loader.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s;
+  }
+
+  #hint {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(180, 195, 220, 0.45);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 9;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  }
+  #hint kbd {
+    font-family: inherit;
+    font-weight: 600;
+    color: rgba(220, 230, 245, 0.72);
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0 2px;
+  }
+  #hint .sep {
+    opacity: 0.35;
+    margin: 0 8px;
+  }
+
+  @media (max-width: 640px) {
+    #title { font-size: 11px; max-width: 200px; padding: 8px 10px; }
+    #title h1 { font-size: 12px; }
+    #legend { max-width: 200px; padding: 8px 10px; }
+    #legend .row { font-size: 10px; }
+    #info { width: calc(100% - 24px); right: 12px; left: 12px; max-width: none; top: auto; bottom: 70px; }
+    #controls { bottom: 12px; }
+    #hint { bottom: 56px; font-size: 9.5px; letter-spacing: 0.04em; }
+  }
+</style>
+</head>
+<body>
+  <div id="loader">loading klangkosmos…</div>
+  <canvas id="scene"></canvas>
+
+  <div id="title" class="panel">
+    <h1>klangkosmos</h1>
+    <div class="sub"><span id="body-count" class="count">…</span> <span data-de="Himmelskörper aus 20 Jahren Hörhistorie" data-en="bodies from 20 years of listening">bodies from 20 years of listening</span></div>
+  </div>
+
+  <div id="legend" class="panel">
+    <div class="row"><span class="dot sun"></span><span data-de="Sonne — die Musik" data-en="Sun — music itself">Sun — music itself</span></div>
+    <div class="row"><span class="dot earth"></span><span data-de="Erde — ich, der Hörer" data-en="Earth — me, the listener">Earth — me, the listener</span></div>
+    <div class="row"><span class="dot planet"></span><span data-de="Planeten — Top-Artists nach Plays" data-en="Planets — top artists by plays">Planets — top artists by plays</span></div>
+    <div class="row"><span class="dot moon"></span><span data-de="Monde — Top-Tracks der großen Planeten" data-en="Moons — top tracks of the big planets">Moons — top tracks of the big planets</span></div>
+    <div class="row"><span class="dot asteroid"></span><span data-de="Asteroiden — Phasen-Hörer, die meinen Pfad kreuzen" data-en="Asteroids — phase-listens that cross my path">Asteroids — phase-listens that cross my path</span></div>
+  </div>
+
+  <div id="info" class="panel">
+    <span class="close" id="info-close">×</span>
+    <div class="kind" id="info-kind"></div>
+    <h2 id="info-name"></h2>
+    <dl id="info-dl"></dl>
+    <div class="bar"><span id="info-bar"></span></div>
+    <div class="years" id="info-years"></div>
+  </div>
+
+  <div id="tooltip"></div>
+
+  <div id="hint"
+       data-html="1"
+       data-de='<kbd>ziehen</kbd> drehen <span class="sep">·</span> <kbd>scroll</kbd> zoom <span class="sep">·</span> <kbd>rechts-ziehen</kbd> pan <span class="sep">·</span> <kbd>klick</kbd> info'
+       data-en='<kbd>drag</kbd> rotate <span class="sep">·</span> <kbd>scroll</kbd> zoom <span class="sep">·</span> <kbd>right-drag</kbd> pan <span class="sep">·</span> <kbd>click</kbd> info'>
+    <kbd>drag</kbd> rotate <span class="sep">·</span> <kbd>scroll</kbd> zoom <span class="sep">·</span> <kbd>right-drag</kbd> pan <span class="sep">·</span> <kbd>click</kbd> info
+  </div>
+
+  <div id="controls" class="panel">
+    <button id="btn-pause" data-de-label="pause" data-en-label="pause">pause</button>
+    <button id="btn-follow" data-de-label="folge erde" data-en-label="follow earth">follow earth</button>
+    <button id="btn-lang">DE</button>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

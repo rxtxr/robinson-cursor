@@ -1,0 +1,146 @@
+{
+  "Aphex Twin": {
+    "path": "covers/aphex-twin.jpg",
+    "album": "Selected Ambient Works 85–92",
+    "rg_id": "6842c81d-ea77-3dfd-abf7-4323add3f4d4",
+    "year": "1992"
+  },
+  "DJ Shadow": {
+    "path": "covers/dj-shadow.jpg",
+    "album": "Endtroducing.....",
+    "rg_id": "4b2186f5-ff00-3227-ae11-783ba93e1089",
+    "year": "1996"
+  },
+  "The Chemical Brothers": {
+    "path": "covers/the-chemical-brothers.jpg",
+    "album": "Dig Your Own Hole",
+    "rg_id": "69f4aa7f-d760-3890-bd2a-902fb9abe40b",
+    "year": "1997"
+  },
+  "Earthling": {
+    "path": "covers/earthling.jpg",
+    "album": "Radar",
+    "rg_id": "6fd61824-4e4e-3235-9ad7-5cda500d845d",
+    "year": "1995"
+  },
+  "Regina Spektor": {
+    "path": "covers/regina-spektor.jpg",
+    "album": "Begin to Hope",
+    "rg_id": "473691ea-841e-3427-9fa4-63f64fd048ce",
+    "year": "2006"
+  },
+  "Portishead": {
+    "path": "covers/portishead.jpg",
+    "album": "Dummy",
+    "rg_id": "48140466-cff6-3222-bd55-63c27e43190d",
+    "year": "1994"
+  },
+  "Cat Power": {
+    "path": "covers/cat-power.jpg",
+    "album": "You Are Free",
+    "rg_id": "b24234fc-1afd-34df-9c42-92cb51cc0a36",
+    "year": "2003"
+  },
+  "Radiohead": {
+    "path": "covers/radiohead.jpg",
+    "album": "OK Computer",
+    "rg_id": "b1392450-e666-3926-a536-22c65f834433",
+    "year": "1997"
+  },
+  "Sia": {
+    "path": "covers/sia.jpg",
+    "album": "1000 Forms of Fear",
+    "rg_id": "5628bc44-c89b-4af6-9b76-f266d09be63c",
+    "year": "2014"
+  },
+  "Rainer Maria": {
+    "path": "covers/rainer-maria.jpg",
+    "album": "A Better Version of Me",
+    "rg_id": "527d5e41-8920-3efc-a190-413ffc59ada2",
+    "year": "2001"
+  },
+  "Daft Punk": {
+    "path": "covers/daft-punk.jpg",
+    "album": "Discovery",
+    "rg_id": "48117b90-a16e-34ca-a514-19c702df1158",
+    "year": "2001"
+  },
+  "Tocotronic": {
+    "path": "covers/tocotronic.jpg",
+    "album": "Digital ist besser",
+    "rg_id": "2033c629-7c3b-34c3-a277-95aff6de612e",
+    "year": "1995"
+  },
+  "Silver Mt. Zion": {
+    "path": "covers/silver-mt-zion.jpg",
+    "album": "He Has Left Us Alone, but Shafts of Light Sometimes Grace the Corner of Our Rooms…",
+    "rg_id": "edca7666-de25-31d1-bdc8-af12ddb27527",
+    "year": "2000"
+  },
+  "UNKLE": {
+    "path": "covers/unkle.jpg",
+    "album": "Psyence Fiction",
+    "rg_id": "17027712-7707-3791-ab65-5320e5ebe501",
+    "year": "1998"
+  },
+  "Pink Floyd": {
+    "path": "covers/pink-floyd.jpg",
+    "album": "The Dark Side of the Moon",
+    "rg_id": "f5093c06-23e3-404f-aeaa-40f72885ee3a",
+    "year": "1973"
+  },
+  "Nirvana": {
+    "path": "covers/nirvana.jpg",
+    "album": "Nevermind",
+    "rg_id": "1b022e01-4da6-387b-8658-8678046e4cef",
+    "year": "1991"
+  },
+  "Boards of Canada": {
+    "path": "covers/boards-of-canada.jpg",
+    "album": "Music Has the Right to Children",
+    "rg_id": "17d74d52-c92b-3b8d-9f87-218ab2d1c4a0",
+    "year": "1998"
+  },
+  "The Album Leaf": {
+    "path": "covers/the-album-leaf.jpg",
+    "album": "In a Safe Place",
+    "rg_id": "dd09746c-2fd0-37ce-8ac8-d2ea1187c4ce",
+    "year": "2004"
+  },
+  "Beastie Boys": {
+    "path": "covers/beastie-boys.jpg",
+    "album": "Paul’s Boutique",
+    "rg_id": "b534aa01-d621-31ba-9278-38a500e3cdca",
+    "year": "1989"
+  },
+  "Interpol": {
+    "path": "covers/interpol.jpg",
+    "album": "Turn On the Bright Lights",
+    "rg_id": "e7227840-5ef2-3813-af26-15dab34e1a51",
+    "year": "2002"
+  },
+  "The Notwist": {
+    "path": "covers/the-notwist.jpg",
+    "album": "Neon Golden",
+    "rg_id": "7e0c1da0-f2b6-3d5a-93b1-c96c1da15fca",
+    "year": "2002"
+  },
+  "Simon & Garfunkel": {
+    "path": "covers/simon-garfunkel.jpg",
+    "album": "Bridge Over Troubled Water",
+    "rg_id": "c39f7f80-d42f-3669-9653-230f8e922083",
+    "year": "1970"
+  },
+  "Tegan and Sara": {
+    "path": "covers/tegan-and-sara.jpg",
+    "album": "The Con",
+    "rg_id": "64ebb8b3-6d69-3467-b458-27c3fd1df3b1",
+    "year": "2007"
+  },
+  "The Prodigy": {
+    "path": "covers/the-prodigy.jpg",
+    "album": "Always Outnumbered, Never Outgunned",
+    "rg_id": "50da1a12-ca69-3287-b89f-33775e396870",
+    "year": "2004"
+  }
+}
