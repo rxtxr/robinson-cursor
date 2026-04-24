@@ -66,6 +66,28 @@
   #title .count {
     color: var(--accent);
   }
+  #title .back {
+    display: inline-block;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--panel-border);
+    color: var(--fg-dim);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    transition: color 0.15s;
+  }
+  #title .back:hover {
+    color: var(--fg);
+  }
+  #title .back .arr {
+    display: inline-block;
+    transition: transform 0.15s;
+    margin-right: 4px;
+  }
+  #title .back:hover .arr {
+    transform: translateX(-2px);
+  }
 
   #legend {
     bottom: 12px;
@@ -266,6 +288,7 @@
   <div id="title" class="panel">
     <h1>klangkosmos</h1>
     <div class="sub"><span id="body-count" class="count">…</span> <span data-de="Himmelskörper aus 20 Jahren Hörhistorie" data-en="bodies from 20 years of listening">bodies from 20 years of listening</span></div>
+    <a href="/" class="back" target="_top"><span class="arr">←</span><span data-de="alle Projekte" data-en="all projects">all projects</span></a>
   </div>
 
   <div id="legend" class="panel">
