@@ -41,7 +41,7 @@ Concrete spread: Aphex Twin (innermost, hot) ~18s/orbit; The Prodigy (outermost,
 
 ## Data sources
 
-From `projects/day-002-music-charts/data/frontend/`:
+20 years of personal **Last.fm scrobbles** (2005–2026), enriched with MusicBrainz metadata in day-002, then exported to the three aggregates below in `projects/day-002-music-charts/data/frontend/`:
 
 - `top_artists.json` — top artists with plays, ms, firstPlay, lastPlay.
 - `loyalty.json` — active years per artist + span.
