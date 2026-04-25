@@ -5,7 +5,7 @@
   "date": "2026-04-23",
   "description": "/\\ a peak.  ~~ a current.  || a grove of trunks.  Three photographs cut along their tonal seams, reassembled as polygons, set adrift at staggered speeds. Sky flooded away, highlights folded back, flatness refused — the composition never twice the same.",
   "tags": ["canvas", "posterize", "polygon", "collage", "animation", "tonwert"],
-  "stack": ["Canvas 2D", "ImageBitmap", "Moore Boundary Tracing", "Douglas-Peucker", "Connected Components"],
+  "stack": ["Canvas 2D", "ImageBitmap", "Vanilla JS"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-026-durchbruch",
   "status": "complete",
   "license_notes": "Source photos from Unsplash (Unsplash License, free for commercial use): photo-1545917992-dea2d782ef46 (mountain), photo-1440581572325-0bea30075d9d (forest), photo-1555412654-72a95a495858 (water). No runtime dependencies — pure vanilla HTML/JS with the Canvas 2D and ImageBitmap APIs."

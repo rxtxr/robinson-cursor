@@ -5,7 +5,7 @@
   "date": "2026-04-20",
   "description": "Scatter plot of 30,470 scrobbled tracks plotted against tempo and a second musical axis (key, rhythm regularity, loudness, or dynamic complexity). Colored by mood, energy, or major/minor; sized by play count. Hover reveals the track, click a legend label to isolate a category. Defaults to dynamic complexity vs. BPM colored by mood.",
   "tags": ["data-viz", "music", "scatter", "personal-data", "canvas"],
-  "stack": ["Canvas 2D", "AcousticBrainz features", "Vanilla JS"],
+  "stack": ["Canvas 2D", "Vanilla JS", "AcousticBrainz"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-024-musical-gravity-field",
   "status": "complete",
   "license_notes": "Vanilla HTML/JS, no runtime deps. Pre-computed scatter_data.json derived from the day-002 music-charts enrichment pipeline (Spotify + ListenBrainz + MusicBrainz + AcousticBrainz, all CC0 or personal data). BPM and feature values come from AcousticBrainz (CC0) via Essentia."

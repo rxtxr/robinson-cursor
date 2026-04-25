@@ -27,6 +27,15 @@ NOT `thumbnail.png` — that won't be found.
 ```
 Repo is `rxtxr/robinson-cursor` (no `.com`). Path starts at `projects/`.
 
+## Stack-Pills in meta.json
+`stack` ist eine Liste **kurzer technischer Tags** — Bibliotheken, Frameworks, Sprachen, Web-APIs, Tools, Datenquellen/APIs. Keine Sätze, keine Erklärungen, keine Algorithmen/Techniken, keine Vibe-Beschreibungen.
+
+- Gut: `"Three.js"`, `"Canvas 2D"`, `"Web Audio API"`, `"MusicBrainz"`, `"FFmpeg"`, `"Python"`, `"Vite"`
+- Mini-Qualifier OK wenn kurz: `"Three.js 0.160"`, `"node-web-audio-api (build)"`, `"Real-ESRGAN (planned)"`
+- Schlecht: `"Last.fm scrobble data (pre-processed from day-002, enriched via MusicBrainz)"`, `"Moore Boundary Tracing"`, `"Procedural texture generation"`
+
+Faustregel: max. ~3 Wörter, sofort als technischer Begriff erkennbar. Versionen, Quellen, Build-vs-Runtime-Details gehören in `license_notes`. Vollständige Konvention in ROBINSON_CURSOR_CONTEXT.md.
+
 ## Commits
 Format: `day NNN: project-name — short description`
 Example: `day 001: music-visualizer — webaudio fft canvas visualization`

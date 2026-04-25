@@ -5,7 +5,7 @@
   "date": "2026-04-23",
   "description": "74,939 street trees from Bremen's tree cadastre as a point cloud. Filter by genus, tap a tree for species, planting year, height, crown diameter. The city reads even though no street is drawn. EN/DE toggle.",
   "tags": ["data", "map", "open-data", "bremen", "trees", "canvas", "interactive"],
-  "stack": ["Canvas 2D", "Pointer Events", "ArcGIS REST (Umweltbetrieb Bremen)", "Python (fetch + compact)"],
+  "stack": ["Canvas 2D", "Pointer Events", "ArcGIS REST", "Python"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-027-bremer-baeume",
   "status": "complete",
   "license_notes": "Data from the public tree cadastre of Umweltbetrieb Bremen (ArcGIS MapServer 'WMS_Baumkataster_UBB_offen', layer 0 'Straßenbäume mit Kronenradius'), fetched 2026-04-23. No explicit license is named on the source metadata; used here as a non-commercial visualisation experiment with clear attribution. No runtime dependencies — vanilla HTML/JS with Canvas 2D and Pointer Events."
