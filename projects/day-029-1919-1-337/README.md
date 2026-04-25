@@ -38,32 +38,35 @@ index.html              markup + start overlay + telemetry
 styles.css              palette + IBM Plex Mono + EB Garamond
 main.js                 visual + single-source playback (no live FX)
 STATEMENT.txt            artist statement (DE/EN) + legal note
-audio/broadcast.mp3     rendered output — not committed, runtime-required
+audio/broadcast.mp3     rendered output — committed (transformative derivative)
 scripts/render-preview.js  Node renderer (offline WebAudio graph)
 scripts/gen-thumb.js    regenerates thumb.png from the same line algorithm
 ```
 
-## Build
+## Run
+
+`audio/broadcast.mp3` is committed, so the project plays out of the box:
 
 ```bash
-# 1. drop a copy of the source recording into audio/disorder.mp3 (only
-#    needed at render time; can be deleted afterward)
-# 2. install the offline WebAudio runtime once (anywhere reachable by Node)
-npm install --prefix /tmp/pulsar-render node-web-audio-api
-
-# 3. render the broadcast — exactly 89 pulses for a seamless loop
-node scripts/render-preview.js --pulses 89
-
-# 4. delete the source if you want a minimal footprint
-rm audio/disorder.mp3
-
-# 5. serve and open
 python3 -m http.server   # or any static server
 # http://localhost:8000/projects/day-029-1919-1-337/
 ```
 
-To re-tune the audio: edit the `SONG_*`, `NOISE_*`, `REVERB_*` constants
-at the top of `scripts/render-preview.js`, re-run step 3.
+## Re-render the broadcast
+
+Only needed if you want to retune the audio character. Edit the `SONG_*`,
+`NOISE_*`, `REVERB_*` constants at the top of `scripts/render-preview.js`
+and run:
+
+```bash
+# 1. drop a fresh source recording into audio/disorder.mp3
+# 2. install the offline WebAudio runtime once
+npm install --prefix /tmp/pulsar-render node-web-audio-api
+# 3. render — exactly 89 pulses for a seamless loop
+node scripts/render-preview.js --pulses 89
+# 4. (optional) delete the source — only broadcast.mp3 is needed at runtime
+rm audio/disorder.mp3
+```
 
 ## Visual
 

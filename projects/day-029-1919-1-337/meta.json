@@ -8,5 +8,5 @@
   "stack": ["Vanilla JS", "Canvas 2D", "Web Audio API (single looped BufferSource for playback; visual cadence driven from AudioContext.currentTime)", "node-web-audio-api (offline render: 89 pulses × 1.337 s with bandpass, soft saturation, dark convolver reverb, drift-modulated pink noise + crackles)", "IBM Plex Mono + EB Garamond (Google Fonts)"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-029-1919-1-337",
   "status": "complete",
-  "license_notes": "IBM Plex Mono (SIL OFL 1.1) and EB Garamond (SIL OFL 1.1) loaded from Google Fonts. node-web-audio-api (BSD-3-Clause) used at build time only. Source recording and rendered output are excluded from the repository. See STATEMENT.txt in the project for the full attribution / pastiche rationale (§ 51a UrhG, EuGH Pelham C-476/17 / fair use)."
+  "license_notes": "IBM Plex Mono (SIL OFL 1.1) and EB Garamond (SIL OFL 1.1) loaded from Google Fonts. node-web-audio-api (BSD-3-Clause) used at build time only. The source recording is excluded from the repository; the rendered broadcast (transformative derivative — 180 ms windowed, heavily processed) is included so the runtime can play. See STATEMENT.txt in the project for the full attribution / pastiche rationale (§ 51a UrhG, EuGH Pelham C-476/17 / fair use)."
 }

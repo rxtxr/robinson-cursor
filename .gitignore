@@ -45,8 +45,9 @@ projects/day-002-music-charts/.env
 # playground (not a published project)
 projects/playground/
 
-# day-029: source recording + rendered broadcast — derivative of copyrighted
-# audio, never commit. Both files are regenerated locally per ../README.md.
+# day-029: source recording stays out of the repo. The rendered broadcast.mp3
+# is committed — it is a transformative derivative (180 ms windowed fragments,
+# heavily filtered) and the runtime needs it to play. Source can be deleted
+# locally once broadcast.mp3 is rendered.
 projects/day-029-1919-1-337/audio/disorder.*
-projects/day-029-1919-1-337/audio/broadcast.*
 projects/day-029-1919-1-337/preview.*
