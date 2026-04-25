@@ -44,3 +44,9 @@ projects/day-002-music-charts/.env
 
 # playground (not a published project)
 projects/playground/
+
+# day-029: source recording + rendered broadcast — derivative of copyrighted
+# audio, never commit. Both files are regenerated locally per ../README.md.
+projects/day-029-1919-1-337/audio/disorder.*
+projects/day-029-1919-1-337/audio/broadcast.*
+projects/day-029-1919-1-337/preview.*

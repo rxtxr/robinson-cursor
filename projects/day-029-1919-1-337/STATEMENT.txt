@@ -1,0 +1,100 @@
+1919-1.337
+Work note · 2026-04-25
+
+
+Three sources, layered.
+
+A star — PSR B1919+21, the first pulsar identified, recorded by Jocelyn
+Bell Burnell in 1967. A neutron star turning once every 1.337 seconds,
+2,300 light-years away.
+
+A cover — Peter Saville's 1979 redrawing of Harold D. Craft Jr.'s
+stacked-pulse plot of that star, made into the sleeve of a record.
+
+A song — Joy Division, "Disorder", from Unknown Pleasures (Factory
+Records, 1979), the opening track of that record.
+
+In 1919-1.337, the pulsar keeps turning. On each rotation a
+180-millisecond window opens onto the song. The plot redraws itself,
+line by line, in real time with the broadcast. The audio is the song
+after 2,300 light-years of distance: bandwidth-starved, smeared,
+half-imagined, completed by the listener.
+
+The work's contribution is not in any of the three sources — they are
+all finished objects. It is in their combination. Folded together they
+hold a layer none of them carries alone: the cover as transmitter, the
+song as remnant, the star as the unbroken clock between them. Cold,
+empty, distant — the three values the work assembles.
+
+The omission is the addition. What is not played is the room the
+listener fills. A listener unfamiliar with the original hears a cold
+pulse and nothing further. A listener who knows it supplies the rest —
+the chord, the line, the warmth. The reproduction is relocated from
+the file to memory.
+
+That last effect was not designed. It surfaced while building and was
+kept because it functions. The work is a designer's exercise in
+system, restraint, and synchronisation; the emotional layer is a
+by-product the system happens to produce. Both belong to it now.
+
+
+                                * * *
+
+
+Drei Quellen, geschichtet.
+
+Ein Stern — PSR B1919+21, der erste identifizierte Pulsar, 1967 von
+Jocelyn Bell Burnell aufgezeichnet. Ein Neutronenstern, der sich alle
+1,337 Sekunden dreht, 2.300 Lichtjahre entfernt.
+
+Ein Cover — Peter Savilles Umzeichnung des gestapelten Pulsdiagramms
+desselben Sterns von Harold D. Craft Jr., 1979 zur Hülle einer
+Schallplatte geworden.
+
+Ein Lied — Joy Division, „Disorder", aus Unknown Pleasures (Factory
+Records, 1979), der erste Track dieser Platte.
+
+In 1919-1.337 dreht sich der Pulsar weiter. Auf jede Umdrehung öffnet
+sich ein 180-Millisekunden-Fenster auf das Lied. Das Diagramm zeichnet
+sich selbst, Linie um Linie, in Echtzeit zur Sendung. Der Klang ist
+das Lied nach 2.300 Lichtjahren: bandbeschnitten, verwischt,
+halb-vorgestellt, vom Hörer ergänzt.
+
+Der Beitrag des Werks liegt nicht in den drei Quellen, die alle
+abgeschlossene Objekte sind. Er liegt in ihrer Kombination.
+Zusammengefaltet halten sie eine Schicht, die keine von ihnen allein
+trägt: das Cover als Sender, das Lied als Rest, der Stern als
+ungebrochener Takt dazwischen. Kälte, Leere, Entfernung — die drei
+Werte, die das Werk zusammensetzt.
+
+Das Auslassen ist die Zugabe. Was nicht gespielt wird, ist der Raum,
+den der Hörer füllt. Wer das Original nicht kennt, hört einen kalten
+Takt und nichts darüber hinaus. Wer es kennt, ergänzt das Fehlende —
+den Akkord, die Zeile, die Wärme. Die Reproduktion wird aus der Datei
+ins Gedächtnis verlagert.
+
+Dieser letzte Effekt war nicht entworfen. Er trat beim Bauen auf und
+blieb, weil er funktioniert. Das Werk ist eine gestalterische Übung in
+System, Zurückhaltung und Synchronisation; die emotionale Ebene ist
+ein Nebenprodukt, das das System hervorbringt. Beides gehört jetzt
+dazu.
+
+
+                                * * *
+
+
+Specifications / Werkdaten
+
+   Title / Titel       1919-1.337
+   Year / Jahr         2026
+   Format              Real-time browser audio-visualisation
+                       (Canvas 2D + Web Audio API)
+   Duration / Dauer    Open-ended; 1.337 s per rotation. Audio
+                       rendered offline as a 89-pulse seamless loop
+                       (119.0 s).
+   Sources / Quellen   Pulse plot procedurally generated, evoking
+                       H. D. Craft Jr. (1970). Audio derived from
+                       Joy Division — "Disorder" (from Unknown
+                       Pleasures, Factory Records, 1979), processed
+                       beyond recognisability and played in
+                       non-recurring 180 ms windows.

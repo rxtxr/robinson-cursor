@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>1919-1.337 — robinson-cursor / day 029</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="stage" aria-label="1919-1.337">
+    <canvas id="stage" aria-hidden="true"></canvas>
+
+    <header class="telemetry telemetry--top" aria-live="off">
+      <span class="tel-label">PSR B1919+21</span>
+      <span class="tel-sep" aria-hidden="true">·</span>
+      <span class="tel-value" id="telStatus">STANDBY</span>
+    </header>
+
+    <footer class="telemetry telemetry--bottom">
+      <span class="tel-pair">
+        <span class="tel-label">PULSE</span>
+        <span class="tel-value" id="telPulse">—</span>
+      </span>
+      <span class="tel-pair">
+        <span class="tel-label">SIGNAL</span>
+        <span class="tel-value" id="telTime">—</span>
+      </span>
+    </footer>
+
+    <button id="muteBtn" class="mute" type="button" aria-pressed="false" aria-label="Mute signal" hidden>
+      <span class="mute__on">SIGNAL</span>
+      <span class="mute__off">MUTED</span>
+    </button>
+
+    <section id="start" class="overlay" aria-live="polite">
+      <div class="overlay__inner">
+        <p class="overlay__eyebrow">PSR B1919+21 · 1.337 s</p>
+        <h1 class="overlay__title">1919-1.337</h1>
+        <p class="overlay__lede">
+          2,300 light-years out, a signal turns once every 1.337 seconds.
+          On each rotation a 180-millisecond keyhole opens onto the broadcast —
+          bandwidth-starved, wrapped in static, half-imagined.
+        </p>
+        <button id="startBtn" class="overlay__btn" type="button">
+          <span>Click to receive signal</span>
+        </button>
+        <p class="overlay__hint" id="startHint">Audio + visual. Best with headphones.</p>
+      </div>
+    </section>
+
+    <div id="error" class="error" hidden></div>
+  </main>
+
+  <aside class="credit">
+    <p class="credit__nav">
+      <a href="STATEMENT.txt" target="_top" rel="noopener">Work note</a>
+      · <a href="/" target="_top" rel="noopener">robinson-cursor.com</a>
+      · day 029
+    </p>
+  </aside>
+
+  <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+/* ──────────────────────────────────────────────────────────────────────────
+   1919-1.337 — day 029
+   Aesthetic: refined minimalism. Warm near-black on warm off-white lines.
+   Type: IBM Plex Mono for telemetry, EB Garamond italic for the title only.
+   ────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* not pure black / pure white — slightly warm, slightly aged */
+  --bg:        #0c0a08;
+  --bg-rgb:    12, 10, 8;
+  --fg:        #ebe5d6;
+  --fg-rgb:    235, 229, 214;
+  --muted:     #6f6a60;
+  --muted-dim: #4a463f;
+  --hairline:  rgba(235, 229, 214, 0.10);
+
+  --mono:    'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --serif:   'EB Garamond', 'Iowan Old Style', Georgia, serif;
+
+  --pad-edge: clamp(14px, 2.4vw, 28px);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--mono);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+body { background: var(--bg); }
+
+/* ── stage ─────────────────────────────────────────────────────────────── */
+
+.stage {
+  position: fixed;
+  inset: 0;
+  display: block;
+}
+
+#stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* analog noise overlay — extremely subtle, helps avoid flat-AI feel */
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 160px 160px;
+}
+
+/* ── telemetry (top + bottom) ──────────────────────────────────────────── */
+
+.telemetry {
+  position: absolute;
+  left: var(--pad-edge);
+  right: var(--pad-edge);
+  display: flex;
+  align-items: baseline;
+  gap: 1.4em;
+  font-family: var(--mono);
+  font-weight: 300;
+  font-size: clamp(10px, 1.05vw, 12px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.telemetry--top    { top: var(--pad-edge); }
+.telemetry--bottom {
+  bottom: var(--pad-edge);
+  justify-content: space-between;
+  flex-wrap: wrap;
+  row-gap: 0.5em;
+}
+
+.tel-label { color: var(--muted-dim); }
+.tel-value { color: var(--fg); font-variant-numeric: tabular-nums; }
+.tel-sep   { color: var(--muted-dim); }
+
+.tel-pair { display: inline-flex; gap: 0.7em; }
+
+/* ── mute button ───────────────────────────────────────────────────────── */
+
+.mute {
+  position: absolute;
+  top: var(--pad-edge);
+  right: var(--pad-edge);
+  z-index: 6;
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 6px 10px 5px;
+  cursor: pointer;
+  transition: border-color 200ms ease, color 200ms ease;
+}
+.mute:hover { border-color: var(--fg); }
+.mute__off { display: none; color: var(--muted); }
+.mute[aria-pressed="true"] .mute__on  { display: none; }
+.mute[aria-pressed="true"] .mute__off { display: inline; }
+
+/* ── start overlay ─────────────────────────────────────────────────────── */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at center, rgba(var(--bg-rgb), 0.92) 0%, rgba(var(--bg-rgb), 0.98) 60%);
+  backdrop-filter: blur(2px);
+  transition: opacity 700ms ease;
+}
+.overlay.hide { opacity: 0; pointer-events: none; }
+
+.overlay__inner {
+  max-width: 540px;
+  padding: 0 28px;
+  text-align: center;
+}
+
+.overlay__eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 1.2em;
+}
+
+.overlay__title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(40px, 6.4vw, 72px);
+  line-height: 1.0;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.55em;
+  color: var(--fg);
+}
+
+.overlay__lede {
+  font-family: var(--mono);
+  font-weight: 300;
+  font-size: clamp(12px, 1.1vw, 14px);
+  line-height: 1.7;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  margin: 0 auto 2.4em;
+  max-width: 38ch;
+}
+
+.overlay__btn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--fg);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  padding: 14px 30px 12px;
+  cursor: pointer;
+  transition: background 220ms ease, color 220ms ease, letter-spacing 220ms ease;
+}
+.overlay__btn:hover {
+  background: var(--fg);
+  color: var(--bg);
+  letter-spacing: 0.34em;
+}
+.overlay__btn:disabled {
+  opacity: 0.4;
+  cursor: progress;
+  letter-spacing: 0.28em;
+}
+
+.overlay__hint {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted-dim);
+  margin: 1.6em 0 0;
+}
+
+/* ── error ─────────────────────────────────────────────────────────────── */
+
+.error {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: rgba(var(--bg-rgb), 0.96);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--fg);
+  text-align: center;
+  padding: 0 24px;
+  line-height: 1.7;
+}
+/* explicit display:grid above wins over the UA's [hidden]{display:none}, so we re-assert it */
+.error[hidden] { display: none; }
+.error code {
+  background: rgba(var(--fg-rgb), 0.06);
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+/* ── credit (page-level, below the stage on tall viewports) ────────────── */
+
+.credit {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 4;
+  pointer-events: none;
+  padding: 0 var(--pad-edge) var(--pad-edge);
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted-dim);
+  line-height: 1.7;
+}
+.credit p { margin: 0; max-width: 760px; margin-left: auto; margin-right: auto; }
+.credit em { font-style: italic; }
+.credit a {
+  color: var(--muted);
+  text-decoration: none;
+  pointer-events: auto;
+  border-bottom: 1px solid transparent;
+  transition: color 180ms ease, border-color 180ms ease;
+}
+.credit a:hover { color: var(--fg); border-color: var(--hairline); }
+.credit__nav { margin-top: 0.5em !important; }
+
+/* lift the bottom telemetry above the credit so they don't collide */
+.telemetry--bottom { bottom: calc(var(--pad-edge) + 56px); }
+@media (max-height: 540px) {
+  /* very short viewports: hide top telemetry to keep stack height usable */
+  .telemetry--top { display: none; }
+}
