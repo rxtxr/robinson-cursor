@@ -568,11 +568,41 @@ body.debug .hud {
   color: var(--col-fg-dim);
 }
 
-/* Changelog lightbox — markdown rendered client-side from CHANGELOG.md.
-   Narrower than the default panel (text-only, no video) so long-form
-   reads stay readable; vertical scroll inherits from .lightbox__panel. */
-.lightbox__panel:has(.changelog-body) {
+/* Changelog + known-issues lightboxes — markdown rendered client-side
+   (changelog from CHANGELOG.md, known-issues from a JS template). Both
+   are narrower than the default panel so long-form reads stay
+   readable; vertical scroll inherits from .lightbox__panel. */
+.lightbox__panel:has(.changelog-body),
+.lightbox__panel:has(.known-issues-body) {
   max-width: min(640px, calc(100% - 3rem));
+}
+
+/* Cross-link footer between the long-form lightboxes (changelog ↔
+   known-issues, feedback → known-issues). A small mono-font hint that
+   doesn't compete with the main body. */
+.lightbox__crosslink {
+  margin-top: 1.6rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--col-land-line);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--col-fg-mute);
+}
+.lightbox__crosslink a {
+  color: var(--col-fg-dim);
+  border-bottom: 1px dotted var(--col-fg-mute);
+}
+.lightbox__crosslink a:hover {
+  color: var(--col-ochre);
+  border-bottom-color: var(--col-ochre);
+}
+.lightbox__crosslink-note {
+  margin-top: 1.4rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--col-land-line);
+  font-size: 0.95rem;
+  color: var(--col-fg-dim);
 }
 .changelog-body h1,
 .changelog-body h2,

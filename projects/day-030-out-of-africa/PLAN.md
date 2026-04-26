@@ -122,6 +122,65 @@ Short visual + content polish triggered by the 2026-04-26 evening review. Ran fu
 - [x] Commit with the standard message format. — two commits on 2026-04-26: `chore: add /api/feedback Worker route + KV binding` (041359b) and `day 030: out-of-africa — Phase 5 polish, UX pass, local images` (a4c06bd).
 - [x] Push, watch the Cloudflare Pages build. — pushed to main 2026-04-26; deploy succeeded; first feedback-form roundtrip confirmed end-to-end (KV write + Resend email arrival at mareisen@pm.me).
 
+## Phase 7 — Post-publication review backlog
+
+Findings from the four-track review (anthropology / software architecture / scientific visualization / art direction) on 2026-04-26. The five highest-impact items shipped same day; everything below is the documented residue. Surfaced in-app via the *Known issues & TODOs* lightbox (linked from changelog + feedback), so readers can see what's wobbly without having to read this file.
+
+The project is otherwise complete and the data layer is frozen. Anything in this phase is opt-in polish, not a blocker.
+
+### Anthropology — content / data layer
+
+**Critical (would fix if a Phase 7.1 happens):**
+
+- [ ] **`madagascar-settlement.origin_id`** points to `lubang-jeriji-saleh` (40 ka Borneo cave painter). 38.5-ka cultural-ancestry leap, violates the project's own *origin arcs ≠ cultural ancestry* rule. Quick-fix: set `origin_id: null`. Right-fix: introduce a new `austronesian-expansion` chain (Taiwan ~5 ka → SE-Borneo ~2 ka → Madagascar ~1.2 ka).
+- [ ] Audit all 27 `origin_id` chains against the rule "origin marker is on screen at arc start *and* the link is physical migration, not cultural inheritance". The `_arcFaintOrigin` flag is already computed; could become a hard filter.
+- [ ] **Toba lay-summary** ("may have squeezed our population to a near-bottleneck") rehabilitates a hypothesis the technical summary itself calls "largely rejected". Reword the lay tier to match.
+- [ ] **Levallois pin** at Sinai (lat 30, lon 34) contradicts the multi-origin framing the entry's own summary now carries. Either drop the pin or render as a regional hull (analogue to Aurignacian / IUP).
+- [ ] **`split-neanderthal-vs-denisovan`** is pinned at Atapuerca (Spain) for a deep-genetics population split. Re-pin to `africa-central` (analogous to the Sapiens split) or render off-map as a tree-only event.
+
+**Discutable / framing:**
+
+- [ ] **Apidima 1** stored as `date_range_kya: [210, 210]` despite the entry being explicitly classified as `contested`. Widen to a real range (e.g. `[220, 170]`) so the panel's mini-axis communicates the uncertainty.
+- [ ] **Africa-only origins** all chain off Omo Kibish, suggesting a single-source model the project's own pan-African framing rejects. At minimum, re-point Misliya's origin to Jebel Irhoud / North Africa (Aterian context, Sahara corridor).
+- [ ] **Cro-Magnon** date format: `~28 ka ¹⁴C BP` is uncalibrated where every other entry is cal BP. Either calibrate or flag the convention break.
+
+**Gaps (would require new events):**
+
+- [ ] **Al Wusta 1** (Saudi Arabia, Groucutt 2018, ~88 ka) — third direct-dated pre-OOA *H. sapiens* site after Misliya / Skhul; absent.
+- [ ] **Tam Pà Ling** (Laos, ~70 ka) — strongest evidence for *H. sapiens* in mainland SE Asia beyond the Daoxian dispute; absent.
+- [ ] **Niah Cave "Deep Skull"** (Borneo, ~40 ka) — Sundaland arrival; absent.
+- [ ] **Liang Bua / *H. floresiensis*** and **Callao Cave / *H. luzonensis*** — independent late-Pleistocene hominin lineages in Wallacea; absent.
+- [ ] **Bantu expansion** (~3 ka, West Africa) — re-shaped sub-Saharan Africa linguistically and genomically; absent. Co-prerequisite for the Madagascar founding population.
+- [ ] **Inner-African diversity** is visually four pins (Jebel Irhoud + Florisbad + Omo + Kabwe) on an otherwise empty subcontinent. Add Iwo Eleru, Aduma/Herto, or Pinnacle Point detail to make Scerri 2018's pan-African metapopulation visible.
+- [ ] **Solutrean hypothesis** as a `rejected` event would be a pedagogical win (currently a sub-clause of the Solutrean entry).
+
+### Scientific visualization
+
+- [ ] **Time-axis tick labels** (`300 ka · 100 ka · 30 ka · 5 ka · 1 ka`) under the scrubber. Without them the piecewise-linear clock's non-linearity is invisible — readers can't ground the scrubber position in a date without reading the clock readout mid-drag.
+- [ ] **Double date-range bar** in the panel mini-axis: dark core for "best estimate", lighter halo for outer bound. Distinguishes "we know this within ±5 ka" from "somewhere between 280 and 350 ka".
+- [ ] **22 point-date events** (`older==younger`) are real ranges in the source studies. The data under-specifies the uncertainty here. Schema change: keep a separate `date_best_kya` field for headline number.
+- [ ] **Marker form-channel** unused — only Color encodes category. Glyph (knochen/spitze/stern/welle) would let CB-safety relax and disambiguate the dense IUP / Aurignacian clusters.
+- [ ] **Distortion honesty** in flat-map mode: a Tissot indicator on hover or a small scale-bar would acknowledge the ~30 % distortion the Natural-Earth projection introduces at high latitudes / Polynesia.
+- [ ] **Cluster hulls anonymous** — Aurignacian and IUP are unlabelled coloured shapes. Add a single small label at the hull centroid.
+- [ ] **Modern coastline + LGM ice sheets**: the coastline is always today's. At 20 ka the entire shore was 120 m lower. README is honest about this; the viz isn't. Either render the ETOPO-120 m line during glacial windows or note the simplification on hover.
+
+### Software architecture
+
+- [ ] **Drag-handle mobile bottom-sheet** (`::before` on `.panel`) suggests a drag-to-dismiss gesture that JS does not implement — affordance lie.
+- [ ] **Doppelter Escape-Listener** (`main.js:1186` + `main.js:1673`) — harmless, but `closePanel()` fires when panel isn't open.
+- [ ] **`getComputedStyle(document.body)` per label-frame** at `main.js:716` and `main.js:870`. Cache the var lookup once at init.
+- [ ] **Toter Back-of-Globe-Composite-Pfad** (`BACK_OF_GLOBE_ALPHA = 0`) — clear/drawImage every frame for nothing. Documented re-enable path; cleanup is style only.
+- [ ] **PNG → WebP** for 9 panel images (~5 MB saving). Lazy-loaded so no first-paint impact.
+- [ ] **`lightboxLastFocused`** is module-scope while `state.lastFocused` is in the state object — inconsistent focus-tracking pattern.
+- [ ] **Ice-sheet polygons hard-coded in `main.js`** while every other dataset lives in `assets/*.json`. Move for consistency.
+
+### Art direction
+
+- [ ] **Aspect-aware behaviour for `.is-portrait` / `.is-square` shipped 2026-04-26.** Remaining: italic-set artist credit (Daynès, Kennis) in image captions where present; subtle inset shadow / hairline border for portrait crops.
+- [ ] **Long-form essay mode** — a vertical-scroll prose view of the same 81 milestones with the globe mini-mapped on the side. Would lift the project from *interactive map* to *long-form internet piece* (Pudding / NYT register). Largest discretionary investment.
+- [ ] **About-lightbox text** is currently a single utilitarian sentence ("press play to watch the story unfold"). Real editorial voice — Garamond italics, pull-quote, lead — would set the tone for first-time visitors.
+- [ ] **Bottombar polish** — the `← all projects · about · changelog · feedback · known issues` chain is set in 0.7 rem mute mono. Disproportionately leise vs. the rest of the chrome's craft level.
+
 ## Risks & mitigations
 
 | Risk | Mitigation |

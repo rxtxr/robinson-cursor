@@ -1901,6 +1901,102 @@ async function openChangelogLightbox() {
       `<p>Could not load the changelog (${err.message || "unknown error"}).</p>` +
       `<p>Read the raw file: <a href="CHANGELOG.md" target="_blank" rel="noopener noreferrer">CHANGELOG.md ↗</a></p>`;
   }
+  appendKnownIssuesFooter(wrap);
+}
+
+// Cross-link footer: every long-form lightbox (changelog, feedback) gets
+// a small "→ Known issues & TODOs" link at the bottom so readers don't
+// have to hunt for the residue list.
+function appendKnownIssuesFooter(parent) {
+  const footer = document.createElement("p");
+  footer.className = "lightbox__crosslink";
+  const a = document.createElement("a");
+  a.href = "#";
+  a.textContent = "→ Known issues & TODOs";
+  a.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeLightbox();
+    // requestAnimationFrame gap so the close transition completes before
+    // the next openLightbox swaps content under the same panel.
+    requestAnimationFrame(() => requestAnimationFrame(openKnownIssuesLightbox));
+  });
+  footer.appendChild(a);
+  parent.appendChild(footer);
+}
+
+// Known issues + TODOs page — a reader-facing condensation of
+// PLAN.md Phase 7 (post-publication review backlog). Linked from the
+// changelog and feedback lightboxes only; not in the bottom-bar.
+function openKnownIssuesLightbox() {
+  openLightbox("Known issues & TODOs", knownIssuesContent());
+}
+
+function knownIssuesContent() {
+  const wrap = document.createElement("div");
+  wrap.className = "changelog-body known-issues-body";
+  wrap.innerHTML = `
+<h1>Known issues &amp; TODOs</h1>
+
+<p>What the four-track post-publication review (anthropology / software architecture / scientific visualization / art direction) found that is still outstanding. The five highest-impact fixes shipped on 2026-04-26 — see <a href="#" data-link="changelog">Changelog</a>. Everything below is documented residue, kept honest rather than hidden.</p>
+
+<h2>Anthropology — content gaps &amp; wobble</h2>
+
+<h3>Migration arrows that overreach</h3>
+<p>Madagascar is currently linked back to a 40,000-year-old cave painter in Borneo (Lubang Jeriji Saleh). That's a 38,500-year cultural-ancestry leap — not a physical migration — and it violates this project's own rule that arcs only show physical movement. Quick-fix planned: drop the link. Right-fix: introduce an Austronesian expansion chain (Taiwan → SE Borneo → Madagascar).</p>
+
+<h3>Dates that should be ranges</h3>
+<p>Apidima 1 is stored as a single point (~210 ka) even though the entry is classified as <code>contested</code>. The mini-axis under the panel date should show a real uncertainty range — that's what the contested label is for.</p>
+
+<h3>Sites the map doesn't have</h3>
+<ul>
+  <li><strong>Al Wusta 1</strong> (Saudi Arabia, ~88 ka) — third direct-dated pre-Out-of-Africa <em>H. sapiens</em> site after Misliya / Skhul.</li>
+  <li><strong>Tam Pà Ling</strong> (Laos, ~70 ka) — strongest evidence for <em>H. sapiens</em> in mainland Southeast Asia.</li>
+  <li><strong>Niah Cave</strong> "Deep Skull" (Borneo, ~40 ka) — Sundaland arrival.</li>
+  <li><strong>Liang Bua / <em>H. floresiensis</em></strong> &amp; <strong>Callao Cave / <em>H. luzonensis</em></strong> — independent late-Pleistocene hominin lineages in Wallacea / the Philippines.</li>
+  <li><strong>Bantu expansion</strong> (~3 ka, West Africa) — re-shaped sub-Saharan Africa linguistically and genomically; co-prerequisite for the Madagascar founding population.</li>
+  <li>The four inner-African pins (Jebel Irhoud, Florisbad, Omo, Kabwe) leave the rest of the subcontinent visually empty. Adding Iwo Eleru or Aduma/Herto would make the pan-African metapopulation model (Scerri 2018) actually visible.</li>
+</ul>
+
+<h3>Framing wobble</h3>
+<p>Toba's lay summary still hints at a "near-bottleneck" the technical summary correctly calls "largely rejected" — the lay text needs to catch up. Levallois's Sinai pin contradicts the multi-origin framing the entry's own summary now carries. The Neanderthal/Denisovan split is pinned to Atapuerca, Spain for what is really a deep-genetics population event with no single geographic locus.</p>
+
+<h2>Scientific visualization</h2>
+<ul>
+  <li><strong>Time-axis tick labels</strong> missing under the scrubber. The piecewise-linear clock compresses the first 300,000 years into 18 % of the bar — currently unsignalled.</li>
+  <li><strong>Double date-range bar</strong> in the panel mini-axis: a darker core for the best estimate, a lighter halo for the outer bound. Distinguishes "±5 ka" from "somewhere between 280 and 350 ka".</li>
+  <li><strong>Marker shape</strong> is unused — only color encodes category. Adding glyphs would help disambiguate dense Aurignacian / IUP clusters and reduce reliance on the new color-blind-safe palette.</li>
+  <li><strong>Modern coastline + LGM ice sheets</strong>: at 20 ka the actual shore was 120 m lower; we still draw today's coast under the ice. Honest about it in the README, not in the visualization itself.</li>
+  <li><strong>Cluster hulls</strong> (Aurignacian sphere, IUP sphere) render unlabelled — small centroid labels would make the cultural-sphere readable without the legend.</li>
+</ul>
+
+<h2>Software architecture</h2>
+<ul>
+  <li>Mobile bottom-sheet drag-handle suggests a swipe-to-dismiss gesture that isn't wired up — affordance lie.</li>
+  <li>Nine panel PNGs not yet converted to WebP (~5 MB saving; lazy-loaded so no critical-path impact).</li>
+  <li>Ice-sheet polygons hard-coded in <code>main.js</code> while every other dataset lives in <code>assets/*.json</code>.</li>
+</ul>
+
+<h2>Art direction</h2>
+<ul>
+  <li>About-lightbox text reads as utilitarian ("press play to watch the story unfold"). A real editorial voice — Garamond italics, lead, pull-quote — would set the register the rest of the chrome promises.</li>
+  <li>Long-form essay mode (vertical scroll prose with the globe mini-mapped on the side) is the largest discretionary investment that would lift the project from <em>map tool</em> to <em>internet long-read</em>.</li>
+</ul>
+
+<p class="lightbox__crosslink-note"><em>Spotted something not on this list? <a href="#" data-link="feedback">Send feedback →</a></em></p>
+`;
+  // Wire the in-body cross-links to the other long-form lightboxes.
+  for (const a of wrap.querySelectorAll('a[data-link]')) {
+    const dest = a.dataset.link;
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeLightbox();
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (dest === "changelog") openChangelogLightbox();
+        else if (dest === "feedback") openLightbox("Send feedback", feedbackForm(null));
+      }));
+    });
+  }
+  return wrap;
 }
 
 function feedbackForm(eventCtx /* { id, title } | null */) {
@@ -1946,6 +2042,7 @@ function feedbackForm(eventCtx /* { id, title } | null */) {
     </div>
   `);
   wrap.querySelector("#fbCancel").addEventListener("click", closeLightbox);
+  appendKnownIssuesFooter(wrap);
   return wrap;
 }
 
