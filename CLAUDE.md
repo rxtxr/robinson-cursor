@@ -36,6 +36,26 @@ Repo is `rxtxr/robinson-cursor` (no `.com`). Path starts at `projects/`.
 
 Faustregel: max. ~3 Wörter, sofort als technischer Begriff erkennbar. Versionen, Quellen, Build-vs-Runtime-Details gehören in `license_notes`. Vollständige Konvention in ROBINSON_CURSOR_CONTEXT.md.
 
+## Description in meta.json (card excerpt)
+Beschreibt das **Projekt** — die wichtigsten Aspekte, das Augenscheinlichste. Keine Randbemerkungen, keine internen Feature-Namen, kein Spec-Sheet.
+
+- **Was es ist** (Subjekt) + **wie es sich zeigt** (Form). Optional: Skala / Bookends.
+- ~25–40 Wörter, 1–2 Sätze. Lange aufzählende Multi-Klausel-Beschreibungen wirken im Card-Layout erschlagend.
+- Gut: `"315,000 years of how Homo sapiens spread across the planet, as a self-playing scrubbable globe. 81 milestones from the earliest fossils to the last Polynesian voyages."`
+- Schlecht (Spec-Sheet): `"...with hero image, plain-language excerpt, and primary citations. Dual projection: orthographic globe at world view, Natural Earth flat map when zoomed in. Routes follow plausible land corridors..."`
+
+Faustregel: würde ein Außenstehender beim Card-Lesen "ah, das schau ich mir an" denken? Wenn der Text Mechanik / Backend / Implementations-Details erklärt → zu lang.
+
+## Runtime-Daten: NICHT in `data/`
+Die Astro-`copyProjectsIntegration` (in `astro.config.mjs`) excluded jedes Verzeichnis namens `data/` aus `dist/embed/` (ursprünglich um day-002's 20 GB Music-Charts und day-027's 32 MB Build-Skripte vom Production-Build fernzuhalten). Konvention:
+
+- **Runtime-Files** (was im Browser gefetcht wird): am Project-Root, oder in `assets/`, oder unter dem üblichen `public/`-artigen Namen. Beispiel: `trees.json` direkt im day-027-Root, `assets/events.json` + `assets/images/` in day-030.
+- **Build-Skripte / Rohdaten** (nicht produktiv geserved): dürfen in `data/` bleiben — werden nicht deployed.
+
+Im Astro-Dev-Server greift die Vite-Middleware `/embed/*` direkt aus `projects/` ohne Filter — `data/`-Files funktionieren also lokal, aber **nicht in Production**. Symptom: 404 auf alle JSON-/Image-Pfade unter `/embed/<slug>/data/...` auf der Live-Site, lokal lädt alles.
+
+Aktuelle `EXCLUDE_DIRS`: `raw-data`, `data`, `scripts`, `__pycache__` (siehe `astro.config.mjs`).
+
 ## Commits
 Format: `day NNN: project-name — short description`
 Example: `day 001: music-visualizer — webaudio fft canvas visualization`
