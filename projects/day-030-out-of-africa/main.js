@@ -52,28 +52,33 @@ const CLOCK_BREAKPOINTS = [
   { progress: 1.00, yearsAgo:    670 }    // 25% in Holocene → ~1280 CE: Aotearoa
 ];
 
-// Category palette (provisional — Phase 5 will refine).
+// Category palette — Okabe-Ito 8-class qualitative, designed to stay
+// distinguishable under deuteranopia / protanopia / tritanopia. Replaces
+// the previous all-warm sediment palette where 4 of 7 categories collapsed
+// to indistinguishable orange under the most common red-green CB type.
+// Mapping prioritises (a) keeping fossil ≈ ochre as the brand-anchor and
+// (b) maximising hue distance between the four formerly-orange entries.
 const CATEGORY_COLORS = {
-  fossil:     "#c98a3b",   // ochre
-  art:        "#b03f1c",   // rust
-  tool:       "#9d8456",   // olive-tan
-  settlement: "#e2a04d",   // bright ochre
-  climate:    "#6b8e8a",   // sage-teal
-  branch:     "#7e6e9c",   // muted violet
-  admixture:  "#c9603b"    // clay-orange
+  fossil:     "#e69f00",   // amber          (Okabe-Ito orange — keeps brand)
+  art:        "#cc79a7",   // reddish purple (was rust)
+  tool:       "#009e73",   // bluish green   (was olive-tan)
+  settlement: "#f0e442",   // yellow         (was bright ochre)
+  climate:    "#56b4e9",   // sky blue       (was sage-teal)
+  branch:     "#999999",   // neutral grey   (backdrop layer; was muted violet)
+  admixture:  "#d55e00"    // vermillion     (was clay-orange — distinct from amber)
 };
 
-// Brightened versions used for label text only — the dark rust + olive
-// dot colors are too low-contrast against land for body text. Dots stay
-// in the original (saturated) palette so they read as colour-coded pins.
+// Slightly brightened variants for label text on dark land. Most Okabe-Ito
+// values are already legible on bg #161311 — these nudge the darker
+// entries (admixture vermillion, the green) a step toward the bone-white.
 const LABEL_COLORS = {
-  fossil:     "#e0a85d",
-  art:        "#e87555",
-  tool:       "#c0a878",
-  settlement: "#f0b870",
-  climate:    "#a8c8c2",
-  branch:     "#b0a0d0",
-  admixture:  "#e88060"
+  fossil:     "#f2b844",
+  art:        "#dd9cc0",
+  tool:       "#3fba94",
+  settlement: "#f4ec6f",
+  climate:    "#7fc4ee",
+  branch:     "#b3b3b3",
+  admixture:  "#e37733"
 };
 
 // Solid arc palette — no alpha. The "drawn" (post-arrival) and "faint origin"
@@ -341,6 +346,13 @@ function alternateDateForm(date_label, olderKa, youngerKa) {
 
 // ── init ──────────────────────────────────────────────────────────────────
 
+// Dev-overlay HUD (projection / zoom / α / back-of-globe count) is hidden
+// from the published page — gated behind `?debug=1`. Set the body class
+// before the first paint so we don't get a flash of the box.
+if (new URLSearchParams(location.search).has("debug")) {
+  document.body.classList.add("debug");
+}
+
 (async function init() {
   resize();
   window.addEventListener("resize", () => { resize(); state.needsRender = true; });
@@ -367,12 +379,25 @@ function alternateDateForm(date_label, olderKa, youngerKa) {
     openLightbox("Send feedback", feedbackForm({ id: ev.id, title: ev.title }));
   });
 
-  const [landTopo, events, paths, clusters] = await Promise.all([
-    fetch(LAND_URL).then(r => r.json()),
-    fetch(EVENTS_URL).then(r => r.json()),
-    fetch(PATHS_URL).then(r => r.json()),
-    fetch(CLUSTERS_URL).then(r => r.json())
-  ]);
+  // Any of the four fetches can fail — most likely the jsdelivr CDN. Without
+  // a catch the whole init silently throws and the play button stays disabled
+  // with no user-visible reason. Surface it in the timeline hint band.
+  let landTopo, events, paths, clusters;
+  try {
+    const fetchJSON = (url, name) => fetch(url).then(r => {
+      if (!r.ok) throw new Error(`${name}: HTTP ${r.status}`);
+      return r.json();
+    });
+    [landTopo, events, paths, clusters] = await Promise.all([
+      fetchJSON(LAND_URL,     "land"),
+      fetchJSON(EVENTS_URL,   "events"),
+      fetchJSON(PATHS_URL,    "paths"),
+      fetchJSON(CLUSTERS_URL, "clusters")
+    ]);
+  } catch (err) {
+    showLoadError(err);
+    return;
+  }
   state.land     = topojson.feature(landTopo, landTopo.objects.land);
   state.events   = events;
   state.paths    = paths;
@@ -463,6 +488,7 @@ function alternateDateForm(date_label, olderKa, youngerKa) {
   }
 
   buildScrubberTicks();
+  buildLegend();
 
   // Enable controls now that data is loaded.
   playPauseBtn.disabled = false;
@@ -1349,6 +1375,108 @@ function refreshTickSelection() {
   }
 }
 
+// Generate the legend body from the same constants used to render markers
+// and arcs, so the swatch always matches what the user sees on the map.
+// Only categories that actually appear in the loaded events are listed —
+// no ghost rows for unused slots.
+function buildLegend() {
+  const body = document.getElementById("legendBody");
+  if (!body) return;
+  body.innerHTML = "";
+
+  const usedCategories = new Set();
+  for (const m of state.markers) usedCategories.add(m.ev.category);
+  const usedRouteKinds = new Set();
+  for (const m of state.markers) {
+    if (m.ev._originCoords) usedRouteKinds.add(m.ev._arcRouteKind || "land");
+  }
+
+  function section(title) {
+    const h = document.createElement("div");
+    h.className = "legend__section-title";
+    h.textContent = title;
+    body.appendChild(h);
+  }
+  function dotRow(color, label) {
+    const row = document.createElement("div");
+    row.className = "legend__row";
+    const dot = document.createElement("span");
+    dot.className = "legend__dot";
+    dot.style.background = color;
+    row.appendChild(dot);
+    const text = document.createElement("span");
+    text.className = "legend__label";
+    text.textContent = label;
+    row.appendChild(text);
+    body.appendChild(row);
+  }
+  function lineRow(color, label, dashPattern, isSea) {
+    const row = document.createElement("div");
+    row.className = "legend__row";
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "legend__line");
+    svg.setAttribute("viewBox", "0 0 24 12");
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", "1"); line.setAttribute("y1", "6");
+    line.setAttribute("x2", "23"); line.setAttribute("y2", "6");
+    line.setAttribute("stroke", color);
+    line.setAttribute("stroke-width", "2.4");
+    line.setAttribute("stroke-linecap", "round");
+    if (dashPattern) line.setAttribute("stroke-dasharray", dashPattern);
+    svg.appendChild(line);
+    row.appendChild(svg);
+    const text = document.createElement("span");
+    text.className = "legend__label";
+    text.textContent = label;
+    row.appendChild(text);
+    body.appendChild(row);
+  }
+
+  // --- categories ---
+  section("Category");
+  const labels = {
+    fossil: "fossil", art: "art", tool: "tool",
+    settlement: "settlement", climate: "climate",
+    branch: "lineage split", admixture: "admixture"
+  };
+  for (const cat of ["fossil", "art", "tool", "settlement", "climate", "admixture", "branch"]) {
+    if (!usedCategories.has(cat)) continue;
+    dotRow(CATEGORY_COLORS[cat], labels[cat]);
+  }
+
+  // --- route kinds ---
+  if (usedRouteKinds.size) {
+    section("Migration route");
+    if (usedRouteKinds.has("land"))    lineRow(PATH_COLOR,         "land",    null,    false);
+    if (usedRouteKinds.has("coastal")) lineRow(PATH_COLOR_COASTAL, "coastal", "3 4",   false);
+    if (usedRouteKinds.has("sea"))     lineRow(PATH_COLOR_SEA,     "sea",     "7 5",   true);
+  }
+
+  // --- confidence ---
+  section("Confidence");
+  lineRow("#c98a3b", "well-established", null, false);
+  lineRow("#c98a3b", "debated / contested  (?)", "4 3", false);
+
+  // --- clusters ---
+  if (state.clusters && state.clusters.clusters && state.clusters.clusters.length) {
+    section("Cultural sphere");
+    for (const c of state.clusters.clusters) {
+      const row = document.createElement("div");
+      row.className = "legend__row";
+      const swatch = document.createElement("span");
+      swatch.className = "legend__hull";
+      swatch.style.background = c.color;
+      swatch.style.borderColor = c.stroke;
+      row.appendChild(swatch);
+      const text = document.createElement("span");
+      text.className = "legend__label";
+      text.textContent = c.name;
+      row.appendChild(text);
+      body.appendChild(row);
+    }
+  }
+}
+
 function updateScrubberThumb() {
   const pct = state.clock.progress * 100;
   scrubberThumb.style.left = `${pct}%`;
@@ -1358,11 +1486,28 @@ function updateScrubberThumb() {
 
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
+// Init failed before data loaded — usually the jsdelivr CDN being unreachable.
+// Reuse the timeline-hint slot so the user sees *something* instead of an
+// inert play button and an empty globe disc.
+function showLoadError(err) {
+  console.error("[out-of-africa] init failed:", err);
+  if (timelineHint) {
+    timelineHint.textContent = `Could not load map data — ${err && err.message ? err.message : "unknown error"}. Try reloading.`;
+    timelineHint.style.color = "var(--col-contested)";
+    timelineHint.style.textTransform = "none";
+    timelineHint.style.letterSpacing = "0";
+  }
+}
+
 // ── panel ─────────────────────────────────────────────────────────────────
 
 function openPanel(id) {
   const ev = state.eventsById.get(id);
   if (!ev) return;
+  // Defensive default: every downstream block reads ev.references.X.
+  // Hand-curated data should always have it, but a malformed entry shouldn't
+  // crash the whole panel.
+  if (!ev.references) ev.references = {};
 
   document.getElementById("panelCategory").textContent = ev.category;
   document.getElementById("panelTitle").textContent    = ev.title;
@@ -1434,8 +1579,9 @@ function openPanel(id) {
     imgEl.src = ev.image.url;
     imgEl.alt = ev.title;
     imgEl.className = "";
-    if (ev.image.aspect === "portrait") imgEl.classList.add("is-portrait");
-    else if (ev.image.aspect === "square") imgEl.classList.add("is-square");
+    if (ev.image.aspect === "portrait")     imgEl.classList.add("is-portrait");
+    else if (ev.image.aspect === "square")  imgEl.classList.add("is-square");
+    else                                    imgEl.classList.add("is-landscape");
     // Image click → Commons file page (where license + author live)
     imgLink.href = ev.image.file_page || "#";
     imgLink.removeAttribute("aria-disabled");
@@ -1819,7 +1965,7 @@ async function submitFeedback(e) {
   };
   if (!data.message) {
     status.dataset.state = "error";
-    status.textContent = "Bitte kurz schreiben was los ist.";
+    status.textContent = "Please write a short message.";
     return;
   }
 

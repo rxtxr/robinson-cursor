@@ -56,6 +56,14 @@
       </label>
     </div>
 
+    <!-- Legend — categories, route kinds, confidence, cluster.
+         Populated from CATEGORY_COLORS in main.js so it can never drift
+         out of sync with the actual rendering. Collapsible via <details>. -->
+    <details class="legend" id="legend" open>
+      <summary class="legend__summary">legend</summary>
+      <div class="legend__body" id="legendBody"></div>
+    </details>
+
     <nav class="bottombar" aria-label="Project navigation">
       <a href="/" target="_top" class="bottombar__link" rel="noopener">← all projects</a>
       <span class="bottombar__sep" aria-hidden="true">·</span>

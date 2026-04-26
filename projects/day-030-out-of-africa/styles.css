@@ -351,7 +351,12 @@ body {
 
 /* ── hud ──────────────────────────────────────────────────────────────── */
 
-.hud {
+/* Hidden by default — only revealed via `?debug=1` URL parameter (which
+   adds .debug to body in main.js). Editorial chrome shouldn't show internal
+   projection state to readers. */
+.hud { display: none; }
+body.debug .hud {
+  display: block;
   position: absolute;
   bottom: 0.75rem;
   left: 1rem;
@@ -628,6 +633,99 @@ body {
 .changelog-body em { color: var(--col-fg-dim); }
 .changelog-body strong { color: var(--col-fg); font-weight: 600; }
 
+/* ── legend (bottom-left) ─────────────────────────────────────────────── */
+
+.legend {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 1rem;
+  z-index: 4;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--col-fg-dim);
+  user-select: none;
+  background: rgba(22, 19, 17, 0.78);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid var(--col-land-line);
+  border-radius: 3px;
+  max-width: 230px;
+}
+.legend__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--col-fg-mute);
+  list-style: none;
+  user-select: none;
+}
+.legend__summary::-webkit-details-marker { display: none; }
+.legend__summary::after {
+  content: "▾";
+  margin-left: auto;
+  transition: transform 140ms;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+.legend:not([open]) .legend__summary::after { transform: rotate(-90deg); }
+.legend__summary:hover { color: var(--col-fg-dim); }
+.legend__summary:focus-visible {
+  outline: 1px solid var(--col-ochre);
+  outline-offset: 2px;
+}
+.legend__body {
+  padding: 0.2rem 0.7rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+.legend__section-title {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--col-fg-mute);
+  margin: 0.55rem 0 0.15rem;
+}
+.legend__section-title:first-child { margin-top: 0.15rem; }
+.legend__row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  line-height: 1.25;
+}
+.legend__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  /* dark outline for legibility on the bg-2 panel */
+  box-shadow: 0 0 0 1px rgba(14, 12, 10, 0.6) inset;
+}
+.legend__line {
+  width: 24px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.legend__hull {
+  width: 18px;
+  height: 12px;
+  flex-shrink: 0;
+  border: 1px dashed;
+  border-radius: 1px;
+}
+.legend__label {
+  color: var(--col-fg-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ── layer toggle (bottom-right) ──────────────────────────────────────── */
 
 .layers {
@@ -744,9 +842,12 @@ body {
 
 .panel__title {
   margin: 0 0 0.75rem;
-  font-size: clamp(1.3rem, 1.1rem + 0.6vw, 1.55rem);
+  /* Bumped one notch up from the Phase-4 size — gives the panel a real
+     editorial title moment instead of a slightly-larger body line. */
+  font-size: clamp(1.55rem, 1.3rem + 0.8vw, 1.95rem);
   font-weight: 500;
-  line-height: 1.2;
+  line-height: 1.18;
+  letter-spacing: -0.005em;
   color: var(--col-fg);
   /* avoid orphan-word wraps in the narrow panel */
   text-wrap: balance;
@@ -825,6 +926,18 @@ body {
   border-radius: 2px;
   background: var(--col-land);    /* placeholder while loading */
 }
+/* Aspect-aware crops — portraits and squares get more vertical room and
+   shift the focal point upward so heads/specimens aren't lopped off. The
+   Wikimedia source set is heterogeneous: a 16:9 landscape crop applied
+   uniformly was burying details on portrait reconstructions. */
+.panel__image img.is-portrait {
+  max-height: 320px;
+  object-position: center 22%;
+}
+.panel__image img.is-square {
+  max-height: 280px;
+  object-position: center;
+}
 .panel__image-caption {
   margin: 0.4rem 0 0;
   font-family: var(--font-mono);
@@ -895,8 +1008,13 @@ body {
 .panel__video-caption a:hover { color: var(--col-ochre); border-bottom-color: var(--col-ochre); }
 
 .panel__lay {
-  margin-top: 1.25rem;
-  font-size: clamp(0.98rem, 0.92rem + 0.3vw, 1.05rem);
+  margin-top: 1.5rem;
+  padding-top: 0.75rem;
+  /* Editorial lead-in mark — small ochre rule above the lay paragraph
+     signals "this is the storyteller's voice" vs. the technical summary
+     that follows. Subtle; reads as a sidenote bracket. */
+  position: relative;
+  font-size: clamp(1.05rem, 0.98rem + 0.35vw, 1.18rem);
   line-height: 1.5;
   color: var(--col-fg);
   font-family: var(--font-display);
@@ -910,8 +1028,22 @@ body {
   -webkit-hyphens: auto;
   hyphenate-limit-chars: 7 4 3;
 }
+.panel__lay::before {
+  content: "";
+  display: block;
+  width: 28px;
+  height: 2px;
+  background: var(--col-ochre);
+  margin-bottom: 0.7rem;
+}
 .panel__lay p { margin: 0 0 0.6rem; }
 .panel__lay p:last-child { margin-bottom: 0; }
+.panel__lay p:first-of-type::first-letter {
+  /* Small, unobtrusive lead-cap — single-line height so the paragraph
+     flows normally; just nudges the eye to the start of the read. */
+  font-weight: 500;
+  color: var(--col-ochre);
+}
 
 .panel__summary {
   margin-top: 1.25rem;
@@ -1104,7 +1236,12 @@ body {
   .panel__image img { max-height: 160px; }
   /* Hide chrome that would be obscured by the open sheet anyway */
   .panel[aria-hidden="false"] ~ .hud,
-  .panel[aria-hidden="false"] ~ .layers { display: none; }
+  .panel[aria-hidden="false"] ~ .layers,
+  .panel[aria-hidden="false"] ~ .legend { display: none; }
+  /* Legend competes with the layer toggle and HUD for screen real-estate
+     on phones — hide it; the panel and bottom-bar hold the essential
+     controls. */
+  .legend { display: none; }
   /* Timeline tightening */
   .timeline {
     gap: 0.6rem;
