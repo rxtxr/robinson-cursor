@@ -1,6 +1,6 @@
 # robinson-cursor.com
 
-365 days of vibecoding — one browser experiment per day.
+365 days of experiments — one browser experiment per day.
 
 ## What is this?
 
