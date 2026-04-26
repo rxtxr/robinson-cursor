@@ -109,8 +109,6 @@ IMAGES.md                   per-event Wikimedia image research + license invento
 SESSION-LOG.md              chronological session-by-session decisions
 ```
 
-The **runtime data lives in `assets/`, not `data/`** — the Astro `copyProjectsIntegration` excludes any directory called `data/` from the deploy (it's used by other projects for raw data dumps that shouldn't ship). Local Vite-middleware bypasses the filter, so `data/` works in dev but 404s in production. Spent half a debug session on this; documented in repo-root `CLAUDE.md`.
-
 ## Feedback pipeline
 
 Per-event and global feedback buttons open a lightbox with a small form (type / email / message). On submit, the form POSTs to `/api/feedback`, served by a Cloudflare Worker (`functions/api/feedback.js` at the repo root):
