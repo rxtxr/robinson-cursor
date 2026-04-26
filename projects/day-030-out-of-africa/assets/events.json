@@ -2424,9 +2424,8 @@
         ],
         "wikipedia": "https://en.wikipedia.org/wiki/White_Sands_fossil_footprints",
         "video": {
-          "title": "Ice Age Footprints",
-          "channel": "NOVA",
-          "url": "https://www.youtube.com/watch?v=LS7ChlsZsGI"
+          "todo": true,
+          "note": "NOVA Ice Age Footprints upload now private; needs a replacement source"
         }
       },
       "debated": false,
