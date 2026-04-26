@@ -17,9 +17,9 @@ import * as topojson  from "https://cdn.jsdelivr.net/npm/topojson-client@3/+esm"
 // ── constants ─────────────────────────────────────────────────────────────
 
 const LAND_URL     = "https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json";
-const EVENTS_URL   = "data/events.json";
-const PATHS_URL    = "data/paths.json";
-const CLUSTERS_URL = "data/clusters.json";
+const EVENTS_URL   = "assets/events.json";
+const PATHS_URL    = "assets/paths.json";
+const CLUSTERS_URL = "assets/clusters.json";
 
 const START_ROTATION = [10, -8, 0];
 const ZOOM_MIN        = 1.0;

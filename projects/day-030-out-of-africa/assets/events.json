@@ -57,7 +57,7 @@
       "notes": "Bottleneck-from-Toba narrative is largely abandoned. Visualization should not present it as established.",
       "summary_lay": "The largest known volcanic eruption in human history. It darkened skies worldwide and may have squeezed our population to a near-bottleneck — though new evidence suggests humans adapted faster than once thought.",
       "image": {
-        "url": "data/images/toba-supereruption.png",
+        "url": "assets/images/toba-supereruption.png",
         "license": "CC BY-SA 4.0",
         "attribution": "Anynobody",
         "file_page": "https://commons.wikimedia.org/wiki/File:Tobaeruption.png",
@@ -101,7 +101,7 @@
       "notes": "Multiple distinct AHPs — visualization should pulse rather than be a single band.",
       "summary_lay": "Times when the Sahara was green grassland with rivers and lakes, not desert. These wet windows opened and closed corridors out of Africa, controlling when humans could move north.",
       "image": {
-        "url": "data/images/african-humid-periods.jpg",
+        "url": "assets/images/african-humid-periods.jpg",
         "license": "Public domain",
         "attribution": "NASA",
         "file_page": "https://commons.wikimedia.org/wiki/File:Sahara_satellite_hires.jpg",
@@ -145,7 +145,7 @@
       "notes": "Almost every late-Pleistocene migration story depends on which side of the LGM it sits on.",
       "summary_lay": "The peak of the last Ice Age. Sea levels dropped roughly 120 metres and ice sheets covered much of the Northern Hemisphere; humans crammed into southern refuges, while continents that are now separated by water were briefly walkable.",
       "image": {
-        "url": "data/images/last-glacial-maximum.jpg",
+        "url": "assets/images/last-glacial-maximum.jpg",
         "license": "CC BY-SA 3.0",
         "attribution": "Wikimedia Commons",
         "file_page": "https://commons.wikimedia.org/wiki/File:CLIMAP.jpg",
@@ -189,7 +189,7 @@
       "notes": "",
       "summary_lay": "When sea levels were low, Asia and Alaska were connected by a flat plain the size of Texas. People lived on it for thousands of years — and walked across it to become the first Americans.",
       "image": {
-        "url": "data/images/bering-land-bridge.gif",
+        "url": "assets/images/bering-land-bridge.gif",
         "license": "Public domain",
         "attribution": "NOAA",
         "file_page": "https://commons.wikimedia.org/wiki/File:Beringia_land_bridge-noaagov.gif",
@@ -233,7 +233,7 @@
       "notes": "Standard reference for the visualization’s sea-level overlay.",
       "summary_lay": "When ice locked up the oceans, Southeast Asia and Australia became two giant landmasses: Sundaland and Sahul. The gap between them shrank but never closed, so reaching Australia always required a boat.",
       "image": {
-        "url": "data/images/pleistocene-sea-levels-sunda-sahul.png",
+        "url": "assets/images/pleistocene-sea-levels-sunda-sahul.png",
         "license": "license unknown",
         "attribution": "Wikimedia Commons",
         "file_page": "",
@@ -277,7 +277,7 @@
       "notes": "Tree-node event. Render as a fork on the lineage strand, not a map pin.",
       "summary_lay": "Our last common ancestor with Neanderthals and Denisovans lived in Africa. After this split our lineage stayed; the others left and evolved separately for half a million years before we met them again.",
       "image": {
-        "url": "data/images/split-sapiens-vs-neanderthal-denisovan.png",
+        "url": "assets/images/split-sapiens-vs-neanderthal-denisovan.png",
         "license": "CC BY-SA 4.0",
         "attribution": "Dbachmann",
         "file_page": "https://commons.wikimedia.org/wiki/File:Hominini_lineage.svg",
@@ -321,7 +321,7 @@
       "notes": "",
       "summary_lay": "Neanderthals (Western Eurasia) and Denisovans (Eastern Eurasia) split off from a shared ancestor and evolved as sister populations. Both survived in Eurasia until our species arrived and interbred with them.",
       "image": {
-        "url": "data/images/split-neanderthal-vs-denisovan.jpg",
+        "url": "assets/images/split-neanderthal-vs-denisovan.jpg",
         "license": "CC BY 4.0",
         "attribution": "Fu et al. (2025)",
         "file_page": "https://commons.wikimedia.org/wiki/File:Homo_longi_holotype.jpg",
@@ -375,7 +375,7 @@
       "notes": "Location placeholder is the Levantine corridor where the contact most plausibly happened; the event is genomic, not archaeological.",
       "summary_lay": "When Homo sapiens first met Neanderthals in the Levant, the encounter wasn't extinction-only — they had children together. Every non-African alive today carries 1–4 % Neanderthal DNA from this brief overlap.",
       "image": {
-        "url": "data/images/neanderthal-admixture.jpg",
+        "url": "assets/images/neanderthal-admixture.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Bioanthropologist1",
         "file_page": "",
@@ -431,7 +431,7 @@
       "route_kind": "coastal",
       "summary_lay": "Modern humans heading east interbred with Denisovans, Neanderthals' eastern cousins. The genetic legacy survives strongest in Aboriginal Australians, Papuans and some East Asians; a Tibetan high-altitude allele came directly from Denisovans.",
       "image": {
-        "url": "data/images/denisovan-admixture.jpg",
+        "url": "assets/images/denisovan-admixture.jpg",
         "license": "CC BY 4.0",
         "attribution": "Fu et al. (2025)",
         "file_page": "https://commons.wikimedia.org/wiki/File:Homo_longi_holotype.jpg",
@@ -486,7 +486,7 @@
       "notes": "",
       "summary_lay": "A 3.2-million-year-old skeleton from Ethiopia: not a member of our species, but our distant cousin who already walked upright on two legs. Lucy showed bipedalism came long before big brains.",
       "image": {
-        "url": "data/images/lucy-al-288-1.jpg",
+        "url": "assets/images/lucy-al-288-1.jpg",
         "license": "CC BY 2.5",
         "attribution": "120",
         "file_page": "https://commons.wikimedia.org/wiki/File:Reconstruction_of_the_fossil_skeleton_of_%22Lucy%22_the_Australopithecus_afarensis.jpg",
@@ -532,7 +532,7 @@
       "notes": "",
       "summary_lay": "A nearly complete skeleton of a 3-year-old Australopithecus — even older than Lucy. The shoulders suggest these ancestors were good climbers as well as walkers, living a hybrid life of trees and ground.",
       "image": {
-        "url": "data/images/selam-dikika-child.jpg",
+        "url": "assets/images/selam-dikika-child.jpg",
         "license": "CC BY-SA 2.0",
         "attribution": "Adam Jones from Kelowna, BC, Canada",
         "file_page": "https://commons.wikimedia.org/wiki/File:Replica_of_Skull_of_Child_of_Australopithecus_Afarensis_-_3.3_Million_Years_Old_-_National_Museum_of_Ethiopia_-_Addis_Ababa_-_Ethiopia_(8743137693).jpg",
@@ -584,7 +584,7 @@
       "notes": "",
       "summary_lay": "A near-complete teenage Homo erectus skeleton — the most complete early-human skeleton ever found. From the neck down he looks startlingly modern: tall, long-limbed, built for endurance walking and running.",
       "image": {
-        "url": "data/images/turkana-boy.jpg",
+        "url": "assets/images/turkana-boy.jpg",
         "license": "CC BY-SA 2.0",
         "attribution": "Claire Houck from New York City, USA",
         "file_page": "https://commons.wikimedia.org/wiki/File:Turkana_Boy.jpg",
@@ -643,7 +643,7 @@
       "notes": "Implicitly anchors the H. erectus out-of-Africa context; we don’t need a separate ‘H. erectus OOA’ milestone.",
       "summary_lay": "The oldest hominin fossils ever found outside Africa, in modern Georgia. Members of an early Homo population that had already left Africa 1.85 million years ago, with brains barely larger than a chimp's — proving you didn't need a big brain to leave the continent.",
       "image": {
-        "url": "data/images/dmanisi-skull-5.jpg",
+        "url": "assets/images/dmanisi-skull-5.jpg",
         "license": "Public domain",
         "attribution": "Rama",
         "file_page": "https://commons.wikimedia.org/wiki/File:Homo_Georgicus_IMG_2921.JPG",
@@ -697,7 +697,7 @@
       "notes": "Pegs the latest possible date for the Neanderthal–Denisovan split; see split-neanderthal-vs-denisovan.",
       "summary_lay": "Over 6,000 fossils from at least 28 individuals dropped into a Spanish cave shaft 430,000 years ago. They show the early stages of Neanderthal evolution and yielded the oldest hominin DNA we have.",
       "image": {
-        "url": "data/images/sima-de-los-huesos.jpg",
+        "url": "assets/images/sima-de-los-huesos.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Dorieo",
         "file_page": "https://commons.wikimedia.org/wiki/File:Homo_heidelbergensis._Museo_de_Prehistoria_de_Valencia.jpg",
@@ -743,7 +743,7 @@
       "notes": "",
       "summary_lay": "An archaic Homo skull from Zambia with a massive brow ridge. Once thought to be one of our direct ancestors; now placed alongside Homo heidelbergensis on a side branch of the family tree.",
       "image": {
-        "url": "data/images/kabwe-broken-hill.jpg",
+        "url": "assets/images/kabwe-broken-hill.jpg",
         "license": "CC BY-SA 3.0",
         "attribution": "Gerbil",
         "file_page": "https://commons.wikimedia.org/wiki/File:Broken_Hill_Skull_(Replica01).jpg",
@@ -802,7 +802,7 @@
       "notes": "",
       "summary_lay": "Currently the oldest fossils ever attributed to our species. Found in Morocco, they push the origin of Homo sapiens back by 100,000 years — and out of an East-African 'cradle' to a pan-continental setting.",
       "image": {
-        "url": "data/images/jebel-irhoud.jpg",
+        "url": "assets/images/jebel-irhoud.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Jonathan Chen",
         "file_page": "https://commons.wikimedia.org/wiki/File:Jebel_Irhoud-1_NMNH.jpg",
@@ -851,7 +851,7 @@
       "confidence_note": "Single ESR date with site-history complications (mixed sediments, possible reworking); taxonomic assignment (H. sapiens vs. H. helmei vs. transitional) also contested.",
       "summary_lay": "An archaic-looking partial skull from South Africa with surprisingly modern features. Often grouped at the base of our species; both the date and the taxonomic assignment are contested.",
       "image": {
-        "url": "data/images/florisbad.jpg",
+        "url": "assets/images/florisbad.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Jonathan Chen",
         "file_page": "https://commons.wikimedia.org/wiki/File:Florisbad_NMNH.jpg",
@@ -899,7 +899,7 @@
       "notes": "",
       "summary_lay": "A famously well-preserved skull from southern Ethiopia, long held up as the textbook 'first modern human.' Recent dating pushes its age past 230,000 years, in line with Jebel Irhoud.",
       "image": {
-        "url": "data/images/omo-kibish-1.jpg",
+        "url": "assets/images/omo-kibish-1.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "GuillaumeG",
         "file_page": "https://commons.wikimedia.org/wiki/File:Omo_Kibish_-_MCN_4152_(cropped).jpg",
@@ -951,7 +951,7 @@
       ],
       "summary_lay": "An upper jaw from Mount Carmel, Israel — the earliest Homo sapiens fossil ever found outside Africa. Shows our species was poking out of Africa long before the main expansion.",
       "image": {
-        "url": "data/images/misliya-cave.jpg",
+        "url": "assets/images/misliya-cave.jpg",
         "license": "CC BY 3.0",
         "attribution": "Hanay",
         "file_page": "https://commons.wikimedia.org/wiki/File:Misliya_cave_in_Megadim_Cliff,_Mount_Carmel.jpg",
@@ -1006,7 +1006,7 @@
       "notes": "",
       "summary_lay": "Two Israeli cave sites with multiple Homo sapiens skeletons from ~120-90 ka. They mark an earlier wave out of Africa that didn't go on to settle Eurasia — a partly-failed attempt.",
       "image": {
-        "url": "data/images/skhul-qafzeh.jpg",
+        "url": "assets/images/skhul-qafzeh.jpg",
         "license": "CC BY-SA 3.0 fr",
         "attribution": "Rama",
         "file_page": "https://commons.wikimedia.org/wiki/File:Skhul_5_cast,_norma_frontalis.jpg",
@@ -1079,7 +1079,7 @@
       ],
       "summary_lay": "A partial skull fragment from Greece argued to be Homo sapiens at over 210,000 years old. If the identification holds, it would mean our species reached Europe far earlier than the textbook says — but several specialists strongly dispute it.",
       "image": {
-        "url": "data/images/apidima-1.jpg",
+        "url": "assets/images/apidima-1.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Tyrannohotep",
         "file_page": "",
@@ -1181,7 +1181,7 @@
       "notes": "",
       "summary_lay": "A child's finger bone from a Siberian cave that turned out to belong to a previously-unknown human species — the Denisovans. Discovered through DNA, not anatomy.",
       "image": {
-        "url": "data/images/denisova-3.jpg",
+        "url": "assets/images/denisova-3.jpg",
         "license": "CC BY-SA 3.0",
         "attribution": "Thilo Parg",
         "file_page": "https://commons.wikimedia.org/wiki/File:Denisova_Phalanx_distalis.jpg",
@@ -1227,7 +1227,7 @@
       "notes": "",
       "summary_lay": "A robust jawbone from a Tibetan cave, found in 1980 by a monk. Recently identified as Denisovan via ancient proteins — the first Denisovan fossil outside Siberia.",
       "image": {
-        "url": "data/images/xiahe-mandible.jpg",
+        "url": "assets/images/xiahe-mandible.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Dongju Zhang",
         "file_page": "https://commons.wikimedia.org/wiki/File:Xiahe_mandible.jpg",
@@ -1269,7 +1269,7 @@
       "notes": "",
       "summary_lay": "A Denisovan tooth from a Laotian cave. Pushes the known Denisovan range deep into Southeast Asia and helps explain why Aboriginal Australians and Papuans carry the most Denisovan DNA.",
       "image": {
-        "url": "data/images/cobra-cave-tam-ngu-hao.jpg",
+        "url": "assets/images/cobra-cave-tam-ngu-hao.jpg",
         "license": "CC0",
         "attribution": "Demeter F, Shackelford L, Westaway K, Duringer P, Bacon A-M, et al.",
         "file_page": "https://commons.wikimedia.org/wiki/File:Tam_Pa_Ling_cave_south_entrance.jpg",
@@ -1321,7 +1321,7 @@
       "notes": "Useful as the pivot point for the ‘how the popular image of Neanderthals changed’ sub-story.",
       "summary_lay": "The Neanderthal skeleton that defined the public image of Neanderthals — once misread as a bent-over brute. The misinterpretation took half a century to undo.",
       "image": {
-        "url": "data/images/la-chapelle-aux-saints.jpg",
+        "url": "assets/images/la-chapelle-aux-saints.jpg",
         "license": "CC BY 2.5",
         "attribution": "PLoS",
         "file_page": "https://commons.wikimedia.org/wiki/File:Neandertal_skull_from_la_chapelle_aux_saints.jpg",
@@ -1375,7 +1375,7 @@
       "notes": "",
       "summary_lay": "Multiple Neanderthal skeletons from a Kurdish cave, including one that may have been buried with flowers. Some of our best evidence for Neanderthal social and possibly ritual life.",
       "image": {
-        "url": "data/images/shanidar-cave.jpg",
+        "url": "assets/images/shanidar-cave.jpg",
         "license": "CC BY 2.0",
         "attribution": "James Gordon from Los Angeles, California, USA",
         "file_page": "https://commons.wikimedia.org/wiki/File:Shanidar_skull.jpg",
@@ -1421,7 +1421,7 @@
       "notes": "",
       "summary_lay": "An Italian Neanderthal skeleton fused into a cave's mineral wall — it can't be safely extracted. It has yielded the oldest sequenced Neanderthal DNA so far.",
       "image": {
-        "url": "data/images/altamura-man.jpg",
+        "url": "assets/images/altamura-man.jpg",
         "license": "Wikipedia local upload — likely fair use or non-free; verify before reuse",
         "attribution": "Wikimedia Commons",
         "file_page": "",
@@ -1477,7 +1477,7 @@
       "route_kind": "land",
       "summary_lay": "The successful expansion: a small group of Homo sapiens left Africa around 60,000 years ago, and every non-African alive today descends from them. Earlier waves either died out or left no genetic trace.",
       "image": {
-        "url": "data/images/main-out-of-africa.png",
+        "url": "assets/images/main-out-of-africa.png",
         "license": "license unknown",
         "attribution": "Wikimedia Commons",
         "file_page": "",
@@ -1521,7 +1521,7 @@
       "notes": "Render as a coastal arc, not a pin.",
       "summary_lay": "The hypothesised fast-track along the Indian Ocean coast — from East Africa across Arabia, India, Southeast Asia all the way to Australia. Coastlines offered consistent food, fresh water, and a reliable navigational guide.",
       "image": {
-        "url": "data/images/southern-coastal-route.png",
+        "url": "assets/images/southern-coastal-route.png",
         "license": "Public domain",
         "attribution": "NordNordWest",
         "file_page": "",
@@ -1585,7 +1585,7 @@
       ],
       "summary_lay": "A French cave with stone tools and a single Homo sapiens tooth at 54,000 years old — 10,000 years before the conventional 'modern humans arrive in Europe' date. A short-lived early intrusion.",
       "image": {
-        "url": "data/images/grotte-mandrin.jpg",
+        "url": "assets/images/grotte-mandrin.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Ségolène Vandevelde",
         "file_page": "https://commons.wikimedia.org/wiki/File:Mandrin_Cave_(from_the_sky).jpg",
@@ -1650,7 +1650,7 @@
       ],
       "summary_lay": "A Bulgarian cave with the oldest confirmed Homo sapiens fossils in Europe — 45,000 years old, alongside Initial Upper Paleolithic tools. Caught a population that mostly didn't make it further west.",
       "image": {
-        "url": "data/images/bacho-kiro.jpg",
+        "url": "assets/images/bacho-kiro.jpg",
         "license": "CC BY 2.5",
         "attribution": "Wikimedia Commons",
         "file_page": "https://commons.wikimedia.org/wiki/File:Bacho_Kiro_Cave.jpg",
@@ -1700,7 +1700,7 @@
       "route_kind": "land",
       "summary_lay": "A Romanian skull with around 6–10 % Neanderthal DNA — the equivalent of a Neanderthal great-great-grandparent. Direct evidence of recent interbreeding between the two species.",
       "image": {
-        "url": "data/images/pestera-cu-oase-1.jpg",
+        "url": "assets/images/pestera-cu-oase-1.jpg",
         "license": "CC BY-SA 2.0",
         "attribution": "Ryan Somma",
         "file_page": "https://commons.wikimedia.org/wiki/File:Oase_2-Homo_Sapiens.jpg",
@@ -1777,7 +1777,7 @@
       ],
       "summary_lay": "A German cave with bone fragments revealing the earliest Homo sapiens north of the Alps. Pushes the modern-human reach into Ice Age Europe.",
       "image": {
-        "url": "data/images/ranis-ilsenhohle.jpg",
+        "url": "assets/images/ranis-ilsenhohle.jpg",
         "license": "CC0",
         "attribution": "Ansgar Koreng",
         "file_page": "https://commons.wikimedia.org/wiki/File:Burg_Ranis_mit_Ilsenh%C3%B6hle.jpg",
@@ -1850,7 +1850,7 @@
       ],
       "summary_lay": "A Czech skull from a woman with no surviving descendants. Her genome belongs to a 'lost' early Homo sapiens lineage that dead-ended in Europe.",
       "image": {
-        "url": "data/images/zlaty-kun.jpg",
+        "url": "assets/images/zlaty-kun.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Kay Prüfer, Cosimo Posth, He Yu, Alexander Stoessel, Maria A. Spyrou, Thibaut Deviese, Marco Mattonai, Erika Ribechini, Thomas Higham, Petr Velemínský, Jaroslav Brůžek &amp; Johannes Krause",
         "file_page": "",
@@ -1904,7 +1904,7 @@
       ],
       "summary_lay": "A 45,000-year-old leg bone from western Siberia: the oldest near-complete genome of an early Homo sapiens. Proved we'd already crossed Asia by 45 ka.",
       "image": {
-        "url": "data/images/ust-ishim-man.jpg",
+        "url": "assets/images/ust-ishim-man.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "CRamosAcosta",
         "file_page": "https://commons.wikimedia.org/wiki/File:Femur_ust-ishim_2.jpg",
@@ -2053,7 +2053,7 @@
       "notes": "",
       "summary_lay": "A Belgian Aurignacian-age individual whose genome ties him to early hunter-gatherers across Europe. Part of the genetic backbone before later population turnovers.",
       "image": {
-        "url": "data/images/goyet-q116-1.jpg",
+        "url": "assets/images/goyet-q116-1.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Karmakolle",
         "file_page": "https://commons.wikimedia.org/wiki/File:Finds_from_Goyet_and_Trou_Magrite_in_the_Museum_for_Natural_Sciences_of_Belgium_(cropped).jpg",
@@ -2105,7 +2105,7 @@
       "notes": "",
       "summary_lay": "The 1868 French skeleton that gave the name 'Cro-Magnon' to the popular image of Ice Age Europeans. Slightly later than peak Aurignacian — really an early Gravettian.",
       "image": {
-        "url": "data/images/cro-magnon-1.png",
+        "url": "assets/images/cro-magnon-1.png",
         "license": "Public domain",
         "attribution": "Wikimedia Commons",
         "file_page": "https://commons.wikimedia.org/wiki/File:Cro-Magnon-male-skull.png",
@@ -2159,7 +2159,7 @@
       "notes": "",
       "summary_lay": "Russian burials from 30,000 years ago, lavishly decorated with thousands of carved mammoth-ivory beads. Show that Ice Age Europeans had complex social hierarchies and burial rituals.",
       "image": {
-        "url": "data/images/sungir-burials.jpg",
+        "url": "assets/images/sungir-burials.jpg",
         "license": "Public domain",
         "attribution": "José-Manuel Benito Álvarez",
         "file_page": "https://commons.wikimedia.org/wiki/File:Sunghir-tumba_paleol%C3%ADtica.jpg",
@@ -2212,7 +2212,7 @@
       "notes": "",
       "summary_lay": "A Czech site with the world's oldest known fired ceramics — 26,000 years old, and most figurines are deliberately broken. Pottery made for ritual, not for storage.",
       "image": {
-        "url": "data/images/dolni-vestonice.jpg",
+        "url": "assets/images/dolni-vestonice.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "User:Zde",
         "file_page": "https://commons.wikimedia.org/wiki/File:Female_face,_ivory_carving,_Doln%C3%AD_V%C4%9Bstonice,_Gravettian,_28_000_-_22_000_BP.jpg",
@@ -2328,7 +2328,7 @@
       "route_kind": "land",
       "summary_lay": "Two of the oldest human burials in Australia. Mungo Lady was cremated; Mungo Man was sprinkled with red ochre. Sophisticated mortuary practice 40,000 years ago.",
       "image": {
-        "url": "data/images/lake-mungo.jpg",
+        "url": "assets/images/lake-mungo.jpg",
         "license": "Public domain",
         "attribution": "NASA Earth Observatory image by Wanmei Liang, using Landsat data from the U.S. Geological Survey. Story by Lindsey Doermann.",
         "file_page": "https://commons.wikimedia.org/wiki/File:Lake_Mungo%E2%80%99s_Geological_and_Archaeological_Treasures_(153686).jpg",
@@ -2385,7 +2385,7 @@
       ],
       "summary_lay": "The model that ancestral Native Americans spent thousands of years isolated on the Bering land bridge before pushing south. Explains why they form a distinct genetic branch.",
       "image": {
-        "url": "data/images/beringian-standstill.png",
+        "url": "assets/images/beringian-standstill.png",
         "license": "license unknown",
         "attribution": "Wikimedia Commons",
         "file_page": "",
@@ -2454,7 +2454,7 @@
       ],
       "summary_lay": "Human footprints baked into New Mexico mud during the depths of the last Ice Age. If the dates hold, they push the human arrival in the Americas thousands of years earlier than once thought.",
       "image": {
-        "url": "data/images/white-sands-footprints.jpg",
+        "url": "assets/images/white-sands-footprints.jpg",
         "license": "Public domain",
         "attribution": "US Geological Service",
         "file_page": "https://commons.wikimedia.org/wiki/File:Human_fossil_tracks_at_White_Sands_New_Mexico.jpg",
@@ -2560,7 +2560,7 @@
       ],
       "summary_lay": "A Chilean site that broke the 'Clovis-first' consensus by showing humans reached southern South America 14,500 years ago — long before the inland Clovis arrival. A 2025 reassessment now contests its very age.",
       "image": {
-        "url": "data/images/monte-verde-ii.jpg",
+        "url": "assets/images/monte-verde-ii.jpg",
         "license": "CC BY 2.0",
         "attribution": "Geología Valdivia",
         "file_page": "https://commons.wikimedia.org/wiki/File:Monte_Verde_2012.jpg",
@@ -2614,7 +2614,7 @@
       "notes": "Important counter-example to the ‘skulls before genomes’ misreading of population affinity.",
       "summary_lay": "A Pacific Northwest skeleton at the centre of a long legal battle. DNA finally proved his closest living relatives are local Native American tribes — vindicating indigenous oral history.",
       "image": {
-        "url": "data/images/kennewick-man.jpg",
+        "url": "assets/images/kennewick-man.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Ghedoghedo",
         "file_page": "https://commons.wikimedia.org/wiki/File:Kennewick_Man.jpg",
@@ -2662,7 +2662,7 @@
       "route_kind": "land",
       "summary_lay": "A teenage girl's skeleton recovered from a flooded Yucatán cavern. Her genome links the earliest Americans directly to all later Native American groups.",
       "image": {
-        "url": "data/images/naia-hoyo-negro.jpg",
+        "url": "assets/images/naia-hoyo-negro.jpg",
         "license": "CC BY-SA 3.0",
         "attribution": "Cristina Mittermeier",
         "file_page": "",
@@ -2722,7 +2722,7 @@
       "notes": "Pivotal entry for the ‘light-skin Europeans are recent’ honesty point in the visualization.",
       "summary_lay": "A 10,000-year-old British skeleton whose genome rewrote the popular image of early Europeans: dark skin and blue eyes were the original combination. Light skin in Europe is a much later change.",
       "image": {
-        "url": "data/images/cheddar-man.jpg",
+        "url": "assets/images/cheddar-man.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Photo by user:geni",
         "file_page": "https://commons.wikimedia.org/wiki/File:Cheddar_man_skull.jpg",
@@ -2825,7 +2825,7 @@
       "notes": "",
       "summary_lay": "A Luxembourgish hunter-gatherer with the same dark-skin / blue-eye profile as Cheddar Man and La Braña — three independent confirmations that this was the rule, not an exception.",
       "image": {
-        "url": "data/images/loschbour-man.jpg",
+        "url": "assets/images/loschbour-man.jpg",
         "license": "Public domain",
         "attribution": "(iz). Ingozwank at de.wikipedia",
         "file_page": "https://commons.wikimedia.org/wiki/File:Loschbur-Mann_IMG_4779.jpg",
@@ -2886,7 +2886,7 @@
       ],
       "summary_lay": "A wave of Austronesian-speaking voyagers carrying distinctive dentate-stamped pottery, who sailed from the Bismarck Archipelago across to Fiji, Samoa and Tonga in just a few centuries. Then they paused — for 1,800 years — before pushing on.",
       "image": {
-        "url": "data/images/lapita-expansion.png",
+        "url": "assets/images/lapita-expansion.png",
         "license": "CC BY-SA 3.0",
         "attribution": "Christophe cagé",
         "file_page": "https://commons.wikimedia.org/wiki/File:Carte_lapita.png",
@@ -2937,7 +2937,7 @@
       "route_kind": "sea",
       "summary_lay": "The launch pad for the rest of Polynesia. The first East Polynesian settlement, after which a single rapid pulse fanned out to Hawaiʻi, Rapa Nui, the Marquesas and Aotearoa within ~150 years.",
       "image": {
-        "url": "data/images/society-islands-tahiti.png",
+        "url": "assets/images/society-islands-tahiti.png",
         "license": "Public domain",
         "attribution": "Hobe / Holger Behr",
         "file_page": "https://commons.wikimedia.org/wiki/File:Karta_FP_Societe_isl.PNG",
@@ -2981,7 +2981,7 @@
       "route_kind": "sea",
       "summary_lay": "The northeast arm of the great Polynesian fan-out, settled in the same 1190–1290 CE pulse from Tahiti. Once thought to be a stepping stone to Hawaiʻi and Rapa Nui.",
       "image": {
-        "url": "data/images/marquesas.jpg",
+        "url": "assets/images/marquesas.jpg",
         "license": "CC BY-SA 2.0",
         "attribution": "Moth Clark from Oxford, England",
         "file_page": "https://commons.wikimedia.org/wiki/File:Tiki_Maki%CA%BBi_Tau%CA%BBa_Pepe_or_the_Flying_Tiki,_at_me%CA%BBae_I%CA%BBipona,_Puama%CA%BBu_Village,_Hiva_Oa,_Marquesas_Islands,_photograph_by_Moth_Clark,_2009.jpg",
@@ -3034,7 +3034,7 @@
       "route_kind": "sea",
       "summary_lay": "Settled by Polynesians from the Society Islands during the same explosive pulse that filled Eastern Polynesia in the late 12th–13th centuries. The northern arm of a single voyaging tradition.",
       "image": {
-        "url": "data/images/hawaii.jpg",
+        "url": "assets/images/hawaii.jpg",
         "license": "Public domain",
         "attribution": "Kalama, Simona P.; Lahainaluna Seminary",
         "file_page": "https://commons.wikimedia.org/wiki/File:Na_mokupuni_o_Hawaii_nei_LOC_98680907.jpg",
@@ -3083,7 +3083,7 @@
       "route_kind": "sea",
       "summary_lay": "The most isolated inhabited island on Earth. Settled extremely late by Polynesian voyagers — the famous moai statues, the deforestation, and European contact all unfold within ~600 years.",
       "image": {
-        "url": "data/images/rapa-nui.jpg",
+        "url": "assets/images/rapa-nui.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "kallerna",
         "file_page": "https://commons.wikimedia.org/wiki/File:Easter_Island_5.jpg",
@@ -3129,7 +3129,7 @@
       "route_kind": "sea",
       "summary_lay": "The last major landmass on Earth to be settled by humans, only ~770 years ago. Polynesian voyagers from East Polynesia found and colonised it within a 50-year window.",
       "image": {
-        "url": "data/images/east-polynesia-aotearoa.jpg",
+        "url": "assets/images/east-polynesia-aotearoa.jpg",
         "license": "CC0",
         "attribution": "Obsidian Soul",
         "file_page": "https://commons.wikimedia.org/wiki/File:Te_Paranihi_-_M%C4%81ori_waka_taua_(war_canoe)_from_the_Otago_Museum_02.jpg",
@@ -3189,7 +3189,7 @@
       ],
       "summary_lay": "An island twice the size of Britain reached late, by Austronesian voyagers from Borneo who crossed the Indian Ocean. Bantu-speaking African populations arrived around the same time from the west.",
       "image": {
-        "url": "data/images/madagascar-settlement.jpg",
+        "url": "assets/images/madagascar-settlement.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Rakotovaogael",
         "file_page": "https://commons.wikimedia.org/wiki/File:Vezo_people%27s_dugout_canoe.jpg",
@@ -3233,7 +3233,7 @@
       "notes": "Lomekwian (~3.3 Ma) precedes Oldowan but is contested (likely pre-Homo); not promoted to a top-level milestone in this dataset.",
       "summary_lay": "The oldest stone tool industry — sharp-edged flakes knocked off pebbles. Used by early Homo and even some Australopithecus relatives. The toolkit that defined 'us' against the other apes.",
       "image": {
-        "url": "data/images/oldowan.jpg",
+        "url": "assets/images/oldowan.jpg",
         "license": "Public domain",
         "attribution": "José-Manuel Benito Álvarez (España) —&gt; Locutus Borg",
         "file_page": "https://commons.wikimedia.org/wiki/File:Canto_tallado_2-Guelmim-Es_Semara.jpg",
@@ -3277,7 +3277,7 @@
       "notes": "",
       "summary_lay": "The handaxe — the most successful tool design in history, used essentially unchanged for over 1.5 million years. Made by Homo erectus and its descendants from South Africa to Britain.",
       "image": {
-        "url": "data/images/acheulean.jpg",
+        "url": "assets/images/acheulean.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Wikimedia Commons",
         "file_page": "https://commons.wikimedia.org/wiki/File:Biface_de_St_Acheul_MHNT.jpg",
@@ -3321,7 +3321,7 @@
       "notes": "",
       "summary_lay": "A clever stone-working trick: prepare a core carefully, then strike off a single perfectly-shaped flake. Marks a cognitive leap toward planning the tool *before* making it.",
       "image": {
-        "url": "data/images/levallois.jpg",
+        "url": "assets/images/levallois.jpg",
         "license": "CC0",
         "attribution": "Gary Todd",
         "file_page": "https://commons.wikimedia.org/wiki/File:Production_of_points_%26_spearheads_from_a_flint_stone_core,_Levallois_technique,_Mousterian_Culture,_Tabun_Cave,_250,000-50,000_BP_(detail).jpg",
@@ -3365,7 +3365,7 @@
       "notes": "",
       "summary_lay": "The classic Neanderthal toolkit — built on Levallois cores for over 250,000 years across Europe and the Near East. The end of the Mousterian roughly tracks the end of Neanderthals.",
       "image": {
-        "url": "data/images/mousterian.jpg",
+        "url": "assets/images/mousterian.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Zde",
         "file_page": "https://commons.wikimedia.org/wiki/File:Skull_of_Neanderthal_from_Moustier,_Welcome_to_the_Neandertals,_Brno,_187899.jpg",
@@ -3407,7 +3407,7 @@
       "notes": "",
       "summary_lay": "A North African toolkit with hafted, tanged stone points — among the earliest evidence of mounting tools onto handles. Made by African Homo sapiens during the wet windows when the Sahara was green.",
       "image": {
-        "url": "data/images/aterian.jpg",
+        "url": "assets/images/aterian.jpg",
         "license": "CC BY-SA 3.0",
         "attribution": "Michel-georges bernard",
         "file_page": "https://commons.wikimedia.org/wiki/File:At%C3%A9rien_(Djelfa).JPG",
@@ -3484,7 +3484,7 @@
       "notes": "",
       "summary_lay": "A bridge industry — between Middle and Upper Paleolithic, with blade-based tools. The first sign of Homo sapiens reaching Europe and East Asia ~50–45 ka.",
       "image": {
-        "url": "data/images/initial-upper-paleolithic.jpg",
+        "url": "assets/images/initial-upper-paleolithic.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Mateja Hajdinjak, Fabrizio Mafessoni",
         "file_page": "https://commons.wikimedia.org/wiki/File:Initial_Upper_Paleolithic_human_remains_and_assemblage_sites.jpg",
@@ -3526,7 +3526,7 @@
       "notes": "",
       "summary_lay": "The first 'fully Upper Paleolithic' Western Eurasian industry. Bone points, ivory ornaments, the first figurative art — a rich material culture that travelled with the Homo sapiens expansion.",
       "image": {
-        "url": "data/images/aurignacian.jpg",
+        "url": "assets/images/aurignacian.jpg",
         "license": "Public domain",
         "attribution": "Wikimedia Commons",
         "file_page": "https://commons.wikimedia.org/wiki/File:Sagaie_base_fendue.jpg",
@@ -3568,7 +3568,7 @@
       "notes": "Useful entry for showing how the LGM forced regional cultural retraction; also a memorable rejected-hypothesis (Solutrean-into-the-Americas) anchor.",
       "summary_lay": "A western European Ice Age industry famous for exquisite leaf-shaped 'laurel-leaf' points. Concentrated in Iberian and French refuges during the LGM, then vanished as the ice retreated.",
       "image": {
-        "url": "data/images/solutrean.jpg",
+        "url": "assets/images/solutrean.jpg",
         "license": "CC BY-SA 3.0",
         "attribution": "BastienM",
         "file_page": "https://commons.wikimedia.org/wiki/File:Feuille_de_laurier_-_solutr%C3%A9en.jpg",
@@ -3612,7 +3612,7 @@
       "notes": "",
       "summary_lay": "The classic 'first American' fluted spear-point industry, briefly dominant across North America 13,000 years ago. Once thought to mark the arrival of humans in the Americas; now we know there were earlier groups.",
       "image": {
-        "url": "data/images/clovis.jpg",
+        "url": "assets/images/clovis.jpg",
         "license": "CC BY-SA 2.0",
         "attribution": "Tim Evanson",
         "file_page": "https://commons.wikimedia.org/wiki/File:Clovis_spearpoints_-_Cleveland_Museum_of_Natural_History.jpg",
@@ -3664,7 +3664,7 @@
       "notes": "Combined entry per the curation strategy — three Henshilwood papers form one Blombos toolkit milestone rather than three separate dots stacked at the same coordinate.",
       "summary_lay": "Cave-dwellers in South Africa drilled and strung shells into beads, etched cross-hatched patterns into ochre and made paint kits. A package of behaviours we used to think only later humans had.",
       "image": {
-        "url": "data/images/blombos-toolkit.jpg",
+        "url": "assets/images/blombos-toolkit.jpg",
         "license": "CC BY-SA 3.0",
         "attribution": "Vincent Mourre / Inrap",
         "file_page": "https://commons.wikimedia.org/wiki/File:Blombos.jpg",
@@ -3706,7 +3706,7 @@
       "notes": "",
       "summary_lay": "South African toolmakers heated specific stones in fire to make them easier to flake. Doing this requires planning a multi-step process and waiting for results — abstract thought, in stone.",
       "image": {
-        "url": "data/images/pinnacle-point-heat-treatment.jpg",
+        "url": "assets/images/pinnacle-point-heat-treatment.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Satdeep Gill",
         "file_page": "",
@@ -3748,7 +3748,7 @@
       "notes": "",
       "summary_lay": "Ostrich eggshells used as water flasks, decorated with consistent geometric patterns over thousands of years. The patterns may be the oldest known graphic 'tradition.'",
       "image": {
-        "url": "data/images/diepkloof-eggshells.jpg",
+        "url": "assets/images/diepkloof-eggshells.jpg",
         "license": "CC BY-SA 3.0",
         "attribution": "Nkansah Rexford",
         "file_page": "https://commons.wikimedia.org/wiki/File:Iziko_engraving_ostrich_eggshell.JPG",
@@ -3790,7 +3790,7 @@
       "notes": "Supersedes Leang Tedongnge (~45.5 ka) and El Castillo (~40.8 ka) as the oldest rock art.",
       "summary_lay": "A red-pigment hand stencil on an Indonesian cave wall — currently the oldest dated rock art on Earth. Older than the European Ice Age caves by 25,000 years.",
       "image": {
-        "url": "data/images/sulawesi-muna-hand-stencil.jpg",
+        "url": "assets/images/sulawesi-muna-hand-stencil.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Sabjan Badio",
         "file_page": "",
@@ -3832,7 +3832,7 @@
       "notes": "",
       "summary_lay": "An Indonesian cave painting of a man-pig narrative scene — the oldest known *story-telling* image. Older than Lascaux by tens of millennia.",
       "image": {
-        "url": "data/images/leang-karampuang.jpg",
+        "url": "assets/images/leang-karampuang.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Anhar Karim",
         "file_page": "",
@@ -3882,7 +3882,7 @@
       ],
       "summary_lay": "A figurative animal painting on a Borneo cave wall, over 40,000 years old. Confirms that the earliest figurative art was a Southeast Asian, not European, achievement.",
       "image": {
-        "url": "data/images/lubang-jeriji-saleh.jpg",
+        "url": "assets/images/lubang-jeriji-saleh.jpg",
         "license": "Public domain",
         "attribution": "@ photo Luc-Henri Fage, www.fage.fr.",
         "file_page": "https://commons.wikimedia.org/wiki/File:Lubang_Jeriji_Sal%C3%A9h_cave_painting_of_Bull.jpg",
@@ -3937,7 +3937,7 @@
       "confidence_note": "Hoffmann et al. 2018 U-Th dates of cave-art crusts contested by White et al. 2020 (J. Hum. Evol.) — carbonate-substrate / open-system effects could mean the dated material is older than the underlying art.",
       "summary_lay": "Cave paintings in Spain that, by U-series dating, predate Homo sapiens' arrival in Europe — implying Neanderthals made them. The dating is contested.",
       "image": {
-        "url": "data/images/iberia-neanderthal-cave-art.jpg",
+        "url": "assets/images/iberia-neanderthal-cave-art.jpg",
         "license": "CC BY-SA 3.0",
         "attribution": "P4K1T0",
         "file_page": "https://commons.wikimedia.org/wiki/File:Cueva_de_los_Aviones.JPG",
@@ -3989,7 +3989,7 @@
       "notes": "Combined Venus + flutes; same cave, same Aurignacian context.",
       "summary_lay": "A 6 cm carved 'Venus' figurine and a flute made from vulture bone, both from the same German cave. Among the oldest known figurative art and music instruments.",
       "image": {
-        "url": "data/images/hohle-fels-venus-flutes.jpg",
+        "url": "assets/images/hohle-fels-venus-flutes.jpg",
         "license": "Wikipedia local upload — likely fair use or non-free; verify before reuse",
         "attribution": "Wikimedia Commons",
         "file_page": "",
@@ -4033,7 +4033,7 @@
       "notes": "",
       "summary_lay": "A 30 cm ivory carving of a half-lion, half-human figure — a chimera, an idea that doesn't exist in nature. Symbolic thought made object.",
       "image": {
-        "url": "data/images/lowenmensch.jpg",
+        "url": "assets/images/lowenmensch.jpg",
         "license": "CC BY-SA 4.0",
         "attribution": "Dagmar Hollmann",
         "file_page": "https://commons.wikimedia.org/wiki/File:Loewenmensch1.jpg",
@@ -4077,7 +4077,7 @@
       "notes": "",
       "summary_lay": "A French cave preserving some of the most accomplished Ice Age paintings — horses, lions, bison, rhinos rendered with spatial depth and motion. The 'first' major painted cave.",
       "image": {
-        "url": "data/images/chauvet-pont-darc.jpg",
+        "url": "assets/images/chauvet-pont-darc.jpg",
         "license": "Public domain",
         "attribution": "HTO",
         "file_page": "https://commons.wikimedia.org/wiki/File:Paintings_from_the_Chauvet_cave_(museum_replica).jpg",
@@ -4119,7 +4119,7 @@
       "notes": "",
       "summary_lay": "The most famous Ice Age painted cave, in southwestern France. Aurochs, horses and deer leaping across the walls — the popular image of European prehistory.",
       "image": {
-        "url": "data/images/lascaux.jpg",
+        "url": "assets/images/lascaux.jpg",
         "license": "Public domain",
         "attribution": "EU",
         "file_page": "https://commons.wikimedia.org/wiki/File:Lascaux_painting.jpg",
