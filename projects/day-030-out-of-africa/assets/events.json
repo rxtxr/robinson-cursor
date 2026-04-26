@@ -234,9 +234,9 @@
       "summary_lay": "When ice locked up the oceans, Southeast Asia and Australia became two giant landmasses: Sundaland and Sahul. The gap between them shrank but never closed, so reaching Australia always required a boat.",
       "image": {
         "url": "assets/images/pleistocene-sea-levels-sunda-sahul.png",
-        "license": "license unknown",
-        "attribution": "Wikimedia Commons",
-        "file_page": "",
+        "license": "CC BY-SA 4.0",
+        "attribution": "listfiles/Kanguole",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Map_of_Sunda_and_Sahul.svg",
         "aspect": "square"
       }
     },
@@ -1422,9 +1422,9 @@
       "summary_lay": "An Italian Neanderthal skeleton fused into a cave's mineral wall — it can't be safely extracted. It has yielded the oldest sequenced Neanderthal DNA so far.",
       "image": {
         "url": "assets/images/altamura-man.jpg",
-        "license": "Wikipedia local upload — likely fair use or non-free; verify before reuse",
-        "attribution": "Wikimedia Commons",
-        "file_page": "",
+        "license": "CC BY 4.0",
+        "attribution": "Costantino Buzi, Marco Boggioni, Andrea Borsato, Giovanni Boschian, Damiano Marchi, Jacopo Moggi-Cecchi, Antonio Profico, Alessandro Riga, Marco Samadelli, Giorgio Manzi",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Grotta_di_Lamalunga_Altamura_Man_1.jpg",
         "aspect": "landscape"
       }
     },
@@ -1478,9 +1478,9 @@
       "summary_lay": "The successful expansion: a small group of Homo sapiens left Africa around 60,000 years ago, and every non-African alive today descends from them. Earlier waves either died out or left no genetic trace.",
       "image": {
         "url": "assets/images/main-out-of-africa.png",
-        "license": "license unknown",
-        "attribution": "Wikimedia Commons",
-        "file_page": "",
+        "license": "Public domain",
+        "attribution": "NordNordWest",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Spreading_homo_sapiens_la.svg",
         "aspect": "landscape"
       }
     },
@@ -2386,9 +2386,9 @@
       "summary_lay": "The model that ancestral Native Americans spent thousands of years isolated on the Bering land bridge before pushing south. Explains why they form a distinct genetic branch.",
       "image": {
         "url": "assets/images/beringian-standstill.png",
-        "license": "license unknown",
-        "attribution": "Wikimedia Commons",
-        "file_page": "",
+        "license": "CC BY-SA 4.0",
+        "attribution": "User:Dbachmann",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Early_migrations_mercator.svg",
         "aspect": "landscape"
       }
     },
@@ -3990,10 +3990,10 @@
       "summary_lay": "A 6 cm carved 'Venus' figurine and a flute made from vulture bone, both from the same German cave. Among the oldest known figurative art and music instruments.",
       "image": {
         "url": "assets/images/hohle-fels-venus-flutes.jpg",
-        "license": "Wikipedia local upload — likely fair use or non-free; verify before reuse",
-        "attribution": "Wikimedia Commons",
-        "file_page": "",
-        "aspect": "square"
+        "license": "CC BY-SA 3.0",
+        "attribution": "Gerbil",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Venus_vom_Hohle_Fels-01.JPG",
+        "aspect": "portrait"
       }
     },
     {
