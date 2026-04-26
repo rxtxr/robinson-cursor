@@ -3,9 +3,23 @@
   "slug": "day-029-1919-1-337",
   "title": "1919-1.337",
   "date": "2026-04-25",
-  "description": "PSR B1919+21 — the pulsar redrawn in 1979 onto one of the most-photocopied record covers in popular music — broadcasts at us. Every 1.337 seconds, when its rotation aligns, a 180-millisecond keyhole opens. We catch what survives the distance: a memory of a recording, not the recording itself. The cover redraws itself, one rotation at a time, in real time with the broadcast.",
-  "tags": ["audio", "webaudio", "canvas", "homage", "pulsar", "music", "subliminal"],
-  "stack": ["Vanilla JS", "Canvas 2D", "Web Audio API", "node-web-audio-api (build)", "ffmpeg (build)"],
+  "description": "PSR B1919+21 — the pulsar plotted on Joy Division's *Unknown Pleasures* — broadcasts at us. Every 1.337 seconds a 180 ms keyhole opens. The cover redraws itself one rotation at a time, in real time.",
+  "tags": [
+    "audio",
+    "webaudio",
+    "canvas",
+    "homage",
+    "pulsar",
+    "music",
+    "subliminal"
+  ],
+  "stack": [
+    "Vanilla JS",
+    "Canvas 2D",
+    "Web Audio API",
+    "node-web-audio-api (build)",
+    "ffmpeg (build)"
+  ],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-029-1919-1-337",
   "status": "complete",
   "license_notes": "IBM Plex Mono (SIL OFL 1.1) and EB Garamond (SIL OFL 1.1) loaded from Google Fonts. node-web-audio-api (BSD-3-Clause) used at build time only. The source recording is excluded from the repository; the rendered broadcast (transformative derivative — 180 ms windowed, heavily processed) is included so the runtime can play. See STATEMENT.txt in the project for the full attribution / pastiche rationale (§ 51a UrhG, EuGH Pelham C-476/17 / fair use)."
