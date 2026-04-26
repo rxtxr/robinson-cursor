@@ -8,9 +8,9 @@ Categories follow the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) c
 - **Corrected** — factual fixes (wrong journal, wrong date, wrong DOI)
 - **Removed** — entries or references pulled
 
-## 2026-04-26 — post-publication review pass
+## 2026-04-26 — second pass
 
-Four-track review (anthropology / software architecture / scientific visualization / art direction). Top-priority findings implemented; the rest tracked in PLAN.md (Phase 7) and surfaced in-app via the new *Known issues & TODOs* lightbox. Encoding-relevant changes are listed here because they affect how the data reads, even where the change is purely visual.
+Encoding-relevant changes are listed here because they affect how the data reads, even where the change is purely visual. The remainder is tracked in the *Known issues & TODOs* lightbox.
 
 ### Revised
 - **Category palette**: switched to Okabe-Ito 8-class color-blind-safe (`fossil` amber, `art` reddish purple, `tool` bluish green, `settlement` yellow, `climate` sky blue, `branch` neutral grey, `admixture` vermillion). Previous all-warm sediment palette had four categories collapsing to indistinguishable orange under deuteranopia/protanopia. Brand-anchor (`fossil ≈ amber`) preserved. Affects markers, scrubber ticks, and labels.

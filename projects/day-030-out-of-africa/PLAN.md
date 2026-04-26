@@ -122,13 +122,13 @@ Short visual + content polish triggered by the 2026-04-26 evening review. Ran fu
 - [x] Commit with the standard message format. — two commits on 2026-04-26: `chore: add /api/feedback Worker route + KV binding` (041359b) and `day 030: out-of-africa — Phase 5 polish, UX pass, local images` (a4c06bd).
 - [x] Push, watch the Cloudflare Pages build. — pushed to main 2026-04-26; deploy succeeded; first feedback-form roundtrip confirmed end-to-end (KV write + Resend email arrival at mareisen@pm.me).
 
-## Phase 7 — Post-publication review backlog
+## Phase 7 — Backlog
 
-Findings from the four-track review (anthropology / software architecture / scientific visualization / art direction) on 2026-04-26. The five highest-impact items shipped same day; everything below is the documented residue. Surfaced in-app via the *Known issues & TODOs* lightbox (linked from changelog + feedback), so readers can see what's wobbly without having to read this file.
+Outstanding items as of 2026-04-26. The five highest-impact fixes shipped same day; everything below is the residue. Surfaced in-app via the *Known issues & TODOs* lightbox (linked from changelog + feedback), so readers can see what's wobbly without having to read this file.
 
 The project is otherwise complete and the data layer is frozen. Anything in this phase is opt-in polish, not a blocker.
 
-### Anthropology — content / data layer
+### Content / data layer
 
 **Critical (would fix if a Phase 7.1 happens):**
 
@@ -154,7 +154,7 @@ The project is otherwise complete and the data layer is frozen. Anything in this
 - [ ] **Inner-African diversity** is visually four pins (Jebel Irhoud + Florisbad + Omo + Kabwe) on an otherwise empty subcontinent. Add Iwo Eleru, Aduma/Herto, or Pinnacle Point detail to make Scerri 2018's pan-African metapopulation visible.
 - [ ] **Solutrean hypothesis** as a `rejected` event would be a pedagogical win (currently a sub-clause of the Solutrean entry).
 
-### Scientific visualization
+### How it's drawn
 
 - [ ] **Time-axis tick labels** (`300 ka · 100 ka · 30 ka · 5 ka · 1 ka`) under the scrubber. Without them the piecewise-linear clock's non-linearity is invisible — readers can't ground the scrubber position in a date without reading the clock readout mid-drag.
 - [ ] **Double date-range bar** in the panel mini-axis: dark core for "best estimate", lighter halo for outer bound. Distinguishes "we know this within ±5 ka" from "somewhere between 280 and 350 ka".
@@ -164,7 +164,7 @@ The project is otherwise complete and the data layer is frozen. Anything in this
 - [ ] **Cluster hulls anonymous** — Aurignacian and IUP are unlabelled coloured shapes. Add a single small label at the hull centroid.
 - [ ] **Modern coastline + LGM ice sheets**: the coastline is always today's. At 20 ka the entire shore was 120 m lower. README is honest about this; the viz isn't. Either render the ETOPO-120 m line during glacial windows or note the simplification on hover.
 
-### Software architecture
+### Code & polish
 
 - [ ] **Drag-handle mobile bottom-sheet** (`::before` on `.panel`) suggests a drag-to-dismiss gesture that JS does not implement — affordance lie.
 - [ ] **Doppelter Escape-Listener** (`main.js:1186` + `main.js:1673`) — harmless, but `closePanel()` fires when panel isn't open.
@@ -174,7 +174,7 @@ The project is otherwise complete and the data layer is frozen. Anything in this
 - [ ] **`lightboxLastFocused`** is module-scope while `state.lastFocused` is in the state object — inconsistent focus-tracking pattern.
 - [ ] **Ice-sheet polygons hard-coded in `main.js`** while every other dataset lives in `assets/*.json`. Move for consistency.
 
-### Art direction
+### Look & feel
 
 - [ ] **Aspect-aware behaviour for `.is-portrait` / `.is-square` shipped 2026-04-26.** Remaining: italic-set artist credit (Daynès, Kennis) in image captions where present; subtle inset shadow / hairline border for portrait crops.
 - [ ] **Long-form essay mode** — a vertical-scroll prose view of the same 81 milestones with the globe mini-mapped on the side. Would lift the project from *interactive map* to *long-form internet piece* (Pudding / NYT register). Largest discretionary investment.

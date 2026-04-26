@@ -1925,8 +1925,8 @@ function appendKnownIssuesFooter(parent) {
 }
 
 // Known issues + TODOs page — a reader-facing condensation of
-// PLAN.md Phase 7 (post-publication review backlog). Linked from the
-// changelog and feedback lightboxes only; not in the bottom-bar.
+// PLAN.md Phase 7 (backlog). Linked from the changelog and feedback
+// lightboxes only; not in the bottom-bar.
 function openKnownIssuesLightbox() {
   openLightbox("Known issues & TODOs", knownIssuesContent());
 }
@@ -1937,9 +1937,9 @@ function knownIssuesContent() {
   wrap.innerHTML = `
 <h1>Known issues &amp; TODOs</h1>
 
-<p>What the four-track post-publication review (anthropology / software architecture / scientific visualization / art direction) found that is still outstanding. The five highest-impact fixes shipped on 2026-04-26 — see <a href="#" data-link="changelog">Changelog</a>. Everything below is documented residue, kept honest rather than hidden.</p>
+<p>What's still wobbly, missing, or planned for this project. The most recent batch of fixes is in the <a href="#" data-link="changelog">Changelog</a>; this page is the residue — kept honest rather than hidden.</p>
 
-<h2>Anthropology — content gaps &amp; wobble</h2>
+<h2>Content gaps &amp; wobble</h2>
 
 <h3>Migration arrows that overreach</h3>
 <p>Madagascar is currently linked back to a 40,000-year-old cave painter in Borneo (Lubang Jeriji Saleh). That's a 38,500-year cultural-ancestry leap — not a physical migration — and it violates this project's own rule that arcs only show physical movement. Quick-fix planned: drop the link. Right-fix: introduce an Austronesian expansion chain (Taiwan → SE Borneo → Madagascar).</p>
@@ -1960,23 +1960,23 @@ function knownIssuesContent() {
 <h3>Framing wobble</h3>
 <p>Toba's lay summary still hints at a "near-bottleneck" the technical summary correctly calls "largely rejected" — the lay text needs to catch up. Levallois's Sinai pin contradicts the multi-origin framing the entry's own summary now carries. The Neanderthal/Denisovan split is pinned to Atapuerca, Spain for what is really a deep-genetics population event with no single geographic locus.</p>
 
-<h2>Scientific visualization</h2>
+<h2>How it's drawn</h2>
 <ul>
   <li><strong>Time-axis tick labels</strong> missing under the scrubber. The piecewise-linear clock compresses the first 300,000 years into 18 % of the bar — currently unsignalled.</li>
   <li><strong>Double date-range bar</strong> in the panel mini-axis: a darker core for the best estimate, a lighter halo for the outer bound. Distinguishes "±5 ka" from "somewhere between 280 and 350 ka".</li>
-  <li><strong>Marker shape</strong> is unused — only color encodes category. Adding glyphs would help disambiguate dense Aurignacian / IUP clusters and reduce reliance on the new color-blind-safe palette.</li>
+  <li><strong>Marker shape</strong> is unused — only color encodes category. Adding glyphs would help disambiguate dense Aurignacian / IUP clusters and reduce reliance on the color-blind-safe palette.</li>
   <li><strong>Modern coastline + LGM ice sheets</strong>: at 20 ka the actual shore was 120 m lower; we still draw today's coast under the ice. Honest about it in the README, not in the visualization itself.</li>
   <li><strong>Cluster hulls</strong> (Aurignacian sphere, IUP sphere) render unlabelled — small centroid labels would make the cultural-sphere readable without the legend.</li>
 </ul>
 
-<h2>Software architecture</h2>
+<h2>Code &amp; polish</h2>
 <ul>
   <li>Mobile bottom-sheet drag-handle suggests a swipe-to-dismiss gesture that isn't wired up — affordance lie.</li>
   <li>Nine panel PNGs not yet converted to WebP (~5 MB saving; lazy-loaded so no critical-path impact).</li>
   <li>Ice-sheet polygons hard-coded in <code>main.js</code> while every other dataset lives in <code>assets/*.json</code>.</li>
 </ul>
 
-<h2>Art direction</h2>
+<h2>Look &amp; feel</h2>
 <ul>
   <li>About-lightbox text reads as utilitarian ("press play to watch the story unfold"). A real editorial voice — Garamond italics, lead, pull-quote — would set the register the rest of the chrome promises.</li>
   <li>Long-form essay mode (vertical scroll prose with the globe mini-mapped on the side) is the largest discretionary investment that would lift the project from <em>map tool</em> to <em>internet long-read</em>.</li>
