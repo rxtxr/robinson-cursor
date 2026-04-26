@@ -604,6 +604,32 @@ body.debug .hud {
   font-size: 0.95rem;
   color: var(--col-fg-dim);
 }
+
+/* Site-level links footer in the About lightbox — source repo + legal
+   pages. Same visual register as the crosslink footer (mono mute), but
+   with inline middot separators between the four entries. */
+.lightbox__about-links {
+  margin-top: 1.6rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--col-land-line);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--col-fg-mute);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+.lightbox__about-links a {
+  color: var(--col-fg-dim);
+  border-bottom: 1px dotted var(--col-fg-mute);
+}
+.lightbox__about-links a:hover {
+  color: var(--col-ochre);
+  border-bottom-color: var(--col-ochre);
+}
+.lightbox__about-links span[aria-hidden] { opacity: 0.55; }
 .changelog-body h1,
 .changelog-body h2,
 .changelog-body h3 {

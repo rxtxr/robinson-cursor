@@ -1855,6 +1855,21 @@ function aboutContent() {
   caption.innerHTML = `<a href="${ABOUT_VIDEO_URL}" target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a>`;
   wrap.appendChild(caption);
 
+  // Site-level links footer — source repo (project subdirectory) + the
+  // three legal/policy pages from the site root. target=_top so the
+  // legal pages break out of the /embed/ iframe when present.
+  const links = document.createElement("p");
+  links.className = "lightbox__about-links";
+  links.innerHTML =
+    `<a href="https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-030-out-of-africa" target="_blank" rel="noopener noreferrer">source on github ↗</a>` +
+    `<span aria-hidden="true">·</span>` +
+    `<a href="/imprint" target="_top" rel="nofollow">imprint</a>` +
+    `<span aria-hidden="true">·</span>` +
+    `<a href="/privacy" target="_top">privacy</a>` +
+    `<span aria-hidden="true">·</span>` +
+    `<a href="/bug-bounty" target="_top">bug bounty</a>`;
+  wrap.appendChild(links);
+
   return wrap;
 }
 
