@@ -116,11 +116,11 @@ Short visual + content polish triggered by the 2026-04-26 evening review. Ran fu
 - [ ] Thumbnails (`thumb.png`, `thumb.webp`, `thumb-sm.webp`) per repo convention.
 - [ ] `meta.json` → `status: complete`, real `stack`, real `license_notes`.
 
-## Phase 6 — Ship
+## Phase 6 — Ship ✅
 
-- [ ] Final read-through of every milestone for tone and accuracy.
-- [ ] Commit with the standard message format.
-- [ ] Push, watch the Cloudflare Pages build.
+- [~] Final read-through of every milestone for tone and accuracy. — lay summaries authored for all 81 events in one go (see SESSION-LOG); systematic per-event re-read deferred. Reader feedback can now flow back via the in-app feedback button → KV + email notification.
+- [x] Commit with the standard message format. — two commits on 2026-04-26: `chore: add /api/feedback Worker route + KV binding` (041359b) and `day 030: out-of-africa — Phase 5 polish, UX pass, local images` (a4c06bd).
+- [x] Push, watch the Cloudflare Pages build. — pushed to main 2026-04-26; deploy succeeded; first feedback-form roundtrip confirmed end-to-end (KV write + Resend email arrival at mareisen@pm.me).
 
 ## Risks & mitigations
 

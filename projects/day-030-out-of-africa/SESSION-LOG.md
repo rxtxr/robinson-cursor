@@ -497,3 +497,28 @@ Generated `thumb.png` (1200×630), `thumb.webp`, `thumb-sm.webp` via Python+PIL:
 - 46 video-todos for art/tool entries SOURCES.md hasn't covered yet; render with TODO badge.
 - Lineage-split branch events (split-sapiens-vs-neanderthal, split-neanderthal-vs-denisovan) currently invisible (HIDDEN_FROM_MAP); could surface as timeline banners later.
 - Glacial-sea-level overlay (Sahul/Sunda/Beringia/Doggerland) — Phase 5 polish.
+
+---
+
+## Release (2026-04-26 night)
+
+Two commits pushed to main, deployed via Cloudflare Pages auto-build:
+
+- `041359b chore: add /api/feedback Worker route + KV binding`
+- `a4c06bd day 030: out-of-africa — Phase 5 polish, UX pass, local images`
+
+Worker conversion: the project was originally a static-asset-only Pages
+deployment. Adding `functions/api/feedback.js` required converting to a
+Worker with Static Assets binding — `wrangler.jsonc` got `main:
+src/worker.js` plus an explicit `assets.binding: ASSETS`. The Worker
+routes `/api/feedback` to the handler and falls through to ASSETS for
+everything else, so the rest of the site (Astro pages + /embed/*)
+serves identically to before.
+
+Feedback pipeline verified live: form submit → POST /api/feedback →
+Worker validates → KV put `feedback:<ts>:<rand>` → Resend API → email
+delivered to mareisen@pm.me. Reply-To set to the submitter's email when
+provided.
+
+Project status: meta.json `complete`, PLAN.md Phase 6 closed, live on
+robinson-cursor.com.
