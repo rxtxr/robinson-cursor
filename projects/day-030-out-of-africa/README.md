@@ -130,7 +130,6 @@ Submissions are also held in `localStorage["ooa_feedback_buffer"]` if the POST f
 - **7 events without a hero image** (Fuyan, Tianyuan, Kostenki-14, La Braña, Madjedbebe, Chiquihuite, Howiesons-Poort) — Wikimedia Commons doesn't carry a credible free file for them. Panel shows no image; lay summary leads.
 - **Glacial overlays + ice sheets are cartoon polygons**, not survey-grade reconstructions. The goal is "the user can see when these were walkable / icy", not paleogeographic accuracy.
 - **Back-of-globe markers are hidden** by default (`BACK_OF_GLOBE_ALPHA = 0`). Several attempts at a useful ghost rendering (alpha + blur, with and without offscreen-canvas optimisation) didn't pay off visually for the perf cost.
-- **YouTube embeds** depend on the video owner's domain whitelist. Most PBS Eons / Stefan Milo / TED-Ed videos embed cleanly; some NOVA full-episode uploads return Error 153 — the panel-caption "Watch on YouTube ↗" link is the escape hatch.
 
 ## Credits & licenses
 
