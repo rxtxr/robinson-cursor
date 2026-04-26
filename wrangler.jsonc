@@ -2,7 +2,18 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "robinson-cursor",
   "compatibility_date": "2026-03-28",
+  // Worker entry — routes /api/* to handlers in functions/, falls
+  // through to ASSETS for everything else.
+  "main": "./src/worker.js",
   "assets": {
-    "directory": "./dist"
-  }
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page"
+  },
+  // Feedback storage — used by functions/api/feedback.js
+  // (initial consumer: projects/day-030-out-of-africa).
+  // Namespace created 2026-04-26 via `wrangler kv namespace create FEEDBACK_KV`.
+  "kv_namespaces": [
+    { "binding": "FEEDBACK_KV", "id": "d3bd92095a4542698d19734f15ad4bf7" }
+  ]
 }
