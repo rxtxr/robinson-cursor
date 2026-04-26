@@ -21,7 +21,7 @@ export async function GET() {
   <channel>
     <title>robinson-cursor.com</title>
     <link>${site}</link>
-    <description>365 days of vibecoding — one browser experiment per day.</description>
+    <description>365 days of experiments — one browser experiment per day.</description>
     <language>en</language>
     <atom:link href="${site}/rss.xml" rel="self" type="application/rss+xml" />
     ${items}
