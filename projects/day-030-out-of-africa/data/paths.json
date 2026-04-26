@@ -1,0 +1,18 @@
+{
+  "$schema_version": 2,
+  "_meta": {
+    "purpose": "Macro-corridor paths that don't terminate at a single event (e.g. continental sweeps, sea-level corridors). Most point-to-point dispersal arcs are derived from `origin_id` on each event in events.json — see scripts/add-origins.mjs. Phase 4/5 may add curated corridor paths here (Bab-el-Mandeb → Sundaland coastline, Bering land-bridge corridor, etc.).",
+    "schema": {
+      "id": "string",
+      "label": "human-readable",
+      "from_id": "events.json id (optional if from_coords given)",
+      "to_id": "events.json id (optional if to_coords given)",
+      "from_coords": "[lon, lat] (optional)",
+      "to_coords": "[lon, lat] (optional)",
+      "start_kya": "older bound — when the path begins drawing",
+      "end_kya": "younger bound — when the path is fully drawn",
+      "kind": "early-dispersal | main-dispersal | coastal | sea-crossing | americas | polynesian | later-settlement"
+    }
+  },
+  "paths": []
+}

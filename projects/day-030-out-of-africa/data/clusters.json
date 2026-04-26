@@ -1,0 +1,31 @@
+{
+  "$comment": "Cultural-cluster membership — visualised as faint convex hulls, NOT arrows. The hull only includes members whose marker is currently faded in, so the cluster appears to grow over time as its sites pop up. Geographic in lon/lat; safe to use convex hull because all current clusters sit inside one continent.",
+  "clusters": [
+    {
+      "id": "aurignacian-sphere",
+      "name": "Aurignacian sphere",
+      "color": "rgba(176, 63, 28, 0.10)",
+      "stroke": "rgba(176, 63, 28, 0.35)",
+      "member_ids": [
+        "aurignacian",
+        "hohle-fels-venus-flutes",
+        "lowenmensch",
+        "chauvet-pont-darc",
+        "goyet-q116-1"
+      ]
+    },
+    {
+      "id": "iup-sphere",
+      "name": "Initial Upper Paleolithic sphere",
+      "color": "rgba(157, 132, 86, 0.10)",
+      "stroke": "rgba(157, 132, 86, 0.35)",
+      "member_ids": [
+        "initial-upper-paleolithic",
+        "bacho-kiro",
+        "grotte-mandrin",
+        "ranis-ilsenhohle",
+        "zlaty-kun"
+      ]
+    }
+  ]
+}

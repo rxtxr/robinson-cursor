@@ -1,0 +1,4056 @@
+{
+  "$schema_version": 1,
+  "_meta": {
+    "source": "Promoted from RESEARCH.md (seeded 2026-04-25). Layer C structural decision applied per DESIGN.md: specimens duplicating a main-section entry appear as `appearance` annotations rather than standalone events.",
+    "date_convention": "date_range_kya = [older, younger] in thousands of years before present (1950 CE). For Holocene/historical events, sub-1 ka values are used (e.g. Aotearoa 1280 CE ≈ 0.67 ka).",
+    "confidence_levels": [
+      "well-established",
+      "debated",
+      "contested"
+    ],
+    "categories": [
+      "fossil",
+      "branch",
+      "admixture",
+      "tool",
+      "art",
+      "climate",
+      "settlement"
+    ],
+    "todo_policy": "References marked { \"todo\": true, ... } are explicit gaps to fill before ship. No fabricated DOIs."
+  },
+  "events": [
+    {
+      "id": "toba-supereruption",
+      "title": "Toba supereruption, Sumatra",
+      "category": "climate",
+      "date_range_kya": [
+        74,
+        74
+      ],
+      "date_label": "~74,000 years ago",
+      "scope": "global",
+      "location": {
+        "lat": 2.68,
+        "lon": 98.88,
+        "region": "island-southeast-asia"
+      },
+      "summary": "VEI-8, the largest eruption of the Quaternary. Originally framed (Ambrose 1998) as the trigger of a near-extinction bottleneck in H. sapiens. Subsequent work — East African lake records (Lane et al. 2013), continuous occupation through the ash layer in India (Smith et al. 2018) — has largely rejected the catastrophic-bottleneck reading. Regional climate effects in South Asia are still debated.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Lane, Chorn & Johnson (2013), PNAS — Ash from the Toba supereruption in Lake Malawi shows no volcanic winter in East Africa",
+            "doi": "10.1073/pnas.1301474110",
+            "url": "https://doi.org/10.1073/pnas.1301474110"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Youngest_Toba_eruption",
+        "video": {
+          "title": "How a Supervolcano Ignited an Evolutionary Debate",
+          "channel": "PBS Eons",
+          "url": "https://www.youtube.com/watch?v=AWUTlVxOsIw"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Bottleneck-from-Toba narrative is largely abandoned. Visualization should not present it as established.",
+      "summary_lay": "The largest known volcanic eruption in human history. It darkened skies worldwide and may have squeezed our population to a near-bottleneck — though new evidence suggests humans adapted faster than once thought.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Tobaeruption.png",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Anynobody",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Tobaeruption.png"
+      }
+    },
+    {
+      "id": "african-humid-periods",
+      "title": "African Humid Periods (Green Sahara)",
+      "category": "climate",
+      "date_range_kya": [
+        129,
+        5
+      ],
+      "date_label": "~129–92 ka, ~76 ka, ~10–5 ka",
+      "scope": "regional",
+      "location": {
+        "lat": 23,
+        "lon": 15,
+        "region": "africa-north"
+      },
+      "summary": "Insolation-driven monsoon maxima opened humid corridors across the Sahara and the Arabian Peninsula. Drake et al. and Larrasoaña et al. mapped paleolake networks across the central Sahara. Commonly invoked as windows of opportunity for dispersal.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Larrasoaña, Roberts & Rohling (2013), PLOS ONE — Dynamics of Green Sahara periods",
+            "doi": "10.1371/journal.pone.0076514",
+            "url": "https://doi.org/10.1371/journal.pone.0076514"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/African_humid_period",
+        "video": {
+          "title": "When the Sahara Was Green",
+          "channel": "PBS Eons",
+          "url": "https://www.youtube.com/watch?v=ZQP-7BPvvq0"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Multiple distinct AHPs — visualization should pulse rather than be a single band.",
+      "summary_lay": "Times when the Sahara was green grassland with rivers and lakes, not desert. These wet windows opened and closed corridors out of Africa, controlling when humans could move north.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Sahara_satellite_hires.jpg",
+        "license": "Public domain",
+        "attribution": "NASA",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Sahara_satellite_hires.jpg"
+      }
+    },
+    {
+      "id": "last-glacial-maximum",
+      "title": "Last Glacial Maximum",
+      "category": "climate",
+      "date_range_kya": [
+        26.5,
+        19
+      ],
+      "date_label": "~26,500–19,000 years ago",
+      "scope": "global",
+      "location": {
+        "lat": 60,
+        "lon": -90,
+        "region": "global"
+      },
+      "summary": "Global ice-sheet maximum extent. Cold, dry, sea level ~120 m below present. Drove Solutrean retreat into Iberian/Franco-Cantabrian refugia, sustained the Beringian standstill, kept the ice-free corridor closed, and locked open the Sundaland and Sahul shelf-bridge systems.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Clark et al. (2009), Science 325:710–714 — The Last Glacial Maximum",
+            "doi": "10.1126/science.1172873",
+            "url": "https://doi.org/10.1126/science.1172873"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Last_Glacial_Maximum",
+        "video": {
+          "title": "Life & Death At The Height Of The Ice Age",
+          "channel": "Stefan Milo",
+          "url": "https://www.youtube.com/watch?v=S2vuL3oZogc"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Almost every late-Pleistocene migration story depends on which side of the LGM it sits on.",
+      "summary_lay": "The peak of the last Ice Age. Sea levels dropped roughly 120 metres and ice sheets covered much of the Northern Hemisphere; humans crammed into southern refuges, while continents that are now separated by water were briefly walkable.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/1/19/CLIMAP.jpg",
+        "license": "CC BY-SA 3.0",
+        "attribution": "Wikimedia Commons",
+        "file_page": "https://commons.wikimedia.org/wiki/File:CLIMAP.jpg"
+      }
+    },
+    {
+      "id": "bering-land-bridge",
+      "title": "Bering Land Bridge (Beringia)",
+      "category": "climate",
+      "date_range_kya": [
+        30,
+        11
+      ],
+      "date_label": "open ~30 ka, flooded ~11 ka",
+      "scope": "regional",
+      "location": {
+        "lat": 62,
+        "lon": -167,
+        "region": "beringia"
+      },
+      "summary": "Wide tundra-and-shrub plain connecting northeast Asia to Alaska whenever sea level fell below ~50 m. Open continuously through the LGM; final flooding completed ~11 ka with post-glacial sea-level rise. Provided both the corridor and the multi-millennial refugium for the founding Native American population (‘Beringian standstill’).",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Hoffecker, Elias & O’Rourke (2014), Science 343:979–980 — Out of Beringia?",
+            "doi": "10.1126/science.1250768",
+            "url": "https://doi.org/10.1126/science.1250768"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Bering_land_bridge",
+        "video": {
+          "title": "When We Took Over the World",
+          "channel": "PBS Eons",
+          "url": "https://www.youtube.com/watch?v=xmboVmtqNJc"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "When sea levels were low, Asia and Alaska were connected by a flat plain the size of Texas. People lived on it for thousands of years — and walked across it to become the first Americans.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/52/Beringia_land_bridge-noaagov.gif",
+        "license": "Public domain",
+        "attribution": "NOAA",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Beringia_land_bridge-noaagov.gif"
+      }
+    },
+    {
+      "id": "pleistocene-sea-levels-sunda-sahul",
+      "title": "Sundaland & Sahul shelves — Pleistocene shoreline cycles",
+      "category": "climate",
+      "date_range_kya": [
+        120,
+        11
+      ],
+      "date_label": "Pleistocene low-stands, esp. ~65–20 ka",
+      "scope": "regional",
+      "location": {
+        "lat": -2,
+        "lon": 115,
+        "region": "island-southeast-asia"
+      },
+      "summary": "At LGM-grade sea levels (–120 m), Sundaland was a continuous landmass linking the Malay Peninsula, Sumatra, Java, and Borneo; Sahul united Australia, New Guinea, and Tasmania. Wallacea, the deep-water island arc between them, never closed — the H. sapiens arrival in Sahul ~65–50 ka therefore required real water crossings even at glacial low-stand.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Voris (2000), Journal of Biogeography 27:1153–1167 — Maps of Pleistocene sea levels in Southeast Asia",
+            "doi": "10.1046/j.1365-2699.2000.00489.x",
+            "url": "https://doi.org/10.1046/j.1365-2699.2000.00489.x"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Sunda_Shelf",
+        "video": {
+          "title": "The Invisible Barrier Keeping Two Worlds Apart",
+          "channel": "PBS Eons",
+          "url": "https://www.youtube.com/watch?v=QTK_bC00ilg"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Standard reference for the visualization’s sea-level overlay.",
+      "summary_lay": "When ice locked up the oceans, Southeast Asia and Australia became two giant landmasses: Sundaland and Sahul. The gap between them shrank but never closed, so reaching Australia always required a boat.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Map_of_Sunda_and_Sahul.svg/1280px-Map_of_Sunda_and_Sahul.svg.png",
+        "license": "license unknown",
+        "attribution": "Wikimedia Commons",
+        "file_page": ""
+      }
+    },
+    {
+      "id": "split-sapiens-vs-neanderthal-denisovan",
+      "title": "Lineage split: H. sapiens vs. Neanderthal–Denisovan ancestor",
+      "category": "branch",
+      "date_range_kya": [
+        765,
+        550
+      ],
+      "date_label": "~765–550 ka",
+      "scope": "global",
+      "location": {
+        "lat": 0,
+        "lon": 25,
+        "region": "africa-central"
+      },
+      "summary": "Genomic estimate from Sima de los Huesos nuclear DNA (Meyer et al. 2016) for the population split between modern humans and the Neanderthal–Denisovan ancestor. The location is a reasonable guess at ‘somewhere in Africa or western Eurasia’; the visualization should treat it as a tree node, not a pinpoint.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Meyer et al. (2016), Nature 531:504–507 — Nuclear DNA sequences from the Middle Pleistocene Sima de los Huesos hominins",
+            "doi": "10.1038/nature17405",
+            "url": "https://doi.org/10.1038/nature17405"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Recent_African_origin_of_modern_humans",
+        "video": {
+          "title": "When We Met Other Human Species",
+          "channel": "PBS Eons",
+          "url": "https://www.youtube.com/watch?v=jdYwMLSNHnU"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Tree-node event. Render as a fork on the lineage strand, not a map pin.",
+      "summary_lay": "Our last common ancestor with Neanderthals and Denisovans lived in Africa. After this split our lineage stayed; the others left and evolved separately for half a million years before we met them again.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Hominini_lineage.svg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Dbachmann",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Hominini_lineage.svg"
+      }
+    },
+    {
+      "id": "split-neanderthal-vs-denisovan",
+      "title": "Lineage split: Neanderthal vs. Denisovan",
+      "category": "branch",
+      "date_range_kya": [
+        473,
+        381
+      ],
+      "date_label": "~473–381 ka",
+      "scope": "global",
+      "location": {
+        "lat": 42.35,
+        "lon": -3.52,
+        "region": "europe-west"
+      },
+      "summary": "Predates Sima de los Huesos (Atapuerca, Spain, ~430 ka), whose population is already on the Neanderthal branch after the Denisovan split. Location pinned to Atapuerca only because Sima fixes the latest possible split date — the actual divergence event is in deep population genetics, not at this site.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Meyer et al. (2016), Nature 531:504–507",
+            "doi": "10.1038/nature17405",
+            "url": "https://doi.org/10.1038/nature17405"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Denisovan",
+        "video": {
+          "title": "When We Met Other Human Species",
+          "channel": "PBS Eons",
+          "url": "https://www.youtube.com/watch?v=jdYwMLSNHnU"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "Neanderthals (Western Eurasia) and Denisovans (Eastern Eurasia) split off from a shared ancestor and evolved as sister populations. Both survived in Eurasia until our species arrived and interbred with them.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/9/95/Homo_longi_holotype.jpg",
+        "license": "CC BY 4.0",
+        "attribution": "Fu et al. (2025)",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Homo_longi_holotype.jpg"
+      }
+    },
+    {
+      "id": "neanderthal-admixture",
+      "title": "Neanderthal admixture into non-Africans",
+      "category": "admixture",
+      "date_range_kya": [
+        50.5,
+        43.5
+      ],
+      "date_label": "~49–45 ka",
+      "scope": "regional",
+      "location": {
+        "lat": 36,
+        "lon": 38,
+        "region": "levant"
+      },
+      "summary": "Single (or short-window) gene-flow event leaving ~1.5–2% Neanderthal DNA in all non-Africans. 2024–2025 papers from the Reich and Pääbo labs constrained the gene flow tightly to a window of ~50.5–43.5 ka (Iasi et al.) or ~49–45 ka (Sümer et al., via Ranis and Zlatý kůň genomes) — a substantially tighter and slightly later window than the older ~50–60 ka estimate.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Iasi et al. (2024), Science 386:eadq3010 — Neanderthal ancestry through time",
+            "doi": "10.1126/science.adq3010",
+            "url": "https://doi.org/10.1126/science.adq3010"
+          },
+          {
+            "citation": "Sümer et al. (2025), Nature 638:711 — Earliest modern human genomes constrain timing of Neanderthal admixture",
+            "doi": "10.1038/s41586-024-08420-x",
+            "url": "https://doi.org/10.1038/s41586-024-08420-x"
+          },
+          {
+            "citation": "Sankararaman et al. (2012), PLOS Genetics",
+            "doi": "10.1371/journal.pgen.1002947",
+            "url": "https://doi.org/10.1371/journal.pgen.1002947"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Neanderthal_genetics#Admixture_with_modern_humans",
+        "video": {
+          "title": "We Met Neandertals Way Earlier Than We Thought",
+          "channel": "PBS Eons",
+          "url": "https://www.pbs.org/video/we-met-neandertals-way-earlier-than-we-thought-lnaavr/"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Location placeholder is the Levantine corridor where the contact most plausibly happened; the event is genomic, not archaeological.",
+      "summary_lay": "When Homo sapiens first met Neanderthals in the Levant, the encounter wasn't extinction-only — they had children together. Every non-African alive today carries 1–4 % Neanderthal DNA from this brief overlap.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/83/Human_and_Neanderthal_and_Denisovan_interbreeding._2026.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Bioanthropologist1",
+        "file_page": ""
+      }
+    },
+    {
+      "id": "denisovan-admixture",
+      "title": "Denisovan admixture into Asians and Sahul",
+      "category": "admixture",
+      "date_range_kya": [
+        50,
+        45
+      ],
+      "date_label": "~50–45 ka",
+      "scope": "regional",
+      "location": {
+        "lat": 0,
+        "lon": 110,
+        "region": "island-southeast-asia"
+      },
+      "summary": "Multiple admixture events. ~4–6% Denisovan ancestry in Papuans/Aboriginal Australians, ~0.06–0.5% in mainland East/South Asians. The Tibetan EPAS1 high-altitude allele is a famous Denisovan introgression. At least two distinct Denisovan source populations contributed (Jacobs et al. 2019).",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Reich et al. (2010), Nature 468:1053–1060 — Genetic history of an archaic hominin group from Denisova Cave",
+            "doi": "10.1038/nature09710",
+            "url": "https://doi.org/10.1038/nature09710"
+          },
+          {
+            "citation": "Jacobs et al. (2019), Cell 177:1010–1021 — Multiple deeply divergent Denisovan ancestries in Papuans",
+            "doi": "10.1016/j.cell.2019.02.035",
+            "url": "https://doi.org/10.1016/j.cell.2019.02.035"
+          },
+          {
+            "citation": "Huerta-Sánchez et al. (2014), Nature — Altitude adaptation in Tibetans caused by introgression of Denisovan-like DNA",
+            "doi": "10.1038/nature13408",
+            "url": "https://doi.org/10.1038/nature13408"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Denisovan",
+        "video": {
+          "title": "When We Met Other Human Species",
+          "channel": "PBS Eons",
+          "url": "https://www.youtube.com/watch?v=jdYwMLSNHnU"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "origin_id": "southern-coastal-route",
+      "route_kind": "coastal",
+      "summary_lay": "Modern humans heading east interbred with Denisovans, Neanderthals' eastern cousins. The genetic legacy survives strongest in Aboriginal Australians, Papuans and some East Asians; a Tibetan high-altitude allele came directly from Denisovans.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/9/95/Homo_longi_holotype.jpg",
+        "license": "CC BY 4.0",
+        "attribution": "Fu et al. (2025)",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Homo_longi_holotype.jpg"
+      }
+    },
+    {
+      "id": "lucy-al-288-1",
+      "title": "Lucy (AL 288-1)",
+      "category": "fossil",
+      "date_range_kya": [
+        3200,
+        3200
+      ],
+      "date_label": "~3.2 million years ago",
+      "scope": "site",
+      "location": {
+        "lat": 11.13,
+        "lon": 40.58,
+        "region": "africa-east"
+      },
+      "summary": "Australopithecus afarensis. ~40% of one female skeleton from Hadar, Afar, Ethiopia; ~1.05 m tall, ~28 kg. Small ape-sized braincase paired with bipedal post-cranium; arms still relatively long, fingers curved (some arboreal capacity). Far older than the modern human story but anchors the bipedal-ancestor backdrop.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Johanson, White & Coppens (1978), Kirtlandia 28 — New species of Australopithecus afarensis",
+            "todo": true,
+            "note": "Original 1978 description pre-dates routine DOIs; verify a more recent canonical paper before ship."
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Lucy_(Australopithecus)",
+        "video": {
+          "title": "How Did Our Most Famous Ancestor Really Die?",
+          "channel": "PBS Eons",
+          "url": "https://www.youtube.com/watch?v=vqTlMsWV-QM"
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Small ape-sized braincase, bipedal pelvis and lower limb, relatively long arms, curved phalanges suggesting some retained arboreal capacity. ~1.05 m tall, ~28 kg.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "John Gurche",
+          "year": null,
+          "institution": "Cleveland Museum of Natural History; Smithsonian Hall of Human Origins",
+          "image_url": null,
+          "credit_required": true,
+          "notes": "Élisabeth Daynès also has a Lucy reconstruction."
+        }
+      },
+      "notes": "",
+      "summary_lay": "A 3.2-million-year-old skeleton from Ethiopia: not a member of our species, but our distant cousin who already walked upright on two legs. Lucy showed bipedalism came long before big brains.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Reconstruction_of_the_fossil_skeleton_of_%22Lucy%22_the_Australopithecus_afarensis.jpg",
+        "license": "CC BY 2.5",
+        "attribution": "120",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Reconstruction_of_the_fossil_skeleton_of_%22Lucy%22_the_Australopithecus_afarensis.jpg"
+      }
+    },
+    {
+      "id": "selam-dikika-child",
+      "title": "Selam (Dikika child, DIK-1/1)",
+      "category": "fossil",
+      "date_range_kya": [
+        3300,
+        3300
+      ],
+      "date_label": "~3.3 million years ago",
+      "scope": "site",
+      "location": {
+        "lat": 10.66,
+        "lon": 40.45,
+        "region": "africa-east"
+      },
+      "summary": "Juvenile Australopithecus afarensis from Dikika, Afar, Ethiopia; ~3 years old at death. Hyoid bone preserved. Mosaic morphology — modern human-like lower body, ape-like upper body and shoulder blade.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Alemseged et al. (2006), Nature 443:296–301 — A juvenile early hominin skeleton from Dikika, Ethiopia",
+            "doi": "10.1038/nature05047",
+            "url": "https://doi.org/10.1038/nature05047"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Selam_(Australopithecus)",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Juvenile A. afarensis with mixed modern-human-like lower body and ape-like upper body / scapula. Hyoid morphology is gorilla-like, not modern.",
+        "adna_pigmentation": null,
+        "reconstruction": null
+      },
+      "notes": "",
+      "summary_lay": "A nearly complete skeleton of a 3-year-old Australopithecus — even older than Lucy. The shoulders suggest these ancestors were good climbers as well as walkers, living a hybrid life of trees and ground.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Replica_of_Skull_of_Child_of_Australopithecus_Afarensis_-_3.3_Million_Years_Old_-_National_Museum_of_Ethiopia_-_Addis_Ababa_-_Ethiopia_%288743137693%29.jpg",
+        "license": "CC BY-SA 2.0",
+        "attribution": "Adam Jones from Kelowna, BC, Canada",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Replica_of_Skull_of_Child_of_Australopithecus_Afarensis_-_3.3_Million_Years_Old_-_National_Museum_of_Ethiopia_-_Addis_Ababa_-_Ethiopia_(8743137693).jpg"
+      }
+    },
+    {
+      "id": "turkana-boy",
+      "title": "Turkana Boy / Nariokotome Boy (KNM-WT 15000)",
+      "category": "fossil",
+      "date_range_kya": [
+        1600,
+        1500
+      ],
+      "date_label": "~1.5–1.6 million years ago",
+      "scope": "site",
+      "location": {
+        "lat": 4.15,
+        "lon": 35.88,
+        "region": "africa-east"
+      },
+      "summary": "H. erectus / H. ergaster adolescent, ~8–12 years old, west of Lake Turkana, Kenya. Most complete early Homo skeleton (108 bones). Already ~1.6 m tall as an adolescent, projected adult ~1.85 m. Linear, tropical body proportions; cranial capacity ~880 cc.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Brown, Harris, Leakey & Walker (1985), Nature 316:788–792 — Early Homo erectus skeleton from west Lake Turkana, Kenya",
+            "doi": null,
+            "url": "https://www.nature.com/articles/316788a0"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Turkana_Boy",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Tall, linear, tropical body proportions. Adolescent estimated at ~1.6 m, projected adult height ~1.85 m. Cranial capacity ~880 cc.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "Élisabeth Daynès; John Gurche",
+          "year": null,
+          "institution": null,
+          "image_url": null,
+          "credit_required": true
+        }
+      },
+      "notes": "",
+      "summary_lay": "A near-complete teenage Homo erectus skeleton — the most complete early-human skeleton ever found. From the neck down he looks startlingly modern: tall, long-limbed, built for endurance walking and running.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Turkana_Boy.jpg",
+        "license": "CC BY-SA 2.0",
+        "attribution": "Claire Houck from New York City, USA",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Turkana_Boy.jpg"
+      }
+    },
+    {
+      "id": "dmanisi-skull-5",
+      "title": "Dmanisi Skull 5 and the Dmanisi hominins",
+      "category": "fossil",
+      "date_range_kya": [
+        1850,
+        1780
+      ],
+      "date_label": "~1.85–1.78 million years ago",
+      "scope": "site",
+      "location": {
+        "lat": 41.34,
+        "lon": 44.34,
+        "region": "caucasus-zagros"
+      },
+      "summary": "Earliest well-dated hominin fossils outside Africa, in Kvemo Kartli, Georgia. Skull 5 has a small braincase (~546 cc) and a large prognathic face. Five Dmanisi individuals together show enormous variation, supporting the argument that early African and Asian Homo fossils may belong to a single evolving species (sometimes called H. erectus georgicus).",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Lordkipanidze et al. (2013), Science 342:326–331 — A complete skull from Dmanisi, Georgia",
+            "doi": "10.1126/science.1238484",
+            "url": "https://doi.org/10.1126/science.1238484"
+          },
+          {
+            "citation": "Ferring et al. (2011), PNAS 108:10432–10436 — Earliest human occupations at Dmanisi (Georgian Caucasus)",
+            "doi": "10.1073/pnas.1106638108",
+            "url": "https://doi.org/10.1073/pnas.1106638108"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Dmanisi_hominins",
+        "video": {
+          "title": "When Did Hominins First Leave Africa?",
+          "channel": "Stefan Milo",
+          "url": "https://www.youtube.com/watch?v=9btN6H7H3Rg"
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Small braincase (~546 cc for Skull 5), large prognathic face, fully modern-human-like postcranium for bipedal locomotion. Highly variable across the five individuals.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "Élisabeth Daynès",
+          "year": null,
+          "institution": "Georgian National Museum, Tbilisi",
+          "image_url": null,
+          "credit_required": true
+        }
+      },
+      "notes": "Implicitly anchors the H. erectus out-of-Africa context; we don’t need a separate ‘H. erectus OOA’ milestone.",
+      "summary_lay": "The oldest hominin fossils ever found outside Africa, in modern Georgia. Members of an early Homo population that had already left Africa 1.85 million years ago, with brains barely larger than a chimp's — proving you didn't need a big brain to leave the continent.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/20/Homo_Georgicus_IMG_2921.JPG",
+        "license": "Public domain",
+        "attribution": "Rama",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Homo_Georgicus_IMG_2921.JPG"
+      }
+    },
+    {
+      "id": "sima-de-los-huesos",
+      "title": "Sima de los Huesos (Atapuerca)",
+      "category": "fossil",
+      "date_range_kya": [
+        430,
+        430
+      ],
+      "date_label": "~430,000 years ago",
+      "scope": "site",
+      "location": {
+        "lat": 42.35,
+        "lon": -3.52,
+        "region": "europe-west"
+      },
+      "summary": "Sierra de Atapuerca, Spain. ≥28 individuals at the bottom of a 13 m shaft. Robust, large-faced, large-browed; cranial capacities approaching modern range. Nuclear DNA places the population on the Neanderthal lineage after the split from Denisovans.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Meyer et al. (2016), Nature 531:504–507 — Nuclear DNA sequences from the Middle Pleistocene Sima de los Huesos hominins",
+            "doi": "10.1038/nature17405",
+            "url": "https://doi.org/10.1038/nature17405"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Sima_de_los_Huesos",
+        "video": {
+          "title": "When We Met Other Human Species",
+          "channel": "PBS Eons",
+          "url": "https://www.youtube.com/watch?v=jdYwMLSNHnU"
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Robust, large-faced, large-browed; cranial capacities approaching the modern range. Population on the Neanderthal lineage.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "Élisabeth Daynès",
+          "year": null,
+          "institution": "Museo de la Evolución Humana, Burgos",
+          "image_url": null,
+          "credit_required": true
+        }
+      },
+      "notes": "Pegs the latest possible date for the Neanderthal–Denisovan split; see split-neanderthal-vs-denisovan.",
+      "summary_lay": "Over 6,000 fossils from at least 28 individuals dropped into a Spanish cave shaft 430,000 years ago. They show the early stages of Neanderthal evolution and yielded the oldest hominin DNA we have.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Homo_heidelbergensis._Museo_de_Prehistoria_de_Valencia.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Dorieo",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Homo_heidelbergensis._Museo_de_Prehistoria_de_Valencia.jpg"
+      }
+    },
+    {
+      "id": "kabwe-broken-hill",
+      "title": "Kabwe / Broken Hill (Kabwe 1)",
+      "category": "fossil",
+      "date_range_kya": [
+        324,
+        274
+      ],
+      "date_label": "299 ± 25 ka",
+      "scope": "site",
+      "location": {
+        "lat": -14.45,
+        "lon": 28.45,
+        "region": "africa-central"
+      },
+      "summary": "Kabwe, Zambia. Massive cranium with the biggest brow ridges of any known hominin and modern dental cavities. Variously called H. heidelbergensis / H. rhodesiensis. The 2020 redate to ~299 ka implies multiple hominin lineages co-existed in late-Middle-Pleistocene Africa.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Grün et al. (2020), Nature 580:372–375 — Dating the skull from Broken Hill, Zambia, and its position in human evolution",
+            "doi": "10.1038/s41586-020-2165-4",
+            "url": "https://doi.org/10.1038/s41586-020-2165-4"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Broken_Hill_1",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Large brain (within or close to the modern range), massive supraorbital torus, modern-shaped face. Carries dental caries.",
+        "adna_pigmentation": null,
+        "reconstruction": null
+      },
+      "notes": "",
+      "summary_lay": "An archaic Homo skull from Zambia with a massive brow ridge. Once thought to be one of our direct ancestors; now placed alongside Homo heidelbergensis on a side branch of the family tree.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/63/Broken_Hill_Skull_%28Replica01%29.jpg",
+        "license": "CC BY-SA 3.0",
+        "attribution": "Gerbil",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Broken_Hill_Skull_(Replica01).jpg"
+      }
+    },
+    {
+      "id": "jebel-irhoud",
+      "title": "Jebel Irhoud, Morocco",
+      "category": "fossil",
+      "date_range_kya": [
+        349,
+        281
+      ],
+      "date_label": "~315 ± 34 ka",
+      "scope": "site",
+      "location": {
+        "lat": 31.85,
+        "lon": -8.87,
+        "region": "africa-north"
+      },
+      "summary": "Oldest fossils currently assigned to the H. sapiens clade. Mosaic of modern facial/dental and primitive neurocranial traits. Pushed the origin of our species back substantially and supports a pan-African (rather than purely East African) origin model.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Hublin et al. (2017), Nature 546:289–292 — New fossils from Jebel Irhoud, Morocco, and the pan-African origin of Homo sapiens",
+            "doi": "10.1038/nature22336",
+            "url": "https://doi.org/10.1038/nature22336"
+          },
+          {
+            "citation": "Richter et al. (2017), Nature 546:293–296 — The age of the hominin fossils from Jebel Irhoud, Morocco, and the origins of the Middle Stone Age",
+            "doi": "10.1038/nature22335",
+            "url": "https://doi.org/10.1038/nature22335"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Jebel_Irhoud",
+        "video": {
+          "title": "There's No Single Cradle of Humankind",
+          "channel": "PBS Eons",
+          "url": "https://www.youtube.com/watch?v=WqcoMOxGWfs"
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Modern (small, retracted, sapiens-like) face and dentition combined with an archaic, long-low braincase — not yet globular. By ~300 ka the modern face had appeared but the rounded modern braincase had not.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "Philipp Gunz / MPI-EVA digital reconstruction; Kennis brothers",
+          "year": null,
+          "institution": "Max Planck Institute for Evolutionary Anthropology",
+          "image_url": null,
+          "credit_required": true
+        }
+      },
+      "notes": "",
+      "summary_lay": "Currently the oldest fossils ever attributed to our species. Found in Morocco, they push the origin of Homo sapiens back by 100,000 years — and out of an East-African 'cradle' to a pan-continental setting.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Jebel_Irhoud-1_NMNH.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Jonathan Chen",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Jebel_Irhoud-1_NMNH.jpg"
+      }
+    },
+    {
+      "id": "florisbad",
+      "title": "Florisbad, South Africa",
+      "category": "fossil",
+      "date_range_kya": [
+        294,
+        224
+      ],
+      "date_label": "~259 ± 35 ka (debated)",
+      "scope": "site",
+      "location": {
+        "lat": -28.77,
+        "lon": 26.07,
+        "region": "africa-south"
+      },
+      "summary": "Partial cranium (Florisbad 1); ESR-dated tooth enamel (Grün et al. 1996). Often grouped with early H. sapiens (Stringer 2016; Hublin et al. 2017). Single ESR date with site-history complications (mixed sediments, possible reworking). Taxonomic assignment is also debated — variously called H. sapiens, H. helmei, or transitional Middle Pleistocene African Homo.",
+      "confidence": "debated",
+      "references": {
+        "papers": [
+          {
+            "citation": "Grün, Brink, Spooner, Taylor, Stringer, Franciscus & Murray (1996), Nature 382:500–501 — Direct dating of Florisbad hominid",
+            "doi": "10.1038/382500a0",
+            "url": "https://doi.org/10.1038/382500a0"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Florisbad_Skull",
+        "video": {
+          "title": "The complex evolution of homo sapiens — 1,000,000 to 30,000 years ago",
+          "channel": "Stefan Milo",
+          "url": "https://www.youtube.com/watch?v=iM6LSUpanmg"
+        }
+      },
+      "debated": true,
+      "appearance": {
+        "morphology": "Brain volume ~1,440 cc. Mosaic: frontal curvature within modern range, anterior cranial fossa wide like Neanderthals, parietal endocranial features more archaic.",
+        "adna_pigmentation": null,
+        "reconstruction": null
+      },
+      "notes": "High-uncertainty date and taxonomy. Render with prominent uncertainty band.",
+      "confidence_note": "Single ESR date with site-history complications (mixed sediments, possible reworking); taxonomic assignment (H. sapiens vs. H. helmei vs. transitional) also contested.",
+      "summary_lay": "An archaic-looking partial skull from South Africa with surprisingly modern features. Often grouped at the base of our species; both the date and the taxonomic assignment are contested.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Florisbad_NMNH.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Jonathan Chen",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Florisbad_NMNH.jpg"
+      }
+    },
+    {
+      "id": "omo-kibish-1",
+      "title": "Omo Kibish I, Ethiopia",
+      "category": "fossil",
+      "date_range_kya": [
+        255,
+        211
+      ],
+      "date_label": "≥233 ± 22 ka",
+      "scope": "site",
+      "location": {
+        "lat": 5.39,
+        "lon": 35.97,
+        "region": "africa-east"
+      },
+      "summary": "Lower Omo Valley, Ethiopia. Long thought ~195 ka; redated in 2022 by tying the overlying KHS Tuff to a Shala volcano eruption. The cleanest pre-200 ka anatomically modern H. sapiens.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Vidal et al. (2022), Nature 601:579–583 — Age of the oldest known Homo sapiens from eastern Africa",
+            "doi": "10.1038/s41586-021-04275-8",
+            "url": "https://doi.org/10.1038/s41586-021-04275-8"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Omo_remains",
+        "video": {
+          "title": "The complex evolution of homo sapiens — 1,000,000 to 30,000 years ago",
+          "channel": "Stefan Milo",
+          "url": "https://www.youtube.com/watch?v=iM6LSUpanmg"
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Already gracile, modern-looking; high rounded vault, weak brows, distinct chin. The oldest cranium that reads as ‘modern’ to the eye.",
+        "adna_pigmentation": null,
+        "reconstruction": null
+      },
+      "notes": "",
+      "summary_lay": "A famously well-preserved skull from southern Ethiopia, long held up as the textbook 'first modern human.' Recent dating pushes its age past 230,000 years, in line with Jebel Irhoud.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/01/Omo_Kibish_-_MCN_4152_%28cropped%29.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "GuillaumeG",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Omo_Kibish_-_MCN_4152_(cropped).jpg"
+      }
+    },
+    {
+      "id": "misliya-cave",
+      "title": "Misliya Cave, Israel",
+      "category": "fossil",
+      "date_range_kya": [
+        194,
+        177
+      ],
+      "date_label": "~194–177 ka",
+      "scope": "site",
+      "location": {
+        "lat": 32.74,
+        "lon": 34.97,
+        "region": "levant"
+      },
+      "summary": "Maxilla (Misliya-1) with teeth, Mt. Carmel, Israel. Pushes the earliest modern human presence outside Africa back ~50 ka beyond Skhul/Qafzeh.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Hershkovitz et al. (2018), Science 359:456–459 — The earliest modern humans outside Africa",
+            "doi": "10.1126/science.aap8369",
+            "url": "https://doi.org/10.1126/science.aap8369"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Misliya_Cave",
+        "video": {
+          "title": "The complex evolution of homo sapiens — 1,000,000 to 30,000 years ago",
+          "channel": "Stefan Milo",
+          "url": "https://www.youtube.com/watch?v=iM6LSUpanmg"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "origin_id": "omo-kibish-1",
+      "route_kind": "land",
+      "waypoints": [
+        [
+          34,
+          30
+        ]
+      ],
+      "summary_lay": "An upper jaw from Mount Carmel, Israel — the earliest Homo sapiens fossil ever found outside Africa. Shows our species was poking out of Africa long before the main expansion.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/24/Misliya_cave_in_Megadim_Cliff%2C_Mount_Carmel.jpg",
+        "license": "CC BY 3.0",
+        "attribution": "Hanay",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Misliya_cave_in_Megadim_Cliff,_Mount_Carmel.jpg"
+      }
+    },
+    {
+      "id": "skhul-qafzeh",
+      "title": "Skhul and Qafzeh caves, Israel",
+      "category": "fossil",
+      "date_range_kya": [
+        120,
+        90
+      ],
+      "date_label": "~120–90 ka",
+      "scope": "site",
+      "location": {
+        "lat": 32.69,
+        "lon": 35.31,
+        "region": "levant"
+      },
+      "summary": "Multiple modern-human burials at Mt. Carmel and Lower Galilee; ESR/TL dated. Generally interpreted as a failed dispersal: Neanderthals later reoccupied the Levant before the main Out-of-Africa wave. Pierced Nassarius shell beads at Skhul are among the earliest symbolic ornaments outside Africa.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Grün et al. (2005), Journal of Human Evolution 49:316–334 — U-series and ESR analyses of bones and teeth relating to the human burials from Skhul",
+            "doi": "10.1016/j.jhevol.2005.04.006",
+            "url": "https://doi.org/10.1016/j.jhevol.2005.04.006"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Skhul_and_Qafzeh_hominins",
+        "video": {
+          "title": "Humanity 100,000 Years Ago — Life In The Paleolithic",
+          "channel": "Stefan Milo",
+          "url": "https://www.youtube.com/watch?v=ZCjsnopmYdw"
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Among the earliest anatomically modern humans outside Africa. High vertical forehead, rounded cranium, no occipital bun; lighter build than contemporary Levantine Neanderthals.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "Élisabeth Daynès",
+          "year": null,
+          "institution": null,
+          "image_url": null,
+          "credit_required": true,
+          "notes": "Skhul V reconstruction."
+        }
+      },
+      "notes": "",
+      "summary_lay": "Two Israeli cave sites with multiple Homo sapiens skeletons from ~120-90 ka. They mark an earlier wave out of Africa that didn't go on to settle Eurasia — a partly-failed attempt.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/23/Skhul_5_cast%2C_norma_frontalis.jpg",
+        "license": "CC BY-SA 3.0 fr",
+        "attribution": "Rama",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Skhul_5_cast,_norma_frontalis.jpg"
+      }
+    },
+    {
+      "id": "apidima-1",
+      "title": "Apidima 1, Greece",
+      "category": "fossil",
+      "date_range_kya": [
+        210,
+        210
+      ],
+      "date_label": ">210 ka (strongly contested)",
+      "scope": "site",
+      "location": {
+        "lat": 36.55,
+        "lon": 22.39,
+        "region": "europe-southeast"
+      },
+      "summary": "Partial cranium from the Mani Peninsula, southern Greece, with modern-human-like occipital morphology per Harvati et al. 2019. If correctly identified and dated, the oldest H. sapiens outside Africa. Co-occurring Apidima 2 is Neanderthal-like (~170 ka), suggesting alternation.",
+      "confidence": "contested",
+      "references": {
+        "papers": [
+          {
+            "citation": "Harvati et al. (2019), Nature 571:500–504 — Apidima Cave fossils provide earliest evidence of Homo sapiens in Eurasia",
+            "doi": "10.1038/s41586-019-1376-z",
+            "url": "https://doi.org/10.1038/s41586-019-1376-z"
+          }
+        ],
+        "critique": [
+          {
+            "citation": "de Lumley et al. (2020), L’Anthropologie 124:102765 — Apidima 1 reanalysis",
+            "todo": true,
+            "note": "Verify DOI."
+          },
+          {
+            "citation": "Röding & Stringer (2022), Journal of Human Evolution — Apidima 1 morphometric reanalysis",
+            "todo": true,
+            "note": "Verify exact citation and DOI."
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Apidima_Cave",
+        "video": {
+          "title": "The complex evolution of homo sapiens — 1,000,000 to 30,000 years ago",
+          "channel": "Stefan Milo",
+          "url": "https://www.youtube.com/watch?v=iM6LSUpanmg"
+        }
+      },
+      "debated": true,
+      "appearance": null,
+      "notes": "Highest-uncertainty entry in the dataset. Multiple morphometric reanalyses argue the preserved morphology is too partial and damaged to support a confident sapiens assignment; the U-Th date itself is also indirect (carbonate breccia, not bone). Display with the strongest ‘contested’ marker.",
+      "origin_id": "omo-kibish-1",
+      "confidence_note": "Sapiens-morphology of Apidima 1 contested by de Lumley et al. 2020 and Röding & Stringer 2022; the >210 ka date is indirect (U-Th on carbonate breccia, not on bone).",
+      "route_kind": "land",
+      "waypoints": [
+        [
+          34,
+          30
+        ],
+        [
+          30,
+          38
+        ],
+        [
+          23,
+          40
+        ]
+      ],
+      "summary_lay": "A partial skull fragment from Greece argued to be Homo sapiens at over 210,000 years old. If the identification holds, it would mean our species reached Europe far earlier than the textbook says — but several specialists strongly dispute it.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/39/Apidima_1_Facial_Reconstruction.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Tyrannohotep",
+        "file_page": ""
+      }
+    },
+    {
+      "id": "fuyan-cave-daoxian",
+      "title": "Fuyan Cave (Daoxian), China",
+      "category": "fossil",
+      "date_range_kya": [
+        120,
+        70
+      ],
+      "date_label": "~120–70 ka (debated)",
+      "scope": "site",
+      "location": {
+        "lat": 25.4,
+        "lon": 111.5,
+        "region": "east-asia"
+      },
+      "summary": "47 unambiguously modern-human teeth from Hunan, recovered from a sealed flowstone context. The teeth are unambiguous H. sapiens — only the dating is contested. Sun et al. (2021) argue the speleothem-bracketed minimum age is closer to ~70 ka than ~80–120 ka, removing Daoxian as a strict pre-OOA outlier.",
+      "confidence": "debated",
+      "references": {
+        "papers": [
+          {
+            "citation": "Liu et al. (2015), Nature 526:696–699 — The earliest unequivocally modern humans in southern China",
+            "doi": "10.1038/nature15696",
+            "url": "https://doi.org/10.1038/nature15696"
+          }
+        ],
+        "critique": [
+          {
+            "citation": "Sun, Bae, Liu et al. (2021), Quaternary International 600:135 — Re-evaluation of the chronology of the H. sapiens fossils from Fuyan Cave",
+            "todo": true,
+            "note": "Verify exact citation and DOI."
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Fuyan_Cave",
+        "video": {
+          "title": "The complex evolution of homo sapiens — 1,000,000 to 30,000 years ago",
+          "channel": "Stefan Milo",
+          "url": "https://www.youtube.com/watch?v=iM6LSUpanmg"
+        }
+      },
+      "debated": true,
+      "appearance": null,
+      "notes": "Encode date range as 70–120 ka (per RESEARCH.md note), not 80–120.",
+      "origin_id": "omo-kibish-1",
+      "confidence_note": "Teeth are unambiguous H. sapiens — only the date is debated. Sun et al. 2021 widened the U-Th range to ~70–120 ka, undercutting the original >80 ka claim.",
+      "route_kind": "coastal",
+      "summary_lay": "Forty-seven unambiguously modern teeth from a Chinese cave. The teeth are clearly Homo sapiens; the live debate is just how old they really are, and whether they imply an early eastern dispersal."
+    },
+    {
+      "id": "denisova-3",
+      "title": "Denisova 3 finger bone",
+      "category": "fossil",
+      "date_range_kya": [
+        76,
+        50
+      ],
+      "date_label": "~76–50 ka",
+      "scope": "site",
+      "location": {
+        "lat": 51.4,
+        "lon": 84.68,
+        "region": "siberia"
+      },
+      "summary": "Denisova Cave, Altai Mountains. Distal phalanx of a young female. Morphologically nondescript — famous because mtDNA, then nuclear DNA, revealed an entirely new sister lineage to Neanderthals.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Krause et al. (2010), Nature 464:894–897 — The complete mitochondrial DNA genome of an unknown hominin from southern Siberia",
+            "doi": "10.1038/nature08976",
+            "url": "https://doi.org/10.1038/nature08976"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Denisovan",
+        "video": {
+          "title": "When We Met Other Human Species",
+          "channel": "PBS Eons",
+          "url": "https://www.pbs.org/video/when-we-met-other-human-species-k2hfav/"
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "A single distal phalanx — morphology contributes nothing diagnostic; the identification is genomic.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "Maayan Harel",
+          "year": 2019,
+          "institution": null,
+          "image_url": null,
+          "credit_required": true,
+          "notes": "Reconstruction from DNA-methylation-based skeletal phenotype prediction (Gokhman et al. 2019), AAAS People’s Choice 2019. Predicted skeletal traits matched the Xiahe mandible when it came into view."
+        }
+      },
+      "notes": "",
+      "summary_lay": "A child's finger bone from a Siberian cave that turned out to belong to a previously-unknown human species — the Denisovans. Discovered through DNA, not anatomy.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/6f/Denisova_Phalanx_distalis.jpg",
+        "license": "CC BY-SA 3.0",
+        "attribution": "Thilo Parg",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Denisova_Phalanx_distalis.jpg"
+      }
+    },
+    {
+      "id": "xiahe-mandible",
+      "title": "Xiahe mandible (Baishiya Karst Cave)",
+      "category": "fossil",
+      "date_range_kya": [
+        160,
+        160
+      ],
+      "date_label": "≥160 ka",
+      "scope": "site",
+      "location": {
+        "lat": 35.45,
+        "lon": 102.57,
+        "region": "central-asia"
+      },
+      "summary": "Tibetan Plateau, ~3,280 m elevation. Right half of a robust mandible. First Denisovan identified outside Denisova Cave — assigned via paleoproteomics. Confirms Denisovan high-altitude adaptation long before sapiens arrived (relevant to modern Tibetan EPAS1 introgression).",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Chen et al. (2019), Nature 569:409–412 — A late Middle Pleistocene Denisovan mandible from the Tibetan Plateau",
+            "doi": "10.1038/s41586-019-1139-x",
+            "url": "https://doi.org/10.1038/s41586-019-1139-x"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Xiahe_mandible",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Robust mandible. Skeletal-prediction work from Denisova 3 methylation matched the morphology of this specimen.",
+        "adna_pigmentation": null,
+        "reconstruction": null
+      },
+      "notes": "",
+      "summary_lay": "A robust jawbone from a Tibetan cave, found in 1980 by a monk. Recently identified as Denisovan via ancient proteins — the first Denisovan fossil outside Siberia.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Xiahe_mandible.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Dongju Zhang",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Xiahe_mandible.jpg"
+      }
+    },
+    {
+      "id": "cobra-cave-tam-ngu-hao",
+      "title": "Cobra Cave / Tam Ngu Hao 2 molar",
+      "category": "fossil",
+      "date_range_kya": [
+        164,
+        131
+      ],
+      "date_label": "~164–131 ka",
+      "scope": "site",
+      "location": {
+        "lat": 20.05,
+        "lon": 103.4,
+        "region": "southeast-asia"
+      },
+      "summary": "Annamite Mountains, northern Laos. Single lower molar; paleoproteomics indicate a young female Denisovan. First Denisovan find in Southeast Asia — extends the known Denisovan range to tropical Asia, consistent with Denisovan ancestry in Papuans and Aboriginal Australians.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Demeter et al. (2022), Nature Communications 13:2557 — A Middle Pleistocene Denisovan molar from the Annamite Chain of northern Laos",
+            "doi": "10.1038/s41467-022-29923-z",
+            "url": "https://doi.org/10.1038/s41467-022-29923-z"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Cobra_Cave",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "A Denisovan tooth from a Laotian cave. Pushes the known Denisovan range deep into Southeast Asia and helps explain why Aboriginal Australians and Papuans carry the most Denisovan DNA.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/65/Tam_Pa_Ling_cave_south_entrance.jpg",
+        "license": "CC0",
+        "attribution": "Demeter F, Shackelford L, Westaway K, Duringer P, Bacon A-M, et al.",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Tam_Pa_Ling_cave_south_entrance.jpg"
+      }
+    },
+    {
+      "id": "la-chapelle-aux-saints",
+      "title": "La Chapelle-aux-Saints ‘Old Man’ (LCS-1)",
+      "category": "fossil",
+      "date_range_kya": [
+        50,
+        50
+      ],
+      "date_label": "~50 ka",
+      "scope": "site",
+      "location": {
+        "lat": 45.06,
+        "lon": 1.72,
+        "region": "europe-west"
+      },
+      "summary": "Corrèze, France. Older adult Neanderthal, severe arthritis, missing most teeth. Famously misreconstructed by Marcellin Boule (1911–13) as stooped and ape-like; Straus & Cave (1957) showed posture was essentially modern, with Boule’s distortion partly due to the individual’s osteoarthritis. The historical anchor for the ‘brutish Neanderthal’ trope.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Straus & Cave (1957), Quarterly Review of Biology 32:348–363 — Pathology and the posture of Neanderthal man",
+            "todo": true,
+            "note": "Verify DOI; pre-DOI era."
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/La_Chapelle-aux-Saints_1",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Aged adult Neanderthal with severe arthritis and ante-mortem tooth loss. Boule’s 1911 reconstruction was distorted by the pathology and by his preconceptions.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "Adrie & Alfons Kennis; Élisabeth Daynès",
+          "year": null,
+          "institution": null,
+          "image_url": null,
+          "credit_required": true
+        }
+      },
+      "notes": "Useful as the pivot point for the ‘how the popular image of Neanderthals changed’ sub-story.",
+      "summary_lay": "The Neanderthal skeleton that defined the public image of Neanderthals — once misread as a bent-over brute. The misinterpretation took half a century to undo.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/89/Neandertal_skull_from_la_chapelle_aux_saints.jpg",
+        "license": "CC BY 2.5",
+        "attribution": "PLoS",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Neandertal_skull_from_la_chapelle_aux_saints.jpg"
+      }
+    },
+    {
+      "id": "shanidar-cave",
+      "title": "Shanidar Cave Neanderthals (Shanidar 1, 4, Z)",
+      "category": "fossil",
+      "date_range_kya": [
+        65,
+        45
+      ],
+      "date_label": "~65–45 ka",
+      "scope": "site",
+      "location": {
+        "lat": 36.83,
+        "lon": 44.22,
+        "region": "caucasus-zagros"
+      },
+      "summary": "Zagros Mountains, Iraqi Kurdistan. Shanidar 1 is the famous ‘disabled survivor’ — fused right elbow (likely amputated forearm), crushed left orbit, healed fractures — yet lived to ~40–50, suggesting group support. Shanidar 4 is the contested ‘flower burial.’ Shanidar Z (excavated 2018) gave new articulated upper-body remains.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Pomeroy et al. (2020), Antiquity 94:11–26 — New Neanderthal remains associated with the ‘flower burial’ at Shanidar Cave",
+            "doi": "10.15184/aqy.2019.207",
+            "url": "https://doi.org/10.15184/aqy.2019.207"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Shanidar_Cave",
+        "video": {
+          "todo": true,
+          "note": "Netflix ‘Secrets of the Neanderthals’ (2024) features Shanidar Z; pin specific clip if available."
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Robust Neanderthal post-cranium. Shanidar 1 had a fused right elbow (likely amputated forearm), crushed left orbit, and healed fractures — surviving to ~40–50.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "Adrie & Alfons Kennis",
+          "year": 2024,
+          "institution": null,
+          "image_url": null,
+          "credit_required": true,
+          "notes": "Shanidar Z facial reconstruction by the Kennis brothers, featured in Netflix’s ‘Secrets of the Neanderthals’ (2024)."
+        }
+      },
+      "notes": "",
+      "summary_lay": "Multiple Neanderthal skeletons from a Kurdish cave, including one that may have been buried with flowers. Some of our best evidence for Neanderthal social and possibly ritual life.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Shanidar_skull.jpg",
+        "license": "CC BY 2.0",
+        "attribution": "James Gordon from Los Angeles, California, USA",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Shanidar_skull.jpg"
+      }
+    },
+    {
+      "id": "altamura-man",
+      "title": "Altamura Man",
+      "category": "fossil",
+      "date_range_kya": [
+        150,
+        150
+      ],
+      "date_label": "~150 ka",
+      "scope": "site",
+      "location": {
+        "lat": 40.83,
+        "lon": 16.55,
+        "region": "europe-central"
+      },
+      "summary": "Lamalunga Cave, Apulia, Italy. Near-complete skeleton encased in cave-coral calcite — cannot be removed; studied in situ. Yielded the oldest Neanderthal mtDNA fragment at the time of analysis.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Lari et al. (2015), Journal of Human Evolution 82:88–94 — The Neanderthal in the karst: First dating, morphometric, and palaeogenetic data on the fossil skeleton from Altamura",
+            "doi": "10.1016/j.jhevol.2015.02.007",
+            "url": "https://doi.org/10.1016/j.jhevol.2015.02.007"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Altamura_Man",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Near-complete Neanderthal skeleton in calcite encrustation. Robust morphology consistent with European Neanderthals.",
+        "adna_pigmentation": null,
+        "reconstruction": null
+      },
+      "notes": "",
+      "summary_lay": "An Italian Neanderthal skeleton fused into a cave's mineral wall — it can't be safely extracted. It has yielded the oldest sequenced Neanderthal DNA so far.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/en/d/d8/Altamura_man.jpg",
+        "license": "Wikipedia local upload — likely fair use or non-free; verify before reuse",
+        "attribution": "Wikimedia Commons",
+        "file_page": ""
+      }
+    },
+    {
+      "id": "main-out-of-africa",
+      "title": "Main Out-of-Africa expansion",
+      "category": "settlement",
+      "date_range_kya": [
+        70,
+        50
+      ],
+      "date_label": "~70–50 ka",
+      "scope": "regional",
+      "location": {
+        "lat": 12.5,
+        "lon": 43.3,
+        "region": "arabia"
+      },
+      "summary": "The dispersal that left descendants in every non-African population today. Genomic studies (Mallick 2016, Pagani 2016, Malaspinas 2016) converge on a single major exodus ~70–50 ka. Pagani et al. originally reported a small (~2%) Papuan signal of an earlier (~120 ka) dispersal, but later reanalyses prefer archaic introgression / within-Africa structure. Hallett, Leonardi et al. (2025) argue the success was downstream of a within-Africa expansion of bioclimatic niche breadth from ~70 ka.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Mallick et al. (2016), Nature 538:201–206 — The Simons Genome Diversity Project",
+            "doi": "10.1038/nature18964",
+            "url": "https://doi.org/10.1038/nature18964"
+          },
+          {
+            "citation": "Pagani et al. (2016), Nature 538:238–242 — Genomic analyses inform on migration events during the peopling of Eurasia",
+            "doi": "10.1038/nature19792",
+            "url": "https://doi.org/10.1038/nature19792"
+          },
+          {
+            "citation": "Hallett, Leonardi et al. (2025), Nature 644:115–121 — Major expansion in the human niche preceded out-of-Africa dispersal",
+            "doi": "10.1038/s41586-025-09154-0",
+            "url": "https://doi.org/10.1038/s41586-025-09154-0"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Recent_African_origin_of_modern_humans",
+        "video": {
+          "title": "Does Neanderthal DNA put a ceiling on Out of Africa?",
+          "channel": "Stefan Milo",
+          "url": "https://www.youtube.com/watch?v=rXN-KEULia8"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Render as a flowing arrow / corridor, not a pin.",
+      "origin_id": "omo-kibish-1",
+      "route_kind": "land",
+      "summary_lay": "The successful expansion: a small group of Homo sapiens left Africa around 60,000 years ago, and every non-African alive today descends from them. Earlier waves either died out or left no genetic trace.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Spreading_homo_sapiens_la.svg/1920px-Spreading_homo_sapiens_la.svg.png",
+        "license": "license unknown",
+        "attribution": "Wikimedia Commons",
+        "file_page": ""
+      }
+    },
+    {
+      "id": "southern-coastal-route",
+      "title": "Southern coastal route",
+      "category": "settlement",
+      "date_range_kya": [
+        65,
+        50
+      ],
+      "date_label": "~65–50 ka",
+      "scope": "regional",
+      "location": {
+        "lat": 14,
+        "lon": 50,
+        "region": "arabia"
+      },
+      "summary": "Bab-el-Mandeb (Red Sea) → Arabian coast → South Asia → Southeast Asia → Sahul. Rapid coastal dispersal hypothesis: a small founding group (~150–1,000) crossed Bab-el-Mandeb, exploited intertidal/coastal resources, and reached Sundaland and ultimately Sahul within a few thousand years. Sea-level lowstands made much of this a continental-shelf route.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Armitage et al. (2011), Science 331:453–456 — The southern route Out of Africa: Evidence for an early expansion of modern humans into Arabia",
+            "doi": "10.1126/science.1199113",
+            "url": "https://doi.org/10.1126/science.1199113"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Southern_Dispersal",
+        "video": {
+          "title": "The crossroads of human evolution (India, Pakistan, Bangladesh, Sri Lanka)",
+          "channel": "Stefan Milo",
+          "url": "https://www.youtube.com/watch?v=SKUKoLdWdPQ"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Render as a coastal arc, not a pin.",
+      "summary_lay": "The hypothesised fast-track along the Indian Ocean coast — from East Africa across Arabia, India, Southeast Asia all the way to Australia. Coastlines offered consistent food, fresh water, and a reliable navigational guide.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/27/Spreading_homo_sapiens_la.svg",
+        "license": "Public domain",
+        "attribution": "NordNordWest",
+        "file_page": ""
+      }
+    },
+    {
+      "id": "grotte-mandrin",
+      "title": "Grotte Mandrin, France",
+      "category": "settlement",
+      "date_range_kya": [
+        54,
+        54
+      ],
+      "date_label": "~54 ka",
+      "scope": "site",
+      "location": {
+        "lat": 44.27,
+        "lon": 4.78,
+        "region": "europe-west"
+      },
+      "summary": "Brief H. sapiens incursion into western Europe (Neronian assemblage) interleaved with Neanderthal occupations — ~10 ka before the Bacho Kiro / IUP wave. Implies at least one earlier failed incursion into Neanderthal territory.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Slimak et al. (2022), Science Advances 8:eabj9496 — Modern human incursion into Neanderthal territories 54,000 years ago at Mandrin, France",
+            "doi": "10.1126/sciadv.abj9496",
+            "url": "https://doi.org/10.1126/sciadv.abj9496"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Grotte_Mandrin",
+        "video": {
+          "title": "The hunt for the oldest 'human' genetics",
+          "channel": "Stefan Milo",
+          "url": "https://www.youtube.com/watch?v=tjJvyo8DuNk"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "origin_id": "main-out-of-africa",
+      "route_kind": "land",
+      "waypoints": [
+        [
+          35,
+          32
+        ],
+        [
+          32,
+          38
+        ],
+        [
+          29,
+          41
+        ],
+        [
+          13,
+          42
+        ]
+      ],
+      "summary_lay": "A French cave with stone tools and a single Homo sapiens tooth at 54,000 years old — 10,000 years before the conventional 'modern humans arrive in Europe' date. A short-lived early intrusion.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/68/Mandrin_Cave_%28from_the_sky%29.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Ségolène Vandevelde",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Mandrin_Cave_(from_the_sky).jpg"
+      }
+    },
+    {
+      "id": "bacho-kiro",
+      "title": "Bacho Kiro Cave, Bulgaria",
+      "category": "fossil",
+      "date_range_kya": [
+        45,
+        45
+      ],
+      "date_label": "~45 ka",
+      "scope": "site",
+      "location": {
+        "lat": 42.94,
+        "lon": 25.43,
+        "region": "europe-southeast"
+      },
+      "summary": "Earliest directly dated H. sapiens in mid-latitude Europe, associated with Initial Upper Paleolithic technology. Genomes (Hajdinjak et al. 2021) show recent Neanderthal ancestors within the preceding ~6 generations — ongoing admixture in Europe at contact.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Hublin et al. (2020), Nature 581:299–302 — Initial Upper Palaeolithic Homo sapiens from Bacho Kiro Cave, Bulgaria",
+            "doi": "10.1038/s41586-020-2259-z",
+            "url": "https://doi.org/10.1038/s41586-020-2259-z"
+          },
+          {
+            "citation": "Hajdinjak et al. (2021), Nature 592:253–257 — Initial Upper Palaeolithic humans in Europe had recent Neanderthal ancestry",
+            "doi": "10.1038/s41586-021-03335-3",
+            "url": "https://doi.org/10.1038/s41586-021-03335-3"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Bacho_Kiro_cave",
+        "video": {
+          "title": "Homo sapiens dispersals into Europe — Bacho Kiro Cave (ESHE 2020)",
+          "channel": "ESHE-Society",
+          "url": "https://www.youtube.com/watch?v=mLtyx8_yykI"
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Modern human cranial and dental morphology with Initial Upper Paleolithic toolkit; Neanderthal ancestors within the previous ~6 generations.",
+        "adna_pigmentation": null,
+        "reconstruction": null
+      },
+      "notes": "",
+      "origin_id": "main-out-of-africa",
+      "route_kind": "land",
+      "waypoints": [
+        [
+          35,
+          32
+        ],
+        [
+          32,
+          38
+        ]
+      ],
+      "summary_lay": "A Bulgarian cave with the oldest confirmed Homo sapiens fossils in Europe — 45,000 years old, alongside Initial Upper Paleolithic tools. Caught a population that mostly didn't make it further west.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/2a/Bacho_Kiro_Cave.jpg",
+        "license": "CC BY 2.5",
+        "attribution": "Wikimedia Commons",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Bacho_Kiro_Cave.jpg"
+      }
+    },
+    {
+      "id": "pestera-cu-oase-1",
+      "title": "Peştera cu Oase 1, Romania",
+      "category": "fossil",
+      "date_range_kya": [
+        42,
+        37
+      ],
+      "date_label": "~42–37 ka",
+      "scope": "site",
+      "location": {
+        "lat": 45.02,
+        "lon": 21.85,
+        "region": "europe-southeast"
+      },
+      "summary": "Anina Mountains, southwestern Romania. Modern-human mandible (and later cranium Oase 2). The Oase 1 genome (Fu et al. 2015) carries 6–9% Neanderthal ancestry in unusually long, unbroken segments, implying a Neanderthal ancestor four to six generations back. The most direct fossil-genomic evidence yet that AMH–Neanderthal admixture happened in Europe at contact, not just once in the Levant. Oase 1 left no detectable descendants in present-day Europeans — a separate, unsuccessful early-AMH lineage.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Fu et al. (2015), Nature 524:216–219 — An early modern human from Romania with a recent Neanderthal ancestor",
+            "doi": "10.1038/nature14558",
+            "url": "https://doi.org/10.1038/nature14558"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Pe%C8%99tera_cu_Oase",
+        "video": {
+          "title": "Does Neanderthal DNA put a ceiling on Out of Africa?",
+          "channel": "Stefan Milo",
+          "url": "https://www.youtube.com/watch?v=rXN-KEULia8"
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Modern-human mandible with some morphological traits unusual among AMH and consistent with the unusually high (6–9%) Neanderthal ancestry in his genome.",
+        "adna_pigmentation": null,
+        "reconstruction": null
+      },
+      "notes": "",
+      "origin_id": "bacho-kiro",
+      "route_kind": "land",
+      "summary_lay": "A Romanian skull with around 6–10 % Neanderthal DNA — the equivalent of a Neanderthal great-great-grandparent. Direct evidence of recent interbreeding between the two species.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Oase_2-Homo_Sapiens.jpg",
+        "license": "CC BY-SA 2.0",
+        "attribution": "Ryan Somma",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Oase_2-Homo_Sapiens.jpg"
+      }
+    },
+    {
+      "id": "ranis-ilsenhohle",
+      "title": "Ranis (Ilsenhöhle), Germany",
+      "category": "fossil",
+      "date_range_kya": [
+        49,
+        45
+      ],
+      "date_label": "~49–45 ka",
+      "scope": "site",
+      "location": {
+        "lat": 50.66,
+        "lon": 11.57,
+        "region": "europe-central"
+      },
+      "summary": "Thuringia, Germany. Multiple individuals from the same small isolated population as Zlatý kůň. Their lineage represents the deepest known split from the surviving Out-of-Africa branch. Carries Neanderthal segments from the single shared admixture event of all non-Africans (~49–45 ka), placing modern humans in northern Europe alongside Neanderthals at the same time.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Sümer et al. (2025), Nature 638:711 — Earliest modern human genomes constrain timing of Neanderthal admixture",
+            "doi": "10.1038/s41586-024-08420-x",
+            "url": "https://doi.org/10.1038/s41586-024-08420-x"
+          },
+          {
+            "citation": "Mylopotamitaki et al. (2024), Nature 626:341–346 — Homo sapiens reached the higher latitudes of Europe by 45,000 years ago",
+            "doi": "10.1038/s41586-023-06923-7",
+            "url": "https://doi.org/10.1038/s41586-023-06923-7"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Ilsenh%C3%B6hle",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Modern-human cranial fragments, Lincombian-Ranisian-Jerzmanowician (LRJ) toolkit context.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "Tom Björklund",
+          "year": 2024,
+          "institution": "Max Planck Institute for Evolutionary Anthropology",
+          "image_url": null,
+          "credit_required": true
+        }
+      },
+      "notes": "Same small isolated population as Zlatý kůň. Render as a paired event with that entry.",
+      "origin_id": "main-out-of-africa",
+      "route_kind": "land",
+      "waypoints": [
+        [
+          35,
+          32
+        ],
+        [
+          32,
+          38
+        ],
+        [
+          29,
+          41
+        ],
+        [
+          20,
+          46
+        ]
+      ],
+      "summary_lay": "A German cave with bone fragments revealing the earliest Homo sapiens north of the Alps. Pushes the modern-human reach into Ice Age Europe.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Burg_Ranis_mit_Ilsenh%C3%B6hle.jpg",
+        "license": "CC0",
+        "attribution": "Ansgar Koreng",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Burg_Ranis_mit_Ilsenh%C3%B6hle.jpg"
+      }
+    },
+    {
+      "id": "zlaty-kun",
+      "title": "Zlatý kůň, Czechia",
+      "category": "fossil",
+      "date_range_kya": [
+        45,
+        45
+      ],
+      "date_label": ">45 ka",
+      "scope": "site",
+      "location": {
+        "lat": 49.92,
+        "lon": 14.18,
+        "region": "europe-central"
+      },
+      "summary": "Bohemian Karst, Czech Republic. Adult female skull. Genome carries ~3% Neanderthal ancestry in unusually long blocks. Belongs to a population that left no descendants in present-day humans — a very early dispersal that did not survive. Distantly related to the Ranis individuals.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Prüfer et al. (2021), Nature Ecology & Evolution 5:820–825 — A genome sequence from a modern human skull over 45,000 years old from Zlatý kůň in Czechia",
+            "doi": "10.1038/s41559-021-01443-x",
+            "url": "https://doi.org/10.1038/s41559-021-01443-x"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Zlat%C3%BD_k%C5%AF%C5%88_(skull)",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Adult female AMH skull. ~3% Neanderthal ancestry in long unbroken blocks consistent with admixture only a few generations before.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "Cícero Moraes",
+          "year": 2021,
+          "institution": null,
+          "image_url": null,
+          "credit_required": true,
+          "notes": "3D facial approximation circulated 2021–22."
+        }
+      },
+      "notes": "",
+      "origin_id": "main-out-of-africa",
+      "route_kind": "land",
+      "waypoints": [
+        [
+          35,
+          32
+        ],
+        [
+          32,
+          38
+        ],
+        [
+          29,
+          41
+        ],
+        [
+          20,
+          46
+        ]
+      ],
+      "summary_lay": "A Czech skull from a woman with no surviving descendants. Her genome belongs to a 'lost' early Homo sapiens lineage that dead-ended in Europe.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Skeletal_remains_from_Zlat%C3%BD_k%C5%AF%C5%88.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Kay Prüfer, Cosimo Posth, He Yu, Alexander Stoessel, Maria A. Spyrou, Thibaut Deviese, Marco Mattonai, Erika Ribechini, Thomas Higham, Petr Velemínský, Jaroslav Brůžek &amp; Johannes Krause",
+        "file_page": ""
+      }
+    },
+    {
+      "id": "ust-ishim-man",
+      "title": "Ustʼ-Ishim Man, Western Siberia",
+      "category": "fossil",
+      "date_range_kya": [
+        45,
+        45
+      ],
+      "date_label": "~45 ka",
+      "scope": "site",
+      "location": {
+        "lat": 57.7,
+        "lon": 71.2,
+        "region": "siberia"
+      },
+      "summary": "Single femur from the bank of the Irtysh, western Siberia. Oldest high-coverage modern-human genome at the time of publication. Carries ~2% Neanderthal ancestry in long unbroken segments — places the Neanderthal–sapiens admixture pulse 7,000–13,000 years before he lived (so ~50–60 ka by the original analysis; later refined by Sümer 2025 to ~49–45 ka).",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Fu et al. (2014), Nature 514:445–449 — Genome sequence of a 45,000-year-old modern human from western Siberia",
+            "doi": "10.1038/nature13810",
+            "url": "https://doi.org/10.1038/nature13810"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Ust%27-Ishim_man",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "origin_id": "main-out-of-africa",
+      "route_kind": "land",
+      "waypoints": [
+        [
+          50,
+          38
+        ],
+        [
+          55,
+          47
+        ]
+      ],
+      "summary_lay": "A 45,000-year-old leg bone from western Siberia: the oldest near-complete genome of an early Homo sapiens. Proved we'd already crossed Asia by 45 ka.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Femur_ust-ishim_2.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "CRamosAcosta",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Femur_ust-ishim_2.jpg"
+      }
+    },
+    {
+      "id": "tianyuan-man",
+      "title": "Tianyuan Cave, China",
+      "category": "fossil",
+      "date_range_kya": [
+        40,
+        40
+      ],
+      "date_label": "~40 ka",
+      "scope": "site",
+      "location": {
+        "lat": 39.69,
+        "lon": 115.86,
+        "region": "east-asia"
+      },
+      "summary": "Near Beijing. Oldest ancient genome from East Asia. Tianyuan Man is related to but not directly ancestral to present-day East Asians; shares a genetic signal with the 35-ka Belgian individual Goyet Q116-1, implying shared structure across early Eurasian populations. Carries detectable Neanderthal but no excess Denisovan ancestry.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Yang, Gao, Theunert et al. (2017), Current Biology 27:3202–3208 — 40,000-year-old individual from Asia provides insight into early population structure in Eurasia",
+            "doi": "10.1016/j.cub.2017.09.030",
+            "url": "https://doi.org/10.1016/j.cub.2017.09.030"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Tianyuan_man",
+        "video": {
+          "title": "When We Met Other Human Species",
+          "channel": "PBS Eons",
+          "url": "https://www.youtube.com/watch?v=jdYwMLSNHnU"
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Modern human with some archaic features in the dentition. Genome-wide affinity to ancestors of present-day Asians and Native Americans, but already diverged from the lineage leading to Europeans.",
+        "adna_pigmentation": null,
+        "reconstruction": null
+      },
+      "notes": "",
+      "origin_id": "ust-ishim-man",
+      "route_kind": "land",
+      "waypoints": [
+        [
+          90,
+          50
+        ]
+      ],
+      "summary_lay": "An early modern human from a cave near Beijing. His genome links him to all later East Asians and Native Americans — and his diet included a lot of fish."
+    },
+    {
+      "id": "kostenki-14",
+      "title": "Kostenki 14 / Markina Gora",
+      "category": "fossil",
+      "date_range_kya": [
+        38.7,
+        36.2
+      ],
+      "date_label": "~38.7–36.2 ka",
+      "scope": "site",
+      "location": {
+        "lat": 51.4,
+        "lon": 39.05,
+        "region": "europe-east"
+      },
+      "summary": "Voronezh Oblast, Russia. Near-complete skeleton, flexed burial. Genome shows Kostenki 14 was already part of the meta-population ancestral to later Europeans — establishing European genetic continuity stretching back >36 ka, with early gene flow with Near Eastern populations.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Seguin-Orlando et al. (2014), Science 346:1113–1118 — Genomic structure in Europeans dating back at least 36,200 years",
+            "doi": "10.1126/science.aaa0114",
+            "url": "https://doi.org/10.1126/science.aaa0114"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Kostenki%E2%80%93Borshchyovo_archaeological_complex",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "AMH cranium and post-cranium, flexed burial. Genome continuous with later Europeans.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "Mikhail Gerasimov",
+          "year": null,
+          "institution": null,
+          "image_url": null,
+          "credit_required": true,
+          "notes": "Famous ‘Markina Gora’ bust produced by Gerasimov in the 1950s — an early example of skull-based facial reconstruction."
+        }
+      },
+      "notes": "",
+      "origin_id": "bacho-kiro",
+      "route_kind": "land",
+      "waypoints": [
+        [
+          28,
+          47
+        ],
+        [
+          35,
+          49
+        ]
+      ],
+      "summary_lay": "A Russian skeleton showing that the genetic signature of all later Europeans was already in place by 38,000 years ago. The European 'metapopulation' was set very early."
+    },
+    {
+      "id": "goyet-q116-1",
+      "title": "Goyet Q116-1, Belgium",
+      "category": "fossil",
+      "date_range_kya": [
+        35.16,
+        34.43
+      ],
+      "date_label": "~35,160–34,430 BP",
+      "scope": "site",
+      "location": {
+        "lat": 50.45,
+        "lon": 5,
+        "region": "europe-west"
+      },
+      "summary": "Goyet Caves, Belgium. Humerus fragment yielding genome-wide data. The ‘Goyet cluster’ he typifies contributed ancestry to most later Europeans. Surprising affinity to Tianyuan Man hints at deep population structure across Eurasia in the early UP.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Fu et al. (2016), Nature 534:200–205 — The genetic history of Ice Age Europe",
+            "doi": "10.1038/nature17993",
+            "url": "https://doi.org/10.1038/nature17993"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Goyet_Caves",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "A Belgian Aurignacian-age individual whose genome ties him to early hunter-gatherers across Europe. Part of the genetic backbone before later population turnovers.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Finds_from_Goyet_and_Trou_Magrite_in_the_Museum_for_Natural_Sciences_of_Belgium_%28cropped%29.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Karmakolle",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Finds_from_Goyet_and_Trou_Magrite_in_the_Museum_for_Natural_Sciences_of_Belgium_(cropped).jpg"
+      }
+    },
+    {
+      "id": "cro-magnon-1",
+      "title": "Cro-Magnon 1 (‘Old Man of Cro-Magnon’)",
+      "category": "fossil",
+      "date_range_kya": [
+        28,
+        28
+      ],
+      "date_label": "~28 ka ¹⁴C BP",
+      "scope": "site",
+      "location": {
+        "lat": 44.94,
+        "lon": 1.01,
+        "region": "europe-west"
+      },
+      "summary": "Abri de Cro-Magnon, Dordogne, France. Adult male, found 1868. Type specimen of ‘Cro-Magnon’; tall, robust modern-human morphology, broad face and rectangular orbits; associated with Aurignacian tools. The popular shorthand for European Upper Paleolithic H. sapiens.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Henry-Gambier (2002), Bulletins et Mémoires de la Société d'Anthropologie de Paris 14(1-2):89–112 — Les fossiles de Cro-Magnon (Les Eyzies-de-Tayac, Dordogne) : nouvelles données sur leur position chronologique et leur attribution culturelle",
+            "doi": "10.4000/bmsap.459",
+            "url": "https://doi.org/10.4000/bmsap.459"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Cro-Magnon_rock_shelter",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Tall, robust modern-human male, broad face, rectangular orbits. Aurignacian context.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "Élisabeth Daynès",
+          "year": null,
+          "institution": "Musée de l’Homme / Musée de Préhistoire",
+          "image_url": null,
+          "credit_required": true
+        }
+      },
+      "notes": "",
+      "summary_lay": "The 1868 French skeleton that gave the name 'Cro-Magnon' to the popular image of Ice Age Europeans. Slightly later than peak Aurignacian — really an early Gravettian.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/9/95/Cro-Magnon-male-skull.png",
+        "license": "Public domain",
+        "attribution": "Wikimedia Commons",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Cro-Magnon-male-skull.png"
+      }
+    },
+    {
+      "id": "sungir-burials",
+      "title": "Sungir burials, Russia",
+      "category": "fossil",
+      "date_range_kya": [
+        34,
+        30
+      ],
+      "date_label": "~34–30 ka cal BP",
+      "scope": "site",
+      "location": {
+        "lat": 56.18,
+        "lon": 40.5,
+        "region": "europe-east"
+      },
+      "summary": "Near Vladimir, Russia. Adult male covered with ~3,000 mammoth-ivory beads, 12 pierced fox canines, 25 ivory armbands. Two children buried head-to-head with >10,000 ivory beads, ivory armbands, ~300 fox teeth, 16 ivory mammoth-tusk spears. Spectacular evidence of UP clothing, ornament, and ritual.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Trinkaus et al. (2014), The People of Sungir: Burials, Bodies, and Behavior in the Earlier Upper Paleolithic (Oxford University Press)",
+            "todo": true,
+            "note": "Book-length monograph; verify a peer-reviewed dating paper for the citation slot."
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Sungir",
+        "video": {
+          "title": "Life & Death At The Height Of The Ice Age",
+          "channel": "Stefan Milo",
+          "url": "https://www.youtube.com/watch?v=S2vuL3oZogc"
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "AMH adult male and two juveniles. Robust UP morphology.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "Mikhail Gerasimov; clothing reconstructions by O. Soffer",
+          "year": null,
+          "institution": null,
+          "image_url": null,
+          "credit_required": true
+        }
+      },
+      "notes": "",
+      "summary_lay": "Russian burials from 30,000 years ago, lavishly decorated with thousands of carved mammoth-ivory beads. Show that Ice Age Europeans had complex social hierarchies and burial rituals.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/2a/Sunghir-tumba_paleol%C3%ADtica.jpg",
+        "license": "Public domain",
+        "attribution": "José-Manuel Benito Álvarez",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Sunghir-tumba_paleol%C3%ADtica.jpg"
+      }
+    },
+    {
+      "id": "dolni-vestonice",
+      "title": "Dolní Věstonice (Pavlovian)",
+      "category": "fossil",
+      "date_range_kya": [
+        29,
+        26
+      ],
+      "date_label": "~29–26 ka BP",
+      "scope": "site",
+      "location": {
+        "lat": 48.9,
+        "lon": 16.65,
+        "region": "europe-central"
+      },
+      "summary": "South Moravia, Czech Republic. Multiple Gravettian/Pavlovian burials including a triple burial. DV3 — a young woman with facial asymmetry from a possible developmental disorder; her face appears engraved on a small ivory plaque (one of the earliest portraits). Site holds the earliest known fired-ceramic figurines, including the Venus of Dolní Věstonice.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Vandiver, Soffer, Klima & Svoboda (1989), Science 246:1002–1008 — The Origins of Ceramic Technology at Dolní Věstonice, Czechoslovakia",
+            "doi": "10.1126/science.246.4933.1002",
+            "url": "https://doi.org/10.1126/science.246.4933.1002"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Doln%C3%AD_V%C4%9Bstonice_(archaeological_site)",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Multiple AMH individuals, robust UP morphology. DV3 shows facial asymmetry from a developmental disorder.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": "Élisabeth Daynès",
+          "year": null,
+          "institution": null,
+          "image_url": null,
+          "credit_required": true,
+          "notes": "Reconstruction of the DV3 woman."
+        }
+      },
+      "notes": "",
+      "summary_lay": "A Czech site with the world's oldest known fired ceramics — 26,000 years old, and most figurines are deliberately broken. Pottery made for ritual, not for storage.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/67/Female_face%2C_ivory_carving%2C_Doln%C3%AD_V%C4%9Bstonice%2C_Gravettian%2C_28_000_-_22_000_BP.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "User:Zde",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Female_face,_ivory_carving,_Doln%C3%AD_V%C4%9Bstonice,_Gravettian,_28_000_-_22_000_BP.jpg"
+      }
+    },
+    {
+      "id": "madjedbebe-sahul",
+      "title": "Madjedbebe / first arrival in Sahul",
+      "category": "settlement",
+      "date_range_kya": [
+        65,
+        50
+      ],
+      "date_label": "~65 ka (debated; some prefer ~50 ka)",
+      "scope": "site",
+      "location": {
+        "lat": -12.36,
+        "lon": 132.93,
+        "region": "sahul"
+      },
+      "summary": "Madjedbebe rock shelter, Arnhem Land, Northern Territory. OSL dates on sediments containing >10,000 stone tools, ground-edge hatchets, ground ochres place human occupation at ~65 ka, requiring water crossings (Wallacea) by H. sapiens by then. O’Connell et al. (2018) argue artifacts may have moved downward through bioturbation, so the OSL ages of host sediments do not directly date the artifacts — they prefer ~50 ka. Genome-based founding-population estimates for Aboriginal Australians cluster at ~50–60 ka, in tension with 65 ka archaeology.",
+      "confidence": "debated",
+      "references": {
+        "papers": [
+          {
+            "citation": "Clarkson et al. (2017), Nature 547:306–310 — Human occupation of northern Australia by 65,000 years ago",
+            "doi": "10.1038/nature22968",
+            "url": "https://doi.org/10.1038/nature22968"
+          }
+        ],
+        "critique": [
+          {
+            "citation": "O’Connell et al. (2018), PNAS 115:8482–8490 — When did Homo sapiens first reach Southeast Asia and Sahul?",
+            "doi": "10.1073/pnas.1808385115",
+            "url": "https://doi.org/10.1073/pnas.1808385115"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Madjedbebe",
+        "video": {
+          "title": "How Ancient Art Captured Australian Megafauna",
+          "channel": "PBS Eons",
+          "url": "https://www.youtube.com/watch?v=Zdm-6P6AdcA"
+        }
+      },
+      "debated": true,
+      "appearance": null,
+      "notes": "Render with date range bar and a visible debated marker.",
+      "origin_id": "southern-coastal-route",
+      "confidence_note": "OSL dates of artifact-bearing sediments challenged by O'Connell et al. 2018 on bioturbation grounds; genetic founding-population estimates of ~50–60 ka also sit in tension with a 65 ka arrival.",
+      "route_kind": "sea",
+      "waypoints": [
+        [
+          100,
+          0
+        ],
+        [
+          125,
+          -5
+        ],
+        [
+          131,
+          -12
+        ]
+      ],
+      "summary_lay": "Australia's oldest archaeological site. Pushes human arrival in Sahul (Australia + New Guinea) to around 65,000 years ago — meaning people were already crossing open water in boats by then."
+    },
+    {
+      "id": "lake-mungo",
+      "title": "Mungo Man (LM3) / Mungo Lady (LM1)",
+      "category": "fossil",
+      "date_range_kya": [
+        42,
+        38
+      ],
+      "date_label": "~40 ± 2 ka",
+      "scope": "site",
+      "location": {
+        "lat": -33.75,
+        "lon": 143.07,
+        "region": "sahul"
+      },
+      "summary": "Lake Mungo, Willandra Lakes, NSW, Australia. LM1 — earliest known cremation. LM3 — ritual ochre burial of an adult male, hands crossed in lap, body sprinkled with red ochre, ~50 years old. Earlier sensational mtDNA claims (Adcock 2001) were rejected as contamination. Repatriated to Aboriginal custody.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Bowler et al. (2003), Nature 421:837–840 — New ages for human occupation and climatic change at Lake Mungo, Australia",
+            "doi": "10.1038/nature01383",
+            "url": "https://doi.org/10.1038/nature01383"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Lake_Mungo_remains",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Adult male AMH ochre burial (LM3); LM1 cremation — oldest known. Robust Late Pleistocene Australian morphology.",
+        "adna_pigmentation": null,
+        "reconstruction": {
+          "artist": null,
+          "year": null,
+          "institution": null,
+          "image_url": null,
+          "credit_required": true,
+          "notes": "No reconstruction — culturally sensitive; remains have been repatriated to Aboriginal custody."
+        }
+      },
+      "notes": "The visualization must respect cultural sensitivity here — no face image, no skull image.",
+      "origin_id": "madjedbebe-sahul",
+      "route_kind": "land",
+      "summary_lay": "Two of the oldest human burials in Australia. Mungo Lady was cremated; Mungo Man was sprinkled with red ochre. Sophisticated mortuary practice 40,000 years ago.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/57/Lake_Mungo%E2%80%99s_Geological_and_Archaeological_Treasures_%28153686%29.jpg",
+        "license": "Public domain",
+        "attribution": "NASA Earth Observatory image by Wanmei Liang, using Landsat data from the U.S. Geological Survey. Story by Lindsey Doermann.",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Lake_Mungo%E2%80%99s_Geological_and_Archaeological_Treasures_(153686).jpg"
+      }
+    },
+    {
+      "id": "beringian-standstill",
+      "title": "Beringian standstill",
+      "category": "settlement",
+      "date_range_kya": [
+        25,
+        16
+      ],
+      "date_label": "~25–16 ka",
+      "scope": "regional",
+      "location": {
+        "lat": 65,
+        "lon": -170,
+        "region": "beringia"
+      },
+      "summary": "Mitochondrial and genomic evidence (Tamm 2007; Moreno-Mayar 2018) shows ancestors of Native Americans were isolated in Beringia for several thousand years before expansion south of the ice sheets. Founding population diverged into Northern and Southern Native American branches ~17.5–14.6 ka.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Tamm et al. (2007), PLOS ONE 2:e829 — Beringian standstill and spread of Native American founders",
+            "doi": "10.1371/journal.pone.0000829",
+            "url": "https://doi.org/10.1371/journal.pone.0000829"
+          },
+          {
+            "citation": "Moreno-Mayar et al. (2018), Nature 553:203–207 — Terminal Pleistocene Alaskan genome reveals first founding population of Native Americans",
+            "doi": "10.1038/nature25173",
+            "url": "https://doi.org/10.1038/nature25173"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Settlement_of_the_Americas",
+        "video": {
+          "title": "How the First Americans Got There",
+          "channel": "SciShow",
+          "url": "https://www.youtube.com/watch?v=5dyjZBJt-Yg"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "origin_id": "ust-ishim-man",
+      "route_kind": "land",
+      "waypoints": [
+        [
+          120,
+          60
+        ]
+      ],
+      "summary_lay": "The model that ancestral Native Americans spent thousands of years isolated on the Bering land bridge before pushing south. Explains why they form a distinct genetic branch.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Early_migrations_mercator.svg/1280px-Early_migrations_mercator.svg.png",
+        "license": "license unknown",
+        "attribution": "Wikimedia Commons",
+        "file_page": ""
+      }
+    },
+    {
+      "id": "white-sands-footprints",
+      "title": "White Sands footprints, New Mexico",
+      "category": "settlement",
+      "date_range_kya": [
+        23,
+        21
+      ],
+      "date_label": "~23–21 ka",
+      "scope": "site",
+      "location": {
+        "lat": 32.78,
+        "lon": -106.17,
+        "region": "north-america"
+      },
+      "summary": "Human footprints in lake-margin sediments, White Sands National Park. If correctly dated, places people in the interior continent during the Last Glacial Maximum. Initial Ruppia-seed dates were challenged because of reservoir effects; OSL on quartz and pollen radiocarbon (Pigati 2023) confirm ~21–23 ka.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Bennett et al. (2021), Science 373:1528–1531 — Evidence of humans in North America during the Last Glacial Maximum",
+            "doi": "10.1126/science.abg7586",
+            "url": "https://doi.org/10.1126/science.abg7586"
+          },
+          {
+            "citation": "Pigati et al. (2023), Science 382:73–75 — Independent age estimates resolve the controversy of ancient human footprints at White Sands",
+            "doi": "10.1126/science.adh5007",
+            "url": "https://doi.org/10.1126/science.adh5007"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/White_Sands_fossil_footprints",
+        "video": {
+          "title": "Ice Age Footprints",
+          "channel": "NOVA",
+          "url": "https://www.youtube.com/watch?v=LS7ChlsZsGI"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Originally contested; the 2023 multi-method redate substantially settled the debate.",
+      "origin_id": "beringian-standstill",
+      "route_kind": "coastal",
+      "waypoints": [
+        [
+          -150,
+          60
+        ],
+        [
+          -140,
+          55
+        ],
+        [
+          -130,
+          45
+        ],
+        [
+          -120,
+          35
+        ]
+      ],
+      "summary_lay": "Human footprints baked into New Mexico mud during the depths of the last Ice Age. If the dates hold, they push the human arrival in the Americas thousands of years earlier than once thought.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Human_fossil_tracks_at_White_Sands_New_Mexico.jpg",
+        "license": "Public domain",
+        "attribution": "US Geological Service",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Human_fossil_tracks_at_White_Sands_New_Mexico.jpg"
+      }
+    },
+    {
+      "id": "chiquihuite-cave",
+      "title": "Chiquihuite Cave, Mexico",
+      "category": "settlement",
+      "date_range_kya": [
+        33,
+        26
+      ],
+      "date_label": "~33–26 ka (contested)",
+      "scope": "site",
+      "location": {
+        "lat": 24.2,
+        "lon": -102,
+        "region": "mesoamerica"
+      },
+      "summary": "Zacatecas, Mexico. ~1,900 stone artifacts in stratified layers dated to LGM and earlier. Critics argue the ‘tools’ may be geofacts (geological artifacts of natural breakage rather than knapping).",
+      "confidence": "contested",
+      "references": {
+        "papers": [
+          {
+            "citation": "Ardelean et al. (2020), Nature 584:87–92 — Evidence of human occupation in Mexico around the Last Glacial Maximum",
+            "doi": "10.1038/s41586-020-2509-0",
+            "url": "https://doi.org/10.1038/s41586-020-2509-0"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Chiquihuite_cave",
+        "video": {
+          "title": "The Best Evidence For The First Americans...so far",
+          "channel": "Stefan Milo",
+          "url": "https://www.youtube.com/watch?v=UsnrdCdGs7o"
+        }
+      },
+      "debated": true,
+      "appearance": null,
+      "notes": "",
+      "confidence_note": "Stone tools may be geofacts — naturally fractured limestone — not human-made; geological context disputed by independent analysts.",
+      "summary_lay": "Stone tools from a Mexican cave argued to be 26,000–33,000 years old. If they're real artifacts (and not naturally fractured stone) the implications for the peopling of the Americas are huge — many archaeologists are skeptical."
+    },
+    {
+      "id": "monte-verde-ii",
+      "title": "Monte Verde II, Chile",
+      "category": "settlement",
+      "date_range_kya": [
+        18.5,
+        4.2
+      ],
+      "date_label": "~14.5 ka, debated; 2025 reassessment proposes 8.2–4.2 ka",
+      "scope": "site",
+      "location": {
+        "lat": -41.51,
+        "lon": -73.2,
+        "region": "south-america"
+      },
+      "summary": "Southern Chile. For three decades the best-accepted pre-Clovis site; preserved organic structures, plant remains, masticated quids. Dillehay et al. (2015) reported additional artifacts in deeper layers dating to ~18.5 ka. A 2025 reassessment by Surovell et al. proposed a far younger mid-Holocene age (~8.2–4.2 ka), which would remove Monte Verde from the pre-Clovis record entirely. Dillehay and the original team contest this. The dispute is unresolved as of mid-2025.",
+      "confidence": "debated",
+      "references": {
+        "papers": [
+          {
+            "citation": "Dillehay et al. (2015), PLOS ONE 10:e0141923 — New archaeological evidence for an early human presence at Monte Verde, Chile",
+            "doi": "10.1371/journal.pone.0141923",
+            "url": "https://doi.org/10.1371/journal.pone.0141923"
+          }
+        ],
+        "critique": [
+          {
+            "citation": "Surovell et al. (2025), Science 388:eadk5081 — A mid-Holocene age for Monte Verde challenges the timeline of human colonization of South America",
+            "doi": "10.1126/science.adk5081",
+            "url": "https://doi.org/10.1126/science.adk5081"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Monte_Verde",
+        "video": {
+          "title": "First Peoples: Americas",
+          "channel": "PBS",
+          "url": "https://www.youtube.com/watch?v=rqTMNdJem00"
+        }
+      },
+      "debated": true,
+      "appearance": null,
+      "notes": "Render with both date ranges visible — a clear example of a live, unresolved dispute.",
+      "origin_id": "white-sands-footprints",
+      "confidence_note": "Surovell et al. 2025 reassessment proposes a mid-Holocene age (~8.2–4.2 ka) for the famous 14.5 ka layer, on stratigraphic and ¹⁴C grounds.",
+      "route_kind": "land",
+      "waypoints": [
+        [
+          -100,
+          25
+        ],
+        [
+          -80,
+          5
+        ],
+        [
+          -75,
+          -15
+        ]
+      ],
+      "summary_lay": "A Chilean site that broke the 'Clovis-first' consensus by showing humans reached southern South America 14,500 years ago — long before the inland Clovis arrival. A 2025 reassessment now contests its very age.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/9/99/Monte_Verde_2012.jpg",
+        "license": "CC BY 2.0",
+        "attribution": "Geología Valdivia",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Monte_Verde_2012.jpg"
+      }
+    },
+    {
+      "id": "kennewick-man",
+      "title": "Kennewick Man / The Ancient One",
+      "category": "fossil",
+      "date_range_kya": [
+        9,
+        8.5
+      ],
+      "date_label": "~9,000–8,500 cal BP",
+      "scope": "site",
+      "location": {
+        "lat": 46.21,
+        "lon": -119.16,
+        "region": "north-america"
+      },
+      "summary": "Columbia River, Washington, USA. Initially controversial because of ‘Caucasoid’-described cranial morphology. Genome-wide ancient DNA showed Kennewick Man is closer to modern Native Americans than to any other living population — particularly to the Confederated Tribes of the Colville Reservation. Repatriated and reburied 2017.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Rasmussen et al. (2015), Nature 523:455–458 — The ancestry and affiliations of Kennewick Man",
+            "doi": "10.1038/nature14625",
+            "url": "https://doi.org/10.1038/nature14625"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Kennewick_Man",
+        "video": {
+          "title": "Kennewick Man, The Ancient One, and Repatriation",
+          "channel": "OSU School of History, Philosophy, and Religion",
+          "url": "https://www.youtube.com/watch?v=Hzb4fz2JFlA"
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Robust early-Holocene male skeleton; cranial morphology that early commentators read as ‘Caucasoid’ is in fact within the range of early Native Americans.",
+        "adna_pigmentation": {
+          "skin": null,
+          "eyes": null,
+          "hair": null,
+          "source_paper_doi": "10.1038/nature14625",
+          "notes": "Genome-wide affinity to Native Americans, particularly the Colville. No published pigmentation phenotype prediction."
+        },
+        "reconstruction": null
+      },
+      "notes": "Important counter-example to the ‘skulls before genomes’ misreading of population affinity.",
+      "summary_lay": "A Pacific Northwest skeleton at the centre of a long legal battle. DNA finally proved his closest living relatives are local Native American tribes — vindicating indigenous oral history.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/40/Kennewick_Man.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Ghedoghedo",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Kennewick_Man.jpg"
+      }
+    },
+    {
+      "id": "naia-hoyo-negro",
+      "title": "Naia (Hoyo Negro), Mexico",
+      "category": "fossil",
+      "date_range_kya": [
+        13,
+        12
+      ],
+      "date_label": "~13,000–12,000 BP",
+      "scope": "site",
+      "location": {
+        "lat": 20.21,
+        "lon": -87.43,
+        "region": "mesoamerica"
+      },
+      "summary": "Sac Actun cave system, Yucatán, Mexico (~40 m underwater). ~15–16-year-old female. Among the most complete early-Americas skeletons. mtDNA haplogroup D1 — a Beringian-derived founding lineage. Resolves the apparent ‘different cranial morphology vs. Asian-derived ancestry’ puzzle.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Chatters et al. (2014), Science 344:750–754 — Late Pleistocene human skeleton and mtDNA link Paleoamericans and modern Native Americans",
+            "doi": "10.1126/science.1252619",
+            "url": "https://doi.org/10.1126/science.1252619"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Hoyo_Negro",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Adolescent female, long narrow cranium read by some as ‘Paleoamerican’ — belongs to mtDNA haplogroup D1, a Beringian-derived founding lineage.",
+        "adna_pigmentation": null,
+        "reconstruction": null
+      },
+      "notes": "",
+      "origin_id": "white-sands-footprints",
+      "route_kind": "land",
+      "summary_lay": "A teenage girl's skeleton recovered from a flooded Yucatán cavern. Her genome links the earliest Americans directly to all later Native American groups.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/41/Mittermeier_2013_Tulum-377.jpg",
+        "license": "CC BY-SA 3.0",
+        "attribution": "Cristina Mittermeier",
+        "file_page": ""
+      }
+    },
+    {
+      "id": "cheddar-man",
+      "title": "Cheddar Man",
+      "category": "fossil",
+      "date_range_kya": [
+        10,
+        10
+      ],
+      "date_label": "~10,000 BP",
+      "scope": "site",
+      "location": {
+        "lat": 51.28,
+        "lon": -2.77,
+        "region": "europe-west"
+      },
+      "summary": "Gough’s Cave, Somerset, England. Near-complete Mesolithic skeleton, found 1903. 2018 ancient-DNA inference: dark-to-black skin, blue/green eyes, dark curly hair — typical of Western European Mesolithic hunter-gatherers, who had not yet acquired the SLC24A5/SLC45A2 light-skin variants that swept Europe in the Neolithic and Bronze Age.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Brace et al. (2019), Nature Ecology & Evolution 3:765–771 — Ancient genomes indicate population replacement in Early Neolithic Britain",
+            "doi": "10.1038/s41559-019-0871-9",
+            "url": "https://doi.org/10.1038/s41559-019-0871-9"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Cheddar_Man",
+        "video": {
+          "title": "Who was Cheddar Man?",
+          "channel": "Natural History Museum",
+          "url": "https://www.youtube.com/watch?v=TQ8dc0XhUMM"
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Mesolithic male, near-complete skeleton.",
+        "adna_pigmentation": {
+          "skin": "dark-to-black (high probability)",
+          "eyes": "blue/green (HERC2 derived allele present)",
+          "hair": "dark, curly",
+          "source_paper_doi": "10.1038/s41559-019-0871-9",
+          "notes": "Light-skin variants SLC24A5 / SLC45A2 had not yet swept Europe."
+        },
+        "reconstruction": {
+          "artist": "Adrie & Alfons Kennis",
+          "year": 2018,
+          "institution": "Natural History Museum, London",
+          "image_url": null,
+          "credit_required": true
+        }
+      },
+      "notes": "Pivotal entry for the ‘light-skin Europeans are recent’ honesty point in the visualization.",
+      "summary_lay": "A 10,000-year-old British skeleton whose genome rewrote the popular image of early Europeans: dark skin and blue eyes were the original combination. Light skin in Europe is a much later change.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/1/10/Cheddar_man_skull.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Photo by user:geni",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Cheddar_man_skull.jpg"
+      }
+    },
+    {
+      "id": "la-brana-1",
+      "title": "La Braña 1, Spain",
+      "category": "fossil",
+      "date_range_kya": [
+        7,
+        7
+      ],
+      "date_label": "~7,000 BP",
+      "scope": "site",
+      "location": {
+        "lat": 42.95,
+        "lon": -5.45,
+        "region": "europe-west"
+      },
+      "summary": "León, Spain. Mesolithic male hunter-gatherer. Genome shows dark skin and blue eyes — same combination as Cheddar Man and Loschbour. Western European hunter-gatherer ancestry component.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Olalde et al. (2014), Nature 507:225–228 — Derived immune and ancestral pigmentation alleles in a 7,000-year-old Mesolithic European",
+            "doi": "10.1038/nature12960",
+            "url": "https://doi.org/10.1038/nature12960"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/La_Bra%C3%B1a_1",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Mesolithic male hunter-gatherer.",
+        "adna_pigmentation": {
+          "skin": "dark (high probability)",
+          "eyes": "blue (HERC2 derived allele present)",
+          "hair": "dark",
+          "source_paper_doi": "10.1038/nature12960",
+          "notes": ""
+        },
+        "reconstruction": {
+          "artist": "Élisabeth Daynès",
+          "year": null,
+          "institution": null,
+          "image_url": null,
+          "credit_required": true
+        }
+      },
+      "notes": "",
+      "summary_lay": "A Spanish hunter-gatherer skeleton whose genome confirmed the 'dark skin, blue eyes' pattern of pre-farming Europeans. Light European skin came with farmers from the Near East thousands of years later."
+    },
+    {
+      "id": "loschbour-man",
+      "title": "Loschbour man, Luxembourg",
+      "category": "fossil",
+      "date_range_kya": [
+        8,
+        8
+      ],
+      "date_label": "~8,000 BP",
+      "scope": "site",
+      "location": {
+        "lat": 49.79,
+        "lon": 6.22,
+        "region": "europe-west"
+      },
+      "summary": "Heffingen, Luxembourg. Mesolithic male, near-complete skeleton. Same dark-skin + blue-eye allele combination as Cheddar Man and La Braña. Genome co-published with the Stuttgart Neolithic farmer in Lazaridis 2014 — established the three-ancestry model of Europeans (WHG + EEF + later ANE / Steppe).",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Lazaridis et al. (2014), Nature 513:409–413 — Ancient human genomes suggest three ancestral populations for present-day Europeans",
+            "doi": "10.1038/nature13673",
+            "url": "https://doi.org/10.1038/nature13673"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Loschbour_man",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": {
+        "morphology": "Near-complete Mesolithic male skeleton.",
+        "adna_pigmentation": {
+          "skin": "dark",
+          "eyes": "blue",
+          "hair": "dark",
+          "source_paper_doi": "10.1038/nature13673",
+          "notes": "Western European hunter-gatherer (WHG) ancestry component."
+        },
+        "reconstruction": null
+      },
+      "notes": "",
+      "summary_lay": "A Luxembourgish hunter-gatherer with the same dark-skin / blue-eye profile as Cheddar Man and La Braña — three independent confirmations that this was the rule, not an exception.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/22/Loschbur-Mann_IMG_4779.jpg",
+        "license": "Public domain",
+        "attribution": "(iz). Ingozwank at de.wikipedia",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Loschbur-Mann_IMG_4779.jpg"
+      }
+    },
+    {
+      "id": "lapita-expansion",
+      "title": "Lapita expansion (Near → Remote Oceania)",
+      "category": "settlement",
+      "date_range_kya": [
+        3.3,
+        2.8
+      ],
+      "date_label": "~3,300–2,800 years ago",
+      "scope": "regional",
+      "location": {
+        "lat": -16.5,
+        "lon": 168,
+        "region": "oceania"
+      },
+      "summary": "Distinctive dentate-stamped pottery; Austronesian-speaking ancestors of Polynesians spread rapidly from the Bismarck Archipelago through the Solomons, Vanuatu, Fiji, and into Samoa/Tonga (Western Polynesia) by ~2.8 ka.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Skoglund et al. (2016), Nature 538:510–513 — Genomic insights into the peopling of the Southwest Pacific",
+            "doi": "10.1038/nature19844",
+            "url": "https://doi.org/10.1038/nature19844"
+          },
+          {
+            "citation": "Kirch (2001), PNAS 98:8455 — Polynesian feasting in ethnographic, ethnohistoric, and archaeological contexts",
+            "doi": "10.1073/pnas.181335398",
+            "url": "https://doi.org/10.1073/pnas.181335398"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Lapita_culture",
+        "video": {
+          "title": "How did Polynesian wayfinders navigate the Pacific Ocean?",
+          "channel": "TED-Ed",
+          "url": "https://www.youtube.com/watch?v=m8bDCaPhOek"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "origin_id": "madjedbebe-sahul",
+      "route_kind": "sea",
+      "waypoints": [
+        [
+          152,
+          -5
+        ],
+        [
+          160,
+          -10
+        ]
+      ],
+      "summary_lay": "A wave of Austronesian-speaking voyagers carrying distinctive dentate-stamped pottery, who sailed from the Bismarck Archipelago across to Fiji, Samoa and Tonga in just a few centuries. Then they paused — for 1,800 years — before pushing on.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Carte_lapita.png",
+        "license": "CC BY-SA 3.0",
+        "attribution": "Christophe cagé",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Carte_lapita.png"
+      }
+    },
+    {
+      "id": "society-islands-tahiti",
+      "title": "Society Islands (Tahiti) — first East Polynesian foothold",
+      "category": "settlement",
+      "date_range_kya": [
+        0.93,
+        0.83
+      ],
+      "date_label": "~AD 1025–1120",
+      "scope": "regional",
+      "location": {
+        "lat": -17.65,
+        "lon": -149.43,
+        "region": "oceania"
+      },
+      "summary": "After a ‘long pause’ of ~1,800 years in Western Polynesia (Samoa/Tonga), the Society Islands became the first foothold of East Polynesia. Wilmshurst et al. 2011 narrowed this initial colonization to AD ∼1025–1120 from a meta-analysis of 1,434 ¹⁴C dates restricted to short-lived samples. The Society Islands then served as the hub from which a single major pulse, ~70–265 years later, dispersed people to all remaining East Polynesian archipelagos.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Wilmshurst et al. (2011), PNAS 108:1815–1820 — High-precision radiocarbon dating shows recent and rapid initial human colonization of East Polynesia",
+            "doi": "10.1073/pnas.1015876108",
+            "url": "https://doi.org/10.1073/pnas.1015876108"
+          }
+        ],
+        "critique": [
+          {
+            "citation": "Sear et al. (2020), PNAS 117:8813–8819 — Human settlement of East Polynesia earlier, incremental, and coincident with prolonged South Pacific drought (proposes an earlier and more gradual model based on lake-sediment biomarkers)",
+            "doi": "10.1073/pnas.1920975117",
+            "url": "https://doi.org/10.1073/pnas.1920975117"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Society_Islands",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "The 'long pause + pulse' model from Wilmshurst 2011 remains the mainstream baseline. Sear 2020 proposes earlier and more gradual settlement; flagged in the critique slot.",
+      "origin_id": "lapita-expansion",
+      "route_kind": "sea",
+      "summary_lay": "The launch pad for the rest of Polynesia. The first East Polynesian settlement, after which a single rapid pulse fanned out to Hawaiʻi, Rapa Nui, the Marquesas and Aotearoa within ~150 years.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/06/Karta_FP_Societe_isl.PNG",
+        "license": "Public domain",
+        "attribution": "Hobe / Holger Behr",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Karta_FP_Societe_isl.PNG"
+      }
+    },
+    {
+      "id": "marquesas",
+      "title": "Marquesas Islands settled",
+      "category": "settlement",
+      "date_range_kya": [
+        0.76,
+        0.66
+      ],
+      "date_label": "~AD 1190–1290",
+      "scope": "regional",
+      "location": {
+        "lat": -8.93,
+        "lon": -140.1,
+        "region": "oceania"
+      },
+      "summary": "Northeast arm of the second-pulse dispersal from the Society Islands hub. Long invoked as a stepping-stone to Hawaiʻi and Rapa Nui — the high-precision ¹⁴C reanalysis collapses the Marquesas chronology into a much shorter window than earlier 1st-millennium CE estimates.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Wilmshurst et al. (2011), PNAS 108:1815–1820 — High-precision radiocarbon dating shows recent and rapid initial human colonization of East Polynesia",
+            "doi": "10.1073/pnas.1015876108",
+            "url": "https://doi.org/10.1073/pnas.1015876108"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Marquesas_Islands",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "origin_id": "society-islands-tahiti",
+      "route_kind": "sea",
+      "summary_lay": "The northeast arm of the great Polynesian fan-out, settled in the same 1190–1290 CE pulse from Tahiti. Once thought to be a stepping stone to Hawaiʻi and Rapa Nui.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/09/Tiki_Maki%CA%BBi_Tau%CA%BBa_Pepe_or_the_Flying_Tiki%2C_at_me%CA%BBae_I%CA%BBipona%2C_Puama%CA%BBu_Village%2C_Hiva_Oa%2C_Marquesas_Islands%2C_photograph_by_Moth_Clark%2C_2009.jpg",
+        "license": "CC BY-SA 2.0",
+        "attribution": "Moth Clark from Oxford, England",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Tiki_Maki%CA%BBi_Tau%CA%BBa_Pepe_or_the_Flying_Tiki,_at_me%CA%BBae_I%CA%BBipona,_Puama%CA%BBu_Village,_Hiva_Oa,_Marquesas_Islands,_photograph_by_Moth_Clark,_2009.jpg"
+      }
+    },
+    {
+      "id": "hawaii",
+      "title": "Hawaiʻi settled",
+      "category": "settlement",
+      "date_range_kya": [
+        0.76,
+        0.68
+      ],
+      "date_label": "~AD 1190–1270",
+      "scope": "regional",
+      "location": {
+        "lat": 19.5,
+        "lon": -155.5,
+        "region": "oceania"
+      },
+      "summary": "Northernmost reach of the second pulse. Initial Polynesian arrival now placed in the late 12th–13th century CE; the famously older AMS dates from O'ahu (Athens et al. 2014) are an active counter-argument arguing for a pre-1000 CE arrival, but most short-lived ¹⁴C samples sit firmly in the Wilmshurst window.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Wilmshurst et al. (2011), PNAS 108:1815–1820 — High-precision radiocarbon dating shows recent and rapid initial human colonization of East Polynesia",
+            "doi": "10.1073/pnas.1015876108",
+            "url": "https://doi.org/10.1073/pnas.1015876108"
+          }
+        ],
+        "critique": [
+          {
+            "citation": "Athens et al. (2014), Journal of Pacific Archaeology 5:65–76 — A re-evaluation of the colonization of Hawai'i (argues for earlier arrival ~AD 1000)",
+            "doi": "10.5479/si.19488386.5.1.65",
+            "url": "https://www.researchgate.net/publication/272566275",
+            "todo": true,
+            "note": "DOI placeholder — verify exact citation and URL."
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Ancient_Hawaii",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Athens et al. 2014 critique included for honesty about the active debate on Hawaiian first-arrival.",
+      "origin_id": "society-islands-tahiti",
+      "route_kind": "sea",
+      "summary_lay": "Settled by Polynesians from the Society Islands during the same explosive pulse that filled Eastern Polynesia in the late 12th–13th centuries. The northern arm of a single voyaging tradition.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/21/Na_mokupuni_o_Hawaii_nei_LOC_98680907.jpg",
+        "license": "Public domain",
+        "attribution": "Kalama, Simona P.; Lahainaluna Seminary",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Na_mokupuni_o_Hawaii_nei_LOC_98680907.jpg"
+      }
+    },
+    {
+      "id": "rapa-nui",
+      "title": "Rapa Nui (Easter Island) settled",
+      "category": "settlement",
+      "date_range_kya": [
+        0.75,
+        0.7
+      ],
+      "date_label": "~AD 1200–1253",
+      "scope": "regional",
+      "location": {
+        "lat": -27.12,
+        "lon": -109.36,
+        "region": "oceania"
+      },
+      "summary": "The most isolated inhabited island on Earth — final eastward outpost of the second pulse. The classic moai-and-platform tradition and the famous deforestation narrative all unfold inside a ~600-year window before European contact in 1722.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Wilmshurst et al. (2011), PNAS 108:1815–1820 — High-precision radiocarbon dating shows recent and rapid initial human colonization of East Polynesia",
+            "doi": "10.1073/pnas.1015876108",
+            "url": "https://doi.org/10.1073/pnas.1015876108"
+          },
+          {
+            "citation": "Hunt & Lipo (2006), Science 311:1603–1606 — Late Colonization of Easter Island",
+            "doi": "10.1126/science.1121879",
+            "url": "https://doi.org/10.1126/science.1121879"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Easter_Island",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "origin_id": "society-islands-tahiti",
+      "route_kind": "sea",
+      "summary_lay": "The most isolated inhabited island on Earth. Settled extremely late by Polynesian voyagers — the famous moai statues, the deforestation, and European contact all unfold within ~600 years.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Easter_Island_5.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "kallerna",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Easter_Island_5.jpg"
+      }
+    },
+    {
+      "id": "east-polynesia-aotearoa",
+      "title": "Aotearoa / New Zealand — last major landmass",
+      "category": "settlement",
+      "date_range_kya": [
+        0.72,
+        0.67
+      ],
+      "date_label": "~AD 1230–1282",
+      "scope": "regional",
+      "location": {
+        "lat": -41,
+        "lon": 174,
+        "region": "oceania"
+      },
+      "summary": "The southwestern arm of the second pulse and the last major habitable landmass settled by humans. Wilmshurst et al. 2011 tightened the New Zealand window to ~AD 1230–1282 using rat-gnawed seeds and short-lived ¹⁴C samples. The widely-quoted ‘1280 CE’ figure is the upper bound of that window, not a point date.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Wilmshurst et al. (2011), PNAS 108:1815–1820 — High-precision radiocarbon dating shows recent and rapid initial human colonization of East Polynesia",
+            "doi": "10.1073/pnas.1015876108",
+            "url": "https://doi.org/10.1073/pnas.1015876108"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/M%C4%81ori_people",
+        "video": {
+          "title": "How did Polynesian wayfinders navigate the Pacific Ocean?",
+          "channel": "TED-Ed",
+          "url": "https://www.youtube.com/watch?v=m8bDCaPhOek"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Encode as a date range; do not collapse to ‘1280 CE’ alone. Origin re-pointed from Lapita to Society Islands per Wilmshurst's 'long pause + pulse' model.",
+      "origin_id": "society-islands-tahiti",
+      "route_kind": "sea",
+      "summary_lay": "The last major landmass on Earth to be settled by humans, only ~770 years ago. Polynesian voyagers from East Polynesia found and colonised it within a 50-year window.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Te_Paranihi_-_M%C4%81ori_waka_taua_%28war_canoe%29_from_the_Otago_Museum_02.jpg",
+        "license": "CC0",
+        "attribution": "Obsidian Soul",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Te_Paranihi_-_M%C4%81ori_waka_taua_(war_canoe)_from_the_Otago_Museum_02.jpg"
+      }
+    },
+    {
+      "id": "madagascar-settlement",
+      "title": "Madagascar settled (Austronesian + Bantu founding)",
+      "category": "settlement",
+      "date_range_kya": [
+        1.5,
+        1
+      ],
+      "date_label": "~1,500–1,000 years ago",
+      "scope": "regional",
+      "location": {
+        "lat": -18.8,
+        "lon": 47.5,
+        "region": "madagascar"
+      },
+      "summary": "Last major landmass settled by humans. Linguistic and genomic evidence (Pierron 2014, 2017) shows founding admixture between Austronesian-speaking groups (closest affinity to Banjar / SE Borneo) and Bantu-speaking East Africans ~1,000 years ago. Earliest archaeological evidence (Austronesian crop remains) from Crowther et al. 2016.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Crowther et al. (2016), PNAS 113:6635–6640 — Ancient crops provide first archaeological signature of the westward Austronesian expansion",
+            "doi": "10.1073/pnas.1522714113",
+            "url": "https://doi.org/10.1073/pnas.1522714113"
+          },
+          {
+            "citation": "Pierron et al. (2017), PNAS 114:E6498–E6506 — Genomic landscape of human diversity across Madagascar",
+            "doi": "10.1073/pnas.1704906114",
+            "url": "https://doi.org/10.1073/pnas.1704906114"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Malagasy_people",
+        "video": {
+          "todo": true,
+          "note": "Verify a credible educational video on Madagascar peopling."
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Founding population genetically estimated as a few dozen individuals; route (direct vs. via East Africa) unresolved.",
+      "origin_id": "lubang-jeriji-saleh",
+      "route_kind": "sea",
+      "waypoints": [
+        [
+          80,
+          -5
+        ],
+        [
+          60,
+          -10
+        ]
+      ],
+      "summary_lay": "An island twice the size of Britain reached late, by Austronesian voyagers from Borneo who crossed the Indian Ocean. Bantu-speaking African populations arrived around the same time from the west.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Vezo_people%27s_dugout_canoe.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Rakotovaogael",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Vezo_people%27s_dugout_canoe.jpg"
+      }
+    },
+    {
+      "id": "oldowan",
+      "title": "Oldowan (Mode 1)",
+      "category": "tool",
+      "date_range_kya": [
+        2600,
+        1700
+      ],
+      "date_label": "~2.6–1.7 million years ago",
+      "scope": "regional",
+      "location": {
+        "lat": 8,
+        "lon": 38,
+        "region": "africa-east"
+      },
+      "summary": "Sub-Saharan Africa initially; later sporadically out of Africa with H. erectus. Mode 1: simple cores, choppers, expedient flakes. The first archaeological signature of the genus Homo (or its immediate ancestors).",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Semaw et al. (2003), J. Hum. Evol. 45:169–177 — 2.6-million-year-old stone tools and associated bones from OGS-6 and OGS-7, Gona, Afar, Ethiopia",
+            "doi": "10.1016/S0047-2484(03)00093-9",
+            "url": "https://doi.org/10.1016/S0047-2484(03)00093-9"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Oldowan",
+        "video": {
+          "title": "When We First Made Tools",
+          "channel": "PBS Eons",
+          "url": "https://www.youtube.com/watch?v=FFI50iSPWeI"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Lomekwian (~3.3 Ma) precedes Oldowan but is contested (likely pre-Homo); not promoted to a top-level milestone in this dataset.",
+      "summary_lay": "The oldest stone tool industry — sharp-edged flakes knocked off pebbles. Used by early Homo and even some Australopithecus relatives. The toolkit that defined 'us' against the other apes.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/87/Canto_tallado_2-Guelmim-Es_Semara.jpg",
+        "license": "Public domain",
+        "attribution": "José-Manuel Benito Álvarez (España) —&gt; Locutus Borg",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Canto_tallado_2-Guelmim-Es_Semara.jpg"
+      }
+    },
+    {
+      "id": "acheulean",
+      "title": "Acheulean (Mode 2 — the handaxe revolution)",
+      "category": "tool",
+      "date_range_kya": [
+        1760,
+        130
+      ],
+      "date_label": "~1.76 Ma–130 ka",
+      "scope": "regional",
+      "location": {
+        "lat": 4,
+        "lon": 36,
+        "region": "africa-east"
+      },
+      "summary": "The handaxe revolution. Bifaces (handaxes, cleavers); first industry to leave Africa with H. erectus (Dmanisi). Persisted >1.5 Myr — the longest-running tool tradition in human history.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Lepre et al. (2011), Nature 477:82–85 — An earlier origin for the Acheulian",
+            "doi": "10.1038/nature10372",
+            "url": "https://doi.org/10.1038/nature10372"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Acheulean",
+        "video": {
+          "title": "When We First Made Tools",
+          "channel": "PBS Eons",
+          "url": "https://www.youtube.com/watch?v=FFI50iSPWeI"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "The handaxe — the most successful tool design in history, used essentially unchanged for over 1.5 million years. Made by Homo erectus and its descendants from South Africa to Britain.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Biface_de_St_Acheul_MHNT.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Wikimedia Commons",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Biface_de_St_Acheul_MHNT.jpg"
+      }
+    },
+    {
+      "id": "levallois",
+      "title": "Levallois / prepared-core (Mode 3)",
+      "category": "tool",
+      "date_range_kya": [
+        400,
+        300
+      ],
+      "date_label": "~400–300 ka onset",
+      "scope": "regional",
+      "location": {
+        "lat": 30,
+        "lon": 34,
+        "region": "africa-north"
+      },
+      "summary": "The conceptual leap: shape the core first so the final flake’s geometry is predetermined. Adopted in parallel by African MSA peoples and by Neanderthals (Mousterian). Coincides with the first incontrovertible H. sapiens (Jebel Irhoud).",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Adler et al. (2014), Science 345:1609–1613 — Early Levallois technology and the Lower to Middle Paleolithic transition in the Southern Caucasus",
+            "doi": "10.1126/science.1256484",
+            "url": "https://doi.org/10.1126/science.1256484"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Levallois_technique",
+        "video": {
+          "title": "Making a Neanderthal flint stone tool",
+          "channel": "Natural History Museum",
+          "url": "https://www.youtube.com/watch?v=59SXzl0uF7s"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "A clever stone-working trick: prepare a core carefully, then strike off a single perfectly-shaped flake. Marks a cognitive leap toward planning the tool *before* making it.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Production_of_points_%26_spearheads_from_a_flint_stone_core%2C_Levallois_technique%2C_Mousterian_Culture%2C_Tabun_Cave%2C_250%2C000-50%2C000_BP_%28detail%29.jpg",
+        "license": "CC0",
+        "attribution": "Gary Todd",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Production_of_points_%26_spearheads_from_a_flint_stone_core,_Levallois_technique,_Mousterian_Culture,_Tabun_Cave,_250,000-50,000_BP_(detail).jpg"
+      }
+    },
+    {
+      "id": "mousterian",
+      "title": "Mousterian (Neanderthal Mode 3)",
+      "category": "tool",
+      "date_range_kya": [
+        300,
+        40
+      ],
+      "date_label": "~300–40 ka",
+      "scope": "regional",
+      "location": {
+        "lat": 45,
+        "lon": 5,
+        "region": "europe-west"
+      },
+      "summary": "Western Eurasia, Levant, North Africa. Levallois-derived flake industries; Neanderthal signature toolkit. End-date coincides with Neanderthal extinction.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Higham et al. (2014), Nature 512:306–309 — The timing and spatiotemporal patterning of Neanderthal disappearance",
+            "doi": "10.1038/nature13621",
+            "url": "https://doi.org/10.1038/nature13621"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Mousterian",
+        "video": {
+          "title": "Levallois Core Technology — An Alternative Way of Making Stone Tools",
+          "channel": "AncientCraftUK / Dr. James Dilley",
+          "url": "https://www.youtube.com/watch?v=tA91YHaNTpc"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "The classic Neanderthal toolkit — built on Levallois cores for over 250,000 years across Europe and the Near East. The end of the Mousterian roughly tracks the end of Neanderthals.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/b9/Skull_of_Neanderthal_from_Moustier%2C_Welcome_to_the_Neandertals%2C_Brno%2C_187899.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Zde",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Skull_of_Neanderthal_from_Moustier,_Welcome_to_the_Neandertals,_Brno,_187899.jpg"
+      }
+    },
+    {
+      "id": "aterian",
+      "title": "Aterian (North African MSA, hafted points)",
+      "category": "tool",
+      "date_range_kya": [
+        145,
+        30
+      ],
+      "date_label": "~145–30 ka",
+      "scope": "regional",
+      "location": {
+        "lat": 30,
+        "lon": -5,
+        "region": "africa-north"
+      },
+      "summary": "Distinctive tanged points — earliest hafted projectiles in the world. Hafting indicates composite-tool cognition in H. sapiens populations long before the European Upper Paleolithic.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Richter et al. (2017), Nature 546:293–296 — The age of the hominin fossils from Jebel Irhoud, Morocco, and the origins of the Middle Stone Age",
+            "doi": "10.1038/nature22335",
+            "url": "https://doi.org/10.1038/nature22335"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Aterian",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "A North African toolkit with hafted, tanged stone points — among the earliest evidence of mounting tools onto handles. Made by African Homo sapiens during the wet windows when the Sahara was green.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/0c/At%C3%A9rien_%28Djelfa%29.JPG",
+        "license": "CC BY-SA 3.0",
+        "attribution": "Michel-georges bernard",
+        "file_page": "https://commons.wikimedia.org/wiki/File:At%C3%A9rien_(Djelfa).JPG"
+      }
+    },
+    {
+      "id": "howiesons-poort",
+      "title": "Howiesons Poort (southern Africa, MSA)",
+      "category": "tool",
+      "date_range_kya": [
+        65,
+        60
+      ],
+      "date_label": "~65–60 ka",
+      "scope": "regional",
+      "location": {
+        "lat": -33,
+        "lon": 27,
+        "region": "africa-south"
+      },
+      "summary": "Backed microliths, hafted composite weapons, heat-treated silcrete. Coincides with the proposed southern-route dispersal window and demonstrates that key ‘Upper Paleolithic’ cognitive markers are already present in African MSA contexts tens of millennia before the European ‘explosion.’",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Brown et al. (2009), Science 325:859–862 — Fire as an engineering tool of early modern humans (heat-treated silcrete)",
+            "doi": "10.1126/science.1175028",
+            "url": "https://doi.org/10.1126/science.1175028"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Howiesons_Poort",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Visualization should pair this with the Blombos / Diepkloof / Pinnacle Point art entries to undermine the ‘Upper Paleolithic Revolution’ narrative.",
+      "summary_lay": "A southern African Middle Stone Age industry famous for tiny, geometric stone segments inserted into wooden hafts. It vanished and re-appeared, hinting at populations oscillating under climate stress."
+    },
+    {
+      "id": "initial-upper-paleolithic",
+      "title": "Initial Upper Paleolithic (IUP)",
+      "category": "tool",
+      "date_range_kya": [
+        50,
+        45
+      ],
+      "date_label": "~50–45 ka",
+      "scope": "regional",
+      "location": {
+        "lat": 44,
+        "lon": 28,
+        "region": "europe-southeast"
+      },
+      "summary": "Bacho Kiro (Bulgaria), Boker Tachtit (Israel), and into Mongolia and northern China. Transitional blade-and-point assemblages on Levallois-derived cores. The first archaeological trace of the modern-human Eurasian dispersal.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Hublin et al. (2020), Nature 581:299–302 — Initial Upper Palaeolithic Homo sapiens from Bacho Kiro Cave, Bulgaria",
+            "doi": "10.1038/s41586-020-2259-z",
+            "url": "https://doi.org/10.1038/s41586-020-2259-z"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Initial_Upper_Paleolithic",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "A bridge industry — between Middle and Upper Paleolithic, with blade-based tools. The first sign of Homo sapiens reaching Europe and East Asia ~50–45 ka.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Initial_Upper_Paleolithic_human_remains_and_assemblage_sites.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Mateja Hajdinjak, Fabrizio Mafessoni",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Initial_Upper_Paleolithic_human_remains_and_assemblage_sites.jpg"
+      }
+    },
+    {
+      "id": "aurignacian",
+      "title": "Aurignacian",
+      "category": "tool",
+      "date_range_kya": [
+        43,
+        26
+      ],
+      "date_label": "~43–26 ka",
+      "scope": "regional",
+      "location": {
+        "lat": 47,
+        "lon": 5,
+        "region": "europe-west"
+      },
+      "summary": "First continent-wide modern-human industry in Europe. Hohle Fels Venus, Löwenmensch, and El Castillo cave art are Aurignacian. Bone tools, blade industries, ornaments, figurative art.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Higham et al. (2011), Nature 479:521–524 — The earliest evidence for anatomically modern humans in northwestern Europe",
+            "doi": "10.1038/nature10617",
+            "url": "https://doi.org/10.1038/nature10617"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Aurignacian",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "The first 'fully Upper Paleolithic' Western Eurasian industry. Bone points, ivory ornaments, the first figurative art — a rich material culture that travelled with the Homo sapiens expansion.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/1/19/Sagaie_base_fendue.jpg",
+        "license": "Public domain",
+        "attribution": "Wikimedia Commons",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Sagaie_base_fendue.jpg"
+      }
+    },
+    {
+      "id": "solutrean",
+      "title": "Solutrean (Iberian / Franco-Cantabrian, LGM refuge)",
+      "category": "tool",
+      "date_range_kya": [
+        22,
+        17
+      ],
+      "date_label": "~22–17 ka",
+      "scope": "regional",
+      "location": {
+        "lat": 43,
+        "lon": -1,
+        "region": "europe-west"
+      },
+      "summary": "France and Iberia only. Pressure-flaked laurel-leaf points. The ‘Solutrean hypothesis’ for the Americas has been rejected by ancient-DNA evidence for Beringian Native American ancestry.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Cascalheira & Bicho (2015), PLOS ONE 10:e0137308 — Hunter-gatherer ecodynamics and the impact of the Heinrich event 2 in central and southern Iberia",
+            "doi": "10.1371/journal.pone.0137308",
+            "url": "https://doi.org/10.1371/journal.pone.0137308"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Solutrean",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Useful entry for showing how the LGM forced regional cultural retraction; also a memorable rejected-hypothesis (Solutrean-into-the-Americas) anchor.",
+      "summary_lay": "A western European Ice Age industry famous for exquisite leaf-shaped 'laurel-leaf' points. Concentrated in Iberian and French refuges during the LGM, then vanished as the ice retreated.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/0a/Feuille_de_laurier_-_solutr%C3%A9en.jpg",
+        "license": "CC BY-SA 3.0",
+        "attribution": "BastienM",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Feuille_de_laurier_-_solutr%C3%A9en.jpg"
+      }
+    },
+    {
+      "id": "clovis",
+      "title": "Clovis culture",
+      "category": "tool",
+      "date_range_kya": [
+        13.05,
+        12.75
+      ],
+      "date_label": "13,050–12,750 cal BP",
+      "scope": "regional",
+      "location": {
+        "lat": 35,
+        "lon": -100,
+        "region": "north-america"
+      },
+      "summary": "Distinctive fluted lanceolate points across North America; mammoth-kill specialism. Once thought ‘first Americans’ but now post-dates several pre-Clovis sites. Brief 300-year continental horizon.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Waters, Stafford & Carlson (2020), Science Advances 6:eaaz0455 — The age of Clovis",
+            "doi": "10.1126/sciadv.aaz0455",
+            "url": "https://doi.org/10.1126/sciadv.aaz0455"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Clovis_culture",
+        "video": {
+          "title": "First Peoples: Americas",
+          "channel": "PBS",
+          "url": "https://www.youtube.com/watch?v=rqTMNdJem00"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "The classic 'first American' fluted spear-point industry, briefly dominant across North America 13,000 years ago. Once thought to mark the arrival of humans in the Americas; now we know there were earlier groups.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Clovis_spearpoints_-_Cleveland_Museum_of_Natural_History.jpg",
+        "license": "CC BY-SA 2.0",
+        "attribution": "Tim Evanson",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Clovis_spearpoints_-_Cleveland_Museum_of_Natural_History.jpg"
+      }
+    },
+    {
+      "id": "blombos-toolkit",
+      "title": "Blombos Cave symbolic toolkit",
+      "category": "art",
+      "date_range_kya": [
+        77,
+        73
+      ],
+      "date_label": "~77–73 ka",
+      "scope": "site",
+      "location": {
+        "lat": -34.41,
+        "lon": 21.22,
+        "region": "africa-south"
+      },
+      "summary": "Western Cape, South Africa. Combined entry: cross-hatched engraved ochres (~77–75 ka, Henshilwood 2002), perforated Nassarius shell beads (~75 ka, Henshilwood 2004), and a deliberately drawn cross-hatched pattern in red ochre on a ground silcrete flake (~73 ka, Henshilwood 2018). The earliest widely-accepted abstract symbolic engraving and one of the earliest secure personal-ornament traditions.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Henshilwood et al. (2002), Science 295:1278–1280 — Emergence of modern human behavior: Middle Stone Age engravings from South Africa",
+            "doi": "10.1126/science.1067575",
+            "url": "https://doi.org/10.1126/science.1067575"
+          },
+          {
+            "citation": "Henshilwood et al. (2004), Science 304:404 — Middle Stone Age shell beads from South Africa",
+            "doi": "10.1126/science.1095905",
+            "url": "https://doi.org/10.1126/science.1095905"
+          },
+          {
+            "citation": "Henshilwood et al. (2018), Nature 562:115–118 — An abstract drawing from the 73,000-year-old levels at Blombos Cave, South Africa",
+            "doi": "10.1038/s41586-018-0514-3",
+            "url": "https://doi.org/10.1038/s41586-018-0514-3"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Blombos_Cave",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Combined entry per the curation strategy — three Henshilwood papers form one Blombos toolkit milestone rather than three separate dots stacked at the same coordinate.",
+      "summary_lay": "Cave-dwellers in South Africa drilled and strung shells into beads, etched cross-hatched patterns into ochre and made paint kits. A package of behaviours we used to think only later humans had.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Blombos.jpg",
+        "license": "CC BY-SA 3.0",
+        "attribution": "Vincent Mourre / Inrap",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Blombos.jpg"
+      }
+    },
+    {
+      "id": "pinnacle-point-heat-treatment",
+      "title": "Pinnacle Point heat-treated silcrete",
+      "category": "art",
+      "date_range_kya": [
+        164,
+        72
+      ],
+      "date_label": "~164–72 ka",
+      "scope": "site",
+      "location": {
+        "lat": -34.2,
+        "lon": 22.09,
+        "region": "africa-south"
+      },
+      "summary": "Mossel Bay, South Africa. Controlled use of fire to alter raw-material properties — multi-step planning, analogical reasoning. Folded into the modern-cognition bundle and used to argue that key ‘modern’ cognitive markers were present in African MSA populations long before the European Upper Paleolithic.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Brown et al. (2009), Science 325:859–862 — Fire as an engineering tool of early modern humans",
+            "doi": "10.1126/science.1175028",
+            "url": "https://doi.org/10.1126/science.1175028"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Pinnacle_Point",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "South African toolmakers heated specific stones in fire to make them easier to flake. Doing this requires planning a multi-step process and waiting for results — abstract thought, in stone.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/6a/A_view_from_Pinnacle_Point%2C_Mossel_Bay%2C_South_Africa.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Satdeep Gill",
+        "file_page": ""
+      }
+    },
+    {
+      "id": "diepkloof-eggshells",
+      "title": "Diepkloof engraved ostrich eggshells",
+      "category": "art",
+      "date_range_kya": [
+        60,
+        60
+      ],
+      "date_label": "~60 ka",
+      "scope": "site",
+      "location": {
+        "lat": -32.4,
+        "lon": 18.55,
+        "region": "africa-south"
+      },
+      "summary": "Western Cape, South Africa. 270 fragments of intentionally engraved ostrich eggshell flasks. Earliest reliable evidence of a sustained engraving tradition (transmitted across generations).",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Texier et al. (2010), PNAS 107:6180–6185 — A Howiesons Poort tradition of engraving ostrich eggshell containers dated to 60,000 years ago at Diepkloof Rock Shelter, South Africa",
+            "doi": "10.1073/pnas.0913047107",
+            "url": "https://doi.org/10.1073/pnas.0913047107"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Diepkloof_Rock_Shelter",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "Ostrich eggshells used as water flasks, decorated with consistent geometric patterns over thousands of years. The patterns may be the oldest known graphic 'tradition.'",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/22/Iziko_engraving_ostrich_eggshell.JPG",
+        "license": "CC BY-SA 3.0",
+        "attribution": "Nkansah Rexford",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Iziko_engraving_ostrich_eggshell.JPG"
+      }
+    },
+    {
+      "id": "sulawesi-muna-hand-stencil",
+      "title": "Sulawesi / Muna hand stencil (currently oldest dated rock art)",
+      "category": "art",
+      "date_range_kya": [
+        67.8,
+        67.8
+      ],
+      "date_label": "≥67,800 years ago",
+      "scope": "site",
+      "location": {
+        "lat": -5,
+        "lon": 122.5,
+        "region": "island-southeast-asia"
+      },
+      "summary": "Liang Metanduno, Muna Island, Indonesia. LA-U-series minimum age (71.6 ± 3.8 ka on overlying calcite) gives a 67.8 ka minimum-age constraint for the underlying hand stencil. Currently the oldest reliably dated rock art on Earth.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Aubert, Brumm, Oktaviana et al. (2025/2026), Nature — Rock art from at least 67,800 years ago in Sulawesi",
+            "doi": "10.1038/s41586-025-09968-y",
+            "url": "https://doi.org/10.1038/s41586-025-09968-y"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Maros-Pangkep_karst",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Supersedes Leang Tedongnge (~45.5 ka) and El Castillo (~40.8 ka) as the oldest rock art.",
+      "summary_lay": "A red-pigment hand stencil on an Indonesian cave wall — currently the oldest dated rock art on Earth. Older than the European Ice Age caves by 25,000 years.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/cc/Hand_print_paintings_in_Pettakere_Cave%2C_Maros.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Sabjan Badio",
+        "file_page": ""
+      }
+    },
+    {
+      "id": "leang-karampuang",
+      "title": "Leang Karampuang narrative scene, Sulawesi",
+      "category": "art",
+      "date_range_kya": [
+        51.2,
+        51.2
+      ],
+      "date_label": "≥51,200 years ago",
+      "scope": "site",
+      "location": {
+        "lat": -5,
+        "lon": 119.6,
+        "region": "island-southeast-asia"
+      },
+      "summary": "Maros-Pangkep karst, South Sulawesi. Three human-like figures interacting with a wild pig — the earliest known narrative scene in art and arguably the earliest figurative composition.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Oktaviana et al. (2024), Nature 631:814–818 — Narrative cave art in Indonesia by 51,200 years ago",
+            "doi": "10.1038/s41586-024-07541-7",
+            "url": "https://doi.org/10.1038/s41586-024-07541-7"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Maros-Pangkep_karst",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "An Indonesian cave painting of a man-pig narrative scene — the oldest known *story-telling* image. Older than Lascaux by tens of millennia.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Karampuang%2C_a_cave_which_has_world%27s_oldest_cave_painting.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Anhar Karim",
+        "file_page": ""
+      }
+    },
+    {
+      "id": "lubang-jeriji-saleh",
+      "title": "Lubang Jeriji Saléh figurative animal, Borneo",
+      "category": "art",
+      "date_range_kya": [
+        40,
+        40
+      ],
+      "date_label": "≥40 ka",
+      "scope": "site",
+      "location": {
+        "lat": 1.5,
+        "lon": 117,
+        "region": "island-southeast-asia"
+      },
+      "summary": "East Kalimantan, Indonesian Borneo. Reddish-orange figurative animal (likely banteng) plus phases of hand stencils. Demonstrates early figurative art across Wallacea/Sundaland — the picture of figurative art’s origin is no longer Eurocentric.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Aubert et al. (2018), Nature 564:254–257 — Palaeolithic cave art in Borneo",
+            "doi": "10.1038/s41586-018-0679-9",
+            "url": "https://doi.org/10.1038/s41586-018-0679-9"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Lubang_Jeriji_Sal%C3%A9h",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "origin_id": "southern-coastal-route",
+      "route_kind": "coastal",
+      "waypoints": [
+        [
+          110,
+          0
+        ]
+      ],
+      "summary_lay": "A figurative animal painting on a Borneo cave wall, over 40,000 years old. Confirms that the earliest figurative art was a Southeast Asian, not European, achievement.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/6f/Lubang_Jeriji_Sal%C3%A9h_cave_painting_of_Bull.jpg",
+        "license": "Public domain",
+        "attribution": "@ photo Luc-Henri Fage, www.fage.fr.",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Lubang_Jeriji_Sal%C3%A9h_cave_painting_of_Bull.jpg"
+      }
+    },
+    {
+      "id": "iberia-neanderthal-cave-art",
+      "title": "Iberian cave art attributed to Neanderthals (La Pasiega / Maltravieso / Ardales)",
+      "category": "art",
+      "date_range_kya": [
+        115,
+        64.8
+      ],
+      "date_label": "≥115–64.8 ka (contested)",
+      "scope": "regional",
+      "location": {
+        "lat": 39.4,
+        "lon": -6.4,
+        "region": "europe-west"
+      },
+      "summary": "Cantabria, Extremadura, Andalucía. Red linear motif (La Pasiega), hand stencil (Maltravieso), painted speleothems (Ardales) sealed under datable flowstones. If dates and pigment-association hold, predate sapiens arrival in Iberia by ~20 kyr — implying Neanderthal authorship. Cueva de los Aviones perforated, pigmented marine shells (~115–120 ka) carry the same interpretation. Substantial pushback in the literature targets (a) U-Th open-system effects in cave carbonates and (b) the spatial association between dated crusts and underlying pigment.",
+      "confidence": "contested",
+      "references": {
+        "papers": [
+          {
+            "citation": "Hoffmann et al. (2018), Science 359:912–915 — U-Th dating of carbonate crusts reveals Neandertal origin of Iberian cave art",
+            "doi": "10.1126/science.aap7778",
+            "url": "https://doi.org/10.1126/science.aap7778"
+          },
+          {
+            "citation": "Hoffmann et al. (2018), Science Advances 4:eaar5255 — Symbolic use of marine shells and mineral pigments by Iberian Neandertals 115,000 years ago",
+            "doi": "10.1126/sciadv.aar5255",
+            "url": "https://doi.org/10.1126/sciadv.aar5255"
+          }
+        ],
+        "critique": [
+          {
+            "citation": "White et al. (2020), Journal of Human Evolution 144:102640 — Still no archaeological evidence that Neanderthals created Iberian cave art",
+            "doi": "10.1016/j.jhevol.2019.102640",
+            "url": "https://doi.org/10.1016/j.jhevol.2019.102640"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Cave_of_Maltravieso",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": true,
+      "appearance": null,
+      "notes": "Combined entry covering both 2018 Hoffmann papers. Pigment may genuinely be old; the painting/ornament-act may not be — render with strong contested marker.",
+      "confidence_note": "Hoffmann et al. 2018 U-Th dates of cave-art crusts contested by White et al. 2020 (J. Hum. Evol.) — carbonate-substrate / open-system effects could mean the dated material is older than the underlying art.",
+      "summary_lay": "Cave paintings in Spain that, by U-series dating, predate Homo sapiens' arrival in Europe — implying Neanderthals made them. The dating is contested.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Cueva_de_los_Aviones.JPG",
+        "license": "CC BY-SA 3.0",
+        "attribution": "P4K1T0",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Cueva_de_los_Aviones.JPG"
+      }
+    },
+    {
+      "id": "hohle-fels-venus-flutes",
+      "title": "Hohle Fels Venus and ivory/bone flutes",
+      "category": "art",
+      "date_range_kya": [
+        42,
+        35
+      ],
+      "date_label": "~42–35 ka",
+      "scope": "site",
+      "location": {
+        "lat": 48.38,
+        "lon": 9.76,
+        "region": "europe-central"
+      },
+      "summary": "Schwabian Jura, Germany. 6 cm mammoth-ivory figurine — earliest unambiguous human-figure representation. Same site: a five-finger-hole flute on a griffon vulture radius plus mammoth-ivory flute fragments — the earliest secure musical instruments.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Conard (2009), Nature 459:248–252 — A female figurine from the basal Aurignacian of Hohle Fels Cave in southwestern Germany",
+            "doi": "10.1038/nature07995",
+            "url": "https://doi.org/10.1038/nature07995"
+          },
+          {
+            "citation": "Conard, Malina, Münzel (2009), Nature 460:737–740 — New flutes document the earliest musical tradition in southwestern Germany",
+            "doi": "10.1038/nature08169",
+            "url": "https://doi.org/10.1038/nature08169"
+          },
+          {
+            "citation": "Higham et al. (2012), J. Hum. Evol. 62:664–676 — Testing models for the beginnings of the Aurignacian and the advent of figurative art and music",
+            "doi": "10.1016/j.jhevol.2012.03.003",
+            "url": "https://doi.org/10.1016/j.jhevol.2012.03.003"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Venus_of_Hohle_Fels",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "Combined Venus + flutes; same cave, same Aurignacian context.",
+      "summary_lay": "A 6 cm carved 'Venus' figurine and a flute made from vulture bone, both from the same German cave. Among the oldest known figurative art and music instruments.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/en/9/92/Venus-of-Schelklingen.jpg",
+        "license": "Wikipedia local upload — likely fair use or non-free; verify before reuse",
+        "attribution": "Wikimedia Commons",
+        "file_page": ""
+      }
+    },
+    {
+      "id": "lowenmensch",
+      "title": "Löwenmensch / Lion-man of Hohlenstein-Stadel",
+      "category": "art",
+      "date_range_kya": [
+        40,
+        40
+      ],
+      "date_label": "~40 ka",
+      "scope": "site",
+      "location": {
+        "lat": 48.55,
+        "lon": 10.17,
+        "region": "europe-central"
+      },
+      "summary": "Lone Valley, Schwabian Jura, Germany. 31 cm mammoth-ivory composite figure (man with cave-lion head) — the earliest known therianthrope and the earliest unambiguous evidence of imagined / non-naturalistic figurative thinking.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Kind, Ebinger-Rist, Wolf, Beutelspacher & Wehrberger (2014), Quartär 61:129–145 — The Smile of the Lion Man. Recent Excavations in Stadel Cave (Baden-Württemberg, south-western Germany) and the Restoration of the Famous Upper Palaeolithic Figurine",
+            "doi": "10.7485/QU61_07",
+            "url": "https://doi.org/10.7485/QU61_07"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Lion-man",
+        "video": {
+          "title": "The Lion Man",
+          "channel": "BBC Radio 4",
+          "url": "https://www.youtube.com/watch?v=WDud_jbbEUc"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "A 30 cm ivory carving of a half-lion, half-human figure — a chimera, an idea that doesn't exist in nature. Symbolic thought made object.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Loewenmensch1.jpg",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Dagmar Hollmann",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Loewenmensch1.jpg"
+      }
+    },
+    {
+      "id": "chauvet-pont-darc",
+      "title": "Chauvet-Pont d’Arc",
+      "category": "art",
+      "date_range_kya": [
+        37,
+        28
+      ],
+      "date_label": "~37–28 ka (two phases)",
+      "scope": "site",
+      "location": {
+        "lat": 44.39,
+        "lon": 4.42,
+        "region": "europe-west"
+      },
+      "summary": "Ardèche, France. Hundreds of figurative paintings of stunning sophistication, in two distinct occupation phases. Refutes a simple primitive-to-sophisticated gradualism in Paleolithic art.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Quiles et al. (2016), PNAS 113:4670–4675 — A high-precision chronological model for the decorated Upper Paleolithic cave of Chauvet-Pont d’Arc",
+            "doi": "10.1073/pnas.1523158113",
+            "url": "https://doi.org/10.1073/pnas.1523158113"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Chauvet_Cave",
+        "video": {
+          "title": "Chauvet Cave: Masterworks of the Paleolithic",
+          "channel": "Cotsen Institute of Archaeology at UCLA",
+          "url": "https://www.youtube.com/watch?v=l7xn1VQ7pcQ"
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "A French cave preserving some of the most accomplished Ice Age paintings — horses, lions, bison, rhinos rendered with spatial depth and motion. The 'first' major painted cave.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Paintings_from_the_Chauvet_cave_%28museum_replica%29.jpg",
+        "license": "Public domain",
+        "attribution": "HTO",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Paintings_from_the_Chauvet_cave_(museum_replica).jpg"
+      }
+    },
+    {
+      "id": "lascaux",
+      "title": "Lascaux",
+      "category": "art",
+      "date_range_kya": [
+        22,
+        17
+      ],
+      "date_label": "~22–17 ka",
+      "scope": "site",
+      "location": {
+        "lat": 45.05,
+        "lon": 1.17,
+        "region": "europe-west"
+      },
+      "summary": "Dordogne, France. ~600 painted and ~1,500 engraved figures, including the Hall of the Bulls. Iconic Magdalenian site — the popular shorthand for Paleolithic cave art.",
+      "confidence": "well-established",
+      "references": {
+        "papers": [
+          {
+            "citation": "Ducasse & Langlais (2019), PALEO 30 — Twenty years on, a new date with Lascaux. Reassessing the chronology of the cave's Paleolithic occupations through new ¹⁴C AMS dating",
+            "doi": "10.4000/paleo.4558",
+            "url": "https://doi.org/10.4000/paleo.4558"
+          }
+        ],
+        "wikipedia": "https://en.wikipedia.org/wiki/Lascaux",
+        "video": {
+          "todo": true
+        }
+      },
+      "debated": false,
+      "appearance": null,
+      "notes": "",
+      "summary_lay": "The most famous Ice Age painted cave, in southwestern France. Aurochs, horses and deer leaping across the walls — the popular image of European prehistory.",
+      "image": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Lascaux_painting.jpg",
+        "license": "Public domain",
+        "attribution": "EU",
+        "file_page": "https://commons.wikimedia.org/wiki/File:Lascaux_painting.jpg"
+      }
+    }
+  ]
+}

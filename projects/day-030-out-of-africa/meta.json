@@ -1,0 +1,12 @@
+{
+  "day": 30,
+  "slug": "day-030-out-of-africa",
+  "title": "Out of Africa",
+  "date": "2026-04-26",
+  "description": "An exploratory timeline+map of the early human journey out of Africa: Homo sapiens dispersal across the continents, from ~315,000 years ago to the peopling of the last Pacific islands. Auto-plays through deep time and pauses on demand. Every milestone — find sites, branch points, climate events, admixture events — links to primary scientific papers, Wikipedia, and educational videos. Multi-day project: this commit covers the design, plan, and research phase.",
+  "tags": ["data-viz", "map", "timeline", "anthropology", "archaeology", "human-evolution", "exploration", "in-progress"],
+  "stack": ["TBD — design phase"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-030-out-of-africa",
+  "status": "in-progress",
+  "license_notes": "Design and research phase only — no runtime dependencies yet. License notes will be filled in once the implementation stack is chosen."
+}

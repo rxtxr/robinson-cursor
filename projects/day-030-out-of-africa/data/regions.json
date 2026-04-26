@@ -1,0 +1,31 @@
+{
+  "$schema_version": 1,
+  "_comment": "Coarse continent / sub-region grouping used to colour and lay out events on the map. Centroids are approximate, only used for fallback labels — actual event positions come from each event's own lat/lon.",
+  "regions": [
+    { "id": "africa-north",          "name": "North Africa",                "centroid": { "lat": 28.0,  "lon":  10.0 } },
+    { "id": "africa-east",           "name": "East Africa",                 "centroid": { "lat":  3.0,  "lon":  37.0 } },
+    { "id": "africa-central",        "name": "Central Africa",              "centroid": { "lat": -5.0,  "lon":  22.0 } },
+    { "id": "africa-south",          "name": "Southern Africa",             "centroid": { "lat": -25.0, "lon":  25.0 } },
+    { "id": "levant",                "name": "Levant",                      "centroid": { "lat": 32.5,  "lon":  35.5 } },
+    { "id": "arabia",                "name": "Arabian Peninsula",           "centroid": { "lat": 23.0,  "lon":  45.0 } },
+    { "id": "caucasus-zagros",       "name": "Caucasus & Zagros",           "centroid": { "lat": 39.0,  "lon":  44.0 } },
+    { "id": "central-asia",          "name": "Central Asia & Tibet",        "centroid": { "lat": 38.0,  "lon":  85.0 } },
+    { "id": "siberia",               "name": "Siberia",                     "centroid": { "lat": 60.0,  "lon":  90.0 } },
+    { "id": "south-asia",            "name": "South Asia",                  "centroid": { "lat": 22.0,  "lon":  78.0 } },
+    { "id": "southeast-asia",        "name": "Mainland Southeast Asia",     "centroid": { "lat": 15.0,  "lon": 105.0 } },
+    { "id": "island-southeast-asia", "name": "Island SE Asia & Wallacea",   "centroid": { "lat":  0.0,  "lon": 115.0 } },
+    { "id": "east-asia",             "name": "East Asia",                   "centroid": { "lat": 35.0,  "lon": 110.0 } },
+    { "id": "sahul",                 "name": "Sahul (Australia–New Guinea)","centroid": { "lat": -22.0, "lon": 135.0 } },
+    { "id": "europe-west",           "name": "Western Europe & Iberia",     "centroid": { "lat": 47.0,  "lon":   2.0 } },
+    { "id": "europe-central",        "name": "Central Europe",              "centroid": { "lat": 50.0,  "lon":  15.0 } },
+    { "id": "europe-east",           "name": "Eastern Europe",              "centroid": { "lat": 54.0,  "lon":  38.0 } },
+    { "id": "europe-southeast",      "name": "Balkans & Aegean",            "centroid": { "lat": 42.0,  "lon":  23.0 } },
+    { "id": "beringia",              "name": "Beringia",                    "centroid": { "lat": 65.0,  "lon": -170.0 } },
+    { "id": "north-america",         "name": "North America",               "centroid": { "lat": 40.0,  "lon": -100.0 } },
+    { "id": "mesoamerica",           "name": "Mesoamerica",                 "centroid": { "lat": 20.0,  "lon":  -95.0 } },
+    { "id": "south-america",         "name": "South America",               "centroid": { "lat": -20.0, "lon":  -60.0 } },
+    { "id": "oceania",               "name": "Pacific Islands",             "centroid": { "lat": -15.0, "lon": -160.0 } },
+    { "id": "madagascar",            "name": "Madagascar",                  "centroid": { "lat": -18.8, "lon":  47.5 } },
+    { "id": "global",                "name": "Global",                      "centroid": null }
+  ]
+}
