@@ -181,6 +181,15 @@ The project is otherwise complete and the data layer is frozen. Anything in this
 - [ ] **About-lightbox text** is currently a single utilitarian sentence ("press play to watch the story unfold"). Real editorial voice — Garamond italics, pull-quote, lead — would set the tone for first-time visitors.
 - [ ] **Bottombar polish** — the `← all projects · about · changelog · feedback · known issues` chain is set in 0.7 rem mute mono. Disproportionately leise vs. the rest of the chrome's craft level.
 
+### Reader suggestions
+
+From [u/yourfriendstag](https://www.reddit.com/user/yourfriendstag/):
+
+- [ ] **Event list with click-to-center.** A scrollable list that surfaces each event as the timeline crosses it; clicking a row opens the panel and recenters the globe on that location. Closes the gap between "scrubbing through time" and "knowing what just appeared" — currently a reader has to spot the new dot themselves.
+- [ ] **Off-view activity indicator.** Some signal — counter, edge-arrow cluster, or mini-globe inset — for what's happening in parts of the world the camera isn't currently on. Makes the simultaneity of e.g. Sahul + Aurignacian + Late Stone Age East Africa visible.
+- [ ] **Paneled multi-geography view.** Split the stage so two or more regions can be watched in parallel, sharing a single timeline. Architecturally significant (separate projection + render targets) but the right move for a comparative deep-time read.
+- [ ] **Category filter dropdown.** Scope scrubber + map to a single theme (fossils only, art only, climate only). Category encoding already exists in the data; the cost is mostly UI. Low-cost, high-discoverability win if event count grows.
+
 ## Risks & mitigations
 
 | Risk | Mitigation |

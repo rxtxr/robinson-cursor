@@ -1982,6 +1982,15 @@ function knownIssuesContent() {
   <li>Long-form essay mode (vertical scroll prose with the globe mini-mapped on the side) is the largest discretionary investment that would lift the project from <em>map tool</em> to <em>internet long-read</em>.</li>
 </ul>
 
+<h2>Reader suggestions</h2>
+<p>From <a href="https://www.reddit.com/user/yourfriendstag/" target="_blank" rel="noopener noreferrer">u/yourfriendstag</a>:</p>
+<ul>
+  <li><strong>Event list with click-to-center.</strong> An interface that lists each event as the timeline crosses it — clicking a row opens the panel and recenters the globe on that location.</li>
+  <li><strong>Off-view activity indicator.</strong> Something that signals what's happening in other parts of the world while the camera is on a specific region — easy to miss simultaneous milestones on the far side of the globe.</li>
+  <li><strong>Paneled multi-geography view.</strong> Split the stage so two or more regions can be watched in parallel, sharing one timeline.</li>
+  <li><strong>Category filter dropdown.</strong> If the milestone count grows, scope the scrubber + map to a single theme (fossils only, art only, climate only…). The category encoding is already in the data.</li>
+</ul>
+
 <p class="lightbox__crosslink-note"><em>Spotted something not on this list? <a href="#" data-link="feedback">Send feedback →</a></em></p>
 `;
   // Wire the in-body cross-links to the other long-form lightboxes.
