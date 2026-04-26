@@ -178,6 +178,7 @@ const timelineHint  = document.getElementById("timelineHint");
 const ancestorsToggle = document.getElementById("toggleAncestors");
 const scrubberTicksEl = document.getElementById("scrubberTicks");
 const aboutBtn        = document.getElementById("aboutBtn");
+const changelogBtn    = document.getElementById("changelogBtn");
 const feedbackBtn     = document.getElementById("feedbackBtn");
 const lightboxEl      = document.getElementById("lightbox");
 const lightboxTitle   = document.getElementById("lightboxTitle");
@@ -358,6 +359,7 @@ function alternateDateForm(date_label, olderKa, youngerKa) {
   lightboxEl.querySelector("[data-lightbox-close]").addEventListener("click", closeLightbox);
   // Bottom-bar buttons
   aboutBtn.addEventListener("click",    () => openLightbox("About this project", aboutContent()));
+  changelogBtn.addEventListener("click", openChangelogLightbox);
   feedbackBtn.addEventListener("click", () => openLightbox("Send feedback", feedbackForm(null)));
   document.getElementById("panelFeedbackBtn").addEventListener("click", () => {
     const ev = state.eventsById.get(state.selectedId);
@@ -1708,6 +1710,51 @@ function aboutContent() {
   wrap.appendChild(caption);
 
   return wrap;
+}
+
+// Lazy-load marked v12 from jsdelivr the first time the changelog opens.
+// Same pattern as D3 / TopoJSON — kept off the critical path. UMD build,
+// so it attaches `marked` to window; we await the script's onload.
+const MARKED_URL = "https://cdn.jsdelivr.net/npm/marked@12/marked.min.js";
+let markedLoader = null;
+function loadMarked() {
+  if (window.marked) return Promise.resolve(window.marked);
+  if (markedLoader) return markedLoader;
+  markedLoader = new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = MARKED_URL;
+    s.async = true;
+    s.onload = () => resolve(window.marked);
+    s.onerror = () => { markedLoader = null; reject(new Error("marked load failed")); };
+    document.head.appendChild(s);
+  });
+  return markedLoader;
+}
+
+async function openChangelogLightbox() {
+  const wrap = document.createElement("div");
+  wrap.className = "changelog-body";
+  wrap.textContent = "Loading…";
+  openLightbox("Changelog", wrap);
+  try {
+    const [md, marked] = await Promise.all([
+      fetch("CHANGELOG.md", { cache: "no-cache" }).then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.text();
+      }),
+      loadMarked()
+    ]);
+    wrap.innerHTML = marked.parse(md);
+    // External links open in a new tab; relative anchors stay in-page.
+    for (const a of wrap.querySelectorAll('a[href^="http"]')) {
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+    }
+  } catch (err) {
+    wrap.innerHTML =
+      `<p>Could not load the changelog (${err.message || "unknown error"}).</p>` +
+      `<p>Read the raw file: <a href="CHANGELOG.md" target="_blank" rel="noopener noreferrer">CHANGELOG.md ↗</a></p>`;
+  }
 }
 
 function feedbackForm(eventCtx /* { id, title } | null */) {
