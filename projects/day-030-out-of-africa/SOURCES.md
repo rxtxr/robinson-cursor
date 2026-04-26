@@ -324,6 +324,8 @@ Citations and quoted facts are seeded by the research compiled in `RESEARCH.md`.
 ### Levallois / prepared-core (~400–300 ka)
 
 - Paper: Adler et al. (2014), *Science* 345:1609 — https://doi.org/10.1126/science.1256484
+- Paper: White, Ashton & Scott (2011), *Developments in Quaternary Sciences* 14:53–65 — https://doi.org/10.1016/B978-0-444-53597-9.00005-4
+- Critique: Foley & Lahr (1997), *Cambridge Archaeological Journal* 7(1):3–36 — https://doi.org/10.1017/S0959774300001451 (single-origin / African-genesis-and-diffusion counter-position to the multi-origin model)
 - Wikipedia: https://en.wikipedia.org/wiki/Levallois_technique
 - Video: Natural History Museum, "Making a Neanderthal flint stone tool" — https://www.youtube.com/watch?v=59SXzl0uF7s
 - Video (deeper): AncientCraftUK / Dr. James Dilley, "Levallois Core Technology — An Alternative Way of Making Stone Tools" — https://www.youtube.com/watch?v=tA91YHaNTpc

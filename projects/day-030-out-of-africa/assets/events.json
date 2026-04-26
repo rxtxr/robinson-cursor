@@ -3298,14 +3298,27 @@
         "lon": 34,
         "region": "africa-north"
       },
-      "summary": "The conceptual leap: shape the core first so the final flake’s geometry is predetermined. Adopted in parallel by African MSA peoples and by Neanderthals (Mousterian). Coincides with the first incontrovertible H. sapiens (Jebel Irhoud).",
-      "confidence": "well-established",
+      "summary": "Prepared-core knapping: shape the core first so the final flake's geometry is predetermined. Whether the technique has a single African origin that diffused into Eurasia, or emerged independently in multiple regions out of local Acheulean traditions, is actively contested. Onset roughly coincides with the first incontrovertible H. sapiens (Jebel Irhoud).",
+      "confidence": "debated",
+      "confidence_note": "Whether Levallois has a single African origin that diffused across Eurasia, or emerged independently in multiple regions out of local Acheulean traditions, is actively contested. Recent work (Adler et al. 2014; White, Ashton & Scott 2011) argues for multi-origin / in-situ development; the older Foley & Lahr (1997) model argues for an African genesis with subsequent diffusion.",
       "references": {
         "papers": [
           {
             "citation": "Adler et al. (2014), Science 345:1609–1613 — Early Levallois technology and the Lower to Middle Paleolithic transition in the Southern Caucasus",
             "doi": "10.1126/science.1256484",
             "url": "https://doi.org/10.1126/science.1256484"
+          },
+          {
+            "citation": "White, Ashton & Scott (2011), Developments in Quaternary Sciences 14:53–65 — The emergence, diversity and significance of Mode 3 (prepared core) technologies",
+            "doi": "10.1016/B978-0-444-53597-9.00005-4",
+            "url": "https://doi.org/10.1016/B978-0-444-53597-9.00005-4"
+          }
+        ],
+        "critique": [
+          {
+            "citation": "Foley & Lahr (1997), Cambridge Archaeological Journal 7(1):3–36 — Mode 3 Technologies and the Evolution of Modern Humans",
+            "doi": "10.1017/S0959774300001451",
+            "url": "https://doi.org/10.1017/S0959774300001451"
           }
         ],
         "wikipedia": "https://en.wikipedia.org/wiki/Levallois_technique",
@@ -3315,10 +3328,10 @@
           "url": "https://www.youtube.com/watch?v=59SXzl0uF7s"
         }
       },
-      "debated": false,
+      "debated": true,
       "appearance": null,
       "notes": "",
-      "summary_lay": "A clever stone-working trick: prepare a core carefully, then strike off a single perfectly-shaped flake. Marks a cognitive leap toward planning the tool *before* making it.",
+      "summary_lay": "A clever stone-working trick: prepare a core carefully, then strike off a single perfectly-shaped flake — a cognitive leap toward planning the tool *before* making it. Specialists disagree on whether it was invented once in Africa and spread from there, or hit upon independently in several regions out of older hand-axe traditions.",
       "image": {
         "url": "assets/images/levallois.jpg",
         "license": "CC0",
