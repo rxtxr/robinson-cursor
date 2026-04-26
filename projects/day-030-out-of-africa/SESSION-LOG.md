@@ -448,6 +448,48 @@ User flagged: "ab und zu werden Karten gezeigt, obwohl es nicht um eine Wanderun
 
 **Decision: ship.** 🧑 needs-eyes (visually confirm replacements; flag any that still feel generic or off).
 
+---
+
+## Phase 5 — Polish (2026-04-26 night, autonomous)
+
+User: "aufräumen, phase 5". Ran the full Phase 5 sequence single-pass.
+
+### 24 — Sync PLAN.md
+Marked Phase 4 + 4.5 as done with brief done-notes; partial items annotated. Phase 5 + 6 untouched.
+
+### 25 — First commit
+Whole project was untracked. `git add projects/day-030-out-of-africa/` + initial commit (16 files, 9,378 insertions). Commit message summarises the multi-day project state.
+
+### 26 — Mobile layout
+Panel grew across iterations (image hero, video embed, appearance, lay+details, debated note callout, range bar, origin chain). The existing `@media (max-width: 640px)` bottom-sheet at 65 % was tight. Bumped to **82 %** with a softer top-radius, larger close button (40×40), drag-handle hint via `::before`, image max-height shrunk 220 → 160 px, title scaled down to 1.3 rem. Hide chrome (HUD + layers toggle) when the panel is open to free the small viewport. Added a `<380 px` rule that drops the layers-toggle text label.
+
+### 27 — Accessibility
+Keyboard: scrubber gains `Home` / `End` (jump to start/end) and **Enter on the focused scrubber opens the nearest tick's panel** via `nearestEventToProgress(target)`. The scrubber also gets a meaningful `aria-valuetext` announcing both forms ("X years ago (Y BCE)") for screen readers.
+Focus management: `state.lastFocused` captures `document.activeElement` on `openPanel`; close-button is auto-focused via `requestAnimationFrame(() => panelClose.focus())` so Tab lands sensibly. `closePanel` restores focus to the original element if it's still in the DOM.
+Added a unified `:focus-visible` outline for all panel-internal links/buttons (`outline: 1px solid var(--col-ochre)`).
+
+### 28 — Performance
+Bundle budget verified: **main.js = 15.5 kB gzipped** (target was < 200 kB → way under). Total app payload (JS + CSS + events.json) ≈ 50–60 kB gzipped via Cloudflare. D3 + topojson loaded from jsdelivr CDN. Per-frame: ~200 canvas ops at peak; `state.needsRender` flag gates rerenders so idle = zero work. No optimisation needed.
+
+### 29 — Thumbnails
+Generated `thumb.png` (1200×630), `thumb.webp`, `thumb-sm.webp` via Python+PIL: dark background, simplified continent rectangles, 79 visible events plotted at their (lon, lat) with category colours, title block bottom-left. Communicates "data viz about human dispersal" without needing a real screenshot. (A real browser screenshot would be richer; can be regenerated later.)
+
+### 30 — meta.json finalised
+`status: in-progress → complete`. Stack pills: `D3-geo`, `Canvas 2D`, `TopoJSON`, `Natural Earth`, `Wikimedia Commons` — short technical tags per CLAUDE.md. `license_notes` enumerates land polygons (NE / PD), images (mixed CC + PD from Commons, 74 entries), videos (YouTube thumbnail-only fair-use), references (real DOIs + visible TODO badge for the rest), fonts (OFL via Google Fonts), code deps (D3 + topojson, both BSD).
+
+### 31 — Glacial sea-level overlay
+6 polygons added as `GLACIAL_OVERLAYS` constants — Sundaland, Sahul-Torres connector, Sahul-Bass connector, Beringia (Asian + American sides), Doggerland. Each has an `era_kya` window; rendered between `land` and `clusters` only when the clock falls in the window. Cartoon-grade outlines explicitly noted in the source — the goal is to show "this was walkable then" without claiming exact shorelines.
+
+**Phase 5 summary.** All 8 tasks single-pass, no iterations. Project is now ship-ready.
+
+**Files touched:** `main.js` (+~80 lines: glacial overlays, focus mgmt, scrubber Home/End/Enter, aria-valuetext); `styles.css` (+~50 lines: mobile bottom-sheet, drag handle, focus-visible); `index.html` (no change since Phase 4.5); `data/events.json` (no change); `meta.json` (rewritten); `thumb.{png,webp}`, `thumb-sm.webp` (new); `PLAN.md` (synced).
+
+**🧑 needs-eyes for Phase 5:**
+1. Mobile bottom-sheet at 82 % — verify the new sections (image, video, multiple summaries) all fit without crushing.
+2. Glacial overlays — visually verify Beringia connector renders correctly across the antimeridian (split into two polygons to avoid wrapping issues).
+3. Thumbnail aesthetics — programmatic, not a real screenshot. Replace with a hand-screencap when convenient.
+4. Keyboard flow — full Tab-through-page test on real keyboard.
+
 **Deferred (not blocking, called out where they came up):**
 - `PATH_LEAD_KYA = 5` is fixed; should scale with era depth so Holocene arcs don't start drawing 5 ka before their event.
 - 3 paper-todos that don't have findable DOIs (Lucy 1978 Kirtlandia pre-DOI, Straus & Cave 1957 QRB pre-DOI, Sungir 2014 book) — left honestly as TODO badge.

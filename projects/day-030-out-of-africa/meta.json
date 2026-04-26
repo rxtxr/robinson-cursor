@@ -3,10 +3,10 @@
   "slug": "day-030-out-of-africa",
   "title": "Out of Africa",
   "date": "2026-04-26",
-  "description": "An exploratory timeline+map of the early human journey out of Africa: Homo sapiens dispersal across the continents, from ~315,000 years ago to the peopling of the last Pacific islands. Auto-plays through deep time and pauses on demand. Every milestone — find sites, branch points, climate events, admixture events — links to primary scientific papers, Wikipedia, and educational videos. Multi-day project: this commit covers the design, plan, and research phase.",
-  "tags": ["data-viz", "map", "timeline", "anthropology", "archaeology", "human-evolution", "exploration", "in-progress"],
-  "stack": ["TBD — design phase"],
+  "description": "315,000 years of human dispersal as a self-playing, scrubbable map. 81 milestones — fossils, tools, cave art, climate events, admixture events, settlement firsts — each pinned in space and time, with hero image, plain-language excerpt, and primary citations. Dual projection: orthographic globe at world view, Natural Earth flat map when zoomed in. Routes follow plausible land corridors instead of great-circle straight-lines; sea voyages are visually distinct from overland walks. Confidence is shown honestly: contested dates render as dashed, uncertain spans as range bars, and every event links to its references.",
+  "tags": ["data-viz", "map", "timeline", "anthropology", "archaeology", "human-evolution", "deep-time"],
+  "stack": ["D3-geo", "Canvas 2D", "TopoJSON", "Natural Earth", "Wikimedia Commons"],
   "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-030-out-of-africa",
-  "status": "in-progress",
-  "license_notes": "Design and research phase only — no runtime dependencies yet. License notes will be filled in once the implementation stack is chosen."
+  "status": "complete",
+  "license_notes": "Land polygons: Natural Earth (Public Domain, world-atlas/land-110m via jsdelivr CDN). Images: 74 hand-picked Wikimedia Commons files — mix of CC BY 2.0/2.5/3.0/4.0, CC BY-SA 2.0/3.0/4.0, CC0 and Public Domain. Each panel links to the Commons file page for license + author. Videos: 41 events embedded as YouTube thumbnails-with-play (click opens youtube.com in a new tab); thumbnails served from img.youtube.com under YouTube's preview-image fair use. Source channels: PBS Eons, NOVA, Stefan Milo, SciShow, TED-Ed. References: papers cite real DOIs where verified; the 3 paper / 4 critique / 42 video slots without verified citations render with a visible TODO badge in the panel. Fonts: EB Garamond (variable) and IBM Plex Mono — both SIL Open Font License 1.1, self-hosted as woff2 in fonts/ (no Google Fonts request at runtime). Code deps: D3 v7 (BSD-3), TopoJSON-client v3 (BSD-3) loaded from cdn.jsdelivr.net."
 }

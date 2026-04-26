@@ -7,9 +7,10 @@
   <meta name="referrer" content="no-referrer">
   <title>Out of Africa — robinson-cursor / day 030</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <!-- Preload the two latin-subset body fonts so first paint already has them.
+       Italic, latin-ext, and Mono-500 come in via @font-face when needed. -->
+  <link rel="preload" as="font" type="font/woff2" href="fonts/ebgaramond-roman-latin.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="fonts/plexmono-400-roman-latin.woff2" crossorigin>
 
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -43,6 +44,9 @@
       <span class="hud__sep">·</span>
       <span class="hud__label">α</span>
       <span class="hud__value" id="hudAlpha">0.00</span>
+      <span class="hud__sep">·</span>
+      <span class="hud__label">BACK</span>
+      <span class="hud__value" id="hudBack">0/0</span>
     </div>
 
     <div class="layers" role="group" aria-label="Map layers">
@@ -50,6 +54,24 @@
         <input type="checkbox" id="toggleAncestors" checked>
         <span>show ancestors</span>
       </label>
+    </div>
+
+    <nav class="bottombar" aria-label="Project navigation">
+      <a href="/" target="_top" class="bottombar__link" rel="noopener">← all projects</a>
+      <span class="bottombar__sep" aria-hidden="true">·</span>
+      <button type="button" class="bottombar__link" id="aboutBtn">about</button>
+      <span class="bottombar__sep" aria-hidden="true">·</span>
+      <button type="button" class="bottombar__link" id="feedbackBtn">feedback</button>
+    </nav>
+
+    <!-- Generic lightbox shell. JS sets the title + body and toggles `hidden`. -->
+    <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-labelledby="lightboxTitle">
+      <div class="lightbox__overlay" data-lightbox-close></div>
+      <div class="lightbox__panel">
+        <button class="lightbox__close" id="lightboxClose" type="button" aria-label="Close">×</button>
+        <h2 class="lightbox__title" id="lightboxTitle"></h2>
+        <div class="lightbox__body" id="lightboxBody"></div>
+      </div>
     </div>
 
     <aside class="panel" id="panel" aria-hidden="true" aria-labelledby="panelTitle">
@@ -68,7 +90,9 @@
         <p class="panel__origin" id="panelOrigin" hidden></p>
       </header>
       <figure class="panel__image" id="panelImage" hidden>
-        <img id="panelImageEl" alt="" loading="lazy">
+        <a id="panelImageLink" target="_blank" rel="noopener noreferrer" aria-label="Open source image on Wikimedia Commons">
+          <img id="panelImageEl" alt="" loading="lazy">
+        </a>
         <figcaption class="panel__image-caption" id="panelImageCaption"></figcaption>
       </figure>
       <section class="panel__lay" id="panelLay" hidden></section>
@@ -89,6 +113,9 @@
         <h3 class="panel__section-title">References</h3>
         <ol class="panel__refs-list" id="panelRefs"></ol>
       </section>
+      <button type="button" class="panel__feedback" id="panelFeedbackBtn">
+        Spotted a problem? Send feedback →
+      </button>
     </aside>
   </main>
 

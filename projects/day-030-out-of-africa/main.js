@@ -23,9 +23,17 @@ const CLUSTERS_URL = "data/clusters.json";
 
 const START_ROTATION = [10, -8, 0];
 const ZOOM_MIN        = 1.0;
-const ZOOM_MAX        = 5.0;
+const ZOOM_MAX        = 14.0;
 const ZOOM_FLAT_START = 1.4;
 const ZOOM_FLAT_END   = 2.4;
+// Back-of-globe items are not rendered. Ghost rendering tested through
+// several iterations (alpha + blur, with and without offscreen-canvas
+// optimisation) didn't pay off visually for the perf cost. The
+// resolveMarkerXY helper still detects back items so the HUD counter
+// works; setting ALPHA > 0 re-enables ghost rendering through the
+// existing offscreen pipeline.
+const BACK_OF_GLOBE_ALPHA = 0;
+const BACK_OF_GLOBE_BLUR  = "blur(1.6px)";
 
 const HIT_RADIUS_PX  = 22;  // matches the larger marker halo
 const DRAG_THRESHOLD = 4;
@@ -53,6 +61,19 @@ const CATEGORY_COLORS = {
   climate:    "#6b8e8a",   // sage-teal
   branch:     "#7e6e9c",   // muted violet
   admixture:  "#c9603b"    // clay-orange
+};
+
+// Brightened versions used for label text only — the dark rust + olive
+// dot colors are too low-contrast against land for body text. Dots stay
+// in the original (saturated) palette so they read as colour-coded pins.
+const LABEL_COLORS = {
+  fossil:     "#e0a85d",
+  art:        "#e87555",
+  tool:       "#c0a878",
+  settlement: "#f0b870",
+  climate:    "#a8c8c2",
+  branch:     "#b0a0d0",
+  admixture:  "#e88060"
 };
 
 // Solid arc palette — no alpha. The "drawn" (post-arrival) and "faint origin"
@@ -93,15 +114,61 @@ const HIDDEN_FROM_MAP = new Set([
   "split-neanderthal-vs-denisovan"
 ]);
 
+// Glacial-low-stand land overlays — Sundaland, Sahul connectors, Beringia,
+// Doggerland. These are *cartoon* outlines, not survey-grade polygons —
+// the goal is to show "this is when these places were walkable" without
+// claiming exact shoreline accuracy. Each overlay renders only when the
+// current clock falls inside its `era_kya` window.
+const GLACIAL_OVERLAYS = [
+  {
+    id: "sundaland", name: "Sundaland",
+    era_kya: [65, 12],
+    polygon: [[100,7],[108,11],[113,7],[120,2],[120,-5],[110,-7],[100,-2],[100,7]]
+  },
+  {
+    id: "sahul-torres", name: "Sahul: Torres Strait connector",
+    era_kya: [65, 12],
+    polygon: [[140,-9],[144,-9],[144,-12],[140,-12],[140,-9]]
+  },
+  {
+    id: "sahul-bass",   name: "Sahul: Bass Strait connector",
+    era_kya: [65, 12],
+    polygon: [[143,-38],[148,-38],[148,-42],[143,-42],[143,-38]]
+  },
+  {
+    id: "beringia-asian",   name: "Beringia (Asian side)",
+    era_kya: [30, 11],
+    polygon: [[160,65],[180,65],[180,71],[160,71],[160,65]]
+  },
+  {
+    id: "beringia-american", name: "Beringia (American side)",
+    era_kya: [30, 11],
+    polygon: [[-180,65],[-160,65],[-160,71],[-180,71],[-180,65]]
+  },
+  {
+    id: "doggerland",   name: "Doggerland",
+    era_kya: [25, 6.5],
+    polygon: [[1,51],[8,53],[8,58],[1,56],[1,51]]
+  }
+];
+
 // ── DOM ───────────────────────────────────────────────────────────────────
 
 const canvas      = document.getElementById("map");
 const ctx         = canvas.getContext("2d");
+// Offscreen layer for back-of-globe markers + labels. Rendered to once
+// per frame, then composited onto the main canvas with a single blur +
+// alpha pass — vs. per-element ctx.filter which triggers a separate GPU
+// blur for every dot/label.
+const backCanvas  = document.createElement("canvas");
+const backCtx     = backCanvas.getContext("2d");
+let   backUsed    = false;       // true if any back item was drawn this frame
 const panel       = document.getElementById("panel");
 const panelClose  = document.getElementById("panelClose");
 const hudProj     = document.getElementById("hudProjection");
 const hudZoom     = document.getElementById("hudZoom");
 const hudAlpha    = document.getElementById("hudAlpha");
+const hudBack     = document.getElementById("hudBack");
 const clockValueEl= document.getElementById("clockValue");
 const clockAltEl  = document.getElementById("clockAlt");
 const playPauseBtn= document.getElementById("playPause");
@@ -110,6 +177,12 @@ const scrubberThumb = document.getElementById("scrubberThumb");
 const timelineHint  = document.getElementById("timelineHint");
 const ancestorsToggle = document.getElementById("toggleAncestors");
 const scrubberTicksEl = document.getElementById("scrubberTicks");
+const aboutBtn        = document.getElementById("aboutBtn");
+const feedbackBtn     = document.getElementById("feedbackBtn");
+const lightboxEl      = document.getElementById("lightbox");
+const lightboxTitle   = document.getElementById("lightboxTitle");
+const lightboxBody    = document.getElementById("lightboxBody");
+const lightboxClose   = document.getElementById("lightboxClose");
 
 // ── state ─────────────────────────────────────────────────────────────────
 
@@ -130,6 +203,7 @@ const state = {
   eventsById:    new Map(),
   markers:       [],             // [{ id, lon, lat, ev }]
   screenMarkers: [],             // [{ id, x, y }] — refreshed each frame
+  screenLabels:  [],             // [{ id, x, y, w, h }] — placed-label rects, hit-tested for clicks
 
   clock: {
     playing:    false,
@@ -140,7 +214,10 @@ const state = {
 
   selectedId: null,
   showAncestors: true,
-  needsRender: true
+  needsRender: true,
+  // Focus to restore when the panel closes — set by openPanel from
+  // document.activeElement so keyboard users land back where they came from.
+  lastFocused: null
 };
 
 // ── projection ────────────────────────────────────────────────────────────
@@ -170,6 +247,10 @@ function interpolateProjection(rawA, rawB) {
 const projection = interpolateProjection(d3.geoOrthographicRaw, d3.geoNaturalEarth1Raw);
 const path = d3.geoPath(projection, ctx);
 const visibilityProj = d3.geoOrthographic();
+// Non-clipping orthographic — used to project back-of-globe markers so we
+// can render them as faint ghosts instead of dropping them. clipAngle(180)
+// disables hemisphere culling.
+const backProj = d3.geoOrthographic().clipAngle(180);
 
 // ── clock helpers ─────────────────────────────────────────────────────────
 
@@ -270,6 +351,18 @@ function alternateDateForm(date_label, olderKa, youngerKa) {
   ancestorsToggle.addEventListener("change", () => {
     state.showAncestors = ancestorsToggle.checked;
     state.needsRender = true;
+  });
+
+  // Lightbox close affordances
+  lightboxClose.addEventListener("click", closeLightbox);
+  lightboxEl.querySelector("[data-lightbox-close]").addEventListener("click", closeLightbox);
+  // Bottom-bar buttons
+  aboutBtn.addEventListener("click",    () => openLightbox("About this project", aboutContent()));
+  feedbackBtn.addEventListener("click", () => openLightbox("Send feedback", feedbackForm(null)));
+  document.getElementById("panelFeedbackBtn").addEventListener("click", () => {
+    const ev = state.eventsById.get(state.selectedId);
+    if (!ev) return;
+    openLightbox("Send feedback", feedbackForm({ id: ev.id, title: ev.title }));
   });
 
   const [landTopo, events, paths, clusters] = await Promise.all([
@@ -418,6 +511,10 @@ function resize() {
   canvas.width  = Math.round(r.width  * state.dpr);
   canvas.height = Math.round(r.height * state.dpr);
   ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+  // mirror size on the offscreen back-of-globe layer
+  backCanvas.width  = canvas.width;
+  backCanvas.height = canvas.height;
+  backCtx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
 }
 
 function configureProjection() {
@@ -435,6 +532,11 @@ function configureProjection() {
     .alpha(state.alpha);
 
   visibilityProj
+    .scale(scale)
+    .translate([state.width / 2, state.height / 2])
+    .rotate(state.rotation);
+
+  backProj
     .scale(scale)
     .translate([state.width / 2, state.height / 2])
     .rotate(state.rotation);
@@ -462,16 +564,23 @@ function render() {
   ctx.strokeStyle = "rgba(180, 160, 130, 0.06)";
   ctx.stroke();
 
-  // land
+  // land — fill only here. The dashed coastline overlay is drawn AFTER
+  // glacial overlays + ice sheets so it sits visibly on top of both
+  // (otherwise white ice would erase the coast outline beneath it).
   if (state.land) {
     ctx.beginPath();
     path(state.land);
-    ctx.fillStyle   = "#2a241d";
+    ctx.fillStyle   = "#3d3327";
     ctx.fill();
-    ctx.lineWidth   = 0.5;
-    ctx.strokeStyle = "rgba(180, 160, 130, 0.18)";
-    ctx.stroke();
   }
+
+  // glacial-low-stand land overlays + ice sheets, then the coastline
+  // overlay. The coastline is dashed-dark and always present (acts as the
+  // canonical land outline); during ice it gets a brightness boost so it
+  // reads cleanly through the white fill.
+  renderGlacialOverlays();
+  renderIceSheets();
+  renderLandOutline();
 
   // cultural-cluster hulls (under paths and markers)
   if (state.clusters) renderClusters();
@@ -490,49 +599,99 @@ function render() {
 
 function renderMarkers() {
   state.screenMarkers = [];
+  state.screenLabels  = [];
   const yearsAgo = state.clock.yearsAgo;
   const labelRequests = [];
+  let nFront = 0, nBack = 0;
+
+  // Back-hemisphere test computed directly from rotation, independent of
+  // d3's projection internals (visibilityProj was returning a value for
+  // back points in some configurations, breaking the detection).
+  // Visible centre after rotation([λ, φ, γ]) = (-λ, -φ).
+  const D     = Math.PI / 180;
+  const cLon  = -state.rotation[0] * D;
+  const cLat  = -state.rotation[1] * D;
+  const sinCl = Math.sin(cLat), cosCl = Math.cos(cLat);
+  const inGlobeMode = state.alpha < 0.95;
+  const isBackOfGlobe = (lon, lat) => {
+    if (!inGlobeMode) return false;
+    const φ = lat * D;
+    const cosD = Math.sin(φ) * sinCl + Math.cos(φ) * cosCl * Math.cos(lon * D - cLon);
+    return cosD < 0;   // > 90° great-circle from centre
+  };
+
+  const resolveMarkerXY = (lon, lat) => {
+    const isBack = isBackOfGlobe(lon, lat);
+    if (isBack && BACK_OF_GLOBE_ALPHA <= 0) return null;
+
+    let xy = projection([lon, lat]);
+    if ((!xy || !Number.isFinite(xy[0])) && isBack) {
+      xy = backProj([lon, lat]);
+    }
+    if (!xy || !Number.isFinite(xy[0])) return null;
+    return { x: xy[0], y: xy[1], onBack: isBack };
+  };
+
+  // Reset the offscreen back-of-globe layer for this frame.
+  backCtx.clearRect(0, 0, state.width, state.height);
+  backUsed = false;
 
   for (const m of state.markers) {
     if (m.isContext) {
-      // Context (ancestor) markers are an opt-in backdrop layer. The
-      // selected one stays visible regardless so closing/reopening the
-      // panel doesn't make the marker vanish under the user.
       if (!state.showAncestors && m.id !== state.selectedId) continue;
-      const xy = projection([m.lon, m.lat]);
-      if (!xy || !Number.isFinite(xy[0])) continue;
-      const onBackOfGlobe =
-        state.alpha < 0.5 && visibilityProj([m.lon, m.lat]) == null;
-      if (onBackOfGlobe) continue;
-      drawContextMarker(xy[0], xy[1], m.id === state.selectedId);
-      state.screenMarkers.push({ id: m.id, x: xy[0], y: xy[1] });
+      const r = resolveMarkerXY(m.lon, m.lat);
+      if (!r) continue;
+      r.onBack ? nBack++ : nFront++;
+      // Back items render at full opacity onto backCanvas (the composite
+      // pass below applies the alpha + blur once for the whole layer).
+      if (r.onBack) {
+        drawContextMarker(backCtx, r.x, r.y, m.id === state.selectedId, 1);
+        backUsed = true;
+      } else {
+        drawContextMarker(ctx, r.x, r.y, m.id === state.selectedId, 1);
+      }
+      state.screenMarkers.push({ id: m.id, x: r.x, y: r.y });
       continue;
     }
 
     const opacity = markerOpacity(m.ev, yearsAgo);
     if (opacity <= 0) continue;
 
-    const xy = projection([m.lon, m.lat]);
-    if (!xy || !Number.isFinite(xy[0])) continue;
-    const onBackOfGlobe =
-      state.alpha < 0.5 && visibilityProj([m.lon, m.lat]) == null;
-    if (onBackOfGlobe) continue;
+    const r = resolveMarkerXY(m.lon, m.lat);
+    if (!r) continue;
+    r.onBack ? nBack++ : nFront++;
 
-    drawMarker(xy[0], xy[1], m.ev, opacity, m.id === state.selectedId);
-    state.screenMarkers.push({ id: m.id, x: xy[0], y: xy[1] });
+    if (r.onBack) {
+      drawMarker(backCtx, r.x, r.y, m.ev, opacity, m.id === state.selectedId);
+      backUsed = true;
+    } else {
+      drawMarker(ctx, r.x, r.y, m.ev, opacity, m.id === state.selectedId);
+    }
+    state.screenMarkers.push({ id: m.id, x: r.x, y: r.y });
 
-    // Active label: once a marker is meaningfully visible (≥ 50% opacity)
-    // and its event window has begun, queue it for the second-pass label
-    // layout. Selected markers always queue.
     const olderY = m.ev.date_range_kya[0] * 1000;
     const active = opacity >= 0.5 && yearsAgo <= olderY;
     const selected = m.id === state.selectedId;
     if (active || selected) {
-      labelRequests.push({ x: xy[0], y: xy[1], ev: m.ev, opacity, selected });
+      labelRequests.push({
+        x: r.x, y: r.y, ev: m.ev, opacity, selected, onBack: r.onBack
+      });
     }
   }
 
   layoutAndDrawLabels(labelRequests);
+
+  // Composite the back layer onto the main canvas: ONE blur + alpha pass
+  // for the whole offscreen surface, instead of N per-element blurs.
+  if (backUsed) {
+    ctx.save();
+    ctx.filter      = BACK_OF_GLOBE_BLUR;
+    ctx.globalAlpha = BACK_OF_GLOBE_ALPHA;
+    ctx.drawImage(backCanvas, 0, 0, state.width, state.height);
+    ctx.restore();
+  }
+
+  if (hudBack) hudBack.textContent = `${nBack}/${nFront + nBack}`;
 }
 
 // Greedy collision-avoiding label layout. Selected goes first (always
@@ -549,28 +708,29 @@ function layoutAndDrawLabels(reqs) {
     return b.opacity - a.opacity;
   });
 
-  const fontStr = "11px " + getComputedStyle(document.body).getPropertyValue("--font-mono");
-  ctx.font = fontStr;
+  // Font size scales with zoom past 5 (cap at 17 px) so labels stay
+  // readable when the user has zoomed in for detail.
+  const fontPx  = Math.min(17, 11 + Math.max(0, state.zoom - 5) * 0.7);
+  const fontStr = `${fontPx}px ` + getComputedStyle(document.body).getPropertyValue("--font-mono");
+  ctx.font     = fontStr;
+  backCtx.font = fontStr;
 
   const placed = [];               // {x,y,w,h} rects already taken
   const dotR   = 5;                // matches the (default) marker dot radius
   const padX   = 4, padY = 2;
-  const lineH  = 13;
+  const lineH  = Math.round(fontPx + 2);
 
-  // Placement candidates, in order of visual preference. dx is anchor x
-  // (left edge of text); dy is text baseline.
   function candidatesFor(req, w) {
     const r = dotR + 2;
     return [
-      { dx:  r + 4,        dy:  3      },     // E
-      { dx:  r + 4,        dy: -r - 4  },     // NE
-      { dx:  r + 4,        dy:  r + 12 },     // SE
-      { dx: -w - r - 4,    dy:  3      },     // W
-      { dx: -w - r - 4,    dy: -r - 4  },     // NW
-      { dx: -w - r - 4,    dy:  r + 12 }      // SW
+      { dx:  r + 4,        dy:  3      },
+      { dx:  r + 4,        dy: -r - 4  },
+      { dx:  r + 4,        dy:  r + 12 },
+      { dx: -w - r - 4,    dy:  3      },
+      { dx: -w - r - 4,    dy: -r - 4  },
+      { dx: -w - r - 4,    dy:  r + 12 }
     ];
   }
-
   function rectFor(x, y, w) {
     return { x: x - padX, y: y - lineH + 2, w: w + 2 * padX, h: lineH + padY };
   }
@@ -586,30 +746,44 @@ function layoutAndDrawLabels(reqs) {
       const ax = req.x + c.dx;
       const ay = req.y + c.dy;
       const r  = rectFor(ax, ay, w);
-      // Off-canvas rejection
       if (r.x < 4 || r.x + r.w > state.width - 4) continue;
       if (r.y < 4 || r.y + r.h > state.height - 4) continue;
       if (placed.some(p => overlaps(p, r))) continue;
       chosen = { ax, ay, rect: r };
       break;
     }
-    if (!chosen) continue;        // too crowded — drop this label
+    if (!chosen) continue;
     placed.push(chosen.rect);
-    drawLabelAt(chosen.ax, chosen.ay, text, req.ev, req.opacity);
+    // Front labels are click targets — record their hit rect.
+    if (!req.onBack) {
+      state.screenLabels.push({
+        id: req.ev.id,
+        x:  chosen.rect.x, y: chosen.rect.y,
+        w:  chosen.rect.w, h: chosen.rect.h
+      });
+    }
+    if (req.onBack) {
+      drawLabelAt(backCtx, chosen.ax, chosen.ay, text, req.ev, req.opacity);
+      backUsed = true;
+    } else {
+      drawLabelAt(ctx, chosen.ax, chosen.ay, text, req.ev, req.opacity);
+    }
   }
 }
 
-function drawLabelAt(x, y, text, ev, opacity) {
-  const color = CATEGORY_COLORS[ev.category] || PATH_COLOR;
-  ctx.globalAlpha = opacity;
-  // ctx.font already set by layoutAndDrawLabels
-  ctx.textAlign = "left";
-  ctx.textBaseline = "alphabetic";
-  ctx.fillStyle = "rgba(14,12,10,0.92)";
-  for (const [dx, dy] of [[-1,0],[1,0],[0,-1],[0,1]]) ctx.fillText(text, x + dx, y + dy);
-  ctx.fillStyle = color;
-  ctx.fillText(text, x, y);
-  ctx.globalAlpha = 1;
+function drawLabelAt(c, x, y, text, ev, opacity) {
+  // Use the brightened LABEL palette so text reads on land regardless
+  // of the dot's category colour.
+  const color = LABEL_COLORS[ev.category] || CATEGORY_COLORS[ev.category] || PATH_COLOR;
+  c.globalAlpha = opacity;
+  // c.font already set by layoutAndDrawLabels (on whichever ctx is in play)
+  c.textAlign = "left";
+  c.textBaseline = "alphabetic";
+  c.fillStyle = "rgba(14,12,10,0.92)";
+  for (const [dx, dy] of [[-1,0],[1,0],[0,-1],[0,1]]) c.fillText(text, x + dx, y + dy);
+  c.fillStyle = color;
+  c.fillText(text, x, y);
+  c.globalAlpha = 1;
 }
 
 function markerOpacity(ev, yearsAgo) {
@@ -624,43 +798,45 @@ function markerOpacity(ev, yearsAgo) {
   return t * t * (3 - 2 * t); // smoothstep
 }
 
-function drawMarker(x, y, ev, opacity, selected) {
+function drawMarker(c, x, y, ev, opacity, selected) {
   const color = CATEGORY_COLORS[ev.category] || "#c98a3b";
   const debated = ev.confidence === "debated" || ev.confidence === "contested";
   const haloR = selected ? 18 : 13;
   const dotR  = selected ? 7  : 5;
 
-  ctx.globalAlpha = opacity * (selected ? 0.55 : 0.28);
-  ctx.beginPath();
-  ctx.arc(x, y, haloR, 0, Math.PI * 2);
-  ctx.fillStyle = color;
-  ctx.fill();
+  c.globalAlpha = opacity * (selected ? 0.55 : 0.28);
+  c.beginPath();
+  c.arc(x, y, haloR, 0, Math.PI * 2);
+  c.fillStyle = color;
+  c.fill();
 
-  ctx.globalAlpha = opacity;
-  ctx.beginPath();
-  ctx.arc(x, y, dotR, 0, Math.PI * 2);
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.lineWidth = debated ? 1.4 : 1;
-  ctx.strokeStyle = debated ? "#161311" : "#1a1612";
-  ctx.setLineDash(debated ? [2, 2] : []);
-  ctx.stroke();
-  ctx.setLineDash([]);
+  c.globalAlpha = opacity;
+  c.beginPath();
+  c.arc(x, y, dotR, 0, Math.PI * 2);
+  c.fillStyle = color;
+  c.fill();
+  c.lineWidth = debated ? 1.4 : 1;
+  c.strokeStyle = debated ? "#161311" : "#1a1612";
+  c.setLineDash(debated ? [2, 2] : []);
+  c.stroke();
+  c.setLineDash([]);
 
-  if (debated) drawDebateMark(x, y, dotR, color, opacity);
-  ctx.globalAlpha = 1;
+  if (debated) drawDebateMark(c, x, y, dotR, color, opacity);
+  c.globalAlpha = 1;
 }
 
-function drawContextMarker(x, y, selected) {
+function drawContextMarker(c, x, y, selected, alphaMul = 1) {
   // Hollow ring, smaller, dim — backdrop layer. Bumped up alongside the
   // main markers so the size hierarchy reads cleanly: H. sapiens dispersal
-  // events visually outweigh the ancestor backdrop.
-  ctx.globalAlpha = 1;
-  ctx.beginPath();
-  ctx.arc(x, y, selected ? 7 : 4.5, 0, Math.PI * 2);
-  ctx.lineWidth   = 1.2;
-  ctx.strokeStyle = selected ? "#c98a3b" : CONTEXT_COLOR;
-  ctx.stroke();
+  // events visually outweigh the ancestor backdrop. alphaMul < 1 marks
+  // back-of-globe ghost rings.
+  c.globalAlpha = alphaMul;
+  c.beginPath();
+  c.arc(x, y, selected ? 7 : 4.5, 0, Math.PI * 2);
+  c.lineWidth   = 1.2;
+  c.strokeStyle = selected ? "#c98a3b" : CONTEXT_COLOR;
+  c.stroke();
+  c.globalAlpha = 1;
 }
 
 // Extract a YouTube video id from common URL forms; returns null for
@@ -687,19 +863,19 @@ function labelTextFor(ev) {
 // "(?)" glyph next to debated/contested markers — visual pendant to the
 // dashed arc style. Positioned NE of the dot so it doesn't collide with
 // the marker ring or the next pin.
-function drawDebateMark(x, y, dotR, color, opacity) {
-  ctx.globalAlpha = opacity;
-  ctx.font = "600 11px " + getComputedStyle(document.body).getPropertyValue("--font-mono");
-  ctx.textAlign    = "left";
-  ctx.textBaseline = "middle";
+function drawDebateMark(c, x, y, dotR, color, opacity) {
+  c.globalAlpha = opacity;
+  c.font = "600 11px " + getComputedStyle(document.body).getPropertyValue("--font-mono");
+  c.textAlign    = "left";
+  c.textBaseline = "middle";
   // Subtle dark backdrop so the glyph reads on land polygons too.
   const tx = x + dotR + 3;
   const ty = y - dotR - 1;
-  ctx.fillStyle = "rgba(14, 12, 10, 0.85)";
-  ctx.fillText("?", tx + 0.5, ty);
-  ctx.fillText("?", tx - 0.5, ty);
-  ctx.fillStyle = color;
-  ctx.fillText("?", tx, ty);
+  c.fillStyle = "rgba(14, 12, 10, 0.85)";
+  c.fillText("?", tx + 0.5, ty);
+  c.fillText("?", tx - 0.5, ty);
+  c.fillStyle = color;
+  c.fillText("?", tx, ty);
 }
 
 // Andrew's monotone-chain convex hull on lon/lat points. Safe for the
@@ -721,6 +897,97 @@ function convexHull(points) {
   }
   upper.pop(); lower.pop();
   return lower.concat(upper);
+}
+
+function renderGlacialOverlays() {
+  const yearsKa = state.clock.yearsAgo / 1000;
+  for (const ov of GLACIAL_OVERLAYS) {
+    if (yearsKa > ov.era_kya[0] || yearsKa < ov.era_kya[1]) continue;
+    ctx.beginPath();
+    path({ type: "Polygon", coordinates: [ov.polygon] });
+    // Match the land fill so they read as continuous extended shore.
+    ctx.fillStyle   = "#3d3327";
+    ctx.fill();
+    ctx.lineWidth   = 0.8;
+    ctx.strokeStyle = "rgba(195, 175, 145, 0.40)";
+    ctx.stroke();
+  }
+}
+
+// Continental ice sheets at the Last Glacial Maximum. Cartoon-grade
+// outlines, intentionally over-coarse (the goal is "you can see the ice
+// extent grow and shrink", not a survey-grade reconstruction). All four
+// have the same expansion/retreat envelope (linear ramp 5 ka in, 5 ka
+// out) inside their `era_kya` window so they appear and recede smoothly
+// rather than popping.
+const ICE_SHEETS = [
+  {
+    id: "laurentide", name: "Laurentide Ice Sheet",
+    era_kya: [70, 11],
+    polygon: [[-130,50],[-115,42],[-90,38],[-75,42],[-60,46],[-55,55],[-65,68],[-90,75],[-115,72],[-130,62],[-130,50]]
+  },
+  {
+    id: "cordilleran", name: "Cordilleran Ice Sheet",
+    era_kya: [70, 13],
+    polygon: [[-145,60],[-130,60],[-122,52],[-122,46],[-128,46],[-138,55],[-145,60]]
+  },
+  {
+    id: "fennoscandian", name: "Eurasian / Fennoscandian Ice Sheet",
+    era_kya: [70, 11],
+    polygon: [[5,55],[15,55],[30,58],[55,65],[75,72],[90,78],[60,80],[20,76],[5,68],[5,55]]
+  },
+  {
+    id: "greenland-extended", name: "Greenland Ice Sheet (LGM extent)",
+    era_kya: [70, 8],
+    polygon: [[-50,60],[-20,60],[-15,72],[-25,82],[-50,82],[-60,75],[-55,65],[-50,60]]
+  }
+];
+
+// Stash the strongest ice intensity on screen so renderLandOutline can
+// boost the coastline contrast accordingly.
+let _iceIntensity = 0;
+
+function renderIceSheets() {
+  const yearsKa = state.clock.yearsAgo / 1000;
+  _iceIntensity = 0;
+  for (const ice of ICE_SHEETS) {
+    const [start, end] = ice.era_kya;
+    if (yearsKa > start || yearsKa < end) continue;
+    let t = 1;
+    if (yearsKa > start - 5) t = (start - yearsKa) / 5;
+    else if (yearsKa < end + 5) t = (yearsKa - end) / 5;
+    t = Math.max(0, Math.min(1, t));
+    if (t > _iceIntensity) _iceIntensity = t;
+
+    ctx.globalAlpha = t * 0.65;
+    ctx.beginPath();
+    path({ type: "Polygon", coordinates: [ice.polygon] });
+    ctx.fillStyle = "#dad3c2";
+    ctx.fill();
+    ctx.lineWidth   = 1.2;
+    ctx.strokeStyle = "rgba(218, 211, 194, 0.85)";
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+}
+
+// Always-on dashed coastline overlay. Sits above glacial overlays and ice
+// sheets so the continent shape stays readable everywhere on the timeline,
+// not just during the LGM. Brightens with ice intensity so the line cuts
+// through white fill cleanly.
+function renderLandOutline() {
+  if (!state.land) return;
+  const baseAlpha = 0.55;
+  const iceBoost  = 0.30 * _iceIntensity;
+  ctx.globalAlpha = baseAlpha + iceBoost;
+  ctx.beginPath();
+  path(state.land);
+  ctx.lineWidth   = 1.1;
+  ctx.strokeStyle = "#3a2f22";
+  ctx.setLineDash([5, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.globalAlpha = 1;
 }
 
 function renderClusters() {
@@ -923,12 +1190,22 @@ function attachInteractionHandlers() {
 }
 
 function hitTestClick(x, y) {
+  // First: marker dot hit (proximity within HIT_RADIUS_PX). Markers win
+  // over labels because the dot is the canonical anchor.
   let hit = null;
   let bestDist = HIT_RADIUS_PX * HIT_RADIUS_PX;
   for (const m of state.screenMarkers) {
     const dx = x - m.x, dy = y - m.y;
     const d2 = dx*dx + dy*dy;
     if (d2 < bestDist) { bestDist = d2; hit = m; }
+  }
+  // Fallback: label rect hit (point-in-rect).
+  if (!hit) {
+    for (const l of state.screenLabels) {
+      if (x >= l.x && x <= l.x + l.w && y >= l.y && y <= l.y + l.h) {
+        hit = l; break;
+      }
+    }
   }
   if (hit) openPanel(hit.id);
   else if (state.selectedId) {
@@ -996,7 +1273,29 @@ function attachScrubberHandlers() {
     const step = e.shiftKey ? 0.05 : 0.01;
     if (e.key === "ArrowLeft")  { state.clock.progress = clamp(state.clock.progress - step, 0, 1); state.needsRender = true; e.preventDefault(); }
     if (e.key === "ArrowRight") { state.clock.progress = clamp(state.clock.progress + step, 0, 1); state.needsRender = true; e.preventDefault(); }
+    if (e.key === "Home")       { state.clock.progress = 0; state.needsRender = true; e.preventDefault(); }
+    if (e.key === "End")        { state.clock.progress = 1; state.needsRender = true; e.preventDefault(); }
+    // Enter / Space on the focused scrubber opens the nearest tick's panel —
+    // gives keyboard users a way to discover events without iterating all
+    // 79 tick DOM nodes.
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const nearest = nearestEventToProgress(state.clock.progress);
+      if (nearest) openPanel(nearest);
+    }
   });
+}
+
+// Find the event whose tick is closest (in progress-space) to a target.
+// Used by the scrubber Enter shortcut so keyboard users can jump-and-open.
+function nearestEventToProgress(target) {
+  let best = null, bestDist = Infinity;
+  for (const m of state.markers) {
+    const p = yearsAgoToProgress(m.ev.date_range_kya[1] * 1000);
+    const d = Math.abs(p - target);
+    if (d < bestDist) { bestDist = d; best = m.ev.id; }
+  }
+  return best;
 }
 
 function buildScrubberTicks() {
@@ -1052,6 +1351,7 @@ function updateScrubberThumb() {
   const pct = state.clock.progress * 100;
   scrubberThumb.style.left = `${pct}%`;
   scrubberEl.setAttribute("aria-valuenow", String(Math.round(pct)));
+  scrubberEl.setAttribute("aria-valuetext", `${formatYearsAgo(state.clock.yearsAgo)} (${clockSecondary(state.clock.yearsAgo)})`);
 }
 
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
@@ -1120,15 +1420,25 @@ function openPanel(id) {
     originEl.hidden = true;
   }
 
-  // Image (Wikimedia / Commons hero) — figure + caption with attribution.
-  // Caption links to the Commons file page so license + author are one
-  // click away.
-  const imgFig = document.getElementById("panelImage");
-  const imgEl  = document.getElementById("panelImageEl");
-  const imgCap = document.getElementById("panelImageCaption");
+  // Image (Wikimedia / Commons hero, served locally from data/images).
+  // Both the image and the caption link to the Commons file page so license
+  // + author are one click away. Portrait/square images get a 1:1 crop
+  // (centred-upper) instead of the default 16:9 to avoid lopping off heads.
+  const imgFig  = document.getElementById("panelImage");
+  const imgLink = document.getElementById("panelImageLink");
+  const imgEl   = document.getElementById("panelImageEl");
+  const imgCap  = document.getElementById("panelImageCaption");
   if (ev.image && ev.image.url) {
     imgEl.src = ev.image.url;
     imgEl.alt = ev.title;
+    imgEl.className = "";
+    if (ev.image.aspect === "portrait") imgEl.classList.add("is-portrait");
+    else if (ev.image.aspect === "square") imgEl.classList.add("is-square");
+    // Image click → Commons file page (where license + author live)
+    imgLink.href = ev.image.file_page || "#";
+    imgLink.removeAttribute("aria-disabled");
+    if (!ev.image.file_page) imgLink.setAttribute("aria-disabled", "true");
+
     imgCap.innerHTML = "";
     const attrText = `${ev.image.attribution || "Wikimedia Commons"} · ${ev.image.license || "license unknown"}`;
     if (ev.image.file_page) {
@@ -1209,10 +1519,11 @@ function openPanel(id) {
     apSection.hidden = true;
   }
 
-  // Video — YouTube URLs become a clickable thumbnail that opens YouTube
-  // in a new tab. Avoids YouTube embed-error 153 ("owner disabled
-  // embedding") that hits a meaningful share of full-episode uploads
-  // (NOVA, BBC, etc.). Always-works, privacy-friendly, no iframe load.
+  // Video — YouTube URLs become an inline iframe embed (same approach as
+  // the About lightbox). For videos that the owner has restricted to
+  // specific embed domains, YouTube renders error 153 inside the iframe
+  // and the user can still click the caption link to open on YouTube.
+  // Iframes are torn down on closePanel so audio actually stops.
   const videoSection = document.getElementById("panelVideo");
   const videoFrame   = document.getElementById("panelVideoFrame");
   const videoCap     = document.getElementById("panelVideoCaption");
@@ -1221,18 +1532,14 @@ function openPanel(id) {
   if (ev.references.video && !ev.references.video.todo && ev.references.video.url) {
     const ytId = youtubeId(ev.references.video.url);
     if (ytId) {
-      const thumb = document.createElement("a");
-      thumb.href = ev.references.video.url;
-      thumb.target = "_blank";
-      thumb.rel = "noopener noreferrer";
-      thumb.className = "panel__video-thumb";
-      thumb.style.backgroundImage = `url(https://img.youtube.com/vi/${ytId}/hqdefault.jpg)`;
-      thumb.setAttribute("aria-label", `Play "${ev.references.video.title || 'video'}" on YouTube`);
-      thumb.innerHTML =
-        '<svg class="panel__video-play" viewBox="0 0 64 64" aria-hidden="true">' +
-        '<circle cx="32" cy="32" r="30" fill="rgba(0,0,0,0.55)"/>' +
-        '<polygon points="26,20 46,32 26,44" fill="#e9dfcf"/></svg>';
-      videoFrame.appendChild(thumb);
+      const iframe = document.createElement("iframe");
+      iframe.src = `https://www.youtube.com/embed/${ytId}?rel=0&modestbranding=1`;
+      iframe.title = ev.references.video.title || "video";
+      iframe.referrerPolicy = "strict-origin-when-cross-origin";
+      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+      iframe.allowFullscreen = true;
+      videoFrame.appendChild(iframe);
+
       videoCap.innerHTML = "";
       const a = document.createElement("a");
       a.href = ev.references.video.url;
@@ -1267,10 +1574,16 @@ function openPanel(id) {
     }
   }
 
+  // Focus management: capture where focus came from so closePanel can
+  // restore it — keyboard users shouldn't be dumped at the top of the doc.
+  if (state.lastFocused == null) state.lastFocused = document.activeElement;
   panel.setAttribute("aria-hidden", "false");
   state.selectedId = id;
   state.needsRender = true;
   refreshTickSelection();
+  // Defer focus to after the slide-in starts so the browser doesn't
+  // scroll mid-transform.
+  requestAnimationFrame(() => panelClose.focus());
 }
 
 function apLine(label, text) {
@@ -1294,6 +1607,11 @@ function closePanel() {
   state.selectedId = null;
   state.needsRender = true;
   refreshTickSelection();
+  // Restore focus to the element that opened the panel.
+  if (state.lastFocused && document.contains(state.lastFocused)) {
+    try { state.lastFocused.focus(); } catch (_) {}
+  }
+  state.lastFocused = null;
 }
 
 function refItem(kind, ref) {
@@ -1322,4 +1640,166 @@ function refItem(kind, ref) {
     li.appendChild(document.createTextNode(ref.citation || ""));
   }
   return li;
+}
+
+// ── lightbox + about + feedback ───────────────────────────────────────
+
+let lightboxLastFocused = null;
+
+function openLightbox(title, bodyNode) {
+  lightboxTitle.textContent = title;
+  lightboxBody.innerHTML = "";
+  lightboxBody.appendChild(bodyNode);
+  lightboxLastFocused = document.activeElement;
+  lightboxEl.hidden = false;
+  // focus close button so Esc works without an extra Tab
+  requestAnimationFrame(() => lightboxClose.focus());
+}
+
+function closeLightbox() {
+  if (lightboxEl.hidden) return;
+  lightboxEl.hidden = true;
+  lightboxBody.innerHTML = "";   // tear down any iframe / form state
+  if (lightboxLastFocused && document.contains(lightboxLastFocused)) {
+    try { lightboxLastFocused.focus(); } catch (_) {}
+  }
+  lightboxLastFocused = null;
+}
+
+// Esc closes whichever lightbox is open, in addition to the existing
+// panel-close handler.
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !lightboxEl.hidden) {
+    e.preventDefault();
+    closeLightbox();
+  }
+});
+
+const ABOUT_VIDEO_ID  = "J7GY1Xg6X20";
+const ABOUT_VIDEO_URL = `https://www.youtube.com/watch?v=${ABOUT_VIDEO_ID}`;
+
+function aboutContent() {
+  const wrap = document.createElement("div");
+  wrap.innerHTML =
+    `<p>An exploratory map of the modern human dispersal — 81 milestones from the earliest <em>Homo sapiens</em> fossils to the last Polynesian voyages, each pinned in space and time, with citations.</p>` +
+    `<p>Press play to watch the story unfold, drag and zoom the globe, click any dot or label for details. Every date is shown as a range, every contested claim is marked, every reference points to its source.</p>`;
+
+  // Inline iframe embed. Domain-restricted videos check the Referer
+  // header to verify the embed origin — `referrerPolicy: no-referrer`
+  // breaks that check and triggers YouTube error 153. Use the default
+  // (origin-when-cross-origin) so the host is sent. Also use plain
+  // youtube.com (not nocookie) since the latter applies stricter rules.
+  const frame = document.createElement("div");
+  frame.className = "panel__video-frame";
+  const iframe = document.createElement("iframe");
+  iframe.src = `https://www.youtube.com/embed/${ABOUT_VIDEO_ID}?rel=0&modestbranding=1`;
+  iframe.title = "About video";
+  iframe.referrerPolicy = "strict-origin-when-cross-origin";
+  iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+  iframe.allowFullscreen = true;
+  frame.appendChild(iframe);
+  wrap.appendChild(frame);
+
+  const caption = document.createElement("p");
+  caption.style.fontSize = "0.78rem";
+  caption.style.color = "var(--col-fg-mute)";
+  caption.style.fontFamily = "var(--font-mono)";
+  caption.innerHTML = `<a href="${ABOUT_VIDEO_URL}" target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a>`;
+  wrap.appendChild(caption);
+
+  return wrap;
+}
+
+function feedbackForm(eventCtx /* { id, title } | null */) {
+  const wrap = document.createElement("form");
+  wrap.noValidate = true;
+  wrap.addEventListener("submit", submitFeedback);
+
+  if (eventCtx) {
+    const ctx = document.createElement("div");
+    ctx.className = "feedback-context";
+    ctx.textContent = `Re: ${eventCtx.title}  ·  id: ${eventCtx.id}`;
+    wrap.appendChild(ctx);
+    const hidden = document.createElement("input");
+    hidden.type = "hidden";
+    hidden.name = "event_id";
+    hidden.value = eventCtx.id;
+    wrap.appendChild(hidden);
+  }
+
+  wrap.insertAdjacentHTML("beforeend", `
+    <div class="form-row">
+      <label for="fbType">Type</label>
+      <select name="type" id="fbType" required>
+        <option value="correction">Correction (date / fact / source)</option>
+        <option value="bug">Bug (something is broken)</option>
+        <option value="suggestion">Suggestion / idea</option>
+        <option value="question">Question</option>
+        <option value="praise">Just saying hi</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label for="fbEmail">Email <span style="text-transform:none;color:var(--col-fg-mute)">— optional, only used if I have a follow-up</span></label>
+      <input type="email" name="email" id="fbEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="form-row">
+      <label for="fbText">Message</label>
+      <textarea name="message" id="fbText" required placeholder="What's up?"></textarea>
+    </div>
+    <p class="form-status" id="fbStatus" data-state=""></p>
+    <div class="form-actions">
+      <button type="button" class="form-button form-button--ghost" id="fbCancel">Cancel</button>
+      <button type="submit" class="form-button" id="fbSubmit">Send</button>
+    </div>
+  `);
+  wrap.querySelector("#fbCancel").addEventListener("click", closeLightbox);
+  return wrap;
+}
+
+async function submitFeedback(e) {
+  e.preventDefault();
+  const form = e.currentTarget;
+  const status = form.querySelector("#fbStatus");
+  const submit = form.querySelector("#fbSubmit");
+  const data = {
+    type:      form.elements.type.value,
+    email:     form.elements.email.value.trim(),
+    message:   form.elements.message.value.trim(),
+    event_id:  form.elements.event_id ? form.elements.event_id.value : null,
+    user_agent: navigator.userAgent,
+    project:   "day-030-out-of-africa",
+    submitted_at: new Date().toISOString()
+  };
+  if (!data.message) {
+    status.dataset.state = "error";
+    status.textContent = "Bitte kurz schreiben was los ist.";
+    return;
+  }
+
+  submit.disabled = true;
+  status.dataset.state = "";
+  status.textContent = "Sending…";
+
+  try {
+    const res = await fetch("/api/feedback", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    status.dataset.state = "ok";
+    status.textContent = "Thanks — got it.";
+    setTimeout(closeLightbox, 1200);
+  } catch (err) {
+    // Backend not reachable — keep the submission in localStorage so the
+    // user can resubmit later or copy it manually.
+    try {
+      const buf = JSON.parse(localStorage.getItem("ooa_feedback_buffer") || "[]");
+      buf.push(data);
+      localStorage.setItem("ooa_feedback_buffer", JSON.stringify(buf));
+    } catch (_) {}
+    status.dataset.state = "error";
+    status.textContent = "Server unreachable — saved locally; will retry on next send.";
+    submit.disabled = false;
+  }
 }

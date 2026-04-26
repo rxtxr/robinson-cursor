@@ -5,13 +5,120 @@
  * Phase 2 walking skeleton: minimum styling, structure-first.
  */
 
+/* ── webfonts (self-hosted woff2, OFL) ─────────────────────────────────── */
+
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('fonts/ebgaramond-roman-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('fonts/ebgaramond-roman-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('fonts/ebgaramond-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'EB Garamond';
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('fonts/ebgaramond-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/plexmono-400-roman-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/plexmono-400-roman-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('fonts/plexmono-500-roman-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('fonts/plexmono-500-roman-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/plexmono-400-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/plexmono-400-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Fallback metrics — keep line-box stable across the FOUT swap.
+   Computed from font metrics (Capsize-style):
+     EB Garamond : em=1000, asc=1062, desc=312, xH=444
+     Georgia     : em=2048, asc=1878, desc=434, xH=957
+     Plex Mono   : em=1000, asc=1025, desc=275, xH=516
+     Courier New : em=2048, asc=1705, desc=615, xH=866 */
+@font-face {
+  font-family: 'Garamond Fallback';
+  src: local('Georgia'), local('Times New Roman'), local('Times');
+  size-adjust: 95.0%;
+  ascent-override: 106.2%;
+  descent-override: 31.2%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Plex Mono Fallback';
+  src: local('Courier New'), local('Courier'), local('Liberation Mono');
+  size-adjust: 122.0%;
+  ascent-override: 102.5%;
+  descent-override: 27.5%;
+  line-gap-override: 0%;
+}
+
 :root {
   /* sediment palette */
   --col-bg:        #161311;   /* charcoal, near-black with warm tilt */
   --col-bg-2:      #1f1a16;
   --col-fg:        #e9dfcf;   /* bone */
   --col-fg-dim:    #b6a892;
-  --col-fg-mute:   #6e6453;
+  --col-fg-mute:   #8b8068;   /* lifted from #6e6453 — now ≥4.5:1 on bg */
   --col-ochre:     #c98a3b;   /* primary accent */
   --col-clay:      #8a4a2a;
   --col-rust:      #6e2f1e;
@@ -22,13 +129,28 @@
   --col-debated:   #d4a857;
   --col-contested: #b03f1c;
 
-  --font-display: "EB Garamond", Georgia, serif;
-  --font-mono:    "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: 'EB Garamond', 'Garamond Fallback', Georgia, serif;
+  --font-mono:    'IBM Plex Mono', 'Plex Mono Fallback', ui-monospace, SFMono-Regular, Consolas, 'Courier New', monospace;
 
   --panel-w: 380px;
 }
 
+@media (min-width: 1100px) {
+  :root { --panel-w: 460px; }
+}
+@media (min-width: 1500px) {
+  :root { --panel-w: 540px; }
+}
+
 * { box-sizing: border-box; }
+
+html {
+  /* The single knob for global type scale. 112.5% of the user's browser
+     default — typically 16px → 18px effective base. Stays relative, so
+     users who customised their browser default still see their multiple
+     of it. Drop to 106.25% for a softer 17px-base bump. */
+  font-size: 112.5%;
+}
 
 html, body {
   margin: 0;
@@ -37,10 +159,12 @@ html, body {
   background: var(--col-bg);
   color: var(--col-fg);
   font-family: var(--font-display);
-  font-size: 16px;
   line-height: 1.5;
   overflow: hidden;
-  -webkit-font-smoothing: antialiased;
+  /* Globally enable kerning + standard ligatures + contextual alternates.
+     EB Garamond ships proper ligatures and small-caps; we use them. */
+  font-feature-settings: "kern", "liga", "calt";
+  font-kerning: normal;
 }
 
 body {
@@ -103,21 +227,23 @@ body {
   color: var(--col-ochre);
   font-weight: 500;
   font-size: 1rem;
+  font-variant-numeric: tabular-nums;
 }
 .timeline__clock-alt {
-  font-size: 0.62rem;
+  font-size: 0.65rem;
   color: var(--col-fg-mute);
   letter-spacing: 0.05em;
   margin-top: 0.05rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .timeline__playpause {
   appearance: none;
   background: transparent;
-  border: 1px solid var(--col-fg-mute);
+  border: 1.5px solid var(--col-fg-mute);
   color: var(--col-fg-dim);
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -125,7 +251,9 @@ body {
   cursor: pointer;
   padding: 0;
   transition: color 120ms, border-color 120ms;
+  flex-shrink: 0;
 }
+.timeline__playpause svg { width: 22px; height: 22px; }
 .timeline__playpause:hover:not(:disabled) {
   color: var(--col-ochre);
   border-color: var(--col-ochre);
@@ -160,13 +288,13 @@ body {
 .timeline__thumb {
   position: absolute;
   top: 50%;
-  width: 8px;
-  height: 8px;
-  margin-left: -4px;
-  margin-top: -4px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  margin-top: -7px;
   border-radius: 50%;
   background: var(--col-ochre);
-  box-shadow: 0 0 0 3px rgba(201, 138, 59, 0.15);
+  box-shadow: 0 0 0 4px rgba(201, 138, 59, 0.18);
   z-index: 3;
   pointer-events: none;
 }
@@ -215,10 +343,10 @@ body {
 }
 
 .timeline__hint {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   color: var(--col-fg-mute);
   text-transform: uppercase;
-  font-style: italic;
+  letter-spacing: 0.06em;
 }
 
 /* ── hud ──────────────────────────────────────────────────────────────── */
@@ -228,7 +356,7 @@ body {
   bottom: 0.75rem;
   left: 1rem;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   letter-spacing: 0.06em;
   color: var(--col-fg-mute);
   z-index: 4;
@@ -242,6 +370,199 @@ body {
 }
 .hud__sep { color: var(--col-fg-mute); margin: 0 0.4rem; }
 
+/* ── bottom bar (centered) ────────────────────────────────────────────── */
+
+.bottombar {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 4;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: var(--col-fg-mute);
+  user-select: none;
+}
+.bottombar__link {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--col-fg-mute);
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 2px;
+  transition: color 120ms;
+}
+.bottombar__link:hover { color: var(--col-ochre); }
+.bottombar__link:focus-visible {
+  outline: 1px solid var(--col-ochre);
+  outline-offset: 2px;
+}
+.bottombar__sep { opacity: 0.6; }
+
+/* ── lightbox modal ───────────────────────────────────────────────────── */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  pointer-events: auto;
+}
+.lightbox[hidden] { display: none; }
+.lightbox__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 6, 4, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.lightbox__panel {
+  position: relative;
+  max-width: min(720px, calc(100% - 3rem));
+  max-height: calc(100% - 3rem);
+  width: 100%;
+  background: var(--col-bg);
+  border: 1px solid var(--col-land-line);
+  border-radius: 4px;
+  padding: 2.4rem 1.6rem 1.6rem;
+  overflow-y: auto;
+  box-shadow: 0 12px 60px rgba(0, 0, 0, 0.5);
+}
+.lightbox__close {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.6rem;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--col-fg-dim);
+  font-size: 1.7rem;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 4px;
+}
+.lightbox__close:hover { color: var(--col-ochre); }
+.lightbox__close:focus-visible {
+  outline: 1px solid var(--col-ochre);
+  outline-offset: 2px;
+}
+.lightbox__title {
+  margin: 0 0 0.8rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--col-fg);
+}
+.lightbox__body {
+  font-size: 0.95rem;
+  color: var(--col-fg);
+  line-height: 1.5;
+}
+.lightbox__body p { margin: 0 0 0.8rem; }
+.lightbox__body a { color: var(--col-ochre); text-decoration: none; border-bottom: 1px solid transparent; }
+.lightbox__body a:hover { border-bottom-color: var(--col-ochre); }
+.lightbox__body .panel__video-frame {
+  margin-bottom: 1rem;
+}
+
+/* Form styling (used inside the feedback lightbox) */
+.lightbox__body .form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+}
+.lightbox__body .form-row label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--col-fg-mute);
+}
+.lightbox__body select,
+.lightbox__body input[type="email"],
+.lightbox__body textarea {
+  appearance: none;
+  background: var(--col-bg-2);
+  border: 1px solid var(--col-land-line);
+  color: var(--col-fg);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 2px;
+}
+.lightbox__body textarea {
+  min-height: 8rem;
+  resize: vertical;
+  font-family: inherit;
+}
+.lightbox__body select:focus,
+.lightbox__body input:focus,
+.lightbox__body textarea:focus {
+  outline: 1px solid var(--col-ochre);
+  outline-offset: 2px;
+}
+.lightbox__body .form-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+.lightbox__body .form-button {
+  appearance: none;
+  background: var(--col-ochre);
+  color: var(--col-bg);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  padding: 0.5rem 1rem;
+  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.lightbox__body .form-button:hover { background: #d49a4d; }
+.lightbox__body .form-button[disabled] { opacity: 0.5; cursor: not-allowed; }
+.lightbox__body .form-button--ghost {
+  background: transparent;
+  color: var(--col-fg-dim);
+  border: 1px solid var(--col-fg-mute);
+}
+.lightbox__body .form-button--ghost:hover {
+  background: transparent;
+  color: var(--col-ochre);
+  border-color: var(--col-ochre);
+}
+.lightbox__body .form-status {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--col-fg-dim);
+}
+.lightbox__body .form-status[data-state="error"] { color: var(--col-contested); }
+.lightbox__body .form-status[data-state="ok"]    { color: #6fa377; }
+
+.lightbox__body .feedback-context {
+  margin-bottom: 0.8rem;
+  padding: 0.5rem 0.7rem;
+  background: rgba(201, 138, 59, 0.08);
+  border-left: 2px solid var(--col-ochre);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--col-fg-dim);
+}
+
 /* ── layer toggle (bottom-right) ──────────────────────────────────────── */
 
 .layers {
@@ -250,7 +571,7 @@ body {
   right: 1rem;
   z-index: 4;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   letter-spacing: 0.06em;
   color: var(--col-fg-mute);
   user-select: none;
@@ -336,22 +657,34 @@ body {
   padding: 0;
 }
 .panel__close:hover { color: var(--col-ochre); }
+.panel__close:focus-visible { outline: 1px solid var(--col-ochre); outline-offset: 2px; }
+
+/* Unified focus ring for keyboard users across all panel-internal links/buttons. */
+.panel a:focus-visible,
+.panel button:focus-visible {
+  outline: 1px solid var(--col-ochre);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
 
 .panel__category {
   margin: 0 0 0.4rem;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  /* real small-caps via Plex Mono's c2sc/smcp — was uppercase + tracking */
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.06em;
   color: var(--col-ochre);
 }
 
 .panel__title {
   margin: 0 0 0.75rem;
-  font-size: 1.55rem;
+  font-size: clamp(1.3rem, 1.1rem + 0.6vw, 1.55rem);
   font-weight: 500;
   line-height: 1.2;
   color: var(--col-fg);
+  /* avoid orphan-word wraps in the narrow panel */
+  text-wrap: balance;
 }
 
 .panel__date,
@@ -361,6 +694,7 @@ body {
   font-family: var(--font-mono);
   font-size: 0.78rem;
   color: var(--col-fg-dim);
+  font-variant-numeric: tabular-nums;
 }
 
 /* Mini-map of the project time axis — same axis the scrubber uses, so
@@ -398,14 +732,16 @@ body {
 .panel__confidence-note {
   margin: 0.4rem 0 0.5rem;
   padding: 0.5rem 0.7rem;
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-style: italic;
-  line-height: 1.4;
+  line-height: 1.45;
   color: var(--col-fg);
   background: rgba(212, 168, 87, 0.08);
   border-left: 2px solid var(--col-debated);
   border-radius: 0 2px 2px 0;
   font-family: var(--font-display);
+  text-wrap: pretty;
+  hyphens: auto;
 }
 .panel__confidence-note[data-level="contested"] {
   background: rgba(176, 63, 28, 0.10);
@@ -427,9 +763,9 @@ body {
 .panel__image-caption {
   margin: 0.4rem 0 0;
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   letter-spacing: 0.04em;
-  line-height: 1.3;
+  line-height: 1.35;
   color: var(--col-fg-mute);
 }
 .panel__image-caption a {
@@ -482,7 +818,7 @@ body {
 .panel__video-caption {
   margin: 0.45rem 0 0;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: var(--col-fg-mute);
   letter-spacing: 0.04em;
 }
@@ -495,19 +831,34 @@ body {
 
 .panel__lay {
   margin-top: 1.25rem;
-  font-size: 1.05rem;
-  line-height: 1.45;
+  font-size: clamp(0.98rem, 0.92rem + 0.3vw, 1.05rem);
+  line-height: 1.5;
   color: var(--col-fg);
   font-family: var(--font-display);
+  /* Oldstyle figures — dates ("74,000", "120–90 ka") sit inline with the
+     lowercase x-height instead of stacking like uppercase. */
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  /* Reading-comfort cap (45–75ch is the sweet spot for prose). */
+  max-width: 65ch;
+  text-wrap: pretty;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphenate-limit-chars: 7 4 3;
 }
 .panel__lay p { margin: 0 0 0.6rem; }
 .panel__lay p:last-child { margin-bottom: 0; }
 
 .panel__summary {
   margin-top: 1.25rem;
-  font-size: 0.88rem;
-  line-height: 1.5;
+  font-size: 0.92rem;
+  line-height: 1.55;
   color: var(--col-fg-dim);
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  max-width: 65ch;
+  text-wrap: pretty;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphenate-limit-chars: 7 4 3;
 }
 .panel__summary .panel__section-title { margin-bottom: 0.3rem; }
 
@@ -529,24 +880,27 @@ body {
   padding-top: 1rem;
 }
 .panel__appearance-body {
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   color: var(--col-fg);
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  max-width: 65ch;
+  text-wrap: pretty;
 }
 .panel__appearance-body p { margin: 0.4rem 0; }
 .panel__appearance-body .ap-label {
   display: inline-block;
   font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.04em;
   color: var(--col-fg-mute);
-  text-transform: uppercase;
   margin-right: 0.4rem;
   vertical-align: 1px;
 }
 .panel__appearance-body .ap-credit {
   font-style: italic;
   color: var(--col-fg-dim);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
 }
 
 .panel__refs {
@@ -557,18 +911,19 @@ body {
 .panel__section-title {
   margin: 0 0 0.5rem;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.06em;
   color: var(--col-fg-mute);
   font-weight: 500;
+  text-wrap: balance;
 }
 .panel__refs-title { /* legacy alias kept in case anything still uses it */
   margin: 0 0 0.5rem;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.06em;
   color: var(--col-fg-mute);
   font-weight: 500;
 }
@@ -578,7 +933,8 @@ body {
 .panel__refs-list {
   margin: 0;
   padding-left: 1.1rem;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
+  font-variant-numeric: oldstyle-nums proportional-nums;
 }
 .panel__refs-list li { margin-bottom: 0.5rem; }
 .panel__refs-list a {
@@ -587,6 +943,32 @@ body {
   border-bottom: 1px solid transparent;
 }
 .panel__refs-list a:hover { border-bottom-color: var(--col-ochre); }
+.panel__feedback {
+  display: block;
+  margin: 1.5rem 0 0;
+  width: 100%;
+  appearance: none;
+  background: transparent;
+  border: 1px dashed var(--col-fg-mute);
+  color: var(--col-fg-dim);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: color 120ms, border-color 120ms;
+}
+.panel__feedback:hover {
+  color: var(--col-ochre);
+  border-color: var(--col-ochre);
+  border-style: solid;
+}
+.panel__feedback:focus-visible {
+  outline: 1px solid var(--col-ochre);
+  outline-offset: 2px;
+}
+
 .panel__refs-list .ref-todo {
   color: var(--col-fg-mute);
   font-style: italic;
@@ -598,8 +980,8 @@ body {
   display: inline-block;
   font-family: var(--font-mono);
   font-style: normal;
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
   color: var(--col-bg);
   background: var(--col-fg-mute);
   padding: 0.05rem 0.35rem;
@@ -608,18 +990,72 @@ body {
   vertical-align: 1px;
 }
 
+/* ── reduced motion ───────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .panel { transition: none; }
+}
+
 /* ── mobile ───────────────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
+  /* Bottom-sheet panel at 80% — the hero image, video, lay+details and
+     refs need room. The remaining 20% keeps the map orientation visible. */
   .panel {
     width: 100%;
-    height: 65%;
+    height: 82%;
     top: auto;
     bottom: 0;
     border-left: 0;
     border-top: 1px solid var(--col-land-line);
+    border-radius: 12px 12px 0 0;
+    padding: 2.4rem 1.1rem 1.5rem;
     transform: translateY(100%);
   }
   .panel[aria-hidden="false"] { transform: translateY(0); }
+  /* Bigger close button for thumbs */
+  .panel__close {
+    width: 40px; height: 40px; line-height: 40px;
+    font-size: 1.8rem;
+  }
+  /* Drag-handle hint at the top of the sheet */
+  .panel::before {
+    content: "";
+    position: absolute;
+    top: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 36px; height: 4px;
+    border-radius: 2px;
+    background: var(--col-fg-mute);
+    opacity: 0.5;
+  }
+  /* Trim the hero image so the text has room without scrolling */
+  .panel__image img { max-height: 160px; }
+  /* Hide chrome that would be obscured by the open sheet anyway */
+  .panel[aria-hidden="false"] ~ .hud,
+  .panel[aria-hidden="false"] ~ .layers { display: none; }
+  /* Timeline tightening */
+  .timeline {
+    gap: 0.6rem;
+    padding: 0.6rem 0.7rem;
+  }
   .timeline__hint { display: none; }
+  .timeline__clock { min-width: 90px; }
+  .timeline__clock-value { font-size: 0.92rem; }
+  .timeline__clock-alt   { font-size: 0.6rem; }
+  /* Layers toggle dock-left so it doesn't fight the HUD on phones */
+  .layers { right: auto; left: 1rem; bottom: 0.6rem; }
+  .hud    { display: none; }
+}
+
+/* Even narrower (single-column phones, < 380px) — drop the layers toggle
+   text label and shrink the toggle pill. */
+@media (max-width: 380px) {
+  .layers__toggle span { display: none; }
 }
