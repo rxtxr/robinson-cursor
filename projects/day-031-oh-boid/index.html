@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oh Boid — 3D Flocking Simulation</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="controls">
+        <h3>Flock Parameters</h3>
+        <label>Count: <span id="countVal">400</span>
+            <input type="range" id="count" min="50" max="2000" step="10" value="400">
+        </label>
+        <label>Separation: <span id="sepVal">1.5</span>
+            <input type="range" id="separation" min="0" max="4" step="0.1" value="1.5">
+        </label>
+        <label>Alignment: <span id="aliVal">1.0</span>
+            <input type="range" id="alignment" min="0" max="4" step="0.1" value="1.0">
+        </label>
+        <label>Cohesion: <span id="cohVal">1.0</span>
+            <input type="range" id="cohesion" min="0" max="4" step="0.1" value="1.0">
+        </label>
+        <label>Vision: <span id="visVal">80</span>
+            <input type="range" id="visualRange" min="20" max="200" step="5" value="80">
+        </label>
+        <label>Speed: <span id="spdVal">3.0</span>
+            <input type="range" id="maxSpeed" min="0.5" max="8" step="0.25" value="3.0">
+        </label>
+        <label>Wind: <span id="windVal">0.0</span>
+            <input type="range" id="wind" min="0" max="2" step="0.1" value="0.0">
+        </label>
+        <label>Particle size: <span id="sizeVal">3.0</span>
+            <input type="range" id="particleSize" min="1" max="8" step="0.5" value="3.0">
+        </label>
+    </div>
+    <button id="toggleControls" aria-label="Menu">&#9776;</button>
+    <div id="info">
+        <span id="fps"></span>
+        <span>Drag = orbit · Scroll = zoom · Double-click = auto-rotate</span>
+    </div>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

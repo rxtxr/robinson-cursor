@@ -1,0 +1,12 @@
+{
+  "day": 31,
+  "slug": "day-031-oh-boid",
+  "title": "Oh Boid",
+  "date": "2026-04-27",
+  "description": "3D flocking simulation in the browser. Boids self-organize into shifting clouds via Reynolds rules and a curl-noise flow field. Eight live parameters — drag to orbit, scroll to zoom.",
+  "tags": ["boids", "simulation", "swarm", "flocking", "webgl"],
+  "stack": ["WebGL2", "GLSL", "ES Modules"],
+  "github": "https://github.com/rxtxr/robinson-cursor/tree/main/projects/day-031-oh-boid",
+  "status": "complete",
+  "license_notes": "No external dependencies — vanilla WebGL2, no libraries, no CDN."
+}
