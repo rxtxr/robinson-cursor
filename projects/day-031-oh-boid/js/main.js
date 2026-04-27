@@ -5,7 +5,7 @@ const canvas = document.getElementById('canvas');
 const renderer = new Renderer(canvas);
 
 const bounds = { x: 500, y: 500, z: 500 };
-let flock = new Flock(400, bounds);
+let flock = new Flock(1190, bounds);
 
 // --- UI ---
 const ids = ['count','separation','alignment','cohesion','visualRange','maxSpeed','wind','particleSize'];
