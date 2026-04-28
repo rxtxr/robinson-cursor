@@ -9,10 +9,11 @@ const thumbFiles = import.meta.glob('/projects/*/thumb.png', { eager: true, quer
 const thumbSmWebp = import.meta.glob('/projects/*/thumb-sm.webp', { eager: true, query: '?url', import: 'default' });
 ---
 
-<Base title="robinson-cursor.com — 365 days of experiments">
+<Base title="robinson-cursor.com — 31 days of experiments">
   <section class="hero">
-    <h1>365 days of experiments</h1>
+    <h1>31 days of experiments</h1>
     <p class="subtitle">one experiment per day. code, sound, visuals — in the browser.</p>
+    <p class="notice">ended after 31 days. post-mortem to follow.</p>
   </section>
 
   {projects.length > 0 ? (
@@ -42,6 +43,15 @@ const thumbSmWebp = import.meta.glob('/projects/*/thumb-sm.webp', { eager: true,
     color: var(--color-text-muted);
     font-size: 0.95rem;
     margin-top: var(--space-sm);
+  }
+
+  .notice {
+    font-family: var(--font-mono);
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    border-left: 2px solid var(--color-border);
   }
 
   .project-grid {
