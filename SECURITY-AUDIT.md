@@ -1,7 +1,7 @@
 # Security Audit — robinson-cursor
 
-**Date:** 2026-04-14  
-**Auditor:** Automated weekly security scan  
+**Date:** 2026-05-12
+**Auditor:** Automated weekly security scan
 **Package manager:** npm (Node.js / Astro)
 
 ---
@@ -12,129 +12,90 @@
 |----------|-------|
 | Critical | 0     |
 | High     | 2     |
-| Medium   | 0     |
+| Medium   | 2     |
 | Low      | 2     |
 
-> ⚠ **New high-severity findings since last audit (2026-03-31).** Two packages have known CVEs requiring immediate attention.
+> ⚠ **High-severity findings persist since last audit (2026-04-14).** `defu` prototype pollution and `vite` file-read CVEs remain unpatched and require immediate attention.
 
 ---
 
-## 1. Dependency Audit (npm audit)
+## 1. Dependency Audit
 
-**Tool:** `npm audit` (npm 10.9.7)  
-**Lock file:** `package-lock.json`  
-**Total advisories:** 4 (across 2 packages)
+`npm audit` found **4 vulnerabilities (2 high, 2 moderate)**:
 
-### HIGH — defu: Prototype Pollution
+### HIGH
 
-| Field       | Value |
-|-------------|-------|
-| Package     | `defu` |
-| Installed   | 6.1.4 |
-| Affected    | ≤ 6.1.4 |
-| Advisory    | [GHSA-737v-mqg7-c878](https://github.com/advisories/GHSA-737v-mqg7-c878) |
-| CWE         | CWE-1321 (Prototype Pollution) |
-| CVSS Score  | 7.5 (High) — CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N |
-| Fix         | Available via `npm audit fix` |
+| Package | Installed range | Advisory | CVSS | CWE |
+|---------|-----------------|----------|------|-----|
+| `defu` | ≤6.1.4 | [GHSA-737v-mqg7-c878](https://github.com/advisories/GHSA-737v-mqg7-c878) | 7.5 | CWE-1321: Prototype pollution via `__proto__` key |
+| `vite` | 7.0.0–7.3.1 | [GHSA-v2wj-q39q-566r](https://github.com/advisories/GHSA-v2wj-q39q-566r) | — | CWE-180/284: `server.fs.deny` bypassed with URL queries |
+| `vite` | 7.0.0–7.3.1 | [GHSA-p9ff-h696-f583](https://github.com/advisories/GHSA-p9ff-h696-f583) | — | CWE-200/306: Arbitrary file read via dev server WebSocket |
 
-**Description:** `defu` allows prototype pollution via the `__proto__` key in a defaults argument. An attacker who can control the input to a `defu()` call can pollute `Object.prototype`, potentially affecting all objects in the application. `defu` is an indirect dependency pulled in by `astro`.
+**defu:** An attacker who can control input to a `defu()` call can pollute `Object.prototype`. `defu` is an indirect dependency of `astro`.
 
----
+**vite (HIGH advisories):** Both affect the **development server only** (`astro dev`). They allow other browser tabs (or network-adjacent attackers) to read arbitrary files from the developer's filesystem during a local dev session. Not present in production builds.
 
-### HIGH — vite: Multiple Vulnerabilities (3 advisories)
+### MODERATE
 
-| Field       | Value |
-|-------------|-------|
-| Package     | `vite` |
-| Installed   | 7.3.1 |
-| Affected    | 7.0.0 – 7.3.1 |
-| Fix         | Available via `npm audit fix` |
+| Package | Range | Advisory | CVSS | CWE |
+|---------|-------|----------|------|-----|
+| `astro` | <6.1.6 | [GHSA-j687-52p2-xcff](https://github.com/advisories/GHSA-j687-52p2-xcff) | 6.1 | CWE-79: XSS in `define:vars` via incomplete `</script>` tag sanitization |
+| `postcss` | <8.5.10 | [GHSA-qx2v-qp2m-jg93](https://github.com/advisories/GHSA-qx2v-qp2m-jg93) | 6.1 | CWE-79: XSS via unescaped `</style>` in CSS stringify output |
 
-`vite` is an indirect dependency pulled in by `astro`.
-
-#### 1. Path Traversal in Optimized Deps `.map` Handling
-- **Advisory:** [GHSA-4w7w-66w2-5vf9](https://github.com/advisories/GHSA-4w7w-66w2-5vf9)
-- **Severity:** Moderate
-- **CWE:** CWE-22 (Path Traversal), CWE-200 (Exposure of Sensitive Information)
-- **Description:** The Vite dev server improperly handles `.map` file requests for optimized dependencies, potentially allowing path traversal to read arbitrary files from the filesystem.
-
-#### 2. `server.fs.deny` Bypass with Queries
-- **Advisory:** [GHSA-v2wj-q39q-566r](https://github.com/advisories/GHSA-v2wj-q39q-566r)
-- **Severity:** High
-- **CWE:** CWE-180, CWE-284 (Improper Access Control)
-- **Description:** The `server.fs.deny` restriction can be bypassed by appending query parameters to requests, allowing access to files that should be blocked.
-
-#### 3. Arbitrary File Read via Dev Server WebSocket
-- **Advisory:** [GHSA-p9ff-h696-f583](https://github.com/advisories/GHSA-p9ff-h696-f583)
-- **Severity:** High
-- **CWE:** CWE-200, CWE-306
-- **Description:** The Vite development server's WebSocket handler can be exploited to read arbitrary files from the host filesystem without authentication.
-
-> **Note:** All three vite vulnerabilities affect the **development server only** (`astro dev`) and do not affect production builds or Cloudflare Pages deployments. Risk is limited to developer machines during local development.
+**Fix for all four:** `npm audit fix` (no breaking changes required).
 
 ---
 
 ## 2. Outdated Dependencies
 
-**Tool:** `npm outdated` + `package-lock.json` inspection
+| Package | Wanted | Latest | Gap |
+|---------|--------|--------|-----|
+| `marked` | 17.0.6 | 18.0.3 | **1 major version behind** |
 
-| Package  | Installed | Wanted | Latest | Status                          |
-|----------|-----------|--------|--------|---------------------------------|
-| `marked` | 17.0.5    | 17.0.6 | 18.0.0 | **1 major version behind** ⚠    |
-| `astro`  | 6.1.1     | 6.1.6  | 6.1.6  | Minor patch behind              |
-
-**`marked` 17 → 18:** The package has crossed a major version boundary. Major versions may include security improvements not backported to v17. Upgrading is recommended.
+`astro` resolves within the `^6.1.1` spec to 6.3.1, but the lock file may pin an older vulnerable version. Running `npm audit fix` will also update this.
 
 ---
 
 ## 3. Code Security Patterns
 
-### LOW — `innerHTML` Assignment with External Track Data
+### LOW — `src/pages/projects/[slug].astro:103`: `marked` output rendered with `set:html`
 
-**File:** `projects/day-007-visualaizer/script.js:76-78`  
-**Severity:** Low
-
-```js
-lic.innerHTML = track.licenseUrl
-  ? `<a href="${track.licenseUrl}" target="_blank">${track.license}</a> — ${track.artist}`
-  : `${track.license} — ${track.artist}`;
+```astro
+const readmeContent = readmeRaw ? marked.parse(readmeRaw) : null;
+// ...
+<div class="readme-content" set:html={readmeContent} />
 ```
 
-`track.licenseUrl`, `track.license`, and `track.artist` are sourced from `tracks.json` (loaded via `fetch('tracks.json')`). If `tracks.json` is ever served from an untrusted or externally-controlled source, this pattern enables stored XSS. The file is currently local and static, making exploitability low.
+`marked` does not sanitize HTML by default. All README files are developer-controlled and bundled at static build time, so the immediate risk is low. If the source of README content ever becomes runtime or user-controlled, this becomes a direct XSS vector.
 
-**Recommended action:** Use `textContent` for plain text fields and validate `track.licenseUrl` against an `https://` allowlist before constructing links.
+**Recommended:** Add a sanitizer (e.g., `sanitize-html` at build time) or configure `marked` with a custom renderer that escapes raw HTML.
 
----
-
-### LOW — `innerHTML` with XOR-Decoded Contact Data
-
-**File:** `src/pages/privacy.astro:134`  
-**Severity:** Low (carried over from 2026-03-31 audit)
+### LOW — `src/pages/privacy.astro:134`: `innerHTML` with XOR-decoded data
 
 ```js
 p.innerHTML = lines.map(b64 => xorDecodeBytes(b64, k)).join('<br>');
 ```
 
-Contact data is XOR-obfuscated at build time and decoded in the browser. The source data is a build-time constant, so there is no runtime attack surface. However, `innerHTML` is unnecessarily risky if the decoded content ever includes HTML-special characters or if the data source changes.
-
-**Recommended action:** Replace with `textContent` + explicit `<br>` DOM nodes.
+The decoded content is derived from hardcoded encoded data embedded in the file itself — not user input. Risk is low in current form. If the decoded value is plain text, `textContent` + explicit `<br>` DOM nodes would be safer.
 
 ---
 
 ## 4. Configuration Review
 
-- **Dockerfile:** Not present.
-- **`.env` / `.env.production` in `.gitignore`:** Yes — both correctly excluded.
-- **`.env` committed:** No tracked `.env` files found.
-- **`wrangler.jsonc`:** No secrets detected; contains only deployment name and compatibility date.
-- **CORS:** No server-side CORS configuration (static site / Cloudflare Pages).
+- **Dockerfile:** Not present (deployed via Cloudflare Workers / `wrangler`).
+- **`.env` / `.env.production` in `.gitignore`:** Yes — both correctly excluded. Project-level `.env` files (e.g., `projects/day-002-music-charts/.env`) also excluded.
+- **No `.env` files committed:** Confirmed.
+- **`wrangler.jsonc`:** KV namespace ID is a non-sensitive resource identifier. No secrets detected.
+- **CORS:** No server-side CORS configuration needed (static Astro build served by Cloudflare).
 
 ---
 
-## Recommended Actions (Priority Order)
+## Recommended Actions
 
-1. **[High]** Run `npm audit fix` to update `defu` and `vite` to patched versions. Verify `astro` build remains functional after the update.
-2. **[High]** Update `marked` from `^17.0.5` to `^18.0.0` in `package.json`, run `npm install`, and review the [marked v18 changelog](https://github.com/markedjs/marked/releases) for breaking changes.
-3. **[Low]** In `day-007-visualaizer/script.js`, replace `innerHTML` with `textContent` for unsanitized track metadata fields.
-4. **[Low]** In `privacy.astro`, replace `innerHTML` with DOM node construction.
-5. **[Low]** Update `astro` from `6.1.1` to `6.1.6` for latest patch fixes.
+| Priority | Action |
+|----------|--------|
+| 🔴 HIGH | Run `npm audit fix` to patch `defu` prototype pollution and `vite` file-read CVEs |
+| 🟡 MEDIUM | Verify `astro` ≥6.1.6 and `postcss` ≥8.5.10 after `npm audit fix` |
+| 🟢 LOW | Upgrade `marked` to v18 (`npm install marked@^18`) and review changelog |
+| 🟢 LOW | Add HTML sanitization to `marked` output in `src/pages/projects/[slug].astro` |
+| 🟢 LOW | Replace `p.innerHTML` with `textContent` in `src/pages/privacy.astro:134` |
