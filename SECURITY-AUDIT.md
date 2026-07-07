@@ -1,9 +1,9 @@
 # Security Audit — robinson-cursor
 
-**Date:** 2026-05-19  
-**Auditor:** Automated weekly security scan  
-**Package manager:** npm (Node.js / Astro)  
-**Previous audit:** 2026-04-14
+**Date:** 2026-07-07
+**Auditor:** Automated weekly security scan
+**Package manager:** npm (Node.js / Astro)
+**Previous audit:** 2026-05-19
 
 ---
 
@@ -12,208 +12,151 @@
 | Severity | Count |
 |----------|-------|
 | Critical | 0     |
-| High     | 3     |
-| Medium   | 2     |
-| Low      | 2     |
+| High     | 2     |
+| Moderate | 2     |
+| Low      | 1     |
+| Code / Config | 2 |
 
-> ⚠ **High-severity findings persist from the 2026-04-14 audit (unfixed). One new HIGH and two new MODERATE vulnerabilities found since last scan.**
-
----
-
-## Changes Since Last Audit (2026-04-14)
-
-| Status      | Finding |
-|-------------|---------|
-| 🆕 NEW HIGH | `devalue 5.6.3–5.8.0` — DoS via sparse array deserialization (GHSA-77vg-94rm-hx3p) |
-| 🆕 NEW MOD  | `astro <=6.1.9` — XSS in `define:vars` via incomplete `</script>` sanitization (GHSA-j687-52p2-xcff) |
-| 🆕 NEW MOD  | `astro <=6.1.9` — Server island encrypted parameters vulnerable to replay (GHSA-xr5h-phrj-8vxv) |
-| 🆕 NEW MOD  | `postcss <8.5.10` — XSS via unescaped `</style>` in CSS stringify output (GHSA-qx2v-qp2m-jg93) |
-| ♻ PERSISTS | `defu <=6.1.4` — Prototype Pollution HIGH (GHSA-737v-mqg7-c878) — flagged 2026-04-14, **not yet fixed** |
-| ♻ PERSISTS | `vite 7.0.0–7.3.1` — 3 HIGH advisories (GHSA-4w7w-66w2-5vf9, GHSA-v2wj-q39q-566r, GHSA-p9ff-h696-f583) — flagged 2026-04-14, **not yet fixed** |
-| ♻ PERSISTS | `marked` 1 major version behind (v17 vs v18) |
-| ♻ PERSISTS | `innerHTML` in `day-007-visualaizer/script.js` |
-| ♻ PERSISTS | `innerHTML` in `src/pages/privacy.astro` |
+> ⚠ **2 HIGH-severity findings. High-severity findings persist since previous audit (2026-05-19). Action required.**
 
 ---
 
-## 1. Dependency Audit (npm audit)
+## Changes Since Last Audit (2026-05-19)
 
-**Tool:** `npm audit` (npm 10.x)  
-**Lock file:** `package-lock.json`  
-**Total advisories:** 5 packages (3 high, 2 moderate)
+| Status | Finding |
+|--------|---------|
+| 🆕 NEW HIGH | `astro < 6.4.6` — Host header SSRF in prerendered error page (GHSA-2pvr-wf23-7pc7) |
+| 🆕 NEW HIGH | `vite 7.0.0–7.3.4` — `server.fs.deny` bypass on Windows (GHSA-fx2h-pf6j-xcff) |
+| 🆕 NEW MOD | `astro < 6.4.6` — XSS via unescaped spread prop attribute names (GHSA-jrpj-wcv7-9fh9) |
+| 🆕 NEW MOD | `js-yaml 4.0.0–4.1.1` — Quadratic DoS via YAML merge keys (GHSA-h67p-54hq-rp68) |
+| 🆕 NEW LOW | `esbuild 0.27.3–0.28.0` — File read on Windows dev server (GHSA-g7r4-m6w7-qqqr) |
+| ♻ PERSISTS | `innerHTML` in `src/pages/privacy.astro` — flagged 2026-04-14, unfixed |
+| ♻ PERSISTS | `astro` 1 major version behind (v6 vs v7) |
 
----
-
-### HIGH — defu: Prototype Pollution ♻ (persists from 2026-04-14)
-
-| Field      | Value |
-|------------|-------|
-| Package    | `defu` |
-| Installed  | ≤ 6.1.4 |
-| Advisory   | [GHSA-737v-mqg7-c878](https://github.com/advisories/GHSA-737v-mqg7-c878) |
-| CWE        | CWE-1321 (Prototype Pollution) |
-| CVSS Score | 7.5 (High) — CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N |
-| Fix        | `npm audit fix` |
-
-**Description:** `defu` allows prototype pollution via the `__proto__` key in a defaults argument. An attacker who can control input to `defu()` can pollute `Object.prototype`, potentially affecting all objects in the application. Indirect dependency of `astro`. **This was flagged in the April 14 audit and has not been fixed.**
+> **Note:** All npm CVEs from the May 2026 audit (`defu`, `devalue`, previous `vite` chain) appear resolved in the current lock file. New CVEs introduced by the updated astro/vite range.
 
 ---
 
-### HIGH — devalue: DoS via Sparse Array Deserialization 🆕
+## 1. Dependency Vulnerabilities (npm audit)
 
-| Field      | Value |
-|------------|-------|
-| Package    | `devalue` |
-| Installed  | 5.6.3 – 5.8.0 |
-| Advisory   | [GHSA-77vg-94rm-hx3p](https://github.com/advisories/GHSA-77vg-94rm-hx3p) |
-| CWE        | CWE-770 (Uncontrolled Resource Consumption) |
-| CVSS Score | 7.5 (High) — CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H |
-| Fix        | `npm audit fix` |
+### HIGH
 
-**Description:** `devalue` (used by `astro` for server-side serialization) fails to properly bound memory allocation when deserializing sparse arrays. A malicious payload can trigger unbounded memory growth, causing a denial-of-service crash. This is a **new** finding not present in the April 2026 audit.
+#### GHSA-2pvr-wf23-7pc7 — astro < 6.4.6: Host header SSRF in prerendered error page fetch
+- **Package:** `astro` (current: `^6.1.1`)
+- **CVSS:** 7.5 (High)
+- **CWE:** CWE-20 (Improper Input Validation), CWE-918 (SSRF)
+- **Impact:** A crafted `Host` header on a request to a prerendered error page causes the Astro server to make an outbound HTTP request to an attacker-controlled host. This can expose internal network topology, bypass firewall rules, or leak metadata in cloud environments.
+- **Fix:** Upgrade `astro` to `^6.4.8` (within the existing v6 major):
+  ```bash
+  npm install astro@^6.4.8
+  ```
+- **Advisory:** https://github.com/advisories/GHSA-2pvr-wf23-7pc7
 
----
+#### GHSA-fx2h-pf6j-xcff — vite 7.0.0–7.3.4: `server.fs.deny` bypass on Windows alternate paths
+- **Package:** `vite` (transitive via `astro`)
+- **CVSS:** High
+- **CWE:** CWE-22 (Path Traversal), CWE-200 (Information Exposure)
+- **Impact:** The `server.fs.deny` allowlist is bypassed via Windows alternate path representations (short paths, drive-letter variations), allowing the dev server to serve files outside the project root.
+- **Note:** Exploitable only on Windows during `astro dev`. Cloudflare Pages production builds are not affected.
+- **Fix:** Upgrade `astro` to `^6.4.8` (brings a patched vite transitively).
+- **Advisory:** https://github.com/advisories/GHSA-fx2h-pf6j-xcff
 
-### HIGH — vite: Multiple Vulnerabilities ♻ (persists from 2026-04-14)
+### MODERATE
 
-| Field      | Value |
-|------------|-------|
-| Package    | `vite` |
-| Installed  | 7.0.0 – 7.3.1 |
-| Fix        | `npm audit fix` |
+#### GHSA-jrpj-wcv7-9fh9 — astro < 6.4.6: XSS via unescaped attribute names in spread props
+- **Package:** `astro`
+- **CVSS:** 4.2 (Moderate)
+- **CWE:** CWE-79 (Cross-Site Scripting)
+- **Impact:** Astro components using spread props (`{...attrs}`) with attacker-controlled attribute keys may render unescaped HTML attribute names, enabling XSS in rendered pages.
+- **Fix:** Upgrade `astro` to `^6.4.8`.
+- **Advisory:** https://github.com/advisories/GHSA-jrpj-wcv7-9fh9
 
-Indirect dependency of `astro`. **All three advisories were flagged in the April 14 audit and have not been fixed.**
+#### GHSA-h67p-54hq-rp68 — js-yaml 4.0.0–4.1.1: Quadratic-complexity DoS via YAML merge keys
+- **Package:** `js-yaml` (transitive via `astro`)
+- **CVSS:** 5.3 (Moderate)
+- **CWE:** CWE-407 (Algorithmic Complexity)
+- **Impact:** Parsing a YAML document with deeply nested `<<` merge key aliases causes quadratic CPU growth, enabling DoS.
+- **Note:** This project parses only author-controlled YAML at build time. No user-supplied YAML is processed. Exploitability is low.
+- **Fix:** Upgrade `astro` to `^6.4.8`.
+- **Advisory:** https://github.com/advisories/GHSA-h67p-54hq-rp68
 
-#### 1. Path Traversal in Optimized Deps `.map` Handling
-- **Advisory:** [GHSA-4w7w-66w2-5vf9](https://github.com/advisories/GHSA-4w7w-66w2-5vf9)
-- **CWE:** CWE-22, CWE-200
-- **Description:** Vite dev server improperly handles `.map` file requests, allowing path traversal to read arbitrary files.
+### LOW
 
-#### 2. `server.fs.deny` Bypass with Queries
-- **Advisory:** [GHSA-v2wj-q39q-566r](https://github.com/advisories/GHSA-v2wj-q39q-566r)
-- **CWE:** CWE-180, CWE-284
-- **Description:** The `server.fs.deny` restriction can be bypassed by appending query parameters to requests.
-
-#### 3. Arbitrary File Read via Dev Server WebSocket
-- **Advisory:** [GHSA-p9ff-h696-f583](https://github.com/advisories/GHSA-p9ff-h696-f583)
-- **CWE:** CWE-200, CWE-306
-- **Description:** The Vite development server WebSocket handler can be exploited to read arbitrary files without authentication.
-
-> **Note:** All three vite advisories affect the dev server only (`astro dev`) and do not impact Cloudflare Pages production deployments.
-
----
-
-### MODERATE — astro: XSS in `define:vars` 🆕
-
-| Field      | Value |
-|------------|-------|
-| Package    | `astro` |
-| Installed  | ≤ 6.1.9 |
-| Advisory   | [GHSA-j687-52p2-xcff](https://github.com/advisories/GHSA-j687-52p2-xcff) |
-| CWE        | CWE-79 (XSS) |
-| CVSS Score | 6.1 (Moderate) — CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N |
-| Fix        | `npm audit fix` (upgrades astro to ≥ 6.1.10) |
-
-**Description:** Astro's `define:vars` directive does not fully sanitize the `</script>` closing tag sequence. A carefully crafted value injected into a `define:vars` script block could allow a stored XSS attack if user-controlled data is passed to `define:vars`. Review project usage of `define:vars` to assess exploitability.
-
----
-
-### MODERATE — astro: Server Island Encrypted Parameter Replay 🆕
-
-| Field      | Value |
-|------------|-------|
-| Package    | `astro` |
-| Installed  | ≤ 6.1.9 |
-| Advisory   | [GHSA-xr5h-phrj-8vxv](https://github.com/advisories/GHSA-xr5h-phrj-8vxv) |
-| CWE        | CWE-79, CWE-323 |
-| CVSS Score | 6.1 (Moderate) |
-| Fix        | `npm audit fix` (same upgrade as above) |
-
-**Description:** Encrypted props passed to Astro server islands may be replayed across components or requests if the nonce/key rotation is insufficient. Exploitability depends on use of server islands with sensitive props.
-
-> **Note:** This site does not appear to use Astro server islands currently. Risk is low but the upgrade is still recommended.
-
----
-
-### MODERATE — postcss: XSS via Unescaped `</style>` in CSS Output 🆕
-
-| Field      | Value |
-|------------|-------|
-| Package    | `postcss` |
-| Installed  | < 8.5.10 |
-| Advisory   | [GHSA-qx2v-qp2m-jg93](https://github.com/advisories/GHSA-qx2v-qp2m-jg93) |
-| CWE        | CWE-79 (XSS) |
-| CVSS Score | 6.1 (Moderate) — CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N |
-| Fix        | `npm audit fix` |
-
-**Description:** PostCSS does not escape `</style>` sequences in its CSS stringify output. If user-controlled CSS content (e.g., from a CMS or dynamic styles) is processed by PostCSS and injected into a `<style>` block, XSS is possible. For this static site with no dynamic CSS pipeline, exploitability is low — but the patch is safe to apply.
+#### GHSA-g7r4-m6w7-qqqr — esbuild 0.27.3–0.28.0: Arbitrary file read on Windows dev server
+- **Package:** `esbuild` (transitive via `astro`)
+- **CVSS:** 2.5 (Low)
+- **CWE:** CWE-22 (Path Traversal)
+- **Impact:** On Windows, the esbuild dev server can be made to read arbitrary files via crafted request paths. Production builds are not affected.
+- **Fix:** Upgrade `astro` to `^6.4.8`.
+- **Advisory:** https://github.com/advisories/GHSA-g7r4-m6w7-qqqr
 
 ---
 
 ## 2. Outdated Dependencies
 
-**Tool:** `npm outdated` + package-lock.json inspection
+| Package | In `package.json` | Wanted | Latest |
+|---------|-------------------|--------|--------|
+| `astro` | `^6.1.1` | 6.4.8 | **7.0.6** |
 
-| Package  | In package.json | Latest  | Status |
-|----------|-----------------|---------|--------|
-| `marked` | ^17.0.5         | 18.0.4  | **1 major version behind** ⚠ |
-| `astro`  | ^6.1.1          | 6.3.5   | 2 minor versions behind ⚠ (multiple CVEs in 6.1.x) |
-
-**`marked` 17 → 18:** Still one major version behind as noted in the April 14 audit. Major releases may contain security hardening not backported to v17.
-
-**`astro` 6.1.1 → 6.3.5:** This is no longer just a patch — running `npm audit fix` is required to resolve the XSS and replay CVEs in astro. The wanted/latest version is 6.3.5.
+All current CVEs are fixed within the v6 range (`npm install astro@^6.4.8`). A separate upgrade to Astro v7 should be planned after reviewing the migration guide.
 
 ---
 
 ## 3. Code Security Patterns
 
-### LOW — `innerHTML` Assignment with External Track Data ♻
+### MODERATE — `innerHTML` set from XOR-decoded hardcoded data ♻ (persists from 2026-04-14)
 
-**File:** `projects/day-007-visualaizer/script.js:76-78`  
-**Severity:** Low (carried over from 2026-04-14 audit)
-
-```js
-lic.innerHTML = track.licenseUrl
-  ? `<a href="${track.licenseUrl}" target="_blank">${track.license}</a> — ${track.artist}`
-  : `${track.license} — ${track.artist}`;
-```
-
-`track.licenseUrl`, `track.license`, and `track.artist` are sourced from `tracks.json` (fetched locally). If the data source ever becomes external or user-controlled, this enables stored XSS. Currently low risk.
-
-**Recommended action:** Use `textContent` for `track.license` and `track.artist`; validate `track.licenseUrl` against an `https://` allowlist before constructing the anchor.
-
----
-
-### LOW — `innerHTML` with XOR-Decoded Contact Data ♻
-
-**File:** `src/pages/privacy.astro:134`  
-**Severity:** Low (carried over from 2026-04-14 audit)
-
-```js
+**File:** `src/pages/privacy.astro`, line 134
+```javascript
 p.innerHTML = lines.map(b64 => xorDecodeBytes(b64, k)).join('<br>');
 ```
+The decoded content comes from a build-time constant (`encodedContact`) obfuscated with XOR, not from user input. Current risk is low — the content is fully developer-controlled.
 
-The source data is a build-time constant; there is no runtime attack surface. However, `innerHTML` is unnecessarily risky if the decoded content changes.
+If the encoding ever shifts to accept user-supplied input or server-fetched values, this becomes a direct XSS vector. This finding has been open since 2026-04-14 with no fix applied.
 
-**Recommended action:** Replace with `textContent` + explicit `<br>` DOM nodes.
+**Recommendation:** Replace with `textContent`-based DOM construction:
+```javascript
+const a = document.createElement('a');
+a.href = `mailto:${decodedEmail}`;
+a.textContent = decodedEmail;
+el.appendChild(a);
+```
+
+### LOW — `innerHTML = marked.parse(md)` from a fetched static file (day-030)
+
+**File:** `projects/day-030-out-of-africa/main.js`, line 1908
+```javascript
+wrap.innerHTML = marked.parse(md);
+// md = await fetch("CHANGELOG.md").then(r => r.text())
+```
+Content comes from `CHANGELOG.md` (a developer-authored static file) — not user input. Risk is low in current form. The `marked` library is loaded from a CDN URL (`cdn.jsdelivr.net/npm/marked@12/...`) without an integrity hash, meaning the version could change silently.
+
+**Recommendation:** Add a `integrity` attribute with a subresource integrity (SRI) hash to the CDN `<script>` tag, or bundle `marked` locally via `package.json`.
 
 ---
 
 ## 4. Configuration Review
 
-- **Dockerfile:** Not present.
-- **`.env` / `.env.production` in `.gitignore`:** Yes — both correctly excluded.
-- **`.env` committed:** No tracked `.env` files found.
-- **`wrangler.jsonc`:** No secrets; contains only deployment name and compatibility date.
-- **CORS:** Not applicable — static site deployed on Cloudflare Pages.
-- **Hardcoded secrets:** None found.
+- **`.env` in `.gitignore`:** ✅ `.env`, `.env.production`, and `projects/day-002-music-charts/.env` are gitignored.
+- **No `.env` files committed:** ✅ No tracked `.env` files found in working tree.
+- **No Dockerfile** in repository. ✅
+- **`functions/api/feedback.js`:** ✅ Input validated and clipped before KV storage. IP/country recorded server-side. `waitUntil` used correctly for Resend notifications.
+- **Hardcoded secrets:** None found. ✅
+- **KV namespace ID in `wrangler.jsonc`:** The binding ID (`d3bd92095a4542698d19734f15ad4bf7`) is public. KV namespace IDs are not credentials, but note this is visible to anyone with repo access.
 
 ---
 
 ## Recommended Actions (Priority Order)
 
-1. **[High — Immediate]** Run `npm audit fix` to patch `defu`, `devalue`, `vite`, `astro`, and `postcss`. These were flagged on April 14 and remain unpatched 35 days later. Run `astro build` and test locally after the update.
-2. **[High]** Update `astro` in `package.json` from `^6.1.1` to `^6.3.5` and run `npm install` — `npm audit fix` should handle this, but confirm the version constraint.
-3. **[Medium]** Update `marked` from `^17.0.5` to `^18.0.0` in `package.json` and review the [marked v18 changelog](https://github.com/markedjs/marked/releases) for breaking changes.
-4. **[Low]** In `day-007-visualaizer/script.js`, replace `innerHTML` with `textContent` for unsanitized track metadata fields.
-5. **[Low]** In `privacy.astro`, replace `innerHTML` with DOM node construction.
+1. **[HIGH — Immediate]** Upgrade `astro` to at least `6.4.8`:
+   ```bash
+   npm install astro@^6.4.8
+   npm audit
+   ```
+   This single upgrade resolves **all 5 npm CVEs** (GHSA-2pvr-wf23-7pc7, GHSA-fx2h-pf6j-xcff, GHSA-jrpj-wcv7-9fh9, GHSA-h67p-54hq-rp68, GHSA-g7r4-m6w7-qqqr). Run `astro build` locally after upgrading to confirm the build still passes.
+
+2. **[MODERATE — Code]** Fix `privacy.astro` line 134: replace `innerHTML` with `textContent` / explicit DOM construction. This finding has been open since 2026-04-14 (3 audits, unfixed).
+
+3. **[LOW — Code]** In `day-030/main.js`, add an SRI integrity hash to the CDN-loaded `marked` script tag, or import `marked` from the project's local `node_modules` instead.
+
+4. **[Plan]** After resolving current CVEs, review the [Astro v7 migration guide](https://docs.astro.build/en/guides/upgrade-to/v7/) and schedule an upgrade to stay on a supported major version.
