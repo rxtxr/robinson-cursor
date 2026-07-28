@@ -1,9 +1,9 @@
 # Security Audit — robinson-cursor
 
-**Date:** 2026-07-11
+**Date:** 2026-07-28
 **Auditor:** Automated weekly security scan
 **Package manager:** npm (Node.js / Astro)
-**Previous audit:** 2026-05-19
+**Previous audit:** 2026-07-11
 
 ---
 
@@ -12,29 +12,25 @@
 | Severity | Count |
 |----------|-------|
 | Critical | 0     |
-| High     | 2     |
-| Moderate | 1     |
-| Low      | 2     |
+| High     | 4     |
+| Moderate | 0     |
+| Low      | 1     |
 
-> ⚠ **2 High-severity findings. Several vulnerabilities from the 2026-05-19 audit have been resolved; new issues introduced by dependency updates.**
+> ⚠ **4 High-severity findings.** New: postcss path traversal, sharp libvips CVEs, svgo removeScripts bypass. Astro advisory set updated. vite and js-yaml resolved.
 
 ---
 
-## Changes Since Last Audit (2026-05-19)
+## Changes Since Last Audit (2026-07-11)
 
 | Status       | Finding |
 |--------------|---------|
-| ✅ RESOLVED  | `defu ≤6.1.4` — Prototype Pollution HIGH (GHSA-737v-mqg7-c878) — no longer flagged |
-| ✅ RESOLVED  | `devalue 5.6.3–5.8.0` — DoS via sparse array (GHSA-77vg-94rm-hx3p) — no longer flagged |
-| ✅ RESOLVED  | `postcss <8.5.10` — XSS in CSS stringify (GHSA-qx2v-qp2m-jg93) — no longer flagged |
-| ✅ RESOLVED  | `astro ≤6.1.9` — XSS in `define:vars` (GHSA-j687-52p2-xcff) — no longer flagged |
-| ✅ RESOLVED  | `astro ≤6.1.9` — Server island replay (GHSA-xr5h-phrj-8vxv) — no longer flagged |
-| ✅ RESOLVED  | `marked` 1 major version behind (now at `^18.0.0` — current) |
-| 🆕 NEW HIGH  | `astro ≤7.0.0-beta.6` — XSS via Unescaped Attribute Names in Spread Props (GHSA-jrpj-wcv7-9fh9) |
-| 🆕 NEW HIGH  | `astro ≤7.0.0-beta.6` — Host header SSRF in prerendered error page fetch (GHSA-2pvr-wf23-7pc7) |
-| 🆕 NEW LOW   | `esbuild 0.27.3–0.28.0` — Arbitrary file read on Windows dev server (GHSA-g7r4-m6w7-qqqr) |
-| 🆕 NEW MOD   | `js-yaml 4.0.0–4.1.1` — Quadratic-complexity DoS via merge key aliases (GHSA-h67p-54hq-rp68) |
-| ♻ PERSISTS  | `vite 7.0.0–7.3.x` — 2 HIGH advisories (NTLMv2, fs.deny bypass) — updated advisory set |
+| ✅ RESOLVED  | `vite 7.0.0–7.3.x` — NTLMv2, fs.deny bypass HIGH advisories — no longer flagged |
+| ✅ RESOLVED  | `js-yaml 4.0.0–4.1.1` — Quadratic DoS MODERATE (GHSA-h67p-54hq-rp68) — no longer flagged |
+| 🆕 NEW HIGH  | `postcss ≤8.5.17` — Path Traversal via sourceMappingURL (GHSA-r28c-9q8g-f849) |
+| 🆕 NEW HIGH  | `sharp <0.35.0` — libvips CVEs: CVE-2026-33327/33328/35590/35591 (GHSA-f88m-g3jw-g9cj) |
+| 🆕 NEW HIGH  | `svgo 4.0.0–4.0.1` — removeScripts bypass leaves executable script elements (GHSA-2p49-hgcm-8545) |
+| ♻ UPDATED   | `astro ≤7.0.9` — 3 XSS advisories (expanded from 2; now includes GHSA-4g3v-8h47-v7g6, GHSA-f48w-9m4c-m7f5, GHSA-7pw4-f3q4-r2p2) |
+| ♻ PERSISTS  | `esbuild 0.27.3–0.28.0` — Arbitrary file read on Windows dev server (GHSA-g7r4-m6w7-qqqr) — LOW |
 | ♻ PERSISTS  | `innerHTML` in `day-007-visualaizer/script.js:76` — unfixed |
 | ♻ PERSISTS  | `innerHTML` with XOR-decoded contact in `src/pages/privacy.astro:134` — unfixed |
 
@@ -44,89 +40,82 @@
 
 **Tool:** `npm audit`
 **Lock file:** `package-lock.json`
-**Total advisories:** 4 packages (2 high, 1 moderate, 1 low)
+**Total advisories:** 5 packages (4 high, 0 moderate, 1 low)
 
 ---
 
-### HIGH — astro: XSS via Unescaped Attribute Names in Spread Props 🆕
+### HIGH — astro ≤ 7.0.9: Three XSS Vulnerabilities ♻ (updated advisory set)
 
 | Field      | Value |
 |------------|-------|
 | Package    | `astro` |
-| Installed  | ≤ 7.0.0-beta.6 |
-| Advisory   | [GHSA-jrpj-wcv7-9fh9](https://github.com/advisories/GHSA-jrpj-wcv7-9fh9) |
+| Installed  | 6.4.8 |
+| Advisories | GHSA-4g3v-8h47-v7g6, GHSA-f48w-9m4c-m7f5, GHSA-7pw4-f3q4-r2p2 |
 | CWE        | CWE-79 (XSS) |
-| CVSS Score | 4.2 (High) |
-| Fix        | `npm audit fix` |
+| Fix        | `npm install astro@^7.1.4` (major version bump 6 → 7) |
 
-**Description:** When object spread props (`{...obj}`) are used in Astro component templates, attribute names taken from user-controlled or external data are not properly escaped in the rendered HTML. An attacker who can influence the keys of a spread object passed to a component can inject arbitrary HTML attributes, potentially enabling XSS.
+1. **GHSA-4g3v-8h47-v7g6** — Reflected XSS via unescaped View Transition animation properties (affects ≥2.9.0 ≤7.0.9)
+2. **GHSA-f48w-9m4c-m7f5** — XSS via unescaped spread attribute names in `renderHTMLElement` (incomplete fix for CVE-2026-54298; affects <7.0.6)
+3. **GHSA-7pw4-f3q4-r2p2** — XSS via unescaped `transition:*` directive values on hydrated islands (affects ≥3.10.0 <7.0.4)
 
-**Exploitability for this site:** Review components in `src/` that use spread props (`{...someObject}`) with externally-sourced keys. If all spread usage is from static/build-time objects, exploitability is low — the upgrade is still recommended.
+**Exploitability for this site:** View Transitions, spread attributes, and transition directives are core Astro features. Review whether any component passes user-controlled values through these mechanisms. Even without dynamic user input, upgrading is recommended.
 
 ---
 
-### HIGH — astro: Host Header SSRF in Prerendered Error Page Fetch 🆕
+### HIGH — postcss ≤ 8.5.17: Path Traversal in Source Map Auto-Loading 🆕
 
 | Field      | Value |
 |------------|-------|
-| Package    | `astro` |
-| Installed  | ≤ 7.0.0-beta.6 |
-| Advisory   | [GHSA-2pvr-wf23-7pc7](https://github.com/advisories/GHSA-2pvr-wf23-7pc7) |
-| CWE        | CWE-918 (SSRF) |
-| CVSS Score | 7.5 (High) |
-| Fix        | `npm audit fix` |
+| Package    | `postcss` |
+| Advisory   | [GHSA-r28c-9q8g-f849](https://github.com/advisories/GHSA-r28c-9q8g-f849) |
+| CWE        | CWE-22 (Path Traversal) |
+| CVSS Score | 7.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N) |
+| Fix        | `npm audit fix` (non-breaking) |
 
-**Description:** During prerendering, Astro's error page handler makes an internal HTTP fetch using the incoming `Host` header without validation. An attacker who can send a crafted request with a spoofed `Host` header can cause the server to make requests to arbitrary internal or external endpoints (Server-Side Request Forgery).
-
-**Exploitability for this site:** This vulnerability affects the Astro SSR/prerender build pipeline and any dev server (`astro dev`). Since the production site is deployed as static files on Cloudflare Pages, the production risk is low. However, any CI environment running `astro build` or `astro dev` with network access should be patched.
+**Description:** `sourceMappingURL` comments can be crafted to trigger path traversal, leading to arbitrary `.map` file disclosure. Indirect dependency of `astro`. No production impact on Cloudflare Pages static builds, but affects any tooling that processes CSS with postcss.
 
 ---
 
-### HIGH — vite: Multiple Vulnerabilities ♻ (updated advisory set)
+### HIGH — sharp < 0.35.0: libvips Inherited CVEs 🆕
 
 | Field      | Value |
 |------------|-------|
-| Package    | `vite` |
-| Installed  | 7.0.0 – 7.3.3 |
-| Fix        | `npm audit fix` |
+| Package    | `sharp` |
+| Installed  | 0.34.5 |
+| Advisory   | [GHSA-f88m-g3jw-g9cj](https://github.com/advisories/GHSA-f88m-g3jw-g9cj) |
+| CVEs       | CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591 |
+| Fix        | `npm install sharp@^0.35.3` |
 
-Indirect dependency of `astro`. Affects dev server only (`astro dev`); no impact on Cloudflare Pages static deployments.
+**Description:** Multiple vulnerabilities inherited from the bundled libvips image processing library. `sharp` is a devDependency used for thumbnail optimization (`npm run optimize-thumbs`). Not deployed to Cloudflare Pages.
 
-1. **NTLMv2 Hash Disclosure via UNC Paths (Windows)** — [GHSA-v6wh-96g9-6wx3](https://github.com/advisories/GHSA-v6wh-96g9-6wx3)
-   The `launch-editor` dependency resolves UNC paths without sanitization, leaking NTLMv2 credentials on Windows.
-
-2. **`server.fs.deny` Bypass via Windows Alternate Paths** — [GHSA-fx2h-pf6j-xcff](https://github.com/advisories/GHSA-fx2h-pf6j-xcff)
-   The `server.fs.deny` restriction can be bypassed using alternate path representations on Windows.
+**Note:** This is also a major-version-adjacent upgrade (0.34 → 0.35). Review the sharp changelog for any breaking API changes in the `optimize-thumbs.mjs` script.
 
 ---
 
-### MODERATE — js-yaml: Quadratic-Complexity DoS via Merge Keys 🆕
+### HIGH — svgo 4.0.0–4.0.1: removeScripts Plugin Bypass 🆕
 
 | Field      | Value |
 |------------|-------|
-| Package    | `js-yaml` |
-| Installed  | 4.0.0 – 4.1.1 |
-| Advisory   | [GHSA-h67p-54hq-rp68](https://github.com/advisories/GHSA-h67p-54hq-rp68) |
-| CWE        | CWE-400 (Uncontrolled Resource Consumption) |
-| CVSS Score | 5.3 (Moderate) |
-| Fix        | `npm audit fix` |
+| Package    | `svgo` |
+| Advisory   | [GHSA-2p49-hgcm-8545](https://github.com/advisories/GHSA-2p49-hgcm-8545) |
+| CWE        | CWE-79, CWE-184 |
+| CVSS Score | 8.2 (AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:L/A:N) |
+| Fix        | `npm audit fix` (non-breaking) |
 
-**Description:** `js-yaml` is vulnerable to a quadratic-complexity denial-of-service when parsing YAML documents that use merge keys (`<<`) with repeated aliases. A crafted YAML file can cause CPU exhaustion. `js-yaml` is an indirect dependency of `astro`. If YAML files are parsed from untrusted sources at build time, this could be exploited; for static build inputs, impact is low.
+**Description:** The `removeScripts` SVGO plugin fails to remove certain executable script elements, leaving SVG files with XSS potential even after sanitization. Indirect dependency. Relevant only if SVGs from untrusted sources are processed; author-controlled SVGs are not at risk.
 
 ---
 
-### LOW — esbuild: Arbitrary File Read on Windows Dev Server 🆕
+### LOW — esbuild 0.27.3–0.28.0: Arbitrary File Read on Windows Dev Server ♻
 
 | Field      | Value |
 |------------|-------|
 | Package    | `esbuild` |
-| Installed  | 0.27.3 – 0.28.0 |
 | Advisory   | [GHSA-g7r4-m6w7-qqqr](https://github.com/advisories/GHSA-g7r4-m6w7-qqqr) |
-| CWE        | CWE-22 (Path Traversal) |
-| CVSS Score | 2.5 (Low) |
-| Fix        | `npm audit fix` |
+| CVSS Score | 2.5 (local, Windows-only) |
+| Fix        | Upgrade astro (esbuild is a transitive dep); resolved at astro 7.x |
 
-**Description:** The esbuild development server on Windows allows path traversal to read arbitrary files. Windows-only; dev environment only.
+**Description:** Path traversal on the esbuild dev server on Windows. Dev environment only.
 
 ---
 
@@ -136,10 +125,13 @@ Indirect dependency of `astro`. Affects dev server only (`astro dev`); no impact
 
 | Package  | In package.json | Wanted (lock) | Latest  | Status |
 |----------|-----------------|---------------|---------|--------|
-| `astro`  | `^6.1.1`        | 6.4.8         | 7.0.7   | 1 major version behind ⚠ (see security note) |
-| `marked` | `^18.0.0`       | 18.0.6        | 18.0.6  | Current ✅ |
+| `astro`  | `^6.4.8`        | 6.4.8         | 7.1.4   | 1 major version behind ⚠ (has HIGH vulns) |
+| `sharp`  | `^0.34.5`       | 0.34.5        | 0.35.3  | 1 minor behind ⚠ (has HIGH CVEs) |
+| `marked` | `^18.0.0`       | 18.0.7        | 18.0.7  | Current ✅ |
 
-**astro 6.x → 7.x:** The current lock resolves `^6.1.1` to 6.4.8. The latest is 7.0.7. While not a security requirement today, the HIGH advisories above (GHSA-jrpj-wcv7-9fh9, GHSA-2pvr-wf23-7pc7) affect all `≤7.0.0-beta.6`. After running `npm audit fix`, verify that astro is brought to ≥7.0.1 or the latest patched 6.x release.
+**astro 6.x → 7.x:** Required to fix the 3 XSS advisories above. The fix is a major version bump; review the [Astro 6→7 migration guide](https://docs.astro.build/en/guides/upgrade-to/v7/) before upgrading.
+
+**sharp 0.34 → 0.35:** Fixes all 4 libvips CVEs. Check `scripts/optimize-thumbs.mjs` for any breaking API usage after upgrade.
 
 ---
 
@@ -211,12 +203,18 @@ Source data is a build-time constant. No runtime attack surface.
 
 | Priority | Action |
 |----------|--------|
-| 🔴 High | Run `npm audit fix` to patch `astro`, `vite`, `js-yaml`, `esbuild`. This addresses all 4 vulnerabilities in a single command. Run `astro build` and smoke-test locally after. |
-| 🔴 High | Verify post-fix that `astro` is upgraded to a version > 7.0.0-beta.6 (both HIGH CVEs affect ≤7.0.0-beta.6). |
-| 🟡 Low | In `day-030-out-of-africa/main.js:1908`, sanitize `marked.parse()` output before `innerHTML` assignment. |
-| 🟡 Low | In `day-007-visualaizer/script.js:76`, replace `innerHTML` with `textContent` for track metadata fields. |
-| 🟡 Low | In `privacy.astro:134`, replace `innerHTML` with DOM node construction. |
+| 🔴 High | `npm install astro@^7.1.4` — fixes 3 XSS CVEs in astro and the esbuild LOW. Review Astro 6→7 migration guide first. Run `astro build` and smoke-test. |
+| 🔴 High | `npm install sharp@^0.35.3` — fixes 4 libvips CVEs (devDependency only). |
+| 🟡 Medium | `npm audit fix` — fixes postcss (HIGH) and svgo (HIGH) without breaking changes. |
+| 🟢 Low | In `day-007-visualaizer/script.js:76`, replace `innerHTML` with `textContent` for track metadata fields. |
+| 🟢 Low | In `day-030-out-of-africa/main.js:1908`, sanitize `marked.parse()` output before `innerHTML` assignment. |
+| 🟢 Low | In `privacy.astro:134`, replace `innerHTML` with DOM node construction. |
+
+Running all three npm commands resolves all 5 advisories:
+```
+npm install astro@^7.1.4 sharp@^0.35.3 && npm audit fix
+```
 
 ---
 
-*Scan completed: 2026-07-11 | Tool versions: npm audit (npm 10.x)*
+*Scan completed: 2026-07-28 | Tool versions: npm audit (npm 10.x)*
