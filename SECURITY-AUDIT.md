@@ -1,148 +1,144 @@
 # Security Audit — robinson-cursor
 
-**Date:** 2026-10-27
-**Previous audit:** 2026-07-11
+**Date:** 2026-11-17
+**Previous audit:** 2026-10-27
 **Tool versions:** npm audit, manual code review
 
 ---
 
 ## Summary
 
-| Severity | Count | Change vs. 2026-07-11 |
-|---|---|---|
-| Critical | 1 | NEW (was 0) |
-| High | 11 | ↑ (was 2) |
-| Moderate | 0 | ↓ (was 1) |
-| Low | 4 | ↑ (was 3) |
-
-**⚠ CRITICAL findings present — significant escalation from previous audit.**
+| Severity | Count |
+|----------|-------|
+| Critical | 1     |
+| High     | 10    |
+| Moderate | 0     |
+| Low      | 1     |
+| **Total**| **12**|
 
 ---
 
-## 1. Dependency Vulnerabilities (npm)
+## 1. Dependency Vulnerabilities — npm
 
 ### Critical
 
-| Package | Advisory | Issue | Fix |
-|---|---|---|---|
-| `astro` 6.4.8 | GHSA-26w7-cxv4-gfx2 | **Remote Code Execution via AVIF image optimization during build** | Upgrade to `astro@^7.4.1` |
-| `astro` 6.4.8 | GHSA-376h-93r7-7g6f | Authorization bypass from missing path-segment boundary check on `base` | Upgrade to `astro@^7.4.1` |
+| Package | Vulnerability | Advisory |
+|---------|--------------|----------|
+| `astro` | XSS via unescaped spread attribute names in `renderHTMLElement` (incomplete fix for CVE-2026-54298) | [GHSA-f48w-9m4c-m7f5](https://github.com/advisories/GHSA-f48w-9m4c-m7f5) |
 
-The RCE fires during `astro build` when AVIF images are processed — this can compromise CI environments (Cloudflare Pages build runners).
+> **Impact:** This is a **production runtime XSS** vulnerability in the Astro framework. Attackers who can influence rendered attribute names could inject arbitrary scripts into rendered pages. This site renders project READMEs and user-submitted content — prioritize upgrading.
 
 ### High
 
-#### `astro` (included in upgrade to v7)
-| Advisory | Issue |
-|---|---|
-| GHSA-f48w-9m4c-m7f5 | XSS via unescaped spread attribute names |
-| GHSA-7pw4-f3q4-r2p2 | XSS via unescaped `transition:*` directive values on hydrated islands |
-| GHSA-4g3v-8h47-v7g6 | Reflected XSS via unescaped View Transition animation properties |
-| GHSA-98hj-9722-w3j8 | Reflected/Stored XSS via unescaped `<script>`/`<style>` tag content in JSX/MDX |
-
-#### `sharp` 0.34.5 → fix: upgrade to `0.35.5`
-| Advisory | Issue |
-|---|---|
-| GHSA-f88m-g3jw-g9cj | libvips: CVE-2026-33327/33328/35590/35591 |
-| GHSA-rgj7-g3m4-5g8c | libheif: GHSA-g89c-p67h-r497, GHSA-2jg2-4ch7-h545 |
-| GHSA-wq5f-xc86-pv6w | librsvg: CVE-2026-96889 |
-
-#### Other high-severity transitive deps (resolved by `npm audit fix` after main upgrades)
-| Package | Advisory | Issue |
-|---|---|---|
-| `devalue` | 8 advisories | DoS, shared memory serialization, quadratic expansion, unhandled rejection, null-prototype bypass |
-| `vite` | GHSA-698v-4r3x-3vcv + 4 more | Windows `%`-escaping, arbitrary command exec, `fs.existsSync` bypass, cross-origin script exec, path bypass |
-| `js-yaml` | GHSA-5p4m-2wfm-xmqj, GHSA-2883-xcg3-v3hh | Quadratic CPU via `!!omap`, `maxTotalMergeKeys` bypass |
-| `postcss` | GHSA-fxqj-rqcc-2cmp, GHSA-r28c-9q8g-f849 | Path traversal via sourceMappingURL |
-| `smol-toml` | GHSA-7w5x-hrqm-74c2, GHSA-r4xh-jqrq-34v2 | DoS via malformed TOML, quadratic parse |
-| `nanoid` | GHSA-28wg-ghj8-5hjv, GHSA-2v37-7h3g-55p8 | Infinite loop on negative/zero size |
-| `svgo` | GHSA-2p49-hgcm-8545 + 2 more | Incomplete `removeScripts` sanitization |
-| `zod` | GHSA-mrhx-c7xc-m3w5 | Memory exhaustion on oversized constrained collections |
-| `source-map-js` | GHSA-68fv-2mgg-jv7q | Event-loop DoS via indexed source-map offsets |
-| `http-cache-semantics` | GHSA-ch52-4w7c-c8xp | Cross-user cached response disclosure via `max-stale` |
+| Package | Vulnerability | Advisory |
+|---------|--------------|----------|
+| `devalue` | Svelte devalue: DoS via malformed input | [GHSA-9rgm-9g3h-6x36](https://github.com/advisories/GHSA-9rgm-9g3h-6x36) |
+| `js-yaml` | Quadratic CPU consumption in `!!omap` resolution (CVE-2026-59870) | [GHSA-5p4m-2wfm-xmqj](https://github.com/advisories/GHSA-5p4m-2wfm-xmqj) |
+| `nanoid` | Non-secure generators can loop indefinitely with negative size | [GHSA-28wg-ghj8-5hjv](https://github.com/advisories/GHSA-28wg-ghj8-5hjv) |
+| `postcss` | Attacker-controlled sourceMappingURL reads arbitrary `.map` files | [GHSA-fxqj-rqcc-2cmp](https://github.com/advisories/GHSA-fxqj-rqcc-2cmp) |
+| `sharp` | Inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591 | [GHSA-f88m-g3jw-g9cj](https://github.com/advisories/GHSA-f88m-g3jw-g9cj) |
+| `smol-toml` | DoS via malformed TOML documents | [GHSA-7w5x-hrqm-74c2](https://github.com/advisories/GHSA-7w5x-hrqm-74c2) |
+| `source-map-js` | Event-loop DoS via indexed source-map section offsets | [GHSA-68fv-2mgg-jv7q](https://github.com/advisories/GHSA-68fv-2mgg-jv7q) |
+| `svgo` | `removeScripts` plugin leaves some executable scripts intact | [GHSA-2p49-hgcm-8545](https://github.com/advisories/GHSA-2p49-hgcm-8545) |
+| `vite` | `launch-editor`: `escapeCmdArgs()` omits `%` escaping on Windows | [GHSA-698v-4r3x-3vcv](https://github.com/advisories/GHSA-698v-4r3x-3vcv) |
+| `zod` | Memory exhaustion validating oversized constrained collections | [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5) |
 
 ### Low
 
-| Package | Advisory | Issue |
-|---|---|---|
-| `esbuild` | GHSA-g7r4-m6w7-qqqr | Arbitrary file read on Windows dev server (dev/Windows only) |
+| Package | Vulnerability | Advisory |
+|---------|--------------|----------|
+| `esbuild` | Arbitrary file read when running dev server on Windows | [GHSA-g7r4-m6w7-qqqr](https://github.com/advisories/GHSA-g7r4-m6w7-qqqr) |
 
 ---
 
 ## 2. Outdated Dependencies
 
-| Package | Installed | Latest | Action |
-|---|---|---|---|
-| `astro` | 6.4.8 | **7.4.1** | Upgrade required (security) |
-| `sharp` | 0.34.5 | 0.35.5 | Upgrade required (security) |
-| `marked` | 18.0.4 | 18.1.2 | Minor patch only — no action urgent |
+**Result: No packages more than 1 major version behind.**
 
 ---
 
-## 3. Code Security Findings
+## 3. Code Security Patterns
 
-All findings below persist from the 2026-07-11 audit (no new findings).
+### `set:html` with parsed Markdown (Low / Informational)
 
-### [LOW] `innerHTML` with `marked.parse()` on same-origin fetched Markdown
-
-**File:** `projects/day-030-out-of-africa/main.js:1908`
-```js
-wrap.innerHTML = marked.parse(md);
-```
-`CHANGELOG.md` is fetched from same origin. A compromised deploy serving malicious content could result in XSS.
-
-**Fix:** Wrap with `DOMPurify.sanitize()`:
-```js
-wrap.innerHTML = DOMPurify.sanitize(marked.parse(md));
+In `src/pages/projects/[slug].astro` (line 103):
+```astro
+<div class="readme-content" set:html={readmeContent} />
 ```
 
-### [LOW] `innerHTML` with external track metadata
+`readmeContent` is produced by `marked.parse(readmeRaw)`, where `readmeRaw` is loaded from committed `README.md` files via `import.meta.glob` at build time. This is **build-time static content**, not runtime user input, so actual XSS risk is low. However, in combination with the Critical `astro` XSS vulnerability above, any malformed attribute names in rendered output could be exploited.
 
-**File:** `projects/day-007-visualaizer/script.js:76`
-```js
-lic.innerHTML = track.licenseUrl ? `<a href="${track.licenseUrl}"...>${track.license}</a> — ${track.artist}` : ...
-```
-Data from local `tracks.json` — low risk, but should use DOM construction.
+**Action:** Add `marked`'s `sanitize` option (or use `DOMPurify` / `marked-sanitize-html`) to strip unsafe HTML from parsed Markdown, as defense in depth.
 
-### [LOW] `innerHTML` with XOR-decoded build-time contact data
+### `innerHTML` assignments
 
-**File:** `src/pages/privacy.astro:134`
-```js
-p.innerHTML = lines.map(b64 => xorDecodeBytes(b64, k)).join('<br>');
-```
-Build-time constant, no external input — low risk. Replace with DOM node construction for defense in depth.
+Several `innerHTML = '...'` assignments exist in `src/pages/*.astro` and frozen project files (`projects/day-030-out-of-africa/main.js`). All assignments use **static string literals** with no user-controlled data, so XSS risk is negligible. No action needed.
 
-### [LOW] Feedback API has no rate limiting
+### No hardcoded secrets found
 
-**File:** `functions/api/feedback.js`
-The POST handler validates payload shape but applies no IP-based rate limiting. A bot can exhaust KV quota and spam email notifications via `RESEND_API_KEY`.
+`functions/api/feedback.js` correctly reads `env.RESEND_API_KEY` from Cloudflare Worker environment bindings. No literal API keys found anywhere.
 
-**Fix:** Add a Cloudflare WAF rate limiting rule on `POST /api/feedback` (e.g. 10 req/min per IP).
+### `.gitignore` correctly excludes:
+
+- `.env`
+- `.env.production`
+- `projects/day-002-music-charts/.env`
 
 ---
 
 ## 4. Configuration Review
 
-- **`.env` files:** Not committed. `.env` and `.env.production` are in `.gitignore` ✅
-- **`wrangler.jsonc`:** KV namespace ID committed — non-secret resource identifier, safe ✅
-- **Dockerfile:** Not present ✅
-- **CORS:** No permissive CORS headers ✅
-- **Hardcoded secrets:** None found — `RESEND_API_KEY` sourced from env at runtime ✅
+- **No Dockerfile** present.
+- **Cloudflare Pages** deployment: no server-side configuration files committed. Secrets are managed via Cloudflare dashboard environment bindings.
+- **No `.env` files committed** to the repository.
 
 ---
 
-## 5. Recommended Actions (Priority Order)
+## Recommended Actions
 
-| Priority | Action |
-|---|---|
-| 🔴 Critical | `npm install astro@^7.4.1` — fixes RCE in build pipeline, authorization bypass, and all XSS |
-| 🔴 High | `npm install sharp@^0.35.5` — fixes libvips/libheif/librsvg CVEs |
-| 🔴 High | `npm audit fix` after above — resolves devalue, vite, postcss, nanoid, svgo, zod, etc. |
-| 🟡 Low | `day-030/main.js:1908` — sanitize `marked.parse()` output with DOMPurify |
-| 🟡 Low | `day-007/script.js:76` — replace `innerHTML` template with DOM construction |
-| 🟡 Low | `privacy.astro:134` — replace `innerHTML` with DOM construction |
-| 🟡 Low | Add Cloudflare WAF rate limiting rule on `POST /api/feedback` |
+### Immediate (Critical)
+
+1. **Upgrade `astro`** to fix the XSS vulnerability (GHSA-f48w-9m4c-m7f5):
+   ```bash
+   npm update astro
+   # or for a specific fix version:
+   npm install astro@latest
+   ```
+   This is a **production XSS** — highest priority.
+
+### Short-term (High)
+
+2. **Upgrade `sharp`** to fix bundled libvips CVEs (GHSA-f88m-g3jw-g9cj):
+   ```bash
+   npm update sharp
+   ```
+
+3. **Upgrade `zod`, `js-yaml`, `smol-toml`** (DoS vectors):
+   ```bash
+   npm update zod js-yaml smol-toml
+   ```
+
+4. **Upgrade `postcss`, `source-map-js`, `vite`, `nanoid`** (build tooling):
+   ```bash
+   npm update postcss source-map-js vite nanoid
+   ```
+
+5. **Upgrade `svgo`** — `removeScripts` plugin bypass could affect SVG assets in projects:
+   ```bash
+   npm update svgo
+   ```
+
+### Informational
+
+6. **Add `marked` sanitization** in `src/pages/projects/[slug].astro` as defense in depth:
+   ```js
+   import { marked } from 'marked';
+   import DOMPurify from 'isomorphic-dompurify';
+   const readmeContent = readmeRaw
+     ? DOMPurify.sanitize(marked.parse(readmeRaw))
+     : null;
+   ```
 
 ---
 
-*Generated by automated security scan on 2026-10-27*
+*Scan performed by Claude Code automated security audit.*
